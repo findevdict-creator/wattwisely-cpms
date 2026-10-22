@@ -10,7 +10,8 @@ import { LiveCostParts } from './live-cost-parts';
 /**
  * LiveCostJob (Sessions and Pricing design): every 30 seconds, prices each running
  * session up to now with its own tariff version and announces session.cost_updated
- * when the amount moved, so the portal shows the cost so far.
+ * when the amount moved, so the portal shows the cost so far. For a paid session it also
+ * asks the charger to stop once the cost reaches 90% of the card hold (module 6).
  */
 @Injectable()
 export class LiveCostJob extends IntervalJob {
@@ -55,16 +56,22 @@ export class LiveCostJob extends IntervalJob {
       taxAmount: result.taxTotal,
       grossAmount: result.grossTotal,
     });
+    await this.announce(tx, session, result.energyWh, result.grossTotal);
+    await this.parts.holds.watch(tx, session, result.grossTotal, now);
+    return true;
+  }
+
+  private async announce(
+    tx: Transaction,
+    session: SessionRow,
+    energyWh: number,
+    grossAmount: number,
+  ) {
     await this.parts.notifier.publish(
       tx,
       { id: session.chargerId, tenantId: session.tenantId },
       'session.cost_updated',
-      SessionEventData.of(session, {
-        status: session.status,
-        energyWh: result.energyWh,
-        grossAmount: result.grossTotal,
-      }),
+      SessionEventData.of(session, { status: session.status, energyWh, grossAmount }),
     );
-    return true;
   }
 }

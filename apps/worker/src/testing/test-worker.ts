@@ -1,7 +1,15 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import { Client } from 'pg';
-import { TestData, TestDatabase, TestSessions, TestTariffs } from '@wattwisely/db/testing';
+import {
+  TestData,
+  TestDatabase,
+  TestPayments,
+  TestSessions,
+  TestTariffs,
+} from '@wattwisely/db/testing';
+import { PAYMENT_GATEWAY } from '@wattwisely/payments';
+import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ChargerEvent, NotifyChannels } from '@wattwisely/ocpp-contracts';
 import { AppModule } from '../app.module';
 import { WorkerServer } from '../worker.server';
@@ -15,12 +23,18 @@ export class TestWorker {
     SESSION_FINALISE_INTERVAL_MS: '3600000',
     SESSION_LIVE_COST_INTERVAL_MS: '3600000',
     SESSION_STALE_SWEEP_INTERVAL_MS: '3600000',
+    PAYMENT_SETTLE_INTERVAL_MS: '3600000',
+    SESSION_START_TIMEOUT_INTERVAL_MS: '3600000',
+    PAYMENT_WEBHOOK_RETRY_INTERVAL_MS: '3600000',
   };
 
   database!: TestDatabase;
   data!: TestData;
   tariffs!: TestTariffs;
   sessions!: TestSessions;
+  payments!: TestPayments;
+  /** The payment provider in memory the jobs talk to. */
+  readonly gateway = new FakePaymentGateway();
   app!: NestFastifyApplication;
   /** Every live event the worker announced, in order. */
   readonly events: ChargerEvent[] = [];
@@ -31,12 +45,16 @@ export class TestWorker {
     this.data = new TestData(this.database);
     this.tariffs = new TestTariffs(this.data);
     this.sessions = new TestSessions(this.data);
+    this.payments = new TestPayments(this.data);
     Object.assign(process.env, TestWorker.INTERVALS, {
       PORT: '3299',
       DATABASE_URL: this.database.urlFor('wattwisely_app'),
       LOG_LEVEL: 'silent',
     });
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(PAYMENT_GATEWAY)
+      .useValue(this.gateway)
+      .compile();
     this.app = moduleRef.createNestApplication<NestFastifyApplication>(
       WorkerServer.createAdapter(),
       { logger: false },
