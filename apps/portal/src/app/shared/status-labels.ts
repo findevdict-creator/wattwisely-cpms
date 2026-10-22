@@ -29,15 +29,37 @@ export class StatusLabels {
     unknown: 'Not reported yet',
   };
 
+  static readonly COMMAND: Record<string, string> = {
+    queued: 'Waiting for the charger',
+    sent: 'Sent',
+    accepted: 'Accepted',
+    rejected: 'Rejected',
+    timed_out: 'No answer',
+    expired: 'Expired',
+    failed: 'Failed',
+  };
+
+  static readonly COMMAND_ACTION: Record<string, string> = {
+    remote_start: 'Start charging',
+    remote_stop: 'Stop charging',
+    reset: 'Reset',
+    unlock: 'Unlock connector',
+    change_availability: 'Change availability',
+  };
+
   /** The CSS tone class: good, busy, bad or quiet. */
   static toneOf(status: string): string {
-    if (['ok', 'available'].includes(status)) {
+    if (['ok', 'available', 'accepted'].includes(status)) {
       return 'good';
     }
-    if (['charging', 'preparing', 'finishing', 'occupied', 'reserved'].includes(status)) {
+    if (
+      ['charging', 'preparing', 'finishing', 'occupied', 'reserved', 'queued', 'sent'].includes(
+        status,
+      )
+    ) {
       return 'busy';
     }
-    if (['problem', 'offline', 'faulted'].includes(status)) {
+    if (['problem', 'offline', 'faulted', 'rejected', 'timed_out', 'failed'].includes(status)) {
       return 'bad';
     }
     return 'quiet';
@@ -53,5 +75,13 @@ export class StatusLabels {
 
   static connector(status: string): string {
     return StatusLabels.CONNECTOR[status] ?? status;
+  }
+
+  static command(status: string): string {
+    return StatusLabels.COMMAND[status] ?? status;
+  }
+
+  static commandAction(action: string): string {
+    return StatusLabels.COMMAND_ACTION[action] ?? action;
   }
 }

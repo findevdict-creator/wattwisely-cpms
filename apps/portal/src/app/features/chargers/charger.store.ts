@@ -66,6 +66,14 @@ export class ChargerStore {
     }
   }
 
+  /** A change from the live stream, applied to the charger on screen. */
+  apply(change: (charger: Charger) => Charger): void {
+    const charger = this.charger();
+    if (charger) {
+      this.charger.set(change(charger));
+    }
+  }
+
   tell(message: string): void {
     this.snackBar.open(message, 'OK', { duration: 6000 });
   }

@@ -11,7 +11,11 @@
         · {{ charger.vendor || 'Unknown vendor' }} {{ charger.model || '' }}
       </p>
     </div>
-    @if (permissions.canChange('chargers:write') || permissions.canChange('chargers:delete')) {
+    @if (
+      permissions.canChange('chargers:write') ||
+      permissions.canChange('chargers:delete') ||
+      permissions.canChange('chargers:command')
+    ) {
       <button
         mat-icon-button
         [matMenuTriggerFor]="menu"
@@ -21,6 +25,17 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
+        @if (permissions.canChange('chargers:command') && charger.is_online) {
+          <button mat-menu-item (click)="reset('soft')" data-testid="reset-charger">
+            Restart (soft reset)
+          </button>
+          <button mat-menu-item (click)="reset('hard')">Reboot (hard reset)</button>
+          @if (charger.status === 'unavailable') {
+            <button mat-menu-item (click)="setAvailability(true)">Put back in service</button>
+          } @else {
+            <button mat-menu-item (click)="setAvailability(false)">Take out of service</button>
+          }
+        }
         @if (permissions.canChange('chargers:write')) {
           <button mat-menu-item (click)="edit()" data-testid="edit-charger">Edit charger</button>
           <button mat-menu-item (click)="newPassword()" data-testid="new-password">
@@ -64,6 +79,14 @@
           <dd>{{ charger.allow_plain_ws ? 'Allowed' : 'Not allowed' }}</dd>
           <dt>OCPP version</dt>
           <dd>{{ charger.ocpp_version || 'Not connected yet' }}</dd>
+          <dt>Connection</dt>
+          <dd data-testid="connection">
+            @if (charger.is_online) {
+              Online since {{ charger.connected_at | date: 'medium' }}
+            } @else {
+              Offline
+            }
+          </dd>
           <dt>Last seen</dt>
           <dd>{{ charger.last_seen_at ? (charger.last_seen_at | date: 'medium') : 'Never' }}</dd>
           <dt>Visibility</dt>
@@ -110,45 +133,20 @@
   </header>
   <div class="connectors">
     @for (connector of charger.connectors; track connector.id) {
-      <mat-card
-        appearance="outlined"
-        class="connector"
-        [attr.data-testid]="'connector-' + connector.label"
-      >
-        <mat-card-header>
-          <mat-card-title>{{ connector.label }}</mat-card-title>
-          <mat-card-subtitle>Connector {{ connector.ocpp_connector_id }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <ww-status-chip kind="connector" [status]="connector.status" />
-          <p>
-            {{ connector.type === 'unknown' ? 'Plug type not set' : connector.type.toUpperCase() }}
-            @if (connector.current_type) {
-              · {{ connector.current_type.toUpperCase() }}
-            }
-            @if (connector.max_power_kw) {
-              · {{ connector.max_power_kw }} kW
-            }
-          </p>
-          @if (connector.error_code) {
-            <p class="error">{{ connector.error_code }} {{ connector.status_info || '' }}</p>
-          }
-        </mat-card-content>
-        @if (permissions.canChange('chargers:write')) {
-          <mat-card-actions align="end">
-            <button mat-button (click)="editConnector(connector)">Edit</button>
-            @if (connector.status === 'unknown') {
-              <button mat-button (click)="removeConnector(connector)">Remove</button>
-            }
-          </mat-card-actions>
-        }
-      </mat-card>
+      <ww-connector-card
+        [charger]="charger"
+        [connector]="connector"
+        (edit)="editConnector($event)"
+        (remove)="removeConnector($event)"
+      />
     } @empty {
       <p class="empty">
         No connectors yet. Add the plugs this charger has, so drivers can pick one.
       </p>
     }
   </div>
+
+  <ww-charger-activity />
 }
 @if (store.error()) {
   <p class="error" role="alert">{{ store.error() }}</p>

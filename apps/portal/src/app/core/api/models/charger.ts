@@ -6,6 +6,14 @@ export type ChargerAuthMode = 'password' | 'none';
 export type ConnectorType =
   'ccs1' | 'ccs2' | 'type1' | 'type2' | 'chademo' | 'gbt' | 'nacs' | 'unknown';
 
+/** The charging session running on a connector right now. */
+export interface ActiveSession {
+  id: string;
+  ocpp_transaction_id: number;
+  started_at: string;
+  energy_wh: number;
+}
+
 /** A plug on a charger, with the last status the charger reported for it. */
 export interface Connector {
   id: string;
@@ -20,6 +28,7 @@ export interface Connector {
   error_code: string | null;
   status_info: string | null;
   status_changed_at: string | null;
+  active_session: ActiveSession | null;
   version: number;
 }
 
@@ -36,6 +45,9 @@ export interface Charger {
   visibility_override: SiteVisibility | null;
   visibility: SiteVisibility;
   status: ChargerStatus;
+  /** True while a gateway holds the charger's socket. */
+  is_online: boolean;
+  connected_at: string | null;
   ocpp_version: '1.6' | '2.0.1' | null;
   charge_point_serial: string | null;
   charge_box_serial: string | null;

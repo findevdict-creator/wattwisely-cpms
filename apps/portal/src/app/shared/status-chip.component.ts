@@ -33,7 +33,7 @@ import { StatusLabels } from './status-labels';
 })
 export class StatusChipComponent {
   readonly status = input.required<string>();
-  readonly kind = input<'site' | 'charger' | 'connector'>('charger');
+  readonly kind = input<'site' | 'charger' | 'connector' | 'command'>('charger');
 
   protected readonly tone = computed(() => StatusLabels.toneOf(this.status()));
   protected readonly label = computed(() =>
@@ -41,9 +41,15 @@ export class StatusChipComponent {
   );
 
   private static labelOf(kind: string, status: string): string {
-    if (kind === 'site') {
-      return StatusLabels.site(status);
+    switch (kind) {
+      case 'site':
+        return StatusLabels.site(status);
+      case 'connector':
+        return StatusLabels.connector(status);
+      case 'command':
+        return StatusLabels.command(status);
+      default:
+        return StatusLabels.charger(status);
     }
-    return kind === 'connector' ? StatusLabels.connector(status) : StatusLabels.charger(status);
   }
 }
