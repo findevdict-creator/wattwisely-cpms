@@ -1,0 +1,88 @@
+@if (result(); as result) {
+  <h2 mat-dialog-title>Set up {{ result.charger.ocpp_identity }}</h2>
+  <mat-dialog-content class="content">
+    <p>
+      Type these into the charger's OCPP settings, then restart it. It appears as "Waiting for first
+      connection" until it does.
+    </p>
+    <ww-setup-card [setup]="result.setup" />
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-flat-button (click)="done()" data-testid="setup-done">Done</button>
+  </mat-dialog-actions>
+} @else {
+  <h2 mat-dialog-title>Register a charger</h2>
+  <mat-dialog-content class="content" [formGroup]="form">
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Site</mat-label>
+      <mat-select formControlName="siteId" data-testid="charger-site">
+        @for (site of sites(); track site.id) {
+          <mat-option [value]="site.id">{{ site.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <h3>Charger ID</h3>
+    <mat-radio-group formControlName="identityMode" class="choices" data-testid="identity-mode">
+      <mat-radio-button value="generate">
+        Make one for me
+        <span class="hint">A WW- code that is easy to type and hard to guess</span>
+      </mat-radio-button>
+      <mat-radio-button value="existing">
+        Use the charger's own ID
+        <span class="hint">Often its serial number; letters, digits, dash, underscore and dot</span>
+      </mat-radio-button>
+    </mat-radio-group>
+    @if (form.value.identityMode === 'existing') {
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>Charger ID</mat-label>
+        <input matInput formControlName="identity" data-testid="charger-identity" />
+      </mat-form-field>
+    }
+
+    <h3>Security</h3>
+    <mat-radio-group formControlName="authMode" class="choices" data-testid="auth-mode">
+      <mat-radio-button value="password">
+        Password
+        <span class="hint">Recommended. The charger sends it with every connection.</span>
+      </mat-radio-button>
+      <mat-radio-button value="none">
+        No password
+        <span class="hint">For chargers that cannot send one; recognised by its first boot</span>
+      </mat-radio-button>
+    </mat-radio-group>
+    @if (isWeakIdentity()) {
+      <p class="hint warning">A short ID without a password is easy to guess. Prefer a made ID.</p>
+    }
+    <mat-checkbox formControlName="allowPlainWs">
+      Also allow a connection without TLS (ws://)
+    </mat-checkbox>
+
+    <h3>About the charger</h3>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Vendor</mat-label>
+        <input matInput formControlName="vendor" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Model</mat-label>
+        <input matInput formControlName="model" />
+      </mat-form-field>
+    </div>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button
+      mat-flat-button
+      (click)="register()"
+      [disabled]="isSaving()"
+      data-testid="register-charger-submit"
+    >
+      Register
+    </button>
+  </mat-dialog-actions>
+}

@@ -4,9 +4,13 @@ import { UserLoadedGuard } from './core/tenant/user-loaded.guard';
 import { WorkspaceGuard } from './core/tenant/workspace.guard';
 import { PermissionGuard } from './core/permissions/permission.guard';
 import { AuditLogComponent } from './features/audit-log/audit-log.component';
+import { ChargerComponent } from './features/chargers/charger.component';
+import { ChargersComponent } from './features/chargers/chargers.component';
 import { HomeComponent } from './features/home/home.component';
 import { InvitationComponent } from './features/invitation/invitation.component';
 import { NoWorkspaceComponent } from './features/no-workspace/no-workspace.component';
+import { SiteComponent } from './features/sites/site.component';
+import { SitesComponent } from './features/sites/sites.component';
 import { TeamComponent } from './features/team/team.component';
 import { TenantPickerComponent } from './features/tenant-picker/tenant-picker.component';
 import { ShellComponent } from './layout/shell.component';
@@ -30,6 +34,30 @@ export const APP_ROUTES: Routes = [
         component: ShellComponent,
         children: [
           { path: '', component: HomeComponent },
+          {
+            path: 'sites',
+            component: SitesComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'sites:read' },
+          },
+          {
+            path: 'sites/:id',
+            component: SiteComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'sites:read' },
+          },
+          {
+            path: 'chargers',
+            component: ChargersComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'chargers:read' },
+          },
+          {
+            path: 'chargers/:id',
+            component: ChargerComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'chargers:read' },
+          },
           {
             path: 'team',
             component: TeamComponent,

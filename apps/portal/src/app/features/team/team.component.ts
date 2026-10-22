@@ -50,10 +50,8 @@ export class TeamComponent implements OnInit {
   }
 
   protected async invite(): Promise<void> {
-    const dialog = this.dialog.open(InviteDialogComponent, {
-      data: this.store.roles(),
-      width: '520px',
-    });
+    const data = { roles: this.store.roles(), sites: this.store.sites() };
+    const dialog = this.dialog.open(InviteDialogComponent, { data, width: '560px' });
     const result: InviteResult | undefined = await firstValueFrom(dialog.afterClosed());
     if (result) {
       this.store.tell(
@@ -66,8 +64,8 @@ export class TeamComponent implements OnInit {
   }
 
   protected async editRoles(member: Member): Promise<void> {
-    const data = { member, roles: this.store.roles() };
-    const dialog = this.dialog.open(EditRolesDialogComponent, { data, width: '520px' });
+    const data = { member, roles: this.store.roles(), sites: this.store.sites() };
+    const dialog = this.dialog.open(EditRolesDialogComponent, { data, width: '560px' });
     if (await firstValueFrom(dialog.afterClosed())) {
       this.store.tell(`Roles of ${member.name || member.email} changed.`);
       await this.store.load();

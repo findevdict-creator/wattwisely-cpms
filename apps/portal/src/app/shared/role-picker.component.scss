@@ -14,3 +14,17 @@
   font-size: 13px;
   color: var(--mat-sys-on-surface-variant);
 }
+
+.scope {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 8px 40px;
+
+  mat-form-field {
+    width: 180px;
+  }
+
+  .sites {
+    flex: 1;
+  }
+}

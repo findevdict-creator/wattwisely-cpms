@@ -4,15 +4,16 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { Member } from '../../core/api/models/member';
-import { Role } from '../../core/api/models/role';
+import { Role, RoleAssignment } from '../../core/api/models/role';
 import { TeamApiService } from '../../core/api/team-api.service';
-import { RolePickerComponent } from '../../shared/role-picker.component';
+import { RolePickerComponent, SiteOption } from '../../shared/role-picker.component';
 import { MemberRoles } from './member-roles';
 
 /** What the edit-roles dialog works on. */
 export interface EditRolesData {
   member: Member;
   roles: Role[];
+  sites: SiteOption[];
 }
 
 /** Changes a member's roles. The change applies on their next request (story ACC-03). */
@@ -26,21 +27,21 @@ export class EditRolesDialogComponent {
   private readonly dialogRef = inject<MatDialogRef<EditRolesDialogComponent, Member>>(MatDialogRef);
   private readonly teamApi = inject(TeamApiService);
 
-  protected readonly roleIds = signal(MemberRoles.idsOf(this.data.member));
+  protected readonly assignments = signal<RoleAssignment[]>(
+    MemberRoles.assignmentsOf(this.data.member),
+  );
   protected readonly error = signal('');
   protected readonly isSaving = signal(false);
 
   protected async save(): Promise<void> {
-    if (this.roleIds().length === 0) {
-      this.error.set('Choose at least one role, or remove the person from the team instead.');
+    if (!MemberRoles.isComplete(this.assignments())) {
+      this.error.set('Choose at least one role, with its sites, or remove the person instead.');
       return;
     }
     this.isSaving.set(true);
     try {
-      const roles = MemberRoles.assignments(this.roleIds(), this.data.member);
-      this.dialogRef.close(
-        await firstValueFrom(this.teamApi.replaceRoles(this.data.member.id, roles)),
-      );
+      const request = this.teamApi.replaceRoles(this.data.member.id, this.assignments());
+      this.dialogRef.close(await firstValueFrom(request));
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     } finally {

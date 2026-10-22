@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ data.connector ? 'Edit connector' : 'Add a connector' }}</h2>
+<mat-dialog-content [formGroup]="form">
+  <mat-form-field appearance="outline">
+    <mat-label>Connector number (as the charger counts them)</mat-label>
+    <input
+      matInput
+      type="number"
+      formControlName="ocppConnectorId"
+      data-testid="connector-number"
+    />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Label on the charger</mat-label>
+    <input matInput formControlName="label" placeholder="A" data-testid="connector-label" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Plug type</mat-label>
+    <mat-select formControlName="type" data-testid="connector-type">
+      @for (type of types; track type.value) {
+        <mat-option [value]="type.value">{{ type.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Current</mat-label>
+    <mat-select formControlName="currentType">
+      <mat-option value="">Not sure</mat-option>
+      <mat-option value="ac">AC</mat-option>
+      <mat-option value="dc">DC</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Maximum power (kW)</mat-label>
+    <input
+      matInput
+      type="number"
+      step="any"
+      formControlName="maxPowerKw"
+      data-testid="connector-power"
+    />
+  </mat-form-field>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-connector">
+    {{ data.connector ? 'Save' : 'Add connector' }}
+  </button>
+</mat-dialog-actions>

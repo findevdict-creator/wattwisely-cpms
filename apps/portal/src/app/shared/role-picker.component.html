@@ -1,8 +1,39 @@
 <div class="roles" role="group" aria-label="Roles" data-testid="role-picker">
   @for (role of roles(); track role.id) {
-    <mat-checkbox [checked]="isSelected(role)" (change)="toggle(role, $event)">
+    @let assignment = assignmentOf(role);
+    <mat-checkbox [checked]="!!assignment" (change)="toggle(role, $event)">
       <span class="name">{{ role.name }}</span>
       <span class="description">{{ role.description }}</span>
     </mat-checkbox>
+    @if (assignment && sites().length > 0) {
+      <div class="scope">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Where</mat-label>
+          <mat-select
+            [value]="assignment.site_ids ? 'sites' : 'all'"
+            (valueChange)="setScope(role, $event)"
+            [attr.data-testid]="'scope-' + role.id"
+          >
+            <mat-option value="all">Whole company</mat-option>
+            <mat-option value="sites">Chosen sites</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (assignment.site_ids) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sites">
+            <mat-label>Sites</mat-label>
+            <mat-select
+              multiple
+              [value]="assignment.site_ids"
+              (valueChange)="setSites(role, $event)"
+              [attr.data-testid]="'sites-' + role.id"
+            >
+              @for (site of sites(); track site.id) {
+                <mat-option [value]="site.id">{{ site.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+    }
   }
 </div>

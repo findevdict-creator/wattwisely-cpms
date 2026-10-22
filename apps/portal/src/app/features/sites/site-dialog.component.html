@@ -1,0 +1,132 @@
+<h2 mat-dialog-title>{{ site ? 'Edit site' : 'Add a site' }}</h2>
+<mat-dialog-content class="content" [formGroup]="form.fields">
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" data-testid="site-name" />
+  </mat-form-field>
+
+  <h3>Address</h3>
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Street</mat-label>
+    <input matInput formControlName="line1" data-testid="site-line1" />
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Street, second line</mat-label>
+    <input matInput formControlName="line2" />
+  </mat-form-field>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>City</mat-label>
+      <input matInput formControlName="city" data-testid="site-city" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Postal code</mat-label>
+      <input matInput formControlName="postalCode" data-testid="site-postal-code" />
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Region</mat-label>
+      <input matInput formControlName="region" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Country (two letters)</mat-label>
+      <input matInput formControlName="country" maxlength="2" data-testid="site-country" />
+    </mat-form-field>
+  </div>
+
+  <h3>Map pin</h3>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Latitude</mat-label>
+      <input
+        matInput
+        type="number"
+        step="any"
+        formControlName="latitude"
+        data-testid="site-latitude"
+      />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Longitude</mat-label>
+      <input
+        matInput
+        type="number"
+        step="any"
+        formControlName="longitude"
+        data-testid="site-longitude"
+      />
+    </mat-form-field>
+  </div>
+  <p class="hint">Copy the coordinates from your maps app; a map to drop the pin on is coming.</p>
+
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Time zone</mat-label>
+      <mat-select formControlName="timeZone">
+        @for (zone of timeZones; track zone) {
+          <mat-option [value]="zone">{{ zone }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Visibility</mat-label>
+      <mat-select formControlName="visibility" data-testid="site-visibility">
+        <mat-option value="private">Private: only your drivers</mat-option>
+        <mat-option value="public">Public: shown to everyone</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <h3>Opening hours</h3>
+  <mat-slide-toggle [formControl]="form.openingHours.isAlwaysOpen" data-testid="site-always-open">
+    Open 24 hours a day
+  </mat-slide-toggle>
+  @if (!form.openingHours.isAlwaysOpen.value) {
+    <table class="hours">
+      @for (day of weekdays; track day.key) {
+        <tr [formGroup]="form.openingHours.days[day.key]">
+          <td>
+            <mat-checkbox formControlName="isOpen">{{ day.label }}</mat-checkbox>
+          </td>
+          <td>
+            @if (form.openingHours.days[day.key].value.isOpen) {
+              <input class="time" formControlName="opens" placeholder="08:00" aria-label="Opens" />
+              to
+              <input
+                class="time"
+                formControlName="closes"
+                placeholder="18:00"
+                aria-label="Closes"
+              />
+            } @else {
+              <span class="hint">Closed</span>
+            }
+          </td>
+        </tr>
+      }
+    </table>
+  }
+
+  <h3>More</h3>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Power limit (kW)</mat-label>
+      <input matInput type="number" formControlName="powerLimitKw" />
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Parking notes for drivers</mat-label>
+    <textarea matInput formControlName="parkingNotes" rows="2"></textarea>
+  </mat-form-field>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-site">
+    {{ site ? 'Save' : 'Add site' }}
+  </button>
+</mat-dialog-actions>

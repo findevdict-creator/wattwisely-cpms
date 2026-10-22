@@ -1,0 +1,85 @@
+<header class="title">
+  <h1>Chargers</h1>
+  @if (permissions.canChange('chargers:write')) {
+    <button mat-flat-button (click)="register()" data-testid="register-charger">
+      <mat-icon>add</mat-icon>
+      Register charger
+    </button>
+  }
+</header>
+
+<div class="filters">
+  <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>Search by ID, serial or site</mat-label>
+    <input matInput #query (keyup.enter)="search(query.value)" data-testid="chargers-search" />
+  </mat-form-field>
+  @if (sites().length > 0) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Site</mat-label>
+      <mat-select value="" (valueChange)="filterBySite($event)" data-testid="filter-site">
+        <mat-option value="">All sites</mat-option>
+        @for (site of sites(); track site.id) {
+          <mat-option [value]="site.id">{{ site.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Status</mat-label>
+    <mat-select multiple (valueChange)="filterByStatus($event)" data-testid="filter-status">
+      @for (status of statuses; track status[0]) {
+        <mat-option [value]="status[0]">{{ status[1] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<table mat-table [dataSource]="chargers()" class="chargers" data-testid="chargers">
+  <ng-container matColumnDef="identity">
+    <th mat-header-cell *matHeaderCellDef>Charger</th>
+    <td mat-cell *matCellDef="let charger">
+      <a [routerLink]="['/chargers', charger.id]" class="name">{{ charger.ocpp_identity }}</a>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="site">
+    <th mat-header-cell *matHeaderCellDef>Site</th>
+    <td mat-cell *matCellDef="let charger">{{ charger.site_name }}</td>
+  </ng-container>
+  <ng-container matColumnDef="model">
+    <th mat-header-cell *matHeaderCellDef>Vendor and model</th>
+    <td mat-cell *matCellDef="let charger">
+      {{ charger.vendor || '—' }} {{ charger.model || '' }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let charger"><ww-status-chip [status]="charger.status" /></td>
+  </ng-container>
+  <ng-container matColumnDef="connectors">
+    <th mat-header-cell *matHeaderCellDef>Connectors</th>
+    <td mat-cell *matCellDef="let charger">{{ charger.connectors.length }}</td>
+  </ng-container>
+  <ng-container matColumnDef="security">
+    <th mat-header-cell *matHeaderCellDef>Security</th>
+    <td mat-cell *matCellDef="let charger">{{ securityOf(charger) }}</td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+@if (!isLoading() && chargers().length === 0) {
+  <p class="empty">
+    @if (filter().q || filter().site_id || filter().status?.length) {
+      No charger matches these filters.
+    } @else {
+      No chargers yet. Register one from a site page or with the button above.
+    }
+  </p>
+}
+@if (nextCursor()) {
+  <button mat-stroked-button class="more" (click)="loadMore()">Show more</button>
+}
