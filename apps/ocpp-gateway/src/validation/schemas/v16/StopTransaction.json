@@ -1,0 +1,29 @@
+{
+  "title": "StopTransactionRequest",
+  "type": "object",
+  "properties": {
+    "idTag": { "type": "string", "maxLength": 20 },
+    "meterStop": { "type": "integer" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "transactionId": { "type": "integer" },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "EmergencyStop",
+        "EVDisconnected",
+        "HardReset",
+        "Local",
+        "Other",
+        "PowerLoss",
+        "Reboot",
+        "Remote",
+        "SoftReset",
+        "UnlockCommand",
+        "DeAuthorized"
+      ]
+    },
+    "transactionData": { "type": "array", "items": { "$ref": "MeterValue" } }
+  },
+  "additionalProperties": false,
+  "required": ["meterStop", "timestamp", "transactionId"]
+}

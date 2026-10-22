@@ -1,0 +1,14 @@
+{
+  "name": "charger-sim",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/charger-sim/src",
+  "projectType": "library",
+  "tags": ["scope:charger-sim", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}
