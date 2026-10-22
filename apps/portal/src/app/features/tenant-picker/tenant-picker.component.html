@@ -5,7 +5,7 @@
   <mat-card-content>
     <mat-action-list data-testid="tenant-picker">
       @for (tenant of tenantContext.tenants(); track tenant.id) {
-        <button mat-list-item (click)="open(tenant)">{{ tenant.alias }}</button>
+        <button mat-list-item (click)="open(tenant)">{{ tenant.name }}</button>
       }
     </mat-action-list>
   </mat-card-content>

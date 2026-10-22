@@ -1,0 +1,8 @@
+<div class="roles" role="group" aria-label="Roles" data-testid="role-picker">
+  @for (role of roles(); track role.id) {
+    <mat-checkbox [checked]="isSelected(role)" (change)="toggle(role, $event)">
+      <span class="name">{{ role.name }}</span>
+      <span class="description">{{ role.description }}</span>
+    </mat-checkbox>
+  }
+</div>

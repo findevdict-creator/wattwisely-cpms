@@ -9,4 +9,8 @@ export class LastTenantStore {
   write(tenantId: string): void {
     localStorage.setItem(LastTenantStore.KEY, tenantId);
   }
+
+  clear(): void {
+    localStorage.removeItem(LastTenantStore.KEY);
+  }
 }

@@ -1,0 +1,75 @@
+<header class="title">
+  <h1>Team</h1>
+  @if (permissions.canChange('team:manage')) {
+    <button mat-flat-button (click)="invite()" data-testid="invite">
+      <mat-icon>person_add</mat-icon>
+      Invite
+    </button>
+  }
+</header>
+
+<mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+  <mat-icon matPrefix>search</mat-icon>
+  <mat-label>Search by name or e-mail</mat-label>
+  <input matInput #query (keyup.enter)="search(query.value)" data-testid="team-search" />
+</mat-form-field>
+
+<table mat-table [dataSource]="store.members()" class="members" data-testid="members">
+  <ng-container matColumnDef="person">
+    <th mat-header-cell *matHeaderCellDef>Person</th>
+    <td mat-cell *matCellDef="let member">
+      <div class="name">{{ member.name || member.email }}</div>
+      @if (member.name) {
+        <div class="email">{{ member.email }}</div>
+      }
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="roles">
+    <th mat-header-cell *matHeaderCellDef>Roles</th>
+    <td mat-cell *matCellDef="let member">{{ describeRoles(member) }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let member">
+      @if (member.status === 'invited') {
+        <mat-chip [class.expired]="member.is_invite_expired">
+          {{ member.is_invite_expired ? 'Invitation expired' : 'Invited' }}
+        </mat-chip>
+        <div class="email">
+          by {{ member.invited_by || 'someone' }}, {{ member.invited_at | date: 'mediumDate' }}
+        </div>
+      } @else {
+        Active since {{ member.joined_at | date: 'mediumDate' }}
+      }
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let member" class="actions">
+      @if (permissions.canChange('team:manage')) {
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="editRoles(member)">Change roles</button>
+          @if (member.status === 'invited') {
+            <button mat-menu-item (click)="store.resend(member)">Send again</button>
+            <button mat-menu-item (click)="cancelInvitation(member)">Cancel invitation</button>
+          } @else {
+            <button mat-menu-item (click)="remove(member)">Remove from team</button>
+          }
+        </mat-menu>
+      }
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+@if (!store.isLoading() && store.members().length === 0) {
+  <p class="empty">Nobody matches this search.</p>
+}

@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Invite a team member</h2>
+<mat-dialog-content class="content">
+  <mat-form-field appearance="outline">
+    <mat-label>E-mail address</mat-label>
+    <input matInput type="email" [formControl]="email" data-testid="invite-email" />
+  </mat-form-field>
+  <p>Roles</p>
+  <ww-role-picker [roles]="roles" [(selectedIds)]="roleIds" />
+  <p class="hint">The link in the e-mail works for 7 days.</p>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button (click)="send()" [disabled]="isSaving()" data-testid="send-invite">
+    Send invitation
+  </button>
+</mat-dialog-actions>

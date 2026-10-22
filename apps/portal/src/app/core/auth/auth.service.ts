@@ -32,6 +32,18 @@ export class AuthService {
     this.oauthService.initCodeFlow(returnUrl);
   }
 
+  /**
+   * For people invited by e-mail: Keycloak's login page with the address filled in,
+   * or its sign-up page when `isNewAccount` is true.
+   */
+  loginAs(email: string, isNewAccount: boolean): void {
+    const params: Record<string, string> = { login_hint: email };
+    if (isNewAccount) {
+      params['prompt'] = 'create';
+    }
+    this.oauthService.initCodeFlow('', params);
+  }
+
   /** Ends the portal session and the Keycloak session. */
   logout(): void {
     this.oauthService.logOut();

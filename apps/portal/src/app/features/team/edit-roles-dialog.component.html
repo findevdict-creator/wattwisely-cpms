@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Roles of {{ data.member.name || data.member.email }}</h2>
+<mat-dialog-content>
+  <ww-role-picker [roles]="data.roles" [(selectedIds)]="roleIds" />
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-roles">
+    Save
+  </button>
+</mat-dialog-actions>

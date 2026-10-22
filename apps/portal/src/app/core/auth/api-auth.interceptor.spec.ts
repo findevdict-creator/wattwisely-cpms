@@ -39,7 +39,7 @@ describe('ApiAuthInterceptor', () => {
       email: 'u@test',
       name: 'U',
       is_platform_staff: false,
-      tenants: [{ id: 'org-acme', alias: 'acme-charging' }],
+      tenants: [{ id: 'org-acme', slug: 'acme-charging', name: 'Acme Charging', status: 'active' }],
     });
     http = TestBed.inject(HttpClient);
     backend = TestBed.inject(HttpTestingController);
