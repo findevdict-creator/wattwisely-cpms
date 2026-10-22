@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { DatabaseClient } from '@wattwisely/db';
 import { KeycloakKeySetProvider } from '../../common/auth/keycloak-key-set.provider';
-import { DatabaseClient } from '../../common/database/database.client';
 import { HealthStatusDto } from './health-status.dto';
 
 /** Answers "is the API alive" and "can it serve requests right now". */

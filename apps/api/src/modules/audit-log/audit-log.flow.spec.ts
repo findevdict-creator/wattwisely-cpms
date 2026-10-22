@@ -1,6 +1,5 @@
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { TestApi } from '../../testing/test-api';
-import { TestData, TestPerson } from '../../testing/test-data';
-import { TestDatabase } from '../../testing/test-database';
 
 /** Story SEC-01: who did what, newest first, one page at a time. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Audit log', () => {

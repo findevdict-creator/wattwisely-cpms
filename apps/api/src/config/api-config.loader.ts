@@ -15,6 +15,8 @@ export class ApiConfigLoader {
       ...this.keycloakSettings(environment),
       databaseUrl: environment['DATABASE_URL'] ?? '',
       portalUrl: environment['PORTAL_URL'] ?? '',
+      ocppUrl: environment['OCPP_URL'] ?? '',
+      ocppPlainUrl: environment['OCPP_PLAIN_URL'] ?? '',
       ...this.smtpSettings(environment),
     });
     this.validate(config);

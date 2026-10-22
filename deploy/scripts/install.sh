@@ -2,8 +2,8 @@
 # First-time setup on a server (or a laptop for a local trial).
 #
 #   ./scripts/install.sh --domain example.com --email ops@example.com
-#       Real server: portal.example.com, api.example.com and auth.example.com
-#       must already point at this server's IP address.
+#       Real server: portal.example.com, api.example.com, auth.example.com,
+#       ocpp.example.com and ocpp-plain.example.com must already point at this server's IP address.
 #
 #   ./scripts/install.sh --local
 #       Local trial on http://portal.localhost, with Mailpit catching e-mail.
@@ -37,6 +37,11 @@ write_addresses() {
     set_env_value PORTAL_HOST portal.localhost
     set_env_value API_HOST api.localhost
     set_env_value AUTH_HOST auth.localhost
+    set_env_value OCPP_HOST ocpp.localhost
+    set_env_value OCPP_PLAIN_HOST ocpp-plain.localhost
+    set_env_value OCPP_URL ws://ocpp.localhost/ocpp
+    set_env_value OCPP_PLAIN_URL ws://ocpp-plain.localhost/ocpp
+    set_env_value OCPP_REQUIRE_TLS false
     set_env_value ACME_EMAIL admin@localhost
     set_env_value PORTAL_DEV_URL http://localhost:4200
     set_env_value SMTP_HOST mailpit
@@ -50,6 +55,10 @@ write_addresses() {
     set_env_value PORTAL_HOST "portal.$DOMAIN"
     set_env_value API_HOST "api.$DOMAIN"
     set_env_value AUTH_HOST "auth.$DOMAIN"
+    set_env_value OCPP_HOST "ocpp.$DOMAIN"
+    set_env_value OCPP_PLAIN_HOST "ocpp-plain.$DOMAIN"
+    set_env_value OCPP_URL "wss://ocpp.$DOMAIN/ocpp"
+    set_env_value OCPP_PLAIN_URL "ws://ocpp-plain.$DOMAIN/ocpp"
     set_env_value ACME_EMAIL "$EMAIL"
     set_env_value SMTP_FROM "no-reply@$DOMAIN"
   fi

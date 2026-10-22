@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>Edit {{ charger.ocpp_identity }}</h2>
+<mat-dialog-content [formGroup]="form">
+  @if (sites().length > 0) {
+    <mat-form-field appearance="outline">
+      <mat-label>Site</mat-label>
+      <mat-select formControlName="siteId" data-testid="edit-charger-site">
+        @for (site of sites(); track site.id) {
+          <mat-option [value]="site.id">{{ site.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+  <mat-form-field appearance="outline">
+    <mat-label>Vendor</mat-label>
+    <input matInput formControlName="vendor" data-testid="edit-charger-vendor" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Model</mat-label>
+    <input matInput formControlName="model" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Visibility</mat-label>
+    <mat-select formControlName="visibilityOverride">
+      <mat-option value="">Same as the site</mat-option>
+      <mat-option value="public">Public: shown to everyone</mat-option>
+      <mat-option value="private">Private: only your drivers</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-checkbox formControlName="allowPlainWs">
+    Also allow a connection without TLS (ws://)
+  </mat-checkbox>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-charger">
+    Save
+  </button>
+</mat-dialog-actions>

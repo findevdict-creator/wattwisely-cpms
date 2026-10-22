@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { and, asc, count, eq, inArray, ne } from 'drizzle-orm';
-import { membershipRoles, rolePermissions, roles, tenantMemberships } from '@wattwisely/db';
-import { Transaction } from '../../common/database/transaction-runner';
+import {
+  membershipRoles,
+  rolePermissions,
+  roles,
+  tenantMemberships,
+  Transaction,
+} from '@wattwisely/db';
 import { RoleRecord } from './role-record';
 
 /** Reads roles and their permissions. RLS shows system roles plus the current tenant's own. */

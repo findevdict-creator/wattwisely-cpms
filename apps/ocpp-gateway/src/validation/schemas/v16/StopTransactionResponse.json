@@ -1,0 +1,8 @@
+{
+  "title": "StopTransactionResponse",
+  "type": "object",
+  "properties": {
+    "idTagInfo": { "$ref": "IdTagInfo" }
+  },
+  "additionalProperties": false
+}

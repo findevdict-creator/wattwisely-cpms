@@ -19,7 +19,10 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@wattwisely/db": ["./packages/db/src/index.ts"]
+      "@wattwisely/db": ["./packages/db/src/index.ts"],
+      "@wattwisely/db/testing": ["./packages/db/src/testing/index.ts"],
+      "@wattwisely/ocpp-contracts": ["./packages/ocpp-contracts/src/index.ts"],
+      "@wattwisely/charger-sim": ["./packages/charger-sim/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,0 +1,153 @@
+@if (store.charger(); as charger) {
+  <header class="title">
+    <div>
+      <a routerLink="/chargers" class="back"><mat-icon>arrow_back</mat-icon> Chargers</a>
+      <h1>
+        {{ charger.ocpp_identity }}
+        <ww-status-chip [status]="charger.status" />
+      </h1>
+      <p class="subtitle">
+        <a [routerLink]="['/sites', charger.site_id]">{{ charger.site_name }}</a>
+        · {{ charger.vendor || 'Unknown vendor' }} {{ charger.model || '' }}
+      </p>
+    </div>
+    @if (
+      permissions.canChange('chargers:write') ||
+      permissions.canChange('chargers:delete') ||
+      permissions.canChange('chargers:command')
+    ) {
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menu"
+        aria-label="Charger actions"
+        data-testid="charger-actions"
+      >
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        @if (permissions.canChange('chargers:command') && charger.is_online) {
+          <button mat-menu-item (click)="reset('soft')" data-testid="reset-charger">
+            Restart (soft reset)
+          </button>
+          <button mat-menu-item (click)="reset('hard')">Reboot (hard reset)</button>
+          @if (charger.status === 'unavailable') {
+            <button mat-menu-item (click)="setAvailability(true)">Put back in service</button>
+          } @else {
+            <button mat-menu-item (click)="setAvailability(false)">Take out of service</button>
+          }
+        }
+        @if (permissions.canChange('chargers:write')) {
+          <button mat-menu-item (click)="edit()" data-testid="edit-charger">Edit charger</button>
+          <button mat-menu-item (click)="newPassword()" data-testid="new-password">
+            {{ charger.auth_mode === 'password' ? 'Set a new password' : 'Switch to a password' }}
+          </button>
+          @if (charger.auth_mode === 'password') {
+            <button mat-menu-item (click)="removePassword()">Remove the password</button>
+          }
+          @if (charger.boot_fingerprint) {
+            <button mat-menu-item (click)="store.resetFingerprint()">
+              Forget boot fingerprint
+            </button>
+          }
+        }
+        @if (permissions.canChange('chargers:delete')) {
+          <button mat-menu-item (click)="remove()" data-testid="remove-charger">
+            Remove charger
+          </button>
+        }
+      </mat-menu>
+    }
+  </header>
+
+  @if (store.setup(); as setup) {
+    <section class="setup">
+      <h2>New setup card</h2>
+      <ww-setup-card [setup]="setup" />
+    </section>
+  }
+
+  <div class="cards">
+    <mat-card appearance="outlined">
+      <mat-card-header><mat-card-title>Connection</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <dl>
+          <dt>Security</dt>
+          <dd>
+            {{ charger.auth_mode === 'password' ? 'Password' : 'No password (boot fingerprint)' }}
+          </dd>
+          <dt>Plain ws://</dt>
+          <dd>{{ charger.allow_plain_ws ? 'Allowed' : 'Not allowed' }}</dd>
+          <dt>OCPP version</dt>
+          <dd>{{ charger.ocpp_version || 'Not connected yet' }}</dd>
+          <dt>Connection</dt>
+          <dd data-testid="connection">
+            @if (charger.is_online) {
+              Online since {{ charger.connected_at | date: 'medium' }}
+            } @else {
+              Offline
+            }
+          </dd>
+          <dt>Last seen</dt>
+          <dd>{{ charger.last_seen_at ? (charger.last_seen_at | date: 'medium') : 'Never' }}</dd>
+          <dt>Visibility</dt>
+          <dd>
+            {{ charger.visibility === 'public' ? 'Public' : 'Private' }}
+            @if (charger.visibility_override) {
+              (set on the charger)
+            } @else {
+              (from the site)
+            }
+          </dd>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+    <mat-card appearance="outlined">
+      <mat-card-header><mat-card-title>Reported by the charger</mat-card-title></mat-card-header>
+      <mat-card-content>
+        @if (charger.last_boot_at) {
+          <dl>
+            <dt>Serial</dt>
+            <dd>{{ charger.charge_point_serial || charger.charge_box_serial || '—' }}</dd>
+            <dt>Firmware</dt>
+            <dd>{{ charger.firmware_version || '—' }}</dd>
+            <dt>First boot</dt>
+            <dd>{{ charger.last_boot_at | date: 'medium' }}</dd>
+            <dt>Registration</dt>
+            <dd>{{ charger.registration_status || '—' }}</dd>
+          </dl>
+        } @else {
+          <p class="hint">Nothing yet. Once the charger connects, what it reports appears here.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <header class="section">
+    <h2>Connectors</h2>
+    @if (permissions.canChange('chargers:write')) {
+      <button mat-stroked-button (click)="editConnector(null)" data-testid="add-connector">
+        <mat-icon>add</mat-icon>
+        Add connector
+      </button>
+    }
+  </header>
+  <div class="connectors">
+    @for (connector of charger.connectors; track connector.id) {
+      <ww-connector-card
+        [charger]="charger"
+        [connector]="connector"
+        (edit)="editConnector($event)"
+        (remove)="removeConnector($event)"
+      />
+    } @empty {
+      <p class="empty">
+        No connectors yet. Add the plugs this charger has, so drivers can pick one.
+      </p>
+    }
+  </div>
+
+  <ww-charger-activity />
+}
+@if (store.error()) {
+  <p class="error" role="alert">{{ store.error() }}</p>
+}

@@ -1,0 +1,11 @@
+{
+  "title": "MeterValuesRequest",
+  "type": "object",
+  "properties": {
+    "connectorId": { "type": "integer" },
+    "transactionId": { "type": "integer" },
+    "meterValue": { "type": "array", "items": { "$ref": "MeterValue" } }
+  },
+  "additionalProperties": false,
+  "required": ["connectorId", "meterValue"]
+}

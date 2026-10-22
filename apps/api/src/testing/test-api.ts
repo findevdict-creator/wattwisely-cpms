@@ -1,12 +1,11 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
+import { TestData, TestDatabase } from '@wattwisely/db/testing';
 import { ApiServer } from '../api.server';
 import { AppModule } from '../app.module';
 import { KeycloakKeySetProvider } from '../common/auth/keycloak-key-set.provider';
 import { MailSender } from '../common/mail/mail.sender';
 import { RecordingMailSender } from './recording-mail.sender';
-import { TestData } from './test-data';
-import { TestDatabase } from './test-database';
 import { TestTokenIssuer } from './test-token.issuer';
 
 /** Request options for TestApi.call. */
@@ -14,6 +13,8 @@ export interface TestRequest {
   token?: string;
   tenantId?: string;
   body?: object;
+  /** Sent as If-Match, the version an update expects. */
+  version?: number;
 }
 
 /**
@@ -52,8 +53,15 @@ export class TestApi {
     await this.database?.drop();
   }
 
-  async call(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, request: TestRequest = {}) {
+  async call(
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+    url: string,
+    request: TestRequest = {},
+  ) {
     const headers: Record<string, string> = {};
+    if (request.version !== undefined) {
+      headers['if-match'] = String(request.version);
+    }
     if (request.token) {
       headers['authorization'] = `Bearer ${request.token}`;
     }
@@ -70,6 +78,8 @@ export class TestApi {
       LOG_LEVEL: 'silent',
       DATABASE_URL: database.urlFor('wattwisely_app'),
       PORTAL_URL: 'http://portal.test',
+      OCPP_URL: 'wss://ocpp.test/ocpp',
+      OCPP_PLAIN_URL: 'ws://ocpp-plain.test/ocpp',
       SMTP_HOST: 'smtp.test',
       SMTP_FROM: 'no-reply@wattwisely.test',
     };

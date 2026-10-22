@@ -1,6 +1,5 @@
-import { TestDatabase } from './testing/test-database';
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { TestApi } from './testing/test-api';
-import { TestData, TestPerson } from './testing/test-data';
 
 /**
  * Runs the real API in memory on a fresh Postgres database with a fake Keycloak,

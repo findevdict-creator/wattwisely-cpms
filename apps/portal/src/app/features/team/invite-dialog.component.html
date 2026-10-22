@@ -5,7 +5,7 @@
     <input matInput type="email" [formControl]="email" data-testid="invite-email" />
   </mat-form-field>
   <p>Roles</p>
-  <ww-role-picker [roles]="roles" [(selectedIds)]="roleIds" />
+  <ww-role-picker [roles]="data.roles" [sites]="data.sites" [(assignments)]="assignments" />
   <p class="hint">The link in the e-mail works for 7 days.</p>
   @if (error()) {
     <p class="error" role="alert">{{ error() }}</p>

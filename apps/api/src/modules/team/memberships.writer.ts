@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq, isNull } from 'drizzle-orm';
-import { membershipRoles, roles, tenantMemberships } from '@wattwisely/db';
-import { Transaction } from '../../common/database/transaction-runner';
-import { UuidV7 } from '../../common/database/uuid-v7';
+import { membershipRoles, roles, tenantMemberships, Transaction, UuidV7 } from '@wattwisely/db';
 import { MemberRecord } from './member-record';
 import { MembersRepository } from './members.repository';
 import { RoleAssignment } from './role-assignment';

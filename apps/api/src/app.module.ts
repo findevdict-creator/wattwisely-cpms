@@ -4,10 +4,12 @@ import { AuditModule } from './common/audit/audit.module';
 import { AuthModule } from './common/auth/auth.module';
 import { DatabaseModule } from './common/database/database.module';
 import { MailModule } from './common/mail/mail.module';
+import { AssetsModule } from './modules/assets/assets.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { MeModule } from './modules/me/me.module';
+import { OcppModule } from './modules/ocpp/ocpp.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { TeamModule } from './modules/team/team.module';
 import { TenancyModule } from './modules/tenancy/tenancy.module';
@@ -27,6 +29,8 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     TeamModule,
     InvitationsModule,
     AuditLogModule,
+    AssetsModule,
+    OcppModule,
   ],
 })
 export class AppModule {}

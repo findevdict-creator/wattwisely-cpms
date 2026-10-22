@@ -1,0 +1,38 @@
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+h3 {
+  margin: 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.wide {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+
+  .hint {
+    display: block;
+  }
+}
+
+.warning {
+  color: var(--mat-sys-error);
+}

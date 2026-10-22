@@ -29,6 +29,23 @@
         <mat-icon matListItemIcon>home</mat-icon>
         <span matListItemTitle>Home</span>
       </a>
+      @if (permissions.can('sites:read')) {
+        <a mat-list-item routerLink="/sites" routerLinkActive="active" data-testid="nav-sites">
+          <mat-icon matListItemIcon>location_on</mat-icon>
+          <span matListItemTitle>Sites</span>
+        </a>
+      }
+      @if (permissions.can('chargers:read')) {
+        <a
+          mat-list-item
+          routerLink="/chargers"
+          routerLinkActive="active"
+          data-testid="nav-chargers"
+        >
+          <mat-icon matListItemIcon>ev_station</mat-icon>
+          <span matListItemTitle>Chargers</span>
+        </a>
+      }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
           <mat-icon matListItemIcon>group</mat-icon>

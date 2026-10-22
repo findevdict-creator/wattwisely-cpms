@@ -1,0 +1,9 @@
+{
+  "title": "AuthorizeResponse",
+  "type": "object",
+  "properties": {
+    "idTagInfo": { "$ref": "IdTagInfo" }
+  },
+  "additionalProperties": false,
+  "required": ["idTagInfo"]
+}

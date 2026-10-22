@@ -1,10 +1,9 @@
 import { Type } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ModulesContainer } from '@nestjs/core';
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { RouteAccess } from '../auth/route-access.decorator';
 import { TestApi } from '../../testing/test-api';
-import { TestData, TestPerson } from '../../testing/test-data';
-import { TestDatabase } from '../../testing/test-database';
 import { PermissionCatalog } from './permission-catalog';
 
 /** Finds controller routes without a RouteAccess marker or with an unknown permission. */
@@ -42,7 +41,7 @@ class RouteDeclarations {
 /** Who may call what: route declarations, role permissions and suspended tenants. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Permissions', () => {
   const api = new TestApi();
-  const site = '0190a8e2-0000-7000-8000-00000000bbbb';
+  let site: string;
   let acme: string;
   let paused: string;
   let tess: TestPerson;
@@ -52,6 +51,7 @@ class RouteDeclarations {
     await api.start();
     acme = await api.data.tenant('acme-charging');
     paused = await api.data.tenant('paused-co', 'suspended');
+    site = await api.data.site(acme, 'Riverside');
     tess = await api.data.person('tess@acme.test');
     olivia = await api.data.person('olivia@paused.test');
     await api.data.member(acme, tess, TestData.ROLE_IDS.technician, site);

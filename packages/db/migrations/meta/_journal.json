@@ -22,6 +22,34 @@
       "when": 1792655687122,
       "tag": "0002_system_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792662041666,
+      "tag": "0003_sites_chargers",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792662042591,
+      "tag": "0004_sites_chargers_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792666062073,
+      "tag": "0005_ocpp_gateway",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792666063119,
+      "tag": "0006_ocpp_gateway_grants",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseSession } from '../../common/database/database-session';
-import { Transaction, TransactionRunner } from '../../common/database/transaction-runner';
+import { DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
 import { RequestAuth } from '../../common/request/request-auth';
 import { TenantAccessResolver } from '../../common/tenant/tenant-access.resolver';
 
