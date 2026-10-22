@@ -67,6 +67,10 @@ services:
       # Where chargers connect (served by ocpp-gateway below); printed on charger setup cards.
       OCPP_URL: ${OCPP_URL}
       OCPP_PLAIN_URL: ${OCPP_PLAIN_URL}
+      # Card payments through Stripe Connect (module 6). Empty keys switch card payments off.
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_FROM: ${SMTP_FROM}
@@ -120,6 +124,8 @@ services:
       PORT: 3200
       LOG_LEVEL: ${LOG_LEVEL:-info}
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
+      # The same Stripe key as the API: the worker captures and releases card holds.
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }

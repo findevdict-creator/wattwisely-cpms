@@ -4,20 +4,22 @@ A multi-tenant platform for running EV charging networks: charge point operators
 
 This one repository holds every part of the platform, managed with [Nx](https://nx.dev):
 
-| Folder                                     | What it is                                                                   | Status                                                                                 |
-| ------------------------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `apps/api`                                 | REST API, NestJS on Fastify                                                  | Modules 1–5: login, tenants, roles, team, sites, chargers, commands, tariffs, sessions |
-| `apps/portal`                              | Tenant portal, Angular + Angular Material                                    | Modules 1–5: login, tenants, Team, Sites, Chargers, live status, Tariffs, Sessions     |
-| `apps/ocpp-gateway`                        | Where chargers connect: OCPP 1.6J over WebSocket                             | Modules 4–5                                                                            |
-| `apps/worker`                              | Background jobs: prices sessions, running costs, stale sessions              | Module 5                                                                               |
-| `apps/charger-sim`, `packages/charger-sim` | A simulated charger for tests and demos (`npm run sim`)                      | Module 4                                                                               |
-| `apps/driver`, `apps/admin`, `apps/mobile` | Driver web app, platform admin console, mobile app                           | Later modules                                                                          |
-| `deploy/`                                  | Docker Compose file and scripts to run everything on a server                | Ready                                                                                  |
-| `packages/db`                              | Database schema (Drizzle), SQL migrations, the database client               | Modules 2–5                                                                            |
-| `packages/ocpp-contracts`                  | What the API and the gateway agree on: commands, events, status words        | Modules 4–5                                                                            |
-| `packages/pricing`                         | The pricing engine: a tariff version and a session's usage in, a receipt out | Module 5                                                                               |
-| `packages/session-engine`                  | Session states, pricing a session from what is stored, finalising            | Module 5                                                                               |
-| `docs/`                                    | How each module works, in reading order                                      | Modules 1–5                                                                            |
+| Folder                                     | What it is                                                                   | Status                                                                                           |
+| ------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `apps/api`                                 | REST API, NestJS on Fastify                                                  | Modules 1–6: login, tenants, roles, team, sites, chargers, commands, tariffs, sessions, payments |
+| `apps/portal`                              | Tenant portal, Angular + Angular Material                                    | Modules 1–6: login, tenants, Team, Sites, Chargers, live status, Tariffs, Sessions, Payments     |
+| `apps/ocpp-gateway`                        | Where chargers connect: OCPP 1.6J over WebSocket                             | Modules 4–6                                                                                      |
+| `apps/worker`                              | Background jobs: prices sessions, running costs, stale sessions, card holds  | Modules 5–6                                                                                      |
+| `apps/charger-sim`, `packages/charger-sim` | A simulated charger for tests and demos (`npm run sim`)                      | Module 4                                                                                         |
+| `apps/driver`, `apps/admin`, `apps/mobile` | Driver web app, platform admin console, mobile app                           | Later modules                                                                                    |
+| `deploy/`                                  | Docker Compose file and scripts to run everything on a server                | Ready                                                                                            |
+| `packages/db`                              | Database schema (Drizzle), SQL migrations, the database client               | Modules 2–6                                                                                      |
+| `packages/ocpp-contracts`                  | What the API and the gateway agree on: commands, events, status words        | Modules 4–5                                                                                      |
+| `packages/pricing`                         | The pricing engine: a tariff version and a session's usage in, a receipt out | Module 5                                                                                         |
+| `packages/session-engine`                  | Session states, pricing a session from what is stored, finalising            | Modules 5–6                                                                                      |
+| `packages/payments`                        | Card payments behind a provider interface: holds, capture, refunds, webhooks | Module 6                                                                                         |
+| `packages/payments-stripe`                 | The Stripe Connect implementation of that interface                          | Module 6                                                                                         |
+| `docs/`                                    | How each module works, in reading order                                      | Modules 1–6                                                                                      |
 
 ## How the work is organised
 
@@ -30,11 +32,12 @@ Each feature is built as a **module** on its own branch, named `N-name`, with a 
 | `3-sites-chargers`    | Sites, chargers and connectors; site-scoped permissions in use                                  |
 | `4-ocpp-gateway`      | The OCPP 1.6J gateway: charger connections, live status, commands, a charger simulator          |
 | `5-sessions-pricing`  | Charging sessions, tariffs and the pricing engine, the worker app                               |
-| `6-…`                 | Next module, started from `main`                                                                |
+| `6-stripe-payments`   | Card payments through Stripe Connect: onboarding, holds, capture, refunds, webhooks             |
+| `7-…`                 | Next module, started from `main`                                                                |
 
 Once a pull request is approved it is merged into `main`. A later change to an area goes on a fresh branch from `main`.
 
-Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file. Then [docs/modules/2-roles-permissions.md](docs/modules/2-roles-permissions.md): roles, permissions and the team. Then [docs/modules/3-sites-chargers.md](docs/modules/3-sites-chargers.md): sites, chargers and connectors. Then [docs/modules/4-ocpp-gateway.md](docs/modules/4-ocpp-gateway.md): how chargers connect and are commanded. Then [docs/modules/5-sessions-pricing.md](docs/modules/5-sessions-pricing.md): charging sessions, tariffs and how a session gets its price.
+Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file. Then [docs/modules/2-roles-permissions.md](docs/modules/2-roles-permissions.md): roles, permissions and the team. Then [docs/modules/3-sites-chargers.md](docs/modules/3-sites-chargers.md): sites, chargers and connectors. Then [docs/modules/4-ocpp-gateway.md](docs/modules/4-ocpp-gateway.md): how chargers connect and are commanded. Then [docs/modules/5-sessions-pricing.md](docs/modules/5-sessions-pricing.md): charging sessions, tariffs and how a session gets its price. Then [docs/modules/6-stripe-payments.md](docs/modules/6-stripe-payments.md): how a driver pays by card through the operator's own Stripe account.
 
 ## Try it on your machine
 
