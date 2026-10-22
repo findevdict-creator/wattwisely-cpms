@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "UNLICENSED",
   "scripts": {
-    "start": "nx run-many -t serve -p api portal ocpp-gateway worker",
+    "start": "nx run-many -t serve -p api portal ocpp-gateway worker driver",
     "build": "nx run-many -t build",
     "test": "nx run-many -t test",
     "lint": "nx run-many -t lint",

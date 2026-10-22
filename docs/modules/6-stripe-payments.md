@@ -168,7 +168,7 @@ sequenceDiagram
 | 39   | `features/sessions/session-payment.component.ts`, `features/payments/refund-dialog.component.ts` | The Payment card on a session with its refunds, and the Refund dialog                                                    |
 | 40   | `shared/status-labels.ts`, `status-chip.component.ts`                                            | Words and colours for payment, refund and account statuses; new failure reasons and the `capture_above_hold` flag        |
 
-The driver's page itself (the QR landing page that embeds Stripe's card form) is the driver web app, a later module. Until then the public endpoints can be driven with `curl` and Stripe's test cards: create the charge, open Stripe.js with `publishable_key` and `stripeAccount: provider_account_id`, call `stripe.confirmCardPayment(client_secret, …)`, then `POST …/check`.
+The driver's page itself (the QR landing page that embeds Stripe's card form) is the driver web app, module 7. The public endpoints can also be driven with `curl` and Stripe's test cards: create the charge, open Stripe.js with `publishable_key` and `stripeAccount: provider_account_id`, call `stripe.confirmCardPayment(client_secret, …)`, then `POST …/check`.
 
 ## Running it
 

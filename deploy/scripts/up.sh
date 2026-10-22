@@ -2,7 +2,7 @@
 # Starts (or restarts) the whole platform and waits until it is healthy.
 #
 #   ./scripts/up.sh           use the released images from GitHub's registry
-#   ./scripts/up.sh --build   build the API and portal images from this checkout instead
+#   ./scripts/up.sh --build   build the Wattwisely images from this checkout instead
 #   ./scripts/up.sh --no-pull use images already on this machine (e.g. loaded with docker load)
 source "$(dirname "$0")/lib/common.sh"
 source "$(dirname "$0")/lib/openbao.sh"
@@ -10,8 +10,9 @@ source "$(dirname "$0")/lib/database.sh"
 
 require_env_file
 
-# Module 3 added the charger connection addresses and module 4 the hosts Caddy routes to the
-# gateway; a .env from an earlier install gets defaults derived from its API host.
+# Module 3 added the charger connection addresses, module 4 the hosts Caddy routes to the
+# gateway and module 7 the driver app's host; a .env from an earlier install gets defaults
+# derived from its API host.
 ensure_ocpp_settings() {
   local domain
   domain="$(env_value API_HOST)"
@@ -29,6 +30,7 @@ ensure_ocpp_settings() {
   if [[ -z "$(env_value OCPP_REQUIRE_TLS)" ]]; then
     if [[ "$(env_value PUBLIC_SCHEME)" == "https" ]]; then set_env_value OCPP_REQUIRE_TLS true; else set_env_value OCPP_REQUIRE_TLS false; fi
   fi
+  [[ -n "$(env_value DRIVER_HOST)" ]] || set_env_value DRIVER_HOST "charge.$domain"
 }
 
 # "wss://ocpp.example.com/ocpp" -> "ocpp.example.com"
@@ -56,7 +58,7 @@ run_migrations
 compose up -d --no-build
 
 info "Waiting for services to become healthy"
-for service in postgres valkey keycloak api portal ocpp-gateway worker; do
+for service in postgres valkey keycloak api portal driver ocpp-gateway worker; do
   wait_for_service "$service"
 done
 openbao_unseal
@@ -65,5 +67,6 @@ scheme="$(env_value PUBLIC_SCHEME)"
 info "Wattwisely is running"
 echo "  Portal:          $scheme://$(env_value PORTAL_HOST)"
 echo "  API:             $scheme://$(env_value API_HOST)/docs"
+echo "  Drivers:         $scheme://$(env_value DRIVER_HOST)  (QR codes on the chargers open this)"
 echo "  Chargers:        $(env_value OCPP_URL)/<charger id>"
 echo "  Keycloak admin:  $scheme://$(env_value AUTH_HOST)/admin  (user $(env_value KEYCLOAK_ADMIN_USER))"

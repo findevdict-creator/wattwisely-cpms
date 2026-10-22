@@ -152,3 +152,4 @@ info "Creating tenants and memberships"
 seed_database
 
 info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL_HOST) with password $DEMO_PASSWORD"
+info "Drivers see plug A of the Riverside charger at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/c/WW-7KQ4M2XR9T/1 (the QR code on the charger page); it shows as offline until a charger or the simulator connects with that identity"

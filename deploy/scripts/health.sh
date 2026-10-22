@@ -29,7 +29,7 @@ http_check() {
 }
 
 info "Containers"
-for service in caddy api portal ocpp-gateway worker keycloak postgres valkey openbao object-storage; do
+for service in caddy api portal driver ocpp-gateway worker keycloak postgres valkey openbao object-storage; do
   state="$(container_state "$service")"
   if [[ "$state" == "healthy" || "$state" == "running" ]]; then
     report "$service" ok
@@ -41,6 +41,7 @@ done
 info "Endpoints"
 report "API ready" "$(http_check http://api:3000/health/ready)"
 report "Portal" "$(http_check http://portal:8080/healthz)"
+report "Driver app" "$(http_check http://driver:8080/healthz)"
 report "OCPP gateway ready" "$(http_check http://ocpp-gateway:3100/health/ready)"
 report "Worker ready" "$(http_check http://worker:3200/health/ready)"
 report "Keycloak realm" "$(http_check http://keycloak:8080/realms/wattwisely/.well-known/openid-configuration)"

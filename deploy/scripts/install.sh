@@ -2,7 +2,7 @@
 # First-time setup on a server (or a laptop for a local trial).
 #
 #   ./scripts/install.sh --domain example.com --email ops@example.com
-#       Real server: portal.example.com, api.example.com, auth.example.com,
+#       Real server: portal.example.com, api.example.com, auth.example.com, charge.example.com,
 #       ocpp.example.com and ocpp-plain.example.com must already point at this server's IP address.
 #
 #   ./scripts/install.sh --local
@@ -37,6 +37,7 @@ write_addresses() {
     set_env_value PORTAL_HOST portal.localhost
     set_env_value API_HOST api.localhost
     set_env_value AUTH_HOST auth.localhost
+    set_env_value DRIVER_HOST charge.localhost
     set_env_value OCPP_HOST ocpp.localhost
     set_env_value OCPP_PLAIN_HOST ocpp-plain.localhost
     set_env_value OCPP_URL ws://ocpp.localhost/ocpp
@@ -55,6 +56,7 @@ write_addresses() {
     set_env_value PORTAL_HOST "portal.$DOMAIN"
     set_env_value API_HOST "api.$DOMAIN"
     set_env_value AUTH_HOST "auth.$DOMAIN"
+    set_env_value DRIVER_HOST "charge.$DOMAIN"
     set_env_value OCPP_HOST "ocpp.$DOMAIN"
     set_env_value OCPP_PLAIN_HOST "ocpp-plain.$DOMAIN"
     set_env_value OCPP_URL "wss://ocpp.$DOMAIN/ocpp"
