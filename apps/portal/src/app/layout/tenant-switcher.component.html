@@ -1,0 +1,17 @@
+@if (tenantContext.tenants().length > 1) {
+  <mat-select
+    class="switcher"
+    data-testid="tenant-switcher"
+    [value]="tenantContext.currentTenant()"
+    (selectionChange)="switchTo($event)"
+    aria-label="Switch tenant"
+  >
+    @for (tenant of tenantContext.tenants(); track tenant.id) {
+      <mat-option [value]="tenant">{{ tenant.alias }}</mat-option>
+    }
+  </mat-select>
+} @else {
+  <span class="tenant-name" data-testid="tenant-name">{{
+    tenantContext.currentTenant()?.alias
+  }}</span>
+}

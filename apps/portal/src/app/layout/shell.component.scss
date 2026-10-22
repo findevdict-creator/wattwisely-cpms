@@ -1,0 +1,34 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.top-bar {
+  gap: 16px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.brand {
+  font-weight: 500;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.body {
+  flex: 1;
+}
+
+.side-menu {
+  width: 220px;
+}
+
+.page {
+  padding: 24px;
+}
+
+.active {
+  background: var(--mat-sys-secondary-container);
+}

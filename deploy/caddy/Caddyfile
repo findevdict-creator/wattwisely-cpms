@@ -1,0 +1,38 @@
+# Routes the three public addresses to their services.
+# With PUBLIC_SCHEME=https Caddy gets and renews Let's Encrypt certificates by itself.
+# With PUBLIC_SCHEME=http (local testing) it serves plain HTTP.
+{
+	email {$ACME_EMAIL}
+}
+
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+{$PUBLIC_SCHEME}://{$PORTAL_HOST} {
+	import security_headers
+	reverse_proxy portal:8080
+}
+
+{$PUBLIC_SCHEME}://{$API_HOST} {
+	import security_headers
+	reverse_proxy api:3000
+}
+
+{$PUBLIC_SCHEME}://{$AUTH_HOST} {
+	import security_headers
+
+	# The Keycloak admin console is only reachable from allowed networks.
+	@admin_from_outside {
+		path /admin*
+		not remote_ip {$KEYCLOAK_ADMIN_ALLOWED_IPS}
+	}
+	respond @admin_from_outside "Not found" 404
+
+	reverse_proxy keycloak:8080
+}
