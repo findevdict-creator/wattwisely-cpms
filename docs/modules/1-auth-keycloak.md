@@ -2,6 +2,8 @@
 
 This module answers one question on every request: **who is calling, and which tenant are they working in?** Keycloak proves who someone is. The API checks that proof and picks the tenant from the person's own memberships, never from the URL. What a person may do (roles and permissions) is module 2.
 
+> **Since module 2**, tenants and memberships come from the Wattwisely database instead of the token's `organization` claim, so steps f and g below were replaced. See [2-roles-permissions.md](2-roles-permissions.md).
+
 Stories covered: ACC-01 (staff login with two-factor), ACC-04 (switch between tenants), and the base of SEC-01 (Keycloak records every login, failed login and logout).
 
 ## The flow at a glance

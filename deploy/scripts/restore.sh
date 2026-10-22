@@ -5,6 +5,7 @@
 #   ./scripts/restore.sh backups/20261022T020000Z --yes   (no confirmation question)
 source "$(dirname "$0")/lib/common.sh"
 source "$(dirname "$0")/lib/openbao.sh"
+source "$(dirname "$0")/lib/database.sh"
 
 SOURCE="${1:-}"
 [[ -n "$SOURCE" && -d "$SOURCE" ]] || die "Usage: ./scripts/restore.sh <backup directory> [--yes]"
@@ -42,7 +43,8 @@ restore_volume openbao-data
 restore_volume object-storage-data
 compose up -d postgres
 wait_for_service postgres
-restore_database wattwisely wattwisely
+ensure_database_roles
+restore_database wattwisely wattwisely_migrator
 restore_database keycloak keycloak
 info "Starting everything again"
 "$(dirname "$0")/up.sh" --no-pull

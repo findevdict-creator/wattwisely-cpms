@@ -6,21 +6,26 @@
 #   ./scripts/up.sh --no-pull use images already on this machine (e.g. loaded with docker load)
 source "$(dirname "$0")/lib/common.sh"
 source "$(dirname "$0")/lib/openbao.sh"
+source "$(dirname "$0")/lib/database.sh"
 
 require_env_file
 
 if [[ "${1:-}" == "--build" ]]; then
   info "Building images from source"
   compose build
-  compose up -d
-elif [[ "${1:-}" == "--no-pull" ]]; then
-  compose up -d --no-build
-else
+elif [[ "${1:-}" != "--no-pull" ]]; then
   info "Pulling images (version $(env_value WATTWISELY_VERSION))"
   compose pull --quiet ||
     die "Could not pull the images. For a private repository run 'docker login ghcr.io' first, or use --build."
-  compose up -d --no-build
 fi
+
+# The database comes first: the API starts only after its migrations have run.
+ensure_database_secrets
+compose up -d --no-build postgres
+wait_for_service postgres
+ensure_database_roles
+run_migrations
+compose up -d --no-build
 
 info "Waiting for services to become healthy"
 for service in postgres valkey keycloak api portal; do
