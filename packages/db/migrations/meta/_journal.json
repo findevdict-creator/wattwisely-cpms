@@ -64,6 +64,20 @@
       "when": 1792677648786,
       "tag": "0008_sessions_pricing_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792684865623,
+      "tag": "0009_stripe_payments",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792684977053,
+      "tag": "0010_stripe_payments_grants",
+      "breakpoints": true
     }
   ]
 }

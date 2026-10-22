@@ -8,14 +8,15 @@ export interface SessionRow {
   siteId: string;
   chargerId: string;
   connectorId: string;
-  ocppTransactionId: number;
+  /** Empty until the charger starts the transaction (a paid session waits for it). */
+  ocppTransactionId: number | null;
   idTag: string;
   status: SessionState;
   timeZone: string;
   startedAt: Date;
   endedAt: Date | null;
   unpluggedAt: Date | null;
-  meterStartWh: number;
+  meterStartWh: number | null;
   meterStopWh: number | null;
   energyWh: number;
   energyIncreasedAt: Date | null;
@@ -23,6 +24,9 @@ export interface SessionRow {
   tariffVersionId: string | null;
   currency: string | null;
   grossAmount: number | null;
+  commandId: string | null;
+  /** A card hold was taken for it (module 6); the payment row is found by session id. */
+  isPaid: boolean;
 }
 
 /** The columns every session read selects, so each one returns a full SessionRow. */
@@ -48,5 +52,7 @@ export class SessionColumns {
     tariffVersionId: chargingSessions.tariffVersionId,
     currency: chargingSessions.currency,
     grossAmount: chargingSessions.grossAmount,
+    commandId: chargingSessions.commandId,
+    isPaid: chargingSessions.isPaid,
   };
 }

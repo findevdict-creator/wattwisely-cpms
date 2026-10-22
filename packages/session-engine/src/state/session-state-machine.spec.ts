@@ -4,12 +4,14 @@ import { SessionStateMachine } from './session-state-machine';
 
 /** Every move the design allows, as [from, event, to]. */
 const ALLOWED: [SessionState | null, SessionEvent, SessionState][] = [
+  [null, 'hold_requested', 'authorising'],
   ['authorising', 'authorised', 'starting'],
   ['authorising', 'declined', 'not_started'],
   [null, 'transaction_started', 'charging'],
   ['authorising', 'transaction_started', 'charging'],
   ['starting', 'transaction_started', 'charging'],
   ['starting', 'start_timeout', 'not_started'],
+  ['starting', 'start_rejected', 'not_started'],
   ['charging', 'suspended', 'suspended'],
   ['idle', 'suspended', 'suspended'],
   ['suspended', 'resumed', 'charging'],

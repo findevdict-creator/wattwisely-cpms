@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   bigint,
+  boolean,
   index,
   integer,
   jsonb,
@@ -34,7 +35,9 @@ export const ocppTransactionIdSeq = pgSequence('ocpp_transaction_id_seq', {
  * (Sessions and Pricing design). The gateway writes what the charger reports; the
  * worker moves the state on, prices the session and stores the totals. The site, its
  * time zone and the tariff version are copied in at the start, so later edits to the
- * site or the tariff never change a session's price.
+ * site or the tariff never change a session's price. A paid session (module 6) exists
+ * from the card hold on: it is authorising, then starting, before the charger starts it,
+ * so the OCPP transaction id and the start reading arrive later.
  */
 export const chargingSessions = pgTable(
   'charging_sessions',
@@ -44,8 +47,8 @@ export const chargingSessions = pgTable(
     siteId: uuid('site_id').notNull(),
     chargerId: uuid('charger_id').notNull(),
     connectorId: uuid('connector_id').notNull(),
-    /** The transactionId the charger and the platform both use for this session. */
-    ocppTransactionId: integer('ocpp_transaction_id').notNull(),
+    /** The transactionId the charger and the platform both use for this session; empty until the charger starts it. */
+    ocppTransactionId: integer('ocpp_transaction_id'),
     /** The idTag that started it: an RFID card or a token the platform issued for a remote start. */
     idTag: text('id_tag').notNull(),
     status: chargingSessionStatus('status').notNull().default('charging'),
@@ -58,8 +61,8 @@ export const chargingSessions = pgTable(
     unpluggedAt: timestamp('unplugged_at', { withTimezone: true }),
     /** When the session reached completed, not_started or failed. */
     closedAt: timestamp('closed_at', { withTimezone: true }),
-    /** The meter readings in Wh at the start and the end. */
-    meterStartWh: bigint('meter_start_wh', { mode: 'number' }).notNull(),
+    /** The meter readings in Wh at the start and the end; the start is empty until the charger starts. */
+    meterStartWh: bigint('meter_start_wh', { mode: 'number' }),
     meterStopWh: bigint('meter_stop_wh', { mode: 'number' }),
     /** Energy delivered so far: the latest reading minus the start, kept current by MeterValues. */
     energyWh: bigint('energy_wh', { mode: 'number' }).notNull().default(0),
@@ -73,6 +76,8 @@ export const chargingSessions = pgTable(
     failureReason: text('failure_reason'),
     /** The id of the remote start command that began it, when there was one. */
     commandId: uuid('command_id'),
+    /** True when a card hold was taken before the start (module 6): the payment row is found by session_id. */
+    isPaid: boolean('is_paid').notNull().default(false),
     /** The tariff version in force when it started; null when the site had no tariff. */
     tariffVersionId: uuid('tariff_version_id'),
     currency: text('currency'),

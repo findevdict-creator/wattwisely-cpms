@@ -1,5 +1,5 @@
 import { integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { tenantStatus } from './enums';
+import { paymentMode, tenantStatus } from './enums';
 import { Timestamps } from './timestamps';
 
 /**
@@ -13,6 +13,8 @@ export const tenants = pgTable('tenants', {
   slug: text('slug').notNull().unique(),
   status: tenantStatus('status').notNull().default('active'),
   region: text('region'),
+  /** How drivers pay this tenant (module 6): direct means through the tenant's own Stripe connected account. */
+  paymentMode: paymentMode('payment_mode').notNull().default('direct'),
   /** The Keycloak organization for this tenant, used when a tenant brings its own SSO. */
   keycloakOrganizationId: text('keycloak_organization_id').unique(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
