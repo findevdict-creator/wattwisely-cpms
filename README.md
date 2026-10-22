@@ -4,15 +4,15 @@ A multi-tenant platform for running EV charging networks: charge point operators
 
 This one repository holds every part of the platform, managed with [Nx](https://nx.dev):
 
-| Folder                                     | What it is                                                    | Status                                   |
-| ------------------------------------------ | ------------------------------------------------------------- | ---------------------------------------- |
-| `apps/api`                                 | REST API, NestJS on Fastify                                   | Modules 1–2: login, tenants, roles, team |
-| `apps/portal`                              | Tenant portal, Angular + Angular Material                     | Modules 1–2: login, tenants, Team page   |
-| `apps/ocpp-gateway`, `apps/worker`         | Charger connections and background jobs                       | Later modules                            |
-| `apps/driver`, `apps/admin`, `apps/mobile` | Driver web app, platform admin console, mobile app            | Later modules                            |
-| `deploy/`                                  | Docker Compose file and scripts to run everything on a server | Ready                                    |
-| `packages/db`                              | Database schema (Drizzle) and SQL migrations                  | Module 2                                 |
-| `docs/`                                    | How each module works, in reading order                       | Modules 1–2                              |
+| Folder                                     | What it is                                                    | Status                                                    |
+| ------------------------------------------ | ------------------------------------------------------------- | --------------------------------------------------------- |
+| `apps/api`                                 | REST API, NestJS on Fastify                                   | Modules 1–3: login, tenants, roles, team, sites, chargers |
+| `apps/portal`                              | Tenant portal, Angular + Angular Material                     | Modules 1–3: login, tenants, Team, Sites, Chargers        |
+| `apps/ocpp-gateway`, `apps/worker`         | Charger connections and background jobs                       | Later modules                                             |
+| `apps/driver`, `apps/admin`, `apps/mobile` | Driver web app, platform admin console, mobile app            | Later modules                                             |
+| `deploy/`                                  | Docker Compose file and scripts to run everything on a server | Ready                                                     |
+| `packages/db`                              | Database schema (Drizzle) and SQL migrations                  | Modules 2–3                                               |
+| `docs/`                                    | How each module works, in reading order                       | Modules 1–3                                               |
 
 ## How the work is organised
 
@@ -22,11 +22,12 @@ Each feature is built as a **module** on its own branch, named `N-name`, with a 
 | --------------------- | ----------------------------------------------------------------------------------------------- |
 | `1-auth-keycloak`     | Repo skeleton, deployment, login with Keycloak, tenant selection                                |
 | `2-roles-permissions` | Tenants in Postgres with row-level security, roles and permissions, team invitations, audit log |
-| `3-…`                 | Next module, started from the previous one                                                      |
+| `3-sites-chargers`    | Sites, chargers and connectors; site-scoped permissions in use                                  |
+| `4-…`                 | Next module, started from `main`                                                                |
 
 Once a pull request is approved it is merged into `main`. A later change to an area goes on a fresh branch from `main`.
 
-Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file. Then [docs/modules/2-roles-permissions.md](docs/modules/2-roles-permissions.md): roles, permissions and the team.
+Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file. Then [docs/modules/2-roles-permissions.md](docs/modules/2-roles-permissions.md): roles, permissions and the team. Then [docs/modules/3-sites-chargers.md](docs/modules/3-sites-chargers.md): sites, chargers and connectors.
 
 ## Try it on your machine
 
@@ -36,7 +37,7 @@ You need Docker. This starts the whole platform with demo users:
 cd deploy
 ./scripts/install.sh --local      # creates deploy/.env with random passwords
 ./scripts/up.sh --build           # builds the API and portal, starts everything
-./scripts/seed-demo.sh            # demo tenants and users
+./scripts/seed-demo.sh            # demo tenants, users, sites and chargers
 ```
 
 Open <http://portal.localhost> and log in as `multi@demo.test` with password `Wattwisely-demo-1`. Keycloak asks you to set up an authenticator app (two-factor login is required), then shows the portal. See [deploy/README.md](deploy/README.md) for servers, updates and backups.

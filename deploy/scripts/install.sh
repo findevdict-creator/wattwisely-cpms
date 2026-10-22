@@ -37,6 +37,8 @@ write_addresses() {
     set_env_value PORTAL_HOST portal.localhost
     set_env_value API_HOST api.localhost
     set_env_value AUTH_HOST auth.localhost
+    set_env_value OCPP_URL ws://ocpp.localhost/ocpp
+    set_env_value OCPP_PLAIN_URL ws://ocpp.localhost/ocpp
     set_env_value ACME_EMAIL admin@localhost
     set_env_value PORTAL_DEV_URL http://localhost:4200
     set_env_value SMTP_HOST mailpit
@@ -50,6 +52,8 @@ write_addresses() {
     set_env_value PORTAL_HOST "portal.$DOMAIN"
     set_env_value API_HOST "api.$DOMAIN"
     set_env_value AUTH_HOST "auth.$DOMAIN"
+    set_env_value OCPP_URL "wss://ocpp.$DOMAIN/ocpp"
+    set_env_value OCPP_PLAIN_URL "ws://ocpp-plain.$DOMAIN/ocpp"
     set_env_value ACME_EMAIL "$EMAIL"
     set_env_value SMTP_FROM "no-reply@$DOMAIN"
   fi

@@ -61,6 +61,9 @@ services:
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
       # Invitation e-mails link here.
       PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
+      # Where chargers connect (the OCPP gateway arrives in module 4); printed on charger setup cards.
+      OCPP_URL: ${OCPP_URL}
+      OCPP_PLAIN_URL: ${OCPP_PLAIN_URL}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_FROM: ${SMTP_FROM}

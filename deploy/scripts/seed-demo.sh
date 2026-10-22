@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Adds demo tenants and users to a LOCAL trial, so you can try the login and team flows.
+# Adds demo tenants, users, sites and chargers to a LOCAL trial, so you can try the login,
+# team, sites and chargers flows.
 #
 #   Tenants: Acme Charging (acme-charging), Volt Hotels (volt-hotels)
 #   Users (password: Wattwisely-demo-1):
 #     owner@acme.test    Owner of Acme Charging (can invite people and change roles)
-#     tech@acme.test     Technician at Acme Charging (sees no Team page)
+#     tech@acme.test     Technician at Acme Charging, only on the Riverside site (sees no Team page)
 #     multi@demo.test    Operations at Acme Charging and Owner of Volt Hotels (tenant switcher)
 #     nobody@demo.test   member of no tenant (shows the "No workspace" page)
+#   Sites of Acme Charging: Riverside Car Park (two chargers), Depot North (one charger, waiting)
 #
 # Every user is asked to set up an authenticator app at first login (two-factor is required).
 source "$(dirname "$0")/lib/common.sh"
@@ -47,6 +49,15 @@ INSERT INTO tenants (id, name, slug, status) VALUES
   ('01900000-0000-7000-8000-00000000a001', 'Acme Charging', 'acme-charging', 'active'),
   ('01900000-0000-7000-8000-00000000a002', 'Volt Hotels', 'volt-hotels', 'active')
 ON CONFLICT (slug) DO NOTHING;
+INSERT INTO sites (id, tenant_id, name, address, latitude, longitude, time_zone, opening_hours, visibility, power_limit_kw, parking_notes) VALUES
+  ('01900000-0000-7000-8000-00000000c001', '01900000-0000-7000-8000-00000000a001', 'Riverside Car Park',
+   '{"line1": "12 Thames Path", "city": "London", "postal_code": "SE1 2AA", "country": "GB"}', 51.5055, -0.0754, 'Europe/London',
+   '{"mon": [{"opens": "07:00", "closes": "22:00"}], "tue": [{"opens": "07:00", "closes": "22:00"}], "wed": [{"opens": "07:00", "closes": "22:00"}], "thu": [{"opens": "07:00", "closes": "22:00"}], "fri": [{"opens": "07:00", "closes": "22:00"}], "sat": [{"opens": "09:00", "closes": "18:00"}]}',
+   'public', 600, 'Level -1, bays 40 to 46'),
+  ('01900000-0000-7000-8000-00000000c002', '01900000-0000-7000-8000-00000000a001', 'Depot North',
+   '{"line1": "3 Industrial Way", "city": "Leeds", "postal_code": "LS9 8AB", "country": "GB"}', 53.8008, -1.5491, 'Europe/London',
+   NULL, 'private', NULL, 'Staff only, badge at the gate')
+ON CONFLICT DO NOTHING;
 INSERT INTO user_accounts (id, email, name) VALUES
   ('01900000-0000-7000-8000-00000000b001', 'owner@acme.test', 'Olivia Owner'),
   ('01900000-0000-7000-8000-00000000b002', 'tech@acme.test', 'Theo Tech'),
@@ -64,13 +75,33 @@ WITH member (tenant_slug, email, role_key) AS (VALUES
   ON CONFLICT (tenant_id, user_account_id) DO NOTHING
   RETURNING id, tenant_id, user_account_id
 )
-INSERT INTO membership_roles (id, tenant_id, membership_id, role_id)
-SELECT gen_random_uuid(), added.tenant_id, added.id, r.id
+INSERT INTO membership_roles (id, tenant_id, membership_id, role_id, site_id)
+SELECT gen_random_uuid(), added.tenant_id, added.id, r.id,
+  CASE WHEN m.role_key = 'technician' THEN '01900000-0000-7000-8000-00000000c001'::uuid END
 FROM added
 JOIN tenants t ON t.id = added.tenant_id
 JOIN user_accounts a ON a.id = added.user_account_id
 JOIN member m ON m.tenant_slug = t.slug AND m.email = lower(a.email)
 JOIN roles r ON r.key = m.role_key;
+INSERT INTO chargers (id, tenant_id, site_id, ocpp_identity, vendor, model, auth_mode, password_hash) VALUES
+  ('01900000-0000-7000-8000-00000000d001', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000c001',
+   'WW-7KQ4M2XR9T', 'Alfen', 'Eve Double Pro-line', 'none', NULL),
+  ('01900000-0000-7000-8000-00000000d002', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000c001',
+   'WW-3NB8TF5D2W', 'ABB', 'Terra 184', 'none', NULL),
+  ('01900000-0000-7000-8000-00000000d003', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000c002',
+   'SN-AB129934', 'Wallbox', 'Pulsar Plus', 'none', NULL)
+ON CONFLICT DO NOTHING;
+-- Two chargers have reported in (so the sites show a status); the third is still waiting.
+UPDATE chargers SET last_boot_at = now(), last_heartbeat_at = now(), last_seen_at = now(),
+  ocpp_version = '1.6', registration_status = 'accepted', heartbeat_interval_s = 300
+WHERE id IN ('01900000-0000-7000-8000-00000000d001', '01900000-0000-7000-8000-00000000d002');
+INSERT INTO connectors (id, tenant_id, charger_id, ocpp_connector_id, type, current_type, max_power_kw, label, status, status_changed_at) VALUES
+  ('01900000-0000-7000-8000-00000000e001', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d001', 1, 'type2', 'ac', 22, 'A', 'available', now()),
+  ('01900000-0000-7000-8000-00000000e002', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d001', 2, 'type2', 'ac', 22, 'B', 'charging', now()),
+  ('01900000-0000-7000-8000-00000000e003', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d002', 1, 'ccs2', 'dc', 180, 'A', 'available', now()),
+  ('01900000-0000-7000-8000-00000000e004', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d002', 2, 'chademo', 'dc', 50, 'B', 'faulted', now()),
+  ('01900000-0000-7000-8000-00000000e005', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d003', 1, 'type2', 'ac', 7.4, 'A', 'unknown', NULL)
+ON CONFLICT DO NOTHING;
 SQL
 }
 

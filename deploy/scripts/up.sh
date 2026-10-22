@@ -10,6 +10,22 @@ source "$(dirname "$0")/lib/database.sh"
 
 require_env_file
 
+# Module 3 added the charger connection addresses; a .env from an earlier install gets defaults.
+ensure_ocpp_urls() {
+  [[ -z "$(env_value OCPP_URL)" ]] || return 0
+  local domain
+  domain="$(env_value API_HOST)"
+  domain="${domain#api.}"
+  if [[ "$(env_value PUBLIC_SCHEME)" == "https" ]]; then
+    set_env_value OCPP_URL "wss://ocpp.$domain/ocpp"
+    set_env_value OCPP_PLAIN_URL "ws://ocpp-plain.$domain/ocpp"
+  else
+    set_env_value OCPP_URL "ws://ocpp.$domain/ocpp"
+    set_env_value OCPP_PLAIN_URL "ws://ocpp.$domain/ocpp"
+  fi
+}
+ensure_ocpp_urls
+
 if [[ "${1:-}" == "--build" ]]; then
   info "Building images from source"
   compose build
