@@ -12,6 +12,8 @@ export interface SiteRecord {
   visibility: 'public' | 'private';
   powerLimitKw: number | null;
   parkingNotes: string;
+  /** Null: sessions here are not priced. */
+  tariffId: string | null;
   version: number;
   createdAt: Date;
   updatedAt: Date;

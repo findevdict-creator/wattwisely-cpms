@@ -37,6 +37,9 @@ export class SiteDto {
   @ApiProperty()
   readonly parking_notes: string;
 
+  @ApiProperty({ nullable: true, description: 'The tariff new sessions are priced with' })
+  readonly tariff_id: string | null;
+
   @ApiProperty({ enum: ['ok', 'problem', 'offline'], description: 'How its chargers are doing' })
   readonly status: SiteStatus;
 
@@ -72,6 +75,7 @@ export class SiteDto {
     this.visibility = site.visibility;
     this.power_limit_kw = site.powerLimitKw;
     this.parking_notes = site.parkingNotes;
+    this.tariff_id = site.tariffId;
     this.status = SiteHealth.statusOf(site.fleet);
     this.charger_count = site.fleet.chargerCount;
     this.connector_count = SiteHealth.connectorCount(site.fleet);

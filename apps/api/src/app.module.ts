@@ -11,6 +11,8 @@ import { InvitationsModule } from './modules/invitations/invitations.module';
 import { MeModule } from './modules/me/me.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
+import { TariffsModule } from './modules/tariffs/tariffs.module';
 import { TeamModule } from './modules/team/team.module';
 import { TenancyModule } from './modules/tenancy/tenancy.module';
 
@@ -31,6 +33,8 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     AuditLogModule,
     AssetsModule,
     OcppModule,
+    TariffsModule,
+    SessionsModule,
   ],
 })
 export class AppModule {}

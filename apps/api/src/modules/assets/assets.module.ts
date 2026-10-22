@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TariffsModule } from '../tariffs/tariffs.module';
 import { AssetChangeRecorder } from './asset-change.recorder';
 import { ChargerChangesService } from './chargers/charger-changes.service';
 import { ChargerRegistrationService } from './chargers/charger-registration.service';
@@ -21,6 +22,7 @@ import { SitesService } from './sites/sites.service';
  * to check that a site exists, and what the OCPP gateway (module 4) needs to find a charger.
  */
 @Module({
+  imports: [TariffsModule],
   controllers: [SitesController, ChargersController, ConnectorsController],
   providers: [
     AssetChangeRecorder,

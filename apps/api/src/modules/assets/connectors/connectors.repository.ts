@@ -21,9 +21,12 @@ export class ConnectorsRepository {
     statusChangedAt: connectors.statusChangedAt,
     version: connectors.version,
     activeSession: sql<ActiveSession | null>`(select json_build_object(
-        'id', s.id, 'ocppTransactionId', s.ocpp_transaction_id, 'startedAt', s.started_at, 'energyWh', s.energy_wh)
+        'id', s.id, 'ocppTransactionId', s.ocpp_transaction_id, 'status', s.status,
+        'startedAt', s.started_at, 'energyWh', s.energy_wh,
+        'grossAmount', s.gross_amount, 'currency', s.currency)
       from ${chargingSessions} s
-      where s.connector_id = ${connectors.id} and s.status = 'charging'
+      where s.connector_id = ${connectors.id}
+        and s.status in ('charging', 'suspended', 'idle', 'stopping')
       order by s.started_at desc limit 1)`,
   };
 
