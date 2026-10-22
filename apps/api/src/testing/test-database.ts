@@ -13,6 +13,8 @@ import { DatabaseMigrator } from '@wattwisely/db';
  */
 export class TestDatabase {
   static readonly ROLE_PASSWORD = 'wattwisely-test';
+  /** Any fixed number: the key of the advisory lock around role setup. */
+  static readonly ROLES_LOCK = 7_355_608;
   static readonly MIGRATIONS = join(__dirname, '../../../../packages/db/migrations');
 
   private constructor(
@@ -32,8 +34,7 @@ export class TestDatabase {
     const adminUrl = new URL(process.env['TEST_DATABASE_URL'] as string);
     const database = new TestDatabase(adminUrl, `ww_test_${randomBytes(6).toString('hex')}`);
     await database.admin(async (client) => {
-      await TestDatabase.ensureRole(client, 'wattwisely_migrator');
-      await TestDatabase.ensureRole(client, 'wattwisely_app');
+      await TestDatabase.ensureRoles(client);
       await client.query(`create database ${database.name} owner wattwisely_migrator`);
     });
     await new DatabaseMigrator(
@@ -74,6 +75,21 @@ export class TestDatabase {
       return await work(client);
     } finally {
       await client.end();
+    }
+  }
+
+  /**
+   * Spec files run in parallel and each creates its own database, so the roles are set up
+   * under an advisory lock: two sessions altering the same role at once makes Postgres
+   * answer "tuple concurrently updated".
+   */
+  private static async ensureRoles(client: Client): Promise<void> {
+    await client.query('select pg_advisory_lock($1)', [TestDatabase.ROLES_LOCK]);
+    try {
+      await TestDatabase.ensureRole(client, 'wattwisely_migrator');
+      await TestDatabase.ensureRole(client, 'wattwisely_app');
+    } finally {
+      await client.query('select pg_advisory_unlock($1)', [TestDatabase.ROLES_LOCK]);
     }
   }
 
