@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Transaction } from '@wattwisely/db';
 import { AuditRecorder } from '../../common/audit/audit.recorder';
-import { Transaction } from '../../common/database/transaction-runner';
 import { RequestAuth } from '../../common/request/request-auth';
 
 /** What an audit entry about a site, charger or connector names. */

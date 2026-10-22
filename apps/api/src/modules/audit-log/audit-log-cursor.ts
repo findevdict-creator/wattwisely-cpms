@@ -1,4 +1,4 @@
-import { UuidV7 } from '../../common/database/uuid-v7';
+import { UuidV7 } from '@wattwisely/db';
 
 /**
  * The opaque next_cursor of the audit log list: the time and id of the last entry

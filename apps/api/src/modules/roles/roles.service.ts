@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DatabaseSession } from '../../common/database/database-session';
-import { TransactionRunner } from '../../common/database/transaction-runner';
+import { DatabaseSession, TransactionRunner } from '@wattwisely/db';
 import { PermissionCatalog } from '../../common/permissions/permission-catalog';
 import { ProblemException } from '../../common/problem/problem.exception';
 import { TenantAccess } from '../../common/tenant/tenant-access';

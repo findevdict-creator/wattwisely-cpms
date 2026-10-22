@@ -1,6 +1,5 @@
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { TestApi } from '../../../testing/test-api';
-import { TestData, TestPerson } from '../../../testing/test-data';
-import { TestDatabase } from '../../../testing/test-database';
 
 /** Story AST-01 end to end: create, list, search, change and remove sites, within one's scope. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Sites', () => {

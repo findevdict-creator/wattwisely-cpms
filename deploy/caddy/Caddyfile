@@ -1,4 +1,4 @@
-# Routes the three public addresses to their services.
+# Routes the public addresses to their services.
 # With PUBLIC_SCHEME=https Caddy gets and renews Let's Encrypt certificates by itself.
 # With PUBLIC_SCHEME=http (local testing) it serves plain HTTP.
 {
@@ -22,6 +22,17 @@
 {$PUBLIC_SCHEME}://{$API_HOST} {
 	import security_headers
 	reverse_proxy api:3000
+}
+
+# Chargers: wss://ocpp.<domain>/ocpp/<identity>. WebSocket upgrades pass through as they are.
+{$PUBLIC_SCHEME}://{$OCPP_HOST} {
+	reverse_proxy ocpp-gateway:3100
+}
+
+# Plain ws:// for the few chargers that cannot do TLS; the gateway only lets in chargers
+# registered with "allow plain ws" (X-Forwarded-Proto tells it which door was used).
+http://{$OCPP_PLAIN_HOST} {
+	reverse_proxy ocpp-gateway:3100
 }
 
 {$PUBLIC_SCHEME}://{$AUTH_HOST} {

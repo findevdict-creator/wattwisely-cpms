@@ -56,3 +56,38 @@ export const connectorStatus = pgEnum('connector_status', [
   'faulted',
   'unknown',
 ]);
+
+/** What the platform can ask a charger to do (OCPP gateway design, "Commands"). */
+export const chargerCommandAction = pgEnum('charger_command_action', [
+  'remote_start',
+  'remote_stop',
+  'reset',
+  'unlock',
+  'change_availability',
+]);
+
+/**
+ * A command's life: queued (waiting for the charger, at most five minutes while it is
+ * offline), sent (waiting for its reply), then one of the end states.
+ */
+export const chargerCommandStatus = pgEnum('charger_command_status', [
+  'queued',
+  'sent',
+  'accepted',
+  'rejected',
+  'timed_out',
+  'expired',
+  'failed',
+]);
+
+/** Which way an OCPP message travelled: in from the charger, out to it. */
+export const ocppDirection = pgEnum('ocpp_direction', ['in', 'out']);
+
+/** The three OCPP-J frame kinds: a CALL, its CALLRESULT or its CALLERROR. */
+export const ocppMessageType = pgEnum('ocpp_message_type', ['call', 'call_result', 'call_error']);
+
+/**
+ * A charging session as the gateway records it from StartTransaction to StopTransaction.
+ * Module 5 (sessions and pricing) adds the states around these two.
+ */
+export const chargingSessionStatus = pgEnum('charging_session_status', ['charging', 'ended']);

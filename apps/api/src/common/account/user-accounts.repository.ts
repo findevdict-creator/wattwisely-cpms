@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { eq, sql } from 'drizzle-orm';
-import { userAccounts } from '@wattwisely/db';
-import { Transaction } from '../database/transaction-runner';
-import { UuidV7 } from '../database/uuid-v7';
+import { Transaction, userAccounts, UuidV7 } from '@wattwisely/db';
 import { StaffAccount } from './staff-account';
 
 /** A user_accounts row as this repository returns it. */

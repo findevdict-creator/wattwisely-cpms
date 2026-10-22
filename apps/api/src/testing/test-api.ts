@@ -1,12 +1,11 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
+import { TestData, TestDatabase } from '@wattwisely/db/testing';
 import { ApiServer } from '../api.server';
 import { AppModule } from '../app.module';
 import { KeycloakKeySetProvider } from '../common/auth/keycloak-key-set.provider';
 import { MailSender } from '../common/mail/mail.sender';
 import { RecordingMailSender } from './recording-mail.sender';
-import { TestData } from './test-data';
-import { TestDatabase } from './test-database';
 import { TestTokenIssuer } from './test-token.issuer';
 
 /** Request options for TestApi.call. */

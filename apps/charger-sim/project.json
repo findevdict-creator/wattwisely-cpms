@@ -1,0 +1,32 @@
+{
+  "name": "charger-sim-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/charger-sim/src",
+  "projectType": "application",
+  "tags": ["scope:charger-sim-cli", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "charger-sim-cli:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "charger-sim-cli:build:development"
+        },
+        "production": {
+          "buildTarget": "charger-sim-cli:build:production"
+        }
+      }
+    },
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

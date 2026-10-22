@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { and, asc, count, eq, gt, ilike, inArray, isNull, or, sql, SQL } from 'drizzle-orm';
-import { chargers, connectors, sites } from '@wattwisely/db';
+import { chargers, connectors, sites, Transaction } from '@wattwisely/db';
 import { SiteScopeCondition } from '../../../common/database/site-scope.condition';
-import { Transaction } from '../../../common/database/transaction-runner';
 import { ListCursor } from '../../../common/paging/list-cursor';
 import { SiteScope } from '../../../common/permissions/site-scope';
 import { ChargerStatusSql } from '../chargers/charger-status';

@@ -1,4 +1,4 @@
-import { UuidV7 } from '../database/uuid-v7';
+import { UuidV7 } from '@wattwisely/db';
 
 /**
  * The opaque next_cursor of a list sorted by a text key, e.g. a site name or a charger

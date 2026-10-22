@@ -1,6 +1,5 @@
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { TestApi } from '../../testing/test-api';
-import { TestData, TestPerson } from '../../testing/test-data';
-import { TestDatabase } from '../../testing/test-database';
 
 /** Stories ACC-02 and ACC-03 end to end: invite, accept, change roles, remove. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Team members and invitations', () => {

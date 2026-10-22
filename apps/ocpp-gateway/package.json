@@ -1,0 +1,24 @@
+{
+  "name": "@wattwisely/ocpp-gateway",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0",
+    "@nestjs/platform-fastify": "^11.2.7",
+    "@fastify/websocket": "^11.3.4",
+    "ws": "^8.22.0",
+    "ajv": "^8.20.0",
+    "class-validator": "^0.15.1",
+    "class-transformer": "^0.5.1",
+    "fastify": "5.11.3",
+    "drizzle-orm": "^0.45.4",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.0"
+  }
+}

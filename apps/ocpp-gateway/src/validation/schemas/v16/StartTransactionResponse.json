@@ -1,0 +1,10 @@
+{
+  "title": "StartTransactionResponse",
+  "type": "object",
+  "properties": {
+    "idTagInfo": { "$ref": "IdTagInfo" },
+    "transactionId": { "type": "integer" }
+  },
+  "additionalProperties": false,
+  "required": ["idTagInfo", "transactionId"]
+}

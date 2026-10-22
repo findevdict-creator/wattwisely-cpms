@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { UuidV7 } from '../../../common/database/uuid-v7';
+import { UuidV7 } from '@wattwisely/db';
+import { ChargerPassword } from '@wattwisely/ocpp-contracts';
 import { SitePermissionChecker } from '../../../common/permissions/site-permission.checker';
 import { VersionConflict } from '../../../common/problem/version-conflict';
 import { RequestAuth } from '../../../common/request/request-auth';
 import { AssetErrors } from '../asset-errors';
 import { ChargerIdentity } from './charger-identity';
-import { ChargerPassword } from './charger-password';
 import { ChargerRecord } from './charger-record';
 import { ChargerSetupCardBuilder } from './charger-setup-card.builder';
 import { ChargerTransaction } from './charger-transaction';

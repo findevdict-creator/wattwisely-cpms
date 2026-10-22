@@ -1,7 +1,6 @@
 import { Client } from 'pg';
+import { TestData, TestDatabase } from '@wattwisely/db/testing';
 import { PermissionCatalog } from '../permissions/permission-catalog';
-import { TestData } from '../../testing/test-data';
-import { TestDatabase } from '../../testing/test-database';
 
 /**
  * The database's own guarantees, checked as the API's database role: Postgres

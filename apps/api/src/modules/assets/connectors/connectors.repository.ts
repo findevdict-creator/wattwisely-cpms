@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { and, asc, eq, inArray, max } from 'drizzle-orm';
-import { connectors } from '@wattwisely/db';
-import { Transaction } from '../../../common/database/transaction-runner';
-import { ConnectorRecord } from './connector-record';
+import { and, asc, eq, inArray, max, sql } from 'drizzle-orm';
+import { chargingSessions, connectors, Transaction } from '@wattwisely/db';
+import { ActiveSession, ConnectorRecord } from './connector-record';
 
 /** Reads and writes the connectors table. RLS limits every query to the current tenant. */
 @Injectable()
@@ -21,6 +20,11 @@ export class ConnectorsRepository {
     statusInfo: connectors.statusInfo,
     statusChangedAt: connectors.statusChangedAt,
     version: connectors.version,
+    activeSession: sql<ActiveSession | null>`(select json_build_object(
+        'id', s.id, 'ocppTransactionId', s.ocpp_transaction_id, 'startedAt', s.started_at, 'energyWh', s.energy_wh)
+      from ${chargingSessions} s
+      where s.connector_id = ${connectors.id} and s.status = 'charging'
+      order by s.started_at desc limit 1)`,
   };
 
   /** The connectors of these chargers, in OCPP connector order. */

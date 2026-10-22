@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, desc, eq, gte, inArray, lt, SQL, sql } from 'drizzle-orm';
-import { auditLog } from '@wattwisely/db';
-import { Transaction } from '../../common/database/transaction-runner';
+import { auditLog, Transaction } from '@wattwisely/db';
 import { AuditLogCursor } from './audit-log-cursor';
 import { AuditLogRecord } from './audit-log-record';
 import { ListAuditLogQueryDto } from './dto/list-audit-log-query.dto';

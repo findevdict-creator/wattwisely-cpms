@@ -6,8 +6,8 @@ import {
   roles,
   tenantMemberships,
   tenants,
+  Transaction,
 } from '@wattwisely/db';
-import { Transaction } from '../database/transaction-runner';
 import { RoleGrant } from '../permissions/permission-set';
 import { TenantSummary } from './tenant-summary';
 

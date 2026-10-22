@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq, isNull, ne } from 'drizzle-orm';
-import { tenantMemberships, tenants, userAccounts } from '@wattwisely/db';
-import { Transaction } from '../../common/database/transaction-runner';
+import { tenantMemberships, tenants, Transaction, userAccounts } from '@wattwisely/db';
 import { InvitationRecord } from './invitation-record';
 
 /**
