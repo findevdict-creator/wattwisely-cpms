@@ -9,6 +9,7 @@ export interface SessionRow {
   chargerId: string;
   connectorId: string;
   ocppTransactionId: number;
+  idTag: string;
   status: SessionState;
   timeZone: string;
   startedAt: Date;
@@ -33,6 +34,7 @@ export class SessionColumns {
     chargerId: chargingSessions.chargerId,
     connectorId: chargingSessions.connectorId,
     ocppTransactionId: chargingSessions.ocppTransactionId,
+    idTag: chargingSessions.idTag,
     status: chargingSessions.status,
     timeZone: chargingSessions.timeZone,
     startedAt: chargingSessions.startedAt,

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
+import { SessionRow } from '@wattwisely/session-engine';
 import { TagPolicy } from '../../commands/tag-policy';
 import { ChargerConnection } from '../../connection/charger-connection';
-import { ChargerEventPublisher } from '../../events/charger-event.publisher';
+import { SessionOpener } from '../../sessions/session-opener';
 import { GatewayRepositories } from '../../storage/gateway-repositories';
-import { SessionRecord } from '../../storage/sessions.repository';
 import { ActionHandler, HandlerResult } from '../action-handler';
 import { StartTransactionRequest } from './v16-messages';
 
@@ -20,7 +20,7 @@ export class V16StartTransactionHandler implements ActionHandler {
   constructor(
     private readonly transactionRunner: TransactionRunner,
     private readonly store: GatewayRepositories,
-    private readonly publisher: ChargerEventPublisher,
+    private readonly opener: SessionOpener,
     private readonly tags: TagPolicy,
   ) {}
 
@@ -33,7 +33,7 @@ export class V16StartTransactionHandler implements ActionHandler {
       async (tx) => {
         await this.store.chargers.touch(tx, charger.id);
         const connector = await this.store.connectors.findOrCreate(tx, charger, start.connectorId);
-        const existing = await this.store.sessions.findActiveOnConnector(tx, connector.id);
+        const existing = await this.store.sessions.findOnConnector(tx, connector.id);
         if (existing && V16StartTransactionHandler.isSame(existing, start)) {
           return existing;
         }
@@ -48,9 +48,9 @@ export class V16StartTransactionHandler implements ActionHandler {
     connection: ChargerConnection,
     connectorId: string,
     start: StartTransactionRequest & { commandId: string | null },
-  ): Promise<SessionRecord> {
+  ): Promise<SessionRow> {
     const charger = connection.charger;
-    const session = await this.store.sessions.start(tx, {
+    return this.opener.open(tx, charger, {
       tenantId: charger.tenantId,
       chargerId: charger.id,
       connectorId,
@@ -59,17 +59,9 @@ export class V16StartTransactionHandler implements ActionHandler {
       meterStartWh: start.meterStart,
       commandId: start.commandId,
     });
-    await this.publisher.publish(tx, charger, 'session.updated', {
-      session_id: session.id,
-      connector_id: connectorId,
-      ocpp_connector_id: start.connectorId,
-      status: 'charging',
-      energy_wh: 0,
-    });
-    return session;
   }
 
-  private static isSame(session: SessionRecord, start: StartTransactionRequest): boolean {
+  private static isSame(session: SessionRow, start: StartTransactionRequest): boolean {
     return (
       session.idTag === start.idTag &&
       session.startedAt.getTime() === new Date(start.timestamp).getTime()

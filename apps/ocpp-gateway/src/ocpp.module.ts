@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SessionTransitions, TariffVersionStore } from '@wattwisely/session-engine';
 import { ActionHandler } from './adapters/action-handler';
 import { V16Adapter } from './adapters/v16/v16-adapter';
 import { V16AuthorizeHandler } from './adapters/v16/v16-authorize.handler';
@@ -35,6 +36,9 @@ import { RequestChecks } from './connection/request-checks';
 import { UpgradeGuard } from './connection/upgrade-guard';
 import { ChargerEventPublisher } from './events/charger-event.publisher';
 import { MessageLogWriter } from './log/message-log.writer';
+import { ConnectorSessionEffects } from './sessions/connector-session-effects';
+import { SessionOpener } from './sessions/session-opener';
+import { SessionRecorder } from './sessions/session-recorder';
 import { BootEventsRepository } from './storage/boot-events.repository';
 import { ConnectionsRepository } from './storage/connections.repository';
 import { GatewayChargersRepository } from './storage/gateway-chargers.repository';
@@ -72,6 +76,12 @@ const HANDLERS = [
     GatewayRepositories,
     ChargerEventPublisher,
     MessageLogWriter,
+    // Sessions (the shared session engine's classes have no dependencies of their own)
+    { provide: SessionTransitions, useValue: new SessionTransitions() },
+    { provide: TariffVersionStore, useValue: new TariffVersionStore() },
+    SessionRecorder,
+    SessionOpener,
+    ConnectorSessionEffects,
     // Connections
     RateLimitCheck,
     ChargerExistsCheck,

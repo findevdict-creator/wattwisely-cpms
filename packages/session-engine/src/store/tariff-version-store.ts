@@ -1,5 +1,5 @@
 import { and, desc, eq } from 'drizzle-orm';
-import { sites, tariffs, tariffVersions, Transaction } from '@wattwisely/db';
+import { chargers, sites, tariffs, tariffVersions, Transaction } from '@wattwisely/db';
 
 export type TariffVersionRow = typeof tariffVersions.$inferSelect;
 
@@ -18,8 +18,11 @@ export class TariffVersionStore {
     return rows[0] ?? null;
   }
 
-  /** The site's details and the newest version of its tariff, when it has an active one. */
-  async snapshotForSite(tx: Transaction, siteId: string): Promise<SessionPricingSnapshot | null> {
+  /** The charger's site, its time zone and the newest version of its tariff, when it has an active one. */
+  async snapshotForCharger(
+    tx: Transaction,
+    chargerId: string,
+  ): Promise<SessionPricingSnapshot | null> {
     const rows = await tx
       .select({
         siteId: sites.id,
@@ -27,10 +30,11 @@ export class TariffVersionStore {
         tariffVersionId: tariffVersions.id,
         currency: tariffs.currency,
       })
-      .from(sites)
+      .from(chargers)
+      .innerJoin(sites, eq(sites.id, chargers.siteId))
       .leftJoin(tariffs, and(eq(tariffs.id, sites.tariffId), eq(tariffs.status, 'active')))
       .leftJoin(tariffVersions, eq(tariffVersions.tariffId, tariffs.id))
-      .where(eq(sites.id, siteId))
+      .where(eq(chargers.id, chargerId))
       .orderBy(desc(tariffVersions.number))
       .limit(1);
     const row = rows[0];

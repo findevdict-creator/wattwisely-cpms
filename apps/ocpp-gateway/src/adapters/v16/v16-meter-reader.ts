@@ -24,10 +24,16 @@ export class V16MeterReader {
 
   /** The latest cumulative energy in a list of readings, or null when none carried it. */
   static latestEnergyWh(readings: MeterReading[]): number | null {
+    return V16MeterReader.latestEnergy(readings)?.meterWh ?? null;
+  }
+
+  /** The newest energy register reading and when it was taken. */
+  static latestEnergy(readings: MeterReading[]): { meterWh: number; at: Date } | null {
     const withEnergy = readings
       .filter((reading) => reading.energyWh !== null)
       .sort((a, b) => a.measuredAt.getTime() - b.measuredAt.getTime());
-    return withEnergy.length > 0 ? (withEnergy[withEnergy.length - 1].energyWh as number) : null;
+    const latest = withEnergy[withEnergy.length - 1];
+    return latest ? { meterWh: latest.energyWh as number, at: latest.measuredAt } : null;
   }
 
   /** The measurand's value in base units: the no-phase sample, or the sum over phases. */
