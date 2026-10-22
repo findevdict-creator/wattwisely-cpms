@@ -1,0 +1,112 @@
+@if (store.session(); as session) {
+  <header class="title">
+    <div>
+      <a routerLink="/sessions" class="back"><mat-icon>arrow_back</mat-icon> Sessions</a>
+      <h1>
+        {{ session.site_name }} · {{ session.charger_identity }} · {{ session.connector_label }}
+        <ww-status-chip kind="session" [status]="session.status" />
+      </h1>
+      <p class="hint">
+        {{ session.started_at | zonedTime: session.time_zone : true }} ({{ session.time_zone }})
+      </p>
+    </div>
+    @if (!store.isEnded() && permissions.canChange('sessions:close_stuck')) {
+      <button mat-stroked-button (click)="close()" data-testid="close-session">
+        Close session
+      </button>
+    }
+  </header>
+
+  @if (session.review_flags.length > 0) {
+    <div class="flags" role="status" data-testid="review-flags">
+      <mat-icon>flag</mat-icon>
+      Check before charging the driver:
+      @for (flag of session.review_flags; track flag; let last = $last) {
+        {{ flagLabel(flag) }}{{ last ? '.' : ',' }}
+      }
+    </div>
+  }
+
+  <div class="cards">
+    <mat-card appearance="outlined">
+      <mat-card-header><mat-card-title>Charge</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <dl>
+          <dt>Energy</dt>
+          <dd>{{ session.energy_wh / 1000 | number: '1.0-3' }} kWh</dd>
+          <dt>Stopped</dt>
+          <dd>{{ (session.ended_at | zonedTime: session.time_zone : true) || 'Not yet' }}</dd>
+          <dt>Car left</dt>
+          <dd>{{ (session.unplugged_at | zonedTime: session.time_zone : true) || 'Not yet' }}</dd>
+          <dt>Card or token</dt>
+          <dd>{{ session.id_tag }}</dd>
+          <dt>Transaction</dt>
+          <dd>{{ session.ocpp_transaction_id }}</dd>
+          @if (session.stop_reason) {
+            <dt>Stop reason</dt>
+            <dd>{{ session.stop_reason }}</dd>
+          }
+          @if (session.failure_reason) {
+            <dt>Failed because</dt>
+            <dd>{{ failureLabel(session.failure_reason) }}</dd>
+          }
+        </dl>
+      </mat-card-content>
+    </mat-card>
+    <mat-card appearance="outlined">
+      <mat-card-header><mat-card-title>Price</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <dl>
+          <dt>Tariff</dt>
+          <dd>
+            @if (session.tariff; as tariff) {
+              <a [routerLink]="['/tariffs', tariff.id]">{{ tariff.name }}</a
+              >, prices version
+              {{ tariff.version_number }}
+            } @else {
+              None: the site had no tariff
+            }
+          </dd>
+          <dt>{{ session.is_priced ? 'Total' : 'Cost so far' }}</dt>
+          <dd data-testid="session-total">
+            {{ session.gross_amount | money: session.currency }}
+          </dd>
+          @if (session.priced_at) {
+            <dt>Priced</dt>
+            <dd>
+              {{ session.priced_at | zonedTime: session.time_zone : true }}, engine
+              {{ session.pricing_engine_version }}
+            </dd>
+          }
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  @if (session.is_priced && session.currency) {
+    <h2>Receipt</h2>
+    <ww-receipt
+      [lines]="session.lines"
+      [currency]="session.currency"
+      [timeZone]="session.time_zone"
+      [totals]="{ net: session.net_amount, tax: session.tax_amount, gross: session.gross_amount }"
+    />
+  }
+
+  <h2>Energy</h2>
+  <ww-energy-chart [readings]="store.readings()" [timeZone]="session.time_zone" />
+
+  <h2>Timeline</h2>
+  <ol class="timeline" data-testid="timeline">
+    @for (change of session.state_changes; track $index) {
+      <li>
+        <span class="when">{{ change.occurred_at | zonedTime: session.time_zone : true }}</span>
+        {{ stateLabel(change.to_status) }}
+        <span class="hint">({{ change.event }})</span>
+      </li>
+    }
+  </ol>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

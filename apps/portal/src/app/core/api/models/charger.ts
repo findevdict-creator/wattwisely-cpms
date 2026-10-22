@@ -6,12 +6,16 @@ export type ChargerAuthMode = 'password' | 'none';
 export type ConnectorType =
   'ccs1' | 'ccs2' | 'type1' | 'type2' | 'chademo' | 'gbt' | 'nacs' | 'unknown';
 
-/** The charging session running on a connector right now. */
+/** The session on a connector right now: running, or stopped while the car is still plugged in. */
 export interface ActiveSession {
   id: string;
   ocpp_transaction_id: number;
+  status: 'charging' | 'suspended' | 'idle' | 'stopping';
   started_at: string;
   energy_wh: number;
+  /** The cost so far in minor units; null without a tariff or before the first estimate. */
+  gross_amount: number | null;
+  currency: string | null;
 }
 
 /** A plug on a charger, with the last status the charger reported for it. */

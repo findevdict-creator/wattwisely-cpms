@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { StatusLabels } from './status-labels';
 
-/** A coloured dot and a word for a site, charger or connector status. */
+/** A coloured dot and a word for a site, charger, connector, command or session status. */
 @Component({
   selector: 'ww-status-chip',
   template: `<span class="chip {{ tone() }}" [attr.data-status]="status()"
@@ -33,7 +33,7 @@ import { StatusLabels } from './status-labels';
 })
 export class StatusChipComponent {
   readonly status = input.required<string>();
-  readonly kind = input<'site' | 'charger' | 'connector' | 'command'>('charger');
+  readonly kind = input<'site' | 'charger' | 'connector' | 'command' | 'session'>('charger');
 
   protected readonly tone = computed(() => StatusLabels.toneOf(this.status()));
   protected readonly label = computed(() =>
@@ -48,6 +48,8 @@ export class StatusChipComponent {
         return StatusLabels.connector(status);
       case 'command':
         return StatusLabels.command(status);
+      case 'session':
+        return StatusLabels.session(status);
       default:
         return StatusLabels.charger(status);
     }

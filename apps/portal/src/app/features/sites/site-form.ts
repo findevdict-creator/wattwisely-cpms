@@ -38,6 +38,7 @@ export class SiteForm {
       nonNullable: true,
       validators: [Validators.maxLength(500)],
     }),
+    tariffId: new FormControl<string | null>(null),
   });
   openingHours = new OpeningHoursForm();
 
@@ -57,6 +58,7 @@ export class SiteForm {
       visibility: site.visibility,
       powerLimitKw: site.power_limit_kw,
       parkingNotes: site.parking_notes,
+      tariffId: site.tariff_id,
     });
     form.openingHours = OpeningHoursForm.from(site.opening_hours);
     return form;
@@ -85,6 +87,7 @@ export class SiteForm {
       visibility: value.visibility,
       power_limit_kw: value.powerLimitKw,
       parking_notes: value.parkingNotes.trim(),
+      tariff_id: value.tariffId,
     };
   }
 

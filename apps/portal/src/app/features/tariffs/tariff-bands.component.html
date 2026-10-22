@@ -1,0 +1,52 @@
+<table class="bands" data-testid="tariff-bands">
+  <thead>
+    <tr>
+      <th>Band</th>
+      <th>Days</th>
+      <th>From</th>
+      <th>To</th>
+      <th>Per kWh</th>
+      <th>Per hour</th>
+      <th>Idle per min</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (band of bands().controls; track band; let index = $index) {
+      <tr [formGroup]="band">
+        <td><input formControlName="name" placeholder="Peak" aria-label="Band name" /></td>
+        <td>
+          <mat-select formControlName="days" multiple aria-label="Days" class="days">
+            @for (day of weekdays; track day.key) {
+              <mat-option [value]="day.key">{{ day.label }}</mat-option>
+            }
+          </mat-select>
+        </td>
+        <td>
+          <input formControlName="start" class="time" placeholder="00:00" aria-label="From" />
+        </td>
+        <td><input formControlName="end" class="time" placeholder="24:00" aria-label="To" /></td>
+        <td><input formControlName="energyPrice" class="price" aria-label="Price per kWh" /></td>
+        <td><input formControlName="timePrice" class="price" aria-label="Price per hour" /></td>
+        <td><input formControlName="idleFee" class="price" aria-label="Idle fee per minute" /></td>
+        <td>
+          @if (isEditable() && bands().length > 1) {
+            <button mat-icon-button type="button" (click)="remove(index)" aria-label="Remove band">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+<p class="hint">
+  Times are local to each site; 24:00 is midnight, and a band can run past midnight (22:00 to
+  06:00). Prices are in {{ currency() }} with up to four decimals.
+</p>
+@if (isEditable()) {
+  <button mat-stroked-button type="button" (click)="add()" data-testid="add-band">
+    <mat-icon>add</mat-icon>
+    Add band
+  </button>
+}

@@ -1,0 +1,26 @@
+.receipt {
+  border-collapse: collapse;
+  min-width: 520px;
+
+  th,
+  td {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  th {
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  .number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .grand td {
+    font-weight: 500;
+    border-bottom: none;
+  }
+}

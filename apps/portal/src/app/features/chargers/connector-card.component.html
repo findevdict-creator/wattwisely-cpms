@@ -20,7 +20,13 @@
     </p>
     @if (connector().active_session; as session) {
       <p class="session" data-testid="active-session">
-        Charging · {{ energyKwh() | number: '1.0-2' }} kWh
+        {{ sessionLabel() }} · {{ energyKwh() | number: '1.0-2' }} kWh
+        @if (session.gross_amount !== null) {
+          · {{ session.gross_amount | money: session.currency }} so far
+        }
+        @if (permissions.can('sessions:read')) {
+          · <a [routerLink]="['/sessions', session.id]">Details</a>
+        }
       </p>
     }
     @if (connector().error_code) {
