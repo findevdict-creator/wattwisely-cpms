@@ -64,6 +64,8 @@ services:
       KEYCLOAK_AUDIENCE: wattwisely-api
       # Row-level security applies to this role; up.sh creates it and runs the migrations first.
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
+      # The API's own public address (module 8): tenant logos in e-mails and on driver pages are linked from here.
+      API_URL: ${PUBLIC_SCHEME}://${API_HOST}
       # Invitation e-mails link here.
       PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
       # The driver app (module 7): the QR codes on the chargers point here.

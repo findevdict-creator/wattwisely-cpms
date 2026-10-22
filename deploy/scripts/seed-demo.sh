@@ -11,6 +11,7 @@
 #   Sites of Acme Charging: Riverside Car Park (two chargers), Depot North (one charger, waiting)
 #   Tariff of Acme Charging: Standard (off-peak 0.30, peak 0.40 per kWh from 17:00), on both sites
 #   One finished session at Riverside: the worker prices it within a minute (8.80, the design's example)
+#   Branding of Acme Charging: blue and orange, a logo, help@acme.test (drivers and e-mails see it)
 #
 # Every user is asked to set up an authenticator app at first login (two-factor is required).
 source "$(dirname "$0")/lib/common.sh"
@@ -138,6 +139,18 @@ INSERT INTO meter_values (id, tenant_id, charger_id, session_id, measured_at, en
   ('01900000-0000-7000-8000-000000005201', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d001',
    '01900000-0000-7000-8000-000000005001', '2026-03-10 17:00Z', 110000, '[]')
 ON CONFLICT DO NOTHING;
+-- Acme Charging has set up its brand (module 8): the driver's page, receipts and e-mails show it.
+-- The logo is a small SVG; the etag is what the API computes for it (sha256, first 16 hex digits).
+WITH logo AS (
+  SELECT convert_to('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 40"><rect width="140" height="40" rx="8" fill="#ff8f00"/><path d="M24 5 11 23h9l-4 12 14-19h-9z" fill="#fff"/><text x="44" y="28" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#fff">ACME</text></svg>', 'UTF8') AS data
+)
+INSERT INTO tenant_branding (id, tenant_id, display_name, primary_color, accent_color, support_email, support_phone,
+  support_url, logo_content_type, logo_data, logo_etag, logo_size_bytes, version)
+SELECT '01900000-0000-7000-8000-000000008001', '01900000-0000-7000-8000-00000000a001', 'Acme Charging', '#0d47a1', '#ff8f00',
+  'help@acme.test', '+44 20 7946 0000', 'https://acme.test/help',
+  'image/svg+xml', data, left(encode(sha256(data), 'hex'), 16), length(data), 2
+FROM logo
+ON CONFLICT (tenant_id) DO NOTHING;
 SQL
 }
 
