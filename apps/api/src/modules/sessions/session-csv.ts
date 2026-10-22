@@ -2,7 +2,7 @@ import { Currency } from '@wattwisely/pricing';
 import { SessionRecord } from './session-record';
 
 /**
- * Sessions as CSV for finance (story SES export): one row per session, amounts in the
+ * Sessions as CSV for finance: one row per session, amounts in the
  * major unit of the currency ("8.80"), energy in kWh. Text a spreadsheet would read as
  * a formula gets a leading apostrophe.
  */

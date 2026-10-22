@@ -56,7 +56,7 @@ run_migrations
 compose up -d --no-build
 
 info "Waiting for services to become healthy"
-for service in postgres valkey keycloak api portal ocpp-gateway; do
+for service in postgres valkey keycloak api portal ocpp-gateway worker; do
   wait_for_service "$service"
 done
 openbao_unseal

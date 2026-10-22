@@ -10,6 +10,7 @@ Everything runs with Docker Compose on one Linux server. A single server suits a
 | `api`            | ghcr.io/…/api          | Wattwisely REST API                                                  | Through Caddy: `api.<domain>`                                             |
 | `portal`         | ghcr.io/…/portal       | Tenant portal                                                        | Through Caddy: `portal.<domain>`                                          |
 | `ocpp-gateway`   | ghcr.io/…/ocpp-gateway | Where chargers connect (OCPP 1.6J over WebSocket)                    | Through Caddy: `ocpp.<domain>` (wss) and `ocpp-plain.<domain>` (ws)       |
+| `worker`         | ghcr.io/…/worker       | Background jobs: prices sessions, running costs, stale sessions      | No                                                                        |
 | `keycloak`       | keycloak/keycloak      | Login, two-factor, SSO                                               | Through Caddy: `auth.<domain>` (admin console only from private networks) |
 | `postgres`       | postgres 16            | Databases for Wattwisely and Keycloak                                | No                                                                        |
 | `valkey`         | valkey                 | Reserved for live updates once the gateway runs on several instances | No                                                                        |
@@ -17,7 +18,7 @@ Everything runs with Docker Compose on one Linux server. A single server suits a
 | `object-storage` | seaweedfs              | S3-compatible file storage for logos, invoices, exports              | No                                                                        |
 | `mailpit`        | mailpit                | Catches e-mail in local trials only                                  | Local only                                                                |
 
-Later modules add `worker`, `driver` and `admin` to the same file.
+Later modules add `driver` and `admin` to the same file.
 
 ## Server checklist
 
@@ -63,7 +64,7 @@ Run a nightly backup and copy it off the server, for example with cron:
 
 ## Versions and images
 
-A GitHub Action builds the `api`, `portal` and `ocpp-gateway` images and pushes them to GitHub's container registry:
+A GitHub Action builds the `api`, `portal`, `ocpp-gateway` and `worker` images and pushes them to GitHub's container registry:
 
 | Event          | Image tags             |
 | -------------- | ---------------------- |

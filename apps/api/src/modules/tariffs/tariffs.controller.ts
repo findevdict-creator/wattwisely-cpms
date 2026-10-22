@@ -28,7 +28,7 @@ import { TariffChangesService } from './tariff-changes.service';
 import { TariffPreviewService } from './tariff-preview.service';
 import { TariffsService } from './tariffs.service';
 
-/** /v1/tariffs: what charging costs, in versions (Sessions and Pricing design, PRC stories). */
+/** /v1/tariffs: what charging costs, in versions (Sessions and Pricing design). */
 @ApiTags('tariffs')
 @ApiBearerAuth()
 @ApiHeader({ name: 'X-Tenant-Id', required: false })
