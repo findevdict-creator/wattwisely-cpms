@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
-import { chargers, chargingSessions, connectors, Transaction } from '@wattwisely/db';
+import {
+  chargers,
+  chargingSessions,
+  connectors,
+  sites,
+  tenants,
+  Transaction,
+} from '@wattwisely/db';
 import { SessionStates } from '@wattwisely/session-engine';
 
 /** The charger behind an identity, found before its tenant is known. */
@@ -10,10 +17,23 @@ export interface PublicCharger {
   identity: string;
 }
 
-/** The plug a driver named. */
+/** The plug a driver named, as the QR page describes it. */
 export interface PublicConnector {
   id: string;
+  ocppConnectorId: number;
   label: string;
+  type: string;
+  currentType: string | null;
+  maxPowerKw: number | null;
+  status: string;
+}
+
+/** The names the driver's page shows for where a session happens. */
+export interface ChargePlace {
+  operatorName: string;
+  siteName: string;
+  chargerIdentity: string;
+  connectorLabel: string;
 }
 
 /** Finds the charger and connector a driver's QR code names. */
@@ -42,7 +62,15 @@ export class ChargePlaceLookup {
     ocppConnectorId: number,
   ): Promise<PublicConnector | null> {
     const rows = await tx
-      .select({ id: connectors.id, label: connectors.label })
+      .select({
+        id: connectors.id,
+        ocppConnectorId: connectors.ocppConnectorId,
+        label: connectors.label,
+        type: connectors.type,
+        currentType: connectors.currentType,
+        maxPowerKw: connectors.maxPowerKw,
+        status: connectors.status,
+      })
       .from(connectors)
       .where(
         and(eq(connectors.chargerId, chargerId), eq(connectors.ocppConnectorId, ocppConnectorId)),
@@ -65,12 +93,19 @@ export class ChargePlaceLookup {
   }
 
   /** The names the driver's page shows for a session's place. */
-  async placeOf(tx: Transaction, connectorId: string) {
+  async placeOf(tx: Transaction, connectorId: string): Promise<ChargePlace> {
     const rows = await tx
-      .select({ chargerIdentity: chargers.ocppIdentity, connectorLabel: connectors.label })
+      .select({
+        operatorName: tenants.name,
+        siteName: sites.name,
+        chargerIdentity: chargers.ocppIdentity,
+        connectorLabel: connectors.label,
+      })
       .from(connectors)
       .innerJoin(chargers, eq(chargers.id, connectors.chargerId))
+      .innerJoin(sites, eq(sites.id, chargers.siteId))
+      .innerJoin(tenants, eq(tenants.id, chargers.tenantId))
       .where(eq(connectors.id, connectorId));
-    return rows[0] ?? { chargerIdentity: '', connectorLabel: '' };
+    return rows[0] ?? { operatorName: '', siteName: '', chargerIdentity: '', connectorLabel: '' };
   }
 }
