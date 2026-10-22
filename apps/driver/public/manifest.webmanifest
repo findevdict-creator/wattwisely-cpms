@@ -1,0 +1,10 @@
+{
+  "name": "Wattwisely Charge",
+  "short_name": "Charge",
+  "description": "Scan, pay and charge at any Wattwisely charger.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1b5e20",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

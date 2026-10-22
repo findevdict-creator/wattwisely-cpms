@@ -43,6 +43,10 @@ export class ApiConfig {
   @IsUrl({ require_tld: false, protocols: ['ws', 'wss'] })
   ocppPlainUrl!: string;
 
+  /** The driver app's public address, e.g. https://charge.example.com (module 7): QR codes point there. */
+  @IsUrl({ require_tld: false })
+  driverUrl!: string;
+
   @IsString()
   @IsNotEmpty()
   smtpHost!: string;

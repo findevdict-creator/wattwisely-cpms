@@ -1,0 +1,125 @@
+@if (store.charge(); as charge) {
+  <header class="where">
+    <h1>{{ charge.site_name }} · Plug {{ charge.connector_label }}</h1>
+    <p class="hint">{{ charge.operator_name }} · {{ charge.charger_identity }}</p>
+  </header>
+
+  @switch (phase()) {
+    @case ('card') {
+      <section class="panel" data-testid="phase-card">
+        <h2>Pay by card</h2>
+        <ww-card-form [charge]="charge" (confirmed)="check()" />
+      </section>
+    }
+    @case ('starting') {
+      <section class="panel centre" data-testid="phase-starting">
+        <mat-spinner diameter="40" />
+        <h2>Starting the charger</h2>
+        <p class="hint">
+          Plug in your car if you have not yet. The charger should start within a few seconds.
+        </p>
+        <p class="hint">Hold on your card: {{ charge.hold_amount | money: charge.currency }}</p>
+      </section>
+    }
+    @case ('charging') {
+      <section class="panel centre" data-testid="phase-charging">
+        <div class="hint">{{ statusLabel() }}</div>
+        <div class="figure" data-testid="cost-so-far">
+          {{ charge.amount | money: charge.currency }}
+        </div>
+        <div class="hint">so far</div>
+        <dl class="facts">
+          <div>
+            <dt>Energy</dt>
+            <dd>{{ charge.energy_wh / 1000 | number: '1.0-2' }} kWh</dd>
+          </div>
+          <div>
+            <dt>Time</dt>
+            <dd>{{ charge.started_at | duration: null : store.now() }}</dd>
+          </div>
+          <div>
+            <dt>Hold</dt>
+            <dd>{{ charge.hold_amount | money: charge.currency }}</dd>
+          </div>
+        </dl>
+        @if (charge.is_stop_requested) {
+          <p class="hint" data-testid="stop-requested">
+            Stopping… the charger has been asked to stop.
+          </p>
+        } @else if (charge.can_stop) {
+          <button
+            mat-stroked-button
+            class="stop"
+            (click)="stop()"
+            [disabled]="store.isBusy()"
+            data-testid="stop"
+          >
+            <mat-icon>stop_circle</mat-icon>
+            Stop charging
+          </button>
+        }
+      </section>
+    }
+    @case ('finishing') {
+      <section class="panel centre" data-testid="phase-finishing">
+        <mat-spinner diameter="40" />
+        <h2>Charging stopped</h2>
+        <p class="hint">
+          You can unplug your car. The final price is worked out once the car is unplugged; it
+          appears here within a minute.
+        </p>
+        <p class="hint">{{ charge.energy_wh / 1000 | number: '1.0-2' }} kWh delivered</p>
+      </section>
+    }
+    @case ('done') {
+      <section class="panel centre" data-testid="phase-done">
+        <mat-icon class="big">check_circle</mat-icon>
+        <div class="figure" data-testid="final-price">
+          {{ charge.receipt?.gross ?? charge.amount | money: charge.currency }}
+        </div>
+        <div class="hint">
+          {{ paymentLabel() }}
+          @if (charge.card_brand) {
+            · {{ charge.card_brand }} •••• {{ charge.card_last4 }}
+          }
+        </div>
+        <p class="hint">
+          {{ charge.started_at | zonedTime: charge.time_zone : true }}
+          @if (charge.ended_at) {
+            to {{ charge.ended_at | zonedTime: charge.time_zone }}
+          }
+          · {{ charge.energy_wh / 1000 | number: '1.0-2' }} kWh
+        </p>
+      </section>
+      @if (charge.receipt; as receipt) {
+        <section class="panel">
+          <h2>Receipt</h2>
+          <ww-charge-receipt
+            [receipt]="receipt"
+            [currency]="charge.currency"
+            [timeZone]="charge.time_zone"
+          />
+          <p class="hint">Questions about this charge? Contact {{ charge.operator_name }}.</p>
+        </section>
+      }
+    }
+    @case ('failed') {
+      <section class="panel centre" data-testid="phase-failed">
+        <mat-icon class="big sad">error_outline</mat-icon>
+        <h2>{{ statusLabel() }}</h2>
+        <p>{{ failureLabel() }}</p>
+        <a mat-stroked-button [routerLink]="['/c', charge.charger_identity, '1']">Try again</a>
+      </section>
+    }
+  }
+  @if (store.error()) {
+    <p class="error" role="alert">{{ store.error() }}</p>
+  }
+} @else if (store.error()) {
+  <section class="panel">
+    <p class="error" role="alert">{{ store.error() }}</p>
+    <a mat-stroked-button routerLink="/">Home</a>
+  </section>
+} @else {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+}

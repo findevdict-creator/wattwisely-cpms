@@ -34,6 +34,7 @@ services:
       AUTH_HOST: ${AUTH_HOST}
       OCPP_HOST: ${OCPP_HOST}
       OCPP_PLAIN_HOST: ${OCPP_PLAIN_HOST}
+      DRIVER_HOST: ${DRIVER_HOST}
       ACME_EMAIL: ${ACME_EMAIL}
       KEYCLOAK_ADMIN_ALLOWED_IPS: ${KEYCLOAK_ADMIN_ALLOWED_IPS:-private_ranges}
     volumes:
@@ -44,6 +45,7 @@ services:
     depends_on:
       api: { condition: service_healthy }
       portal: { condition: service_healthy }
+      driver: { condition: service_healthy }
       ocpp-gateway: { condition: service_healthy }
       keycloak: { condition: service_healthy }
 
@@ -55,7 +57,7 @@ services:
     environment:
       PORT: 3000
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}}
+      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}}
       # The issuer is the public address written into tokens; the keys are fetched over the private network.
       KEYCLOAK_ISSUER_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}/realms/wattwisely
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/wattwisely/protocol/openid-connect/certs
@@ -64,6 +66,8 @@ services:
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
       # Invitation e-mails link here.
       PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
+      # The driver app (module 7): the QR codes on the chargers point here.
+      DRIVER_URL: ${PUBLIC_SCHEME}://${DRIVER_HOST}
       # Where chargers connect (served by ocpp-gateway below); printed on charger setup cards.
       OCPP_URL: ${OCPP_URL}
       OCPP_PLAIN_URL: ${OCPP_PLAIN_URL}
@@ -131,7 +135,17 @@ services:
       postgres: { condition: service_healthy }
       api: { condition: service_healthy }
 
-  # Later modules add their services here: driver, admin.
+  # The page a driver's phone opens after scanning a plug's QR code (module 7): prices,
+  # card payment, the charge as it runs, the receipt. Static files; it talks to the API.
+  driver:
+    image: ${WATTWISELY_IMAGE_PREFIX}/driver:${WATTWISELY_VERSION}
+    build: { context: .., dockerfile: apps/driver/Dockerfile }
+    <<: [*restart, *logging]
+    environment:
+      DRIVER_API_URL: ${PUBLIC_SCHEME}://${API_HOST}
+    networks: [backend]
+
+  # Later modules add their services here: admin.
 
   # ---------- Login: Keycloak ----------
   keycloak:

@@ -1,0 +1,79 @@
+@if (store.place(); as place) {
+  <header class="where">
+    <h1>{{ place.site_name }}</h1>
+    <p class="hint">
+      {{ place.operator_name }} · {{ place.address.line1 }}, {{ place.address.city }}
+    </p>
+  </header>
+
+  <section class="panel plug">
+    <div>
+      <div class="label">Charger {{ place.charger_identity }}</div>
+      <div class="title">Plug {{ place.connector_label }}</div>
+      <div class="hint">{{ plugDescription() }}</div>
+    </div>
+    <div class="availability {{ place.availability }}" data-testid="availability">
+      {{ availabilityLabel() }}
+    </div>
+  </section>
+
+  @if (place.tariff; as tariff) {
+    <section class="panel">
+      <h2>Prices</h2>
+      <ww-tariff-summary [tariff]="tariff" />
+    </section>
+  }
+
+  <section class="panel pay">
+    @if (canStart()) {
+      <p>
+        We hold
+        <strong>{{ place.hold_amount | money: place.tariff?.currency }}</strong> on your card and
+        take only what you use. The charge stops by itself before it reaches the hold.
+      </p>
+      <button
+        mat-flat-button
+        class="start"
+        (click)="start()"
+        [disabled]="store.isStarting()"
+        data-testid="pay-and-charge"
+      >
+        @if (store.isStarting()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>credit_card</mat-icon>
+        }
+        Pay and charge
+      </button>
+    } @else if (!place.is_card_payment_accepted) {
+      <p class="hint" data-testid="not-accepted">
+        This charger does not take card payments yet. Ask {{ place.operator_name }} how to charge
+        here.
+      </p>
+    } @else {
+      <p class="hint" data-testid="not-available">
+        @switch (place.availability) {
+          @case ('busy') {
+            Someone is charging on this plug. Try another plug on the charger.
+          }
+          @case ('offline') {
+            The charger is offline right now. Try again in a few minutes, or tell
+            {{ place.operator_name }}.
+          }
+          @default {
+            This plug cannot be used right now. Try another plug on the charger.
+          }
+        }
+      </p>
+    }
+    @if (store.error()) {
+      <p class="error" role="alert">{{ store.error() }}</p>
+    }
+  </section>
+} @else if (store.error()) {
+  <section class="panel">
+    <p class="error" role="alert">{{ store.error() }}</p>
+  </section>
+} @else {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+}

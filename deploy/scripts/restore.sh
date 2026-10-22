@@ -38,7 +38,7 @@ restore_database() {
 
 restore_settings
 info "Stopping applications"
-compose stop caddy api portal keycloak openbao object-storage
+compose stop caddy api portal driver keycloak openbao object-storage
 restore_volume openbao-data
 restore_volume object-storage-data
 compose up -d postgres

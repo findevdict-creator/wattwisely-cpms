@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PAYMENT_GATEWAY } from '@wattwisely/payments';
 import { PaymentAccountController } from './account/payment-account.controller';
 import { PaymentAccountService } from './account/payment-account.service';
 import { PaymentGatewayProvider } from './payment-gateway.provider';
@@ -6,6 +7,7 @@ import { PaymentsController } from './payments/payments.controller';
 import { PaymentsRepository } from './payments/payments.repository';
 import { PaymentsService } from './payments/payments.service';
 import { ChargePlaceLookup } from './public/charge-place.lookup';
+import { ChargeViewBuilder } from './public/charge-view.builder';
 import { PublicChargeController } from './public/public-charge.controller';
 import { PublicChargeService } from './public/public-charge.service';
 import { RefundExecutor } from './refunds/refund-executor';
@@ -31,6 +33,7 @@ import { WebhookService } from './webhooks/webhook.service';
     PaymentGatewayProvider.PROVIDER,
     PaymentAccountService,
     ChargePlaceLookup,
+    ChargeViewBuilder,
     PublicChargeService,
     WebhookService,
     PaymentsRepository,
@@ -38,5 +41,7 @@ import { WebhookService } from './webhooks/webhook.service';
     RefundExecutor,
     RefundsService,
   ],
+  // The drivers module (module 7) builds on the public charge: same gateway, same lookups.
+  exports: [PAYMENT_GATEWAY, ChargePlaceLookup, ChargeViewBuilder],
 })
 export class PaymentsModule {}

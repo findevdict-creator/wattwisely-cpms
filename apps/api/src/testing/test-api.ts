@@ -96,6 +96,7 @@ export class TestApi {
       PORTAL_URL: 'http://portal.test',
       OCPP_URL: 'wss://ocpp.test/ocpp',
       OCPP_PLAIN_URL: 'ws://ocpp-plain.test/ocpp',
+      DRIVER_URL: 'http://charge.test',
       SMTP_HOST: 'smtp.test',
       SMTP_FROM: 'no-reply@wattwisely.test',
     };

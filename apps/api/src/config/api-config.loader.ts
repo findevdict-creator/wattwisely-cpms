@@ -17,6 +17,7 @@ export class ApiConfigLoader {
       portalUrl: environment['PORTAL_URL'] ?? '',
       ocppUrl: environment['OCPP_URL'] ?? '',
       ocppPlainUrl: environment['OCPP_PLAIN_URL'] ?? '',
+      driverUrl: environment['DRIVER_URL'] ?? '',
       ...this.smtpSettings(environment),
       stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
       stripePublishableKey: environment['STRIPE_PUBLISHABLE_KEY'] ?? '',

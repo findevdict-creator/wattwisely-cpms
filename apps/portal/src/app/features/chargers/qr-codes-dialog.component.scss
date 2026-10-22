@@ -1,0 +1,33 @@
+.codes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.code {
+  width: 180px;
+  text-align: center;
+}
+
+.label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.drawing {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+  background: white;
+
+  ::ng-deep svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.url {
+  font-size: 11px;
+  word-break: break-all;
+  color: var(--mat-sys-on-surface-variant);
+}

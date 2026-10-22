@@ -11,13 +11,13 @@ import {
   PaymentAccountStore,
   PaymentGateway,
   PaymentGatewayError,
-  PaymentRow,
   PaymentStore,
-  ParsedChargeKey,
 } from '@wattwisely/payments';
-import { SessionRow, SessionStore } from '@wattwisely/session-engine';
+import { SessionRow } from '@wattwisely/session-engine';
 import { PaymentErrors } from '../payment-errors';
+import { ChargeKeyResolver } from './charge-key.resolver';
 import { ChargePlaceLookup, PublicCharger, PublicConnector } from './charge-place.lookup';
+import { ChargeViewBuilder } from './charge-view.builder';
 import { ChargeDto } from './dto/charge.dto';
 import { StartChargeRequestDto } from './dto/start-charge-request.dto';
 
@@ -31,7 +31,7 @@ import { StartChargeRequestDto } from './dto/start-charge-request.dto';
 export class PublicChargeService {
   private readonly accounts = new PaymentAccountStore();
   private readonly payments = new PaymentStore();
-  private readonly sessions = new SessionStore();
+  private readonly keys = new ChargeKeyResolver();
   private readonly opener = new PaidSessionOpener();
   private readonly authoriser = new HoldAuthoriser();
 
@@ -39,6 +39,7 @@ export class PublicChargeService {
     private readonly runner: TransactionRunner,
     @Inject(PAYMENT_GATEWAY) private readonly gateway: PaymentGateway,
     private readonly places: ChargePlaceLookup,
+    private readonly views: ChargeViewBuilder,
   ) {}
 
   async start(body: StartChargeRequestDto): Promise<ChargeDto> {
@@ -60,21 +61,18 @@ export class PublicChargeService {
   }
 
   async status(key: string): Promise<ChargeDto> {
-    const parsed = this.parse(key);
+    const parsed = this.keys.parse(key);
     return this.runner.run(DatabaseSession.forTenant(parsed.tenantId), async (tx) => {
-      const payment = await this.payments.findById(tx, parsed.paymentId);
-      return this.dto(tx, this.requireOwn(parsed, payment), key);
+      const payment = await this.keys.resolve(tx, parsed);
+      return this.views.build(tx, payment, key);
     });
   }
 
   /** The page confirmed the card: look at the hold now instead of waiting for the webhook. */
   async check(key: string): Promise<ChargeDto> {
-    const parsed = this.parse(key);
+    const parsed = this.keys.parse(key);
     return this.runner.run(DatabaseSession.forTenant(parsed.tenantId), async (tx) => {
-      const payment = this.requireOwn(
-        parsed,
-        await this.payments.findForUpdate(tx, parsed.paymentId),
-      );
+      const payment = await this.keys.resolve(tx, parsed, true);
       if (payment.status === 'pending') {
         const hold = await this.gateway.getHold(
           payment.providerAccountId,
@@ -83,7 +81,7 @@ export class PublicChargeService {
         await this.authoriser.apply(tx, payment, hold, new Date());
       }
       const current = await this.payments.findById(tx, payment.id);
-      return this.dto(tx, current ?? payment, key);
+      return this.views.build(tx, current ?? payment, key);
     });
   }
 
@@ -103,13 +101,7 @@ export class PublicChargeService {
     }
     const hold = await this.hold(at, session.id, { currency: session.currency, ...place });
     const { payment, key } = await this.recordHold(tx, at, session, hold);
-    return new ChargeDto(payment, session, {
-      chargeKey: key,
-      chargerIdentity: at.charger.identity,
-      connectorLabel: at.connector.label,
-      clientSecret: hold.clientSecret,
-      publishableKey: this.gateway.publishableKey(),
-    });
+    return this.views.build(tx, payment, key, hold.clientSecret);
   }
 
   /** The payment row for a new hold, and the key the driver's page follows it with. */
@@ -171,45 +163,5 @@ export class PublicChargeService {
       throw PaymentErrors.connectorBusy();
     }
     return connector;
-  }
-
-  private parse(key: string): ParsedChargeKey {
-    const parsed = ChargeKey.parse(key);
-    if (!parsed) {
-      throw PaymentErrors.notFound();
-    }
-    return parsed;
-  }
-
-  private requireOwn(parsed: ParsedChargeKey, payment: PaymentRow | null): PaymentRow {
-    if (!payment?.accessKeyHash || !ChargeKey.isValid(parsed, payment.accessKeyHash)) {
-      throw PaymentErrors.notFound();
-    }
-    return payment;
-  }
-
-  private async dto(tx: Transaction, payment: PaymentRow, chargeKey: string): Promise<ChargeDto> {
-    const session = await this.sessions.findById(tx, payment.sessionId);
-    if (!session) {
-      throw PaymentErrors.notFound();
-    }
-    const place = await this.places.placeOf(tx, session.connectorId);
-    const isWaiting = payment.status === 'pending';
-    return new ChargeDto(payment, session, {
-      chargeKey,
-      ...place,
-      clientSecret: isWaiting ? await this.clientSecret(payment) : null,
-      publishableKey: isWaiting ? this.gateway.publishableKey() : null,
-    });
-  }
-
-  /** Re-reads the hold for its client secret when the page comes back before confirming. */
-  private async clientSecret(payment: PaymentRow): Promise<string | null> {
-    try {
-      const hold = await this.gateway.getHold(payment.providerAccountId, payment.providerPaymentId);
-      return hold.clientSecret;
-    } catch {
-      return null;
-    }
   }
 }
