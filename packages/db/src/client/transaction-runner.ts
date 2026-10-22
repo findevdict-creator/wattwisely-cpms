@@ -30,6 +30,7 @@ export class TransactionRunner {
       set_config('app.tenant_id', ${session.tenantId ?? ''}, true),
       set_config('app.user_account_id', ${session.userAccountId ?? ''}, true),
       set_config('app.invite_token_hash', ${session.inviteTokenHash ?? ''}, true),
-      set_config('app.charger_identity', ${session.chargerIdentity ?? ''}, true)`);
+      set_config('app.charger_identity', ${session.chargerIdentity ?? ''}, true),
+      set_config('app.provider_account_id', ${session.providerAccountId ?? ''}, true)`);
   }
 }

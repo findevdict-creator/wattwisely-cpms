@@ -45,7 +45,7 @@ export class SessionCloseService {
         action: 'sessions.closed',
         targetType: 'session',
         targetId: id,
-        targetLabel: `${visible.chargerIdentity} #${visible.ocppTransactionId}`,
+        targetLabel: `${visible.chargerIdentity} #${visible.ocppTransactionId ?? '-'}`,
         before: { status: session.status },
         after: { status },
       });

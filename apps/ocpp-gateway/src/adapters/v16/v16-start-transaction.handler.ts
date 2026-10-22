@@ -40,7 +40,7 @@ export class V16StartTransactionHandler implements ActionHandler {
         return this.open(tx, connection, connector.id, { ...start, commandId });
       },
     );
-    return { reply: { transactionId: session.ocppTransactionId, idTagInfo: { status } } };
+    return { reply: { transactionId: session.ocppTransactionId ?? 0, idTagInfo: { status } } };
   }
 
   private async open(

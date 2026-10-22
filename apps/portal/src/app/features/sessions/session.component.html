@@ -41,7 +41,7 @@
           <dt>Card or token</dt>
           <dd>{{ session.id_tag }}</dd>
           <dt>Transaction</dt>
-          <dd>{{ session.ocpp_transaction_id }}</dd>
+          <dd>{{ session.ocpp_transaction_id ?? 'Not started by the charger yet' }}</dd>
           @if (session.stop_reason) {
             <dt>Stop reason</dt>
             <dd>{{ session.stop_reason }}</dd>
@@ -81,6 +81,13 @@
         </dl>
       </mat-card-content>
     </mat-card>
+    @if (session.payment; as payment) {
+      <ww-session-payment
+        [payment]="payment"
+        [timeZone]="session.time_zone"
+        (refunded)="reload()"
+      />
+    }
   </div>
 
   @if (session.is_priced && session.currency) {

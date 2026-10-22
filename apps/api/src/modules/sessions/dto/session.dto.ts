@@ -67,6 +67,12 @@ export class SessionDto {
   @ApiProperty({ nullable: true, enum: ['no_valid_stop_data', 'stale', 'closed_by_staff'] })
   readonly failure_reason: string | null;
 
+  @ApiProperty({ description: 'The driver pays by card' })
+  readonly is_paid: boolean;
+
+  @ApiProperty({ nullable: true, description: 'Where the card payment stands, when there is one' })
+  readonly payment_status: string | null;
+
   constructor(session: SessionRecord) {
     this.id = session.id;
     this.status = session.status;
@@ -88,5 +94,7 @@ export class SessionDto {
     this.is_priced = session.pricedAt !== null;
     this.review_flags = session.reviewFlags;
     this.failure_reason = session.failureReason;
+    this.is_paid = session.isPaid;
+    this.payment_status = session.paymentStatus;
   }
 }

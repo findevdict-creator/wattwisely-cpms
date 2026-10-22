@@ -20,6 +20,14 @@ export class SessionStore {
   static readonly BATCH = 100;
 
   /** Locks the row for the rest of the transaction, so two workers never price one session twice. */
+  async findById(tx: Transaction, id: string): Promise<SessionRow | null> {
+    const rows = await tx
+      .select(SessionColumns.SELECT)
+      .from(chargingSessions)
+      .where(eq(chargingSessions.id, id));
+    return (rows[0] as SessionRow | undefined) ?? null;
+  }
+
   async findForUpdate(tx: Transaction, id: string): Promise<SessionRow | null> {
     const rows = await tx
       .select(SessionColumns.SELECT)
@@ -98,6 +106,14 @@ export class SessionStore {
     await tx
       .update(chargingSessions)
       .set({ ...price, pricedAt: new Date(), updatedAt: new Date() })
+      .where(eq(chargingSessions.id, id));
+  }
+
+  /** The remote start command that should start a paid session. */
+  async saveCommand(tx: Transaction, id: string, commandId: string): Promise<void> {
+    await tx
+      .update(chargingSessions)
+      .set({ commandId, updatedAt: new Date() })
       .where(eq(chargingSessions.id, id));
   }
 

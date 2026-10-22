@@ -115,3 +115,49 @@ export const sessionLineKind = pgEnum('session_line_kind', [
   'idle',
   'adjustment',
 ]);
+
+/**
+ * How a tenant takes money (Stripe Payments design, "Payment modes"). direct: drivers pay
+ * the tenant's own Stripe connected account (module 6). own_provider and managed are
+ * reserved for later modules and refused by the API until then.
+ */
+export const paymentMode = pgEnum('payment_mode', ['direct', 'own_provider', 'managed']);
+
+/**
+ * A tenant's connected account: pending until Stripe lets it take charges, active while
+ * it can, restricted when Stripe switched charges off again (details missing, past due).
+ */
+export const paymentAccountStatus = pgEnum('payment_account_status', [
+  'pending',
+  'active',
+  'restricted',
+]);
+
+/** What a payment is for. Module 6 makes pre-authorisations only; prepay and postpay come with the drivers module. */
+export const paymentType = pgEnum('payment_type', ['preauth', 'prepay', 'postpay']);
+
+/**
+ * A payment's life (Stripe Payments design, "Holds, capture and release"): pending while
+ * the driver confirms the hold, authorised once the hold is on the card, then captured
+ * (the final price was taken), released (nothing was taken) or failed (the card declined).
+ * capture_failed needs a person; refunded and partially_refunded follow a capture.
+ */
+export const paymentStatus = pgEnum('payment_status', [
+  'pending',
+  'authorised',
+  'captured',
+  'released',
+  'failed',
+  'capture_failed',
+  'partially_refunded',
+  'refunded',
+]);
+
+/** A refund waits for a second person above the approval limit, then goes to the provider. */
+export const refundStatus = pgEnum('refund_status', [
+  'awaiting_approval',
+  'pending',
+  'succeeded',
+  'failed',
+  'cancelled',
+]);

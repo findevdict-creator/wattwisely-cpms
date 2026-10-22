@@ -9,6 +9,9 @@ export class WorkerConfigLoader {
     SESSION_FINALISE_INTERVAL_MS: '60000',
     SESSION_LIVE_COST_INTERVAL_MS: '30000',
     SESSION_STALE_SWEEP_INTERVAL_MS: '600000',
+    PAYMENT_SETTLE_INTERVAL_MS: '30000',
+    SESSION_START_TIMEOUT_INTERVAL_MS: '15000',
+    PAYMENT_WEBHOOK_RETRY_INTERVAL_MS: '60000',
   };
 
   load(environment: NodeJS.ProcessEnv): WorkerConfig {
@@ -20,6 +23,10 @@ export class WorkerConfigLoader {
       finaliseIntervalMs: Number(get('SESSION_FINALISE_INTERVAL_MS')),
       liveCostIntervalMs: Number(get('SESSION_LIVE_COST_INTERVAL_MS')),
       staleSweepIntervalMs: Number(get('SESSION_STALE_SWEEP_INTERVAL_MS')),
+      paymentSettleIntervalMs: Number(get('PAYMENT_SETTLE_INTERVAL_MS')),
+      startTimeoutIntervalMs: Number(get('SESSION_START_TIMEOUT_INTERVAL_MS')),
+      webhookRetryIntervalMs: Number(get('PAYMENT_WEBHOOK_RETRY_INTERVAL_MS')),
+      stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
     });
     const errors = validateSync(config);
     if (errors.length > 0) {

@@ -125,6 +125,12 @@ export class PermissionCatalog {
       isReadOnly: false,
     },
     {
+      key: 'payments:approve_refund',
+      area: 'payments',
+      label: 'Approve refunds above the limit',
+      isReadOnly: false,
+    },
+    {
       key: 'payments:reconcile',
       area: 'payments',
       label: 'Resolve reconciliation items',

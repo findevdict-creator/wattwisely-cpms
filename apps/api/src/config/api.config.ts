@@ -61,4 +61,16 @@ export class ApiConfig {
 
   @IsBoolean()
   smtpStartTls!: boolean;
+
+  /** Stripe (module 6). Empty keys switch card payments off; free sessions keep working. */
+  @IsString()
+  stripeSecretKey!: string;
+
+  /** Handed to the driver's page for Stripe's card form. */
+  @IsString()
+  stripePublishableKey!: string;
+
+  /** The signing secret of the Connect webhook endpoint (POST /v1/webhooks/stripe). */
+  @IsString()
+  stripeWebhookSecret!: string;
 }

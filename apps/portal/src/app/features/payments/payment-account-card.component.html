@@ -1,0 +1,58 @@
+<mat-card appearance="outlined" class="account" data-testid="payment-account">
+  <mat-card-header>
+    <mat-card-title>
+      Stripe account
+      @if (account(); as account) {
+        <ww-status-chip kind="payment_account" [status]="account.status" />
+      }
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (account(); as account) {
+      <p class="hint">{{ action()?.hint }}</p>
+      @if (account.requirements_due.length > 0) {
+        <div class="requirements" role="status" data-testid="requirements">
+          <mat-icon>info</mat-icon>
+          <span>
+            Stripe still needs:
+            @for (item of account.requirements_due; track item; let last = $last) {
+              {{ item }}{{ last ? '.' : ',' }}
+            }
+          </span>
+        </div>
+      }
+      @if (account.status !== 'not_connected') {
+        <dl>
+          <dt>Account</dt>
+          <dd>{{ account.provider_account_id }} ({{ account.country }})</dd>
+          <dt>Payments</dt>
+          <dd>{{ account.is_charges_enabled ? 'Enabled' : 'Not yet enabled' }}</dd>
+          <dt>Payouts</dt>
+          <dd>{{ account.is_payouts_enabled ? 'Enabled' : 'Not yet enabled' }}</dd>
+          <dt>Card hold</dt>
+          <dd>
+            {{ account.hold_amount | money: account.default_currency || 'GBP' }}
+            @if (permissions.canChange('settings:payments')) {
+              <button mat-button (click)="editHold()" data-testid="edit-hold">Change</button>
+            }
+          </dd>
+        </dl>
+      }
+    }
+  </mat-card-content>
+  <mat-card-actions align="end">
+    @if (account()?.status !== 'not_connected') {
+      <button mat-button (click)="refresh()" [disabled]="isBusy()">Refresh status</button>
+    }
+    @if (action(); as action) {
+      @if (action.kind !== 'none' && permissions.canChange('settings:payments')) {
+        <button mat-flat-button (click)="act()" [disabled]="isBusy()" data-testid="account-action">
+          {{ action.label }}
+        </button>
+      }
+    }
+  </mat-card-actions>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-card>

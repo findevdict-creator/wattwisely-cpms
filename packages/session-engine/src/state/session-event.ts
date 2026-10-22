@@ -3,10 +3,12 @@
  * when it leaves the state as it was (an unplug after the transaction ended, say).
  */
 export type SessionEvent =
+  | 'hold_requested'
   | 'authorised'
   | 'declined'
   | 'transaction_started'
   | 'start_timeout'
+  | 'start_rejected'
   | 'suspended'
   | 'resumed'
   | 'energy_stopped'
