@@ -15,9 +15,10 @@ import { StatusLabels } from '../../shared/status-labels';
 import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
 import { EnergyChartComponent } from './energy-chart.component';
 import { ReceiptComponent } from './receipt.component';
+import { SessionPaymentComponent } from './session-payment.component';
 import { SessionStore } from './session.store';
 
-/** One session: where and when, the receipt, the energy chart and the timeline. */
+/** One session: where and when, the receipt, the card payment, the energy chart and the timeline. */
 @Component({
   selector: 'ww-session',
   imports: [
@@ -29,6 +30,7 @@ import { SessionStore } from './session.store';
     MoneyPipe,
     ReceiptComponent,
     RouterLink,
+    SessionPaymentComponent,
     StatusChipComponent,
     ZonedTimePipe,
   ],
@@ -68,6 +70,14 @@ export class SessionComponent implements OnInit {
     }
     try {
       await this.store.close(this.id());
+    } catch (error) {
+      this.error.set(ApiProblem.from(error).detail);
+    }
+  }
+
+  protected async reload(): Promise<void> {
+    try {
+      await this.store.load(this.id());
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     }

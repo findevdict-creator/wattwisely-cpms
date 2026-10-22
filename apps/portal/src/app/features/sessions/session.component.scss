@@ -40,6 +40,7 @@
 
 dl {
   display: grid;
+  margin: 0;
   grid-template-columns: 140px 1fr;
   gap: 6px 12px;
 
@@ -59,5 +60,19 @@ dl {
     display: inline-block;
     min-width: 180px;
     font-variant-numeric: tabular-nums;
+  }
+}
+
+.refunds {
+  padding-left: 20px;
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  .hint {
+    display: block;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 12px;
   }
 }

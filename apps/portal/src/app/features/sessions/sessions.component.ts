@@ -41,6 +41,7 @@ import { SessionsStore } from './sessions.store';
 })
 export class SessionsComponent implements OnInit {
   static readonly STATUS_FILTERS = [
+    { value: 'authorising,starting', label: 'Waiting for the card or the charger' },
     { value: 'charging,suspended,idle', label: 'Running' },
     { value: 'stopping', label: 'Waiting to price' },
     { value: 'completed', label: 'Completed' },
@@ -51,7 +52,15 @@ export class SessionsComponent implements OnInit {
   protected readonly permissions = inject(PermissionsService);
   private readonly sitesApi = inject(SitesApiService);
 
-  protected readonly columns = ['started_at', 'where', 'status', 'energy', 'amount', 'flags'];
+  protected readonly columns = [
+    'started_at',
+    'where',
+    'status',
+    'energy',
+    'amount',
+    'payment',
+    'flags',
+  ];
   protected readonly statusFilters = SessionsComponent.STATUS_FILTERS;
   protected readonly sites = signal<Site[]>([]);
   protected readonly flagLabel = StatusLabels.reviewFlag;

@@ -68,6 +68,16 @@
       }
     </td>
   </ng-container>
+  <ng-container matColumnDef="payment">
+    <th mat-header-cell *matHeaderCellDef>Payment</th>
+    <td mat-cell *matCellDef="let session">
+      @if (session.payment_status) {
+        <ww-status-chip kind="payment" [status]="session.payment_status" />
+      } @else {
+        <span class="hint">{{ session.is_paid ? 'Card' : 'RFID or free' }}</span>
+      }
+    </td>
+  </ng-container>
   <ng-container matColumnDef="flags">
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let session">

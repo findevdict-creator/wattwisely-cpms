@@ -9,7 +9,7 @@ export type ConnectorType =
 /** The session on a connector right now: running, or stopped while the car is still plugged in. */
 export interface ActiveSession {
   id: string;
-  ocpp_transaction_id: number;
+  ocpp_transaction_id: number | null;
   status: 'charging' | 'suspended' | 'idle' | 'stopping';
   started_at: string;
   energy_wh: number;

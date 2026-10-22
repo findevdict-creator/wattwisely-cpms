@@ -4,7 +4,8 @@ import { PermissionsService } from './permissions.service';
 
 /**
  * Opens a page only for people holding the permission in its route data,
- * e.g. `data: { permission: 'team:read' }`. Anyone else lands on the home page.
+ * e.g. `data: { permission: 'team:read' }`, or any one of a list of permissions.
+ * Anyone else lands on the home page.
  */
 @Injectable({ providedIn: 'root' })
 export class PermissionGuard implements CanActivate {
@@ -13,6 +14,7 @@ export class PermissionGuard implements CanActivate {
 
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
     await this.permissions.ensureLoaded();
-    return this.permissions.can(route.data['permission']) || this.router.parseUrl('/');
+    const keys: string[] = ([] as string[]).concat(route.data['permission']);
+    return keys.some((key) => this.permissions.can(key)) || this.router.parseUrl('/');
   }
 }
