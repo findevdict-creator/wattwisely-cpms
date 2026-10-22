@@ -42,7 +42,7 @@ class RouteDeclarations {
 /** Who may call what: route declarations, role permissions and suspended tenants. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Permissions', () => {
   const api = new TestApi();
-  const site = '0190a8e2-0000-7000-8000-00000000bbbb';
+  let site: string;
   let acme: string;
   let paused: string;
   let tess: TestPerson;
@@ -52,6 +52,7 @@ class RouteDeclarations {
     await api.start();
     acme = await api.data.tenant('acme-charging');
     paused = await api.data.tenant('paused-co', 'suspended');
+    site = await api.data.site(acme, 'Riverside');
     tess = await api.data.person('tess@acme.test');
     olivia = await api.data.person('olivia@paused.test');
     await api.data.member(acme, tess, TestData.ROLE_IDS.technician, site);

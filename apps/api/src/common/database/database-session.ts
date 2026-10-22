@@ -7,6 +7,7 @@ export class DatabaseSession {
     readonly tenantId: string | null = null,
     readonly userAccountId: string | null = null,
     readonly inviteTokenHash: string | null = null,
+    readonly chargerIdentity: string | null = null,
   ) {}
 
   static forTenant(tenantId: string, userAccountId: string | null = null): DatabaseSession {
@@ -19,6 +20,11 @@ export class DatabaseSession {
 
   static forInvitation(inviteTokenHash: string): DatabaseSession {
     return new DatabaseSession(null, null, inviteTokenHash);
+  }
+
+  /** The OCPP gateway looking up a connecting charger by its identity, before its tenant is known. */
+  static forChargerIdentity(identity: string): DatabaseSession {
+    return new DatabaseSession(null, null, null, identity);
   }
 
   /** Global tables only (tenants, user_accounts): every tenant-owned row stays hidden. */

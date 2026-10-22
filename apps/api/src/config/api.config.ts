@@ -35,6 +35,14 @@ export class ApiConfig {
   @IsUrl({ require_tld: false })
   portalUrl!: string;
 
+  /** Where chargers connect (the OCPP gateway), e.g. wss://ocpp.example.com/ocpp. Shown on setup cards. */
+  @IsUrl({ require_tld: false, protocols: ['ws', 'wss'] })
+  ocppUrl!: string;
+
+  /** The same for the few chargers that cannot do TLS, e.g. ws://ocpp-plain.example.com/ocpp. */
+  @IsUrl({ require_tld: false, protocols: ['ws', 'wss'] })
+  ocppPlainUrl!: string;
+
   @IsString()
   @IsNotEmpty()
   smtpHost!: string;

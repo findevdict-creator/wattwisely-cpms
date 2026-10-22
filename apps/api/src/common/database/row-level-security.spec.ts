@@ -79,6 +79,28 @@ import { TestDatabase } from '../../testing/test-database';
     await expect(write).rejects.toThrow(/row-level security/);
   });
 
+  it('keeps sites and chargers apart, but lets the gateway find a charger by its identity', async () => {
+    const site = await data.site(acme, 'Riverside');
+    await data.charger(acme, site, 'WW-TESTCHARGER');
+
+    const own = await inTenant(acme, 'select name from sites');
+    const other = await inTenant(volt, 'select name from sites');
+    expect(own.rows).toEqual([{ name: 'Riverside' }]);
+    expect(other.rows).toEqual([]);
+    expect((await app.query('select id from chargers')).rows).toEqual([]);
+
+    await app.query('begin');
+    try {
+      await app.query("select set_config('app.charger_identity', 'ww-testcharger', true)");
+      const found = await app.query('select tenant_id, ocpp_identity from chargers');
+      expect(found.rows).toEqual([{ tenant_id: acme, ocpp_identity: 'WW-TESTCHARGER' }]);
+      const sitesStillHidden = await app.query('select id from sites');
+      expect(sitesStillHidden.rows).toEqual([]);
+    } finally {
+      await app.query('rollback');
+    }
+  });
+
   it('keeps the audit log append-only and tenants read-only for the API', async () => {
     await expect(inTenant(acme, 'delete from audit_log')).rejects.toThrow(/permission denied/);
     await expect(inTenant(acme, "update tenants set name = 'x'")).rejects.toThrow(

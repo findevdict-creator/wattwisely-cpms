@@ -6,3 +6,6 @@ export * from './roles.table';
 export * from './role-permissions.table';
 export * from './membership-roles.table';
 export * from './audit-log.table';
+export * from './sites.table';
+export * from './chargers.table';
+export * from './connectors.table';

@@ -60,6 +60,34 @@ export class TestData {
     return membershipId;
   }
 
+  /** A site in the tenant, at a fixed London address, open all hours. */
+  async site(tenantId: string, name: string): Promise<string> {
+    const id = UuidV7.create();
+    const address = {
+      line1: '1 Test Street',
+      city: 'London',
+      postal_code: 'E1 6AN',
+      country: 'GB',
+    };
+    await this.sql(
+      `insert into sites (id, tenant_id, name, address, latitude, longitude, time_zone)
+       values ($1, $2, $3, $4, 51.5, -0.07, 'Europe/London')`,
+      [id, tenantId, name, JSON.stringify(address)],
+    );
+    return id;
+  }
+
+  /** A charger on a site, registered without a password, as the setup wizard would. */
+  async charger(tenantId: string, siteId: string, identity: string): Promise<string> {
+    const id = UuidV7.create();
+    await this.sql(
+      `insert into chargers (id, tenant_id, site_id, ocpp_identity, auth_mode)
+       values ($1, $2, $3, $4, 'none')`,
+      [id, tenantId, siteId, identity],
+    );
+    return id;
+  }
+
   /** A tenant's own role holding exactly these permissions. */
   async customRole(tenantId: string, name: string, permissionKeys: string[]): Promise<string> {
     const id = UuidV7.create();

@@ -17,6 +17,7 @@ export class ApiServer {
     'Content-Type',
     'X-Tenant-Id',
     'X-Request-Id',
+    'If-Match',
   ];
 
   private readonly logger = new Logger(ApiServer.name);

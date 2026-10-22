@@ -10,6 +10,7 @@ import { TestDatabase } from '../../testing/test-database';
   let olivia: TestPerson;
   let tech: TestPerson;
   let ownerToken: string;
+  let site: string;
 
   beforeAll(async () => {
     await api.start();
@@ -18,6 +19,7 @@ import { TestDatabase } from '../../testing/test-database';
     tech = await api.data.person('tech@acme.test', 'Theo Tech');
     await api.data.member(acme, olivia, owner);
     await api.data.member(acme, tech, technician);
+    site = await api.data.site(acme, 'Riverside');
     ownerToken = await api.issuer.signFor(olivia);
   });
 
@@ -51,7 +53,6 @@ import { TestDatabase } from '../../testing/test-database';
   });
 
   it('invites someone, e-mails a link, and lets them accept it after logging in', async () => {
-    const site = '0190a8e2-0000-7000-8000-00000000aaaa';
     const response = await invite('nina@acme.test', [{ role_id: operations, site_ids: [site] }]);
 
     expect(response.statusCode).toBe(201);

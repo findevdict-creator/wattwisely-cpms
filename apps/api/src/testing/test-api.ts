@@ -14,6 +14,8 @@ export interface TestRequest {
   token?: string;
   tenantId?: string;
   body?: object;
+  /** Sent as If-Match, the version an update expects. */
+  version?: number;
 }
 
 /**
@@ -52,8 +54,15 @@ export class TestApi {
     await this.database?.drop();
   }
 
-  async call(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, request: TestRequest = {}) {
+  async call(
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+    url: string,
+    request: TestRequest = {},
+  ) {
     const headers: Record<string, string> = {};
+    if (request.version !== undefined) {
+      headers['if-match'] = String(request.version);
+    }
     if (request.token) {
       headers['authorization'] = `Bearer ${request.token}`;
     }
@@ -70,6 +79,8 @@ export class TestApi {
       LOG_LEVEL: 'silent',
       DATABASE_URL: database.urlFor('wattwisely_app'),
       PORTAL_URL: 'http://portal.test',
+      OCPP_URL: 'wss://ocpp.test/ocpp',
+      OCPP_PLAIN_URL: 'ws://ocpp-plain.test/ocpp',
       SMTP_HOST: 'smtp.test',
       SMTP_FROM: 'no-reply@wattwisely.test',
     };
