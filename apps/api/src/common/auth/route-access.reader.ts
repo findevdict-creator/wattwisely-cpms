@@ -8,17 +8,19 @@ export class RouteAccessReader {
   constructor(private readonly reflector: Reflector) {}
 
   isPublic(context: ExecutionContext): boolean {
-    return this.hasMarker(RouteAccess.PUBLIC_KEY, context);
+    return this.read<boolean>(RouteAccess.PUBLIC_KEY, context) === true;
   }
 
   isWithoutTenant(context: ExecutionContext): boolean {
-    return this.hasMarker(RouteAccess.WITHOUT_TENANT_KEY, context);
+    return this.read<boolean>(RouteAccess.WITHOUT_TENANT_KEY, context) === true;
   }
 
-  private hasMarker(key: string, context: ExecutionContext): boolean {
-    return (
-      this.reflector.getAllAndOverride<boolean>(key, [context.getHandler(), context.getClass()]) ===
-      true
-    );
+  /** The permission key the route needs, RouteAccess.ANY_MEMBER, or undefined when it declares none. */
+  requiredPermission(context: ExecutionContext): string | undefined {
+    return this.read<string>(RouteAccess.PERMISSION_KEY, context);
+  }
+
+  private read<T>(key: string, context: ExecutionContext): T | undefined {
+    return this.reflector.getAllAndOverride<T>(key, [context.getHandler(), context.getClass()]);
   }
 }

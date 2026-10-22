@@ -23,7 +23,7 @@ Later modules add `ocpp-gateway`, `worker`, `driver` and `admin` to the same fil
 1. A Linux server with at least 4 GB RAM and 40 GB disk, Docker Engine and the Compose plugin installed.
 2. DNS records `portal.<domain>`, `api.<domain>` and `auth.<domain>` pointing at the server.
 3. Ports 80 and 443 open. Nothing else needs to be open.
-4. An SMTP account for login e-mails (password reset, later invitations).
+4. An SMTP account for e-mails (password resets and team invitations).
 5. If the GitHub repository is private: `docker login ghcr.io` with a GitHub token that can read packages.
 
 ## Install
@@ -79,7 +79,7 @@ Set `WATTWISELY_VERSION` in `.env` to a released version on a real server. `main
 ./scripts/seed-demo.sh
 ```
 
-Open <http://portal.localhost>. Demo users (password `Wattwisely-demo-1`): `owner@acme.test` (one tenant), `multi@demo.test` (two tenants), `nobody@demo.test` (no tenant). E-mails land in Mailpit at <http://localhost:8025>. The Keycloak admin console is at <http://auth.localhost/admin>.
+Open <http://portal.localhost>. Demo users (password `Wattwisely-demo-1`): `owner@acme.test` (Owner, one tenant), `tech@acme.test` (Technician, no Team page), `multi@demo.test` (two tenants), `nobody@demo.test` (no tenant). E-mails land in Mailpit at <http://localhost:8025>. The Keycloak admin console is at <http://auth.localhost/admin>.
 
 ## Good to know
 

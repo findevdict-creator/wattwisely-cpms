@@ -10,7 +10,9 @@
       <dt>E-mail</dt>
       <dd data-testid="me-email">{{ tenantContext.me()?.email }}</dd>
       <dt>Working in tenant</dt>
-      <dd data-testid="api-tenant">{{ tenantFromApi()?.alias ?? 'Loading…' }}</dd>
+      <dd data-testid="api-tenant">{{ tenantFromApi()?.name ?? 'Loading…' }}</dd>
+      <dt>Your roles here</dt>
+      <dd data-testid="my-roles">{{ permissions.roleNames().join(', ') }}</dd>
       <dt>Tenants you can switch to</dt>
       <dd>{{ tenantContext.tenants().length }}</dd>
     </dl>

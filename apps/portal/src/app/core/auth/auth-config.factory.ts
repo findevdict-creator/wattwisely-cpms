@@ -7,9 +7,8 @@ import { RuntimeConfig } from '../config/runtime-config';
  * app that started the login is the one that finishes it.
  */
 export class AuthConfigFactory {
-  // "organization:*" asks Keycloak for every tenant the user belongs to, so the portal
-  // can switch between them. Plain "organization" would make the user pick one at login.
-  static readonly SCOPES = 'openid profile email organization:*';
+  // Tenants and roles come from the Wattwisely database (GET /v1/me), not from the token.
+  static readonly SCOPES = 'openid profile email';
 
   create(runtimeConfig: RuntimeConfig, origin: string): AuthConfig {
     return {

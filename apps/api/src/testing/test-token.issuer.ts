@@ -32,13 +32,18 @@ export class TestTokenIssuer {
   }
 
   async sign(claims: Partial<AccessTokenClaims>, overrides: TokenOverrides = {}): Promise<string> {
-    return new SignJWT({ sub: 'user-1', ...claims })
+    return new SignJWT({ sub: 'user-1', email_verified: true, ...claims })
       .setProtectedHeader({ alg: 'RS256', kid: 'test-key' })
       .setIssuer(overrides.issuer ?? TestTokenIssuer.ISSUER)
       .setAudience(overrides.audience ?? TestTokenIssuer.AUDIENCE)
       .setIssuedAt()
       .setExpirationTime(overrides.expiresAt ?? '5m')
       .sign(this.privateKey);
+  }
+
+  /** A token for a person created with TestData. */
+  async signFor(person: { keycloakId: string; email: string }): Promise<string> {
+    return this.sign({ sub: person.keycloakId, email: person.email });
   }
 }
 

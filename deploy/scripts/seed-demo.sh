@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Adds demo tenants and users to a LOCAL trial, so you can try the login flow.
+# Adds demo tenants and users to a LOCAL trial, so you can try the login and team flows.
 #
-#   Tenants (Keycloak organizations): acme-charging, volt-hotels
+#   Tenants: Acme Charging (acme-charging), Volt Hotels (volt-hotels)
 #   Users (password: Wattwisely-demo-1):
-#     owner@acme.test    member of acme-charging
-#     multi@demo.test    member of both tenants (shows the tenant switcher)
+#     owner@acme.test    Owner of Acme Charging (can invite people and change roles)
+#     tech@acme.test     Technician at Acme Charging (sees no Team page)
+#     multi@demo.test    Operations at Acme Charging and Owner of Volt Hotels (tenant switcher)
 #     nobody@demo.test   member of no tenant (shows the "No workspace" page)
 #
 # Every user is asked to set up an authenticator app at first login (two-factor is required).
@@ -26,17 +27,6 @@ login() {
     --user "$(env_value KEYCLOAK_ADMIN_USER)" --password "$(env_value KEYCLOAK_ADMIN_PASSWORD)" >/dev/null 2>&1
 }
 
-# Prints the id of an existing organization, or creates it.
-organization_id() {
-  local alias="$1" id
-  id="$(kcadm get organizations -r "$REALM" -q search="$alias" --fields id,alias --format csv --noquotes | awk -F, -v a="$alias" '$2==a {print $1}')"
-  if [[ -z "$id" ]]; then
-    id="$(kcadm create organizations -r "$REALM" -s name="$2" -s alias="$alias" -s enabled=true \
-      -s "domains=[{\"name\":\"$alias.test\"}]" -i)"
-  fi
-  echo "$id"
-}
-
 # Prints the id of an existing user, or creates it with the demo password.
 user_id() {
   local email="$1" id
@@ -49,21 +39,49 @@ user_id() {
   echo "$id"
 }
 
-add_member() {
-  kcadm create "organizations/$1/members" -r "$REALM" -b "\"$2\"" >/dev/null 2>&1 || true
+# Tenants and memberships live in the Wattwisely database. Accounts are matched to
+# Keycloak users by their (verified) e-mail at first login. Runs as the database superuser.
+seed_database() {
+  compose exec -T postgres psql -X -q -v ON_ERROR_STOP=1 -U wattwisely -d wattwisely >/dev/null <<'SQL'
+INSERT INTO tenants (id, name, slug, status) VALUES
+  ('01900000-0000-7000-8000-00000000a001', 'Acme Charging', 'acme-charging', 'active'),
+  ('01900000-0000-7000-8000-00000000a002', 'Volt Hotels', 'volt-hotels', 'active')
+ON CONFLICT (slug) DO NOTHING;
+INSERT INTO user_accounts (id, email, name) VALUES
+  ('01900000-0000-7000-8000-00000000b001', 'owner@acme.test', 'Olivia Owner'),
+  ('01900000-0000-7000-8000-00000000b002', 'tech@acme.test', 'Theo Tech'),
+  ('01900000-0000-7000-8000-00000000b003', 'multi@demo.test', 'Mia Multi')
+ON CONFLICT (lower(email)) DO NOTHING;
+WITH member (tenant_slug, email, role_key) AS (VALUES
+  ('acme-charging', 'owner@acme.test', 'owner'),
+  ('acme-charging', 'tech@acme.test', 'technician'),
+  ('acme-charging', 'multi@demo.test', 'operations'),
+  ('volt-hotels', 'multi@demo.test', 'owner')
+), added AS (
+  INSERT INTO tenant_memberships (id, tenant_id, user_account_id, status, joined_at)
+  SELECT gen_random_uuid(), t.id, a.id, 'active', now()
+  FROM member m JOIN tenants t ON t.slug = m.tenant_slug JOIN user_accounts a ON lower(a.email) = m.email
+  ON CONFLICT (tenant_id, user_account_id) DO NOTHING
+  RETURNING id, tenant_id, user_account_id
+)
+INSERT INTO membership_roles (id, tenant_id, membership_id, role_id)
+SELECT gen_random_uuid(), added.tenant_id, added.id, r.id
+FROM added
+JOIN tenants t ON t.id = added.tenant_id
+JOIN user_accounts a ON a.id = added.user_account_id
+JOIN member m ON m.tenant_slug = t.slug AND m.email = lower(a.email)
+JOIN roles r ON r.key = m.role_key;
+SQL
 }
 
 info "Signing in to Keycloak"
 login
-info "Creating tenants"
-ACME="$(organization_id acme-charging 'Acme Charging')"
-VOLT="$(organization_id volt-hotels 'Volt Hotels')"
 info "Creating users"
-OWNER="$(user_id owner@acme.test Olivia Owner)"
-MULTI="$(user_id multi@demo.test Mia Multi)"
+user_id owner@acme.test Olivia Owner >/dev/null
+user_id tech@acme.test Theo Tech >/dev/null
+user_id multi@demo.test Mia Multi >/dev/null
 user_id nobody@demo.test Nora Nobody >/dev/null
-add_member "$ACME" "$OWNER"
-add_member "$ACME" "$MULTI"
-add_member "$VOLT" "$MULTI"
+info "Creating tenants and memberships"
+seed_database
 
 info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL_HOST) with password $DEMO_PASSWORD"

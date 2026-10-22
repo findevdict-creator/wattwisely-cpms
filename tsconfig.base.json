@@ -18,7 +18,9 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "paths": {}
+    "paths": {
+      "@wattwisely/db": ["./packages/db/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

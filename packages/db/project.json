@@ -1,0 +1,16 @@
+{
+  "name": "db",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/db/src",
+  "projectType": "library",
+  "tags": ["scope:db", "type:lib"],
+  "targets": {
+    "generate-migration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/db",
+        "command": "drizzle-kit generate"
+      }
+    }
+  }
+}

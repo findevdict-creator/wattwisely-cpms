@@ -29,9 +29,26 @@
         <mat-icon matListItemIcon>home</mat-icon>
         <span matListItemTitle>Home</span>
       </a>
+      @if (permissions.can('team:read')) {
+        <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
+          <mat-icon matListItemIcon>group</mat-icon>
+          <span matListItemTitle>Team</span>
+        </a>
+      }
+      @if (permissions.can('audit:read')) {
+        <a mat-list-item routerLink="/audit-log" routerLinkActive="active">
+          <mat-icon matListItemIcon>history</mat-icon>
+          <span matListItemTitle>Audit log</span>
+        </a>
+      }
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content class="page">
+    @if (permissions.isReadOnly()) {
+      <div class="read-only" role="status" data-testid="read-only-banner">
+        This company's account is suspended. You can look at everything but change nothing.
+      </div>
+    }
     <router-outlet />
   </mat-sidenav-content>
 </mat-sidenav-container>

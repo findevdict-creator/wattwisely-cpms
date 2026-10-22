@@ -4,27 +4,29 @@ A multi-tenant platform for running EV charging networks: charge point operators
 
 This one repository holds every part of the platform, managed with [Nx](https://nx.dev):
 
-| Folder                                     | What it is                                                    | Status                                  |
-| ------------------------------------------ | ------------------------------------------------------------- | --------------------------------------- |
-| `apps/api`                                 | REST API, NestJS on Fastify                                   | Module 1: login and tenant checks       |
-| `apps/portal`                              | Tenant portal, Angular + Angular Material                     | Module 1: login, shell, tenant switcher |
-| `apps/ocpp-gateway`, `apps/worker`         | Charger connections and background jobs                       | Later modules                           |
-| `apps/driver`, `apps/admin`, `apps/mobile` | Driver web app, platform admin console, mobile app            | Later modules                           |
-| `deploy/`                                  | Docker Compose file and scripts to run everything on a server | Ready                                   |
-| `docs/`                                    | How each module works, in reading order                       | Module 1                                |
+| Folder                                     | What it is                                                    | Status                                   |
+| ------------------------------------------ | ------------------------------------------------------------- | ---------------------------------------- |
+| `apps/api`                                 | REST API, NestJS on Fastify                                   | Modules 1–2: login, tenants, roles, team |
+| `apps/portal`                              | Tenant portal, Angular + Angular Material                     | Modules 1–2: login, tenants, Team page   |
+| `apps/ocpp-gateway`, `apps/worker`         | Charger connections and background jobs                       | Later modules                            |
+| `apps/driver`, `apps/admin`, `apps/mobile` | Driver web app, platform admin console, mobile app            | Later modules                            |
+| `deploy/`                                  | Docker Compose file and scripts to run everything on a server | Ready                                    |
+| `packages/db`                              | Database schema (Drizzle) and SQL migrations                  | Module 2                                 |
+| `docs/`                                    | How each module works, in reading order                       | Modules 1–2                              |
 
 ## How the work is organised
 
 Each feature is built as a **module** on its own branch, named `N-name`, with a pull request to review:
 
-| Branch            | Module                                                           |
-| ----------------- | ---------------------------------------------------------------- |
-| `1-auth-keycloak` | Repo skeleton, deployment, login with Keycloak, tenant selection |
-| `2-…`             | Next module, started from the previous one                       |
+| Branch                | Module                                                                                          |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `1-auth-keycloak`     | Repo skeleton, deployment, login with Keycloak, tenant selection                                |
+| `2-roles-permissions` | Tenants in Postgres with row-level security, roles and permissions, team invitations, audit log |
+| `3-…`                 | Next module, started from the previous one                                                      |
 
 Once a pull request is approved it is merged into `main`. A later change to an area goes on a fresh branch from `main`.
 
-Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file.
+Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file. Then [docs/modules/2-roles-permissions.md](docs/modules/2-roles-permissions.md): roles, permissions and the team.
 
 ## Try it on your machine
 
@@ -45,7 +47,7 @@ Requirements: Node.js 22 (see `.nvmrc`) and npm 11 (`npm install -g npm@11`).
 
 ```sh
 npm install
-npm test          # unit and API flow tests
+npm test          # unit and API flow tests (API database tests need TEST_DATABASE_URL, see module 2)
 npm run lint      # coding standards (fails on any rule break)
 npm run build
 ```

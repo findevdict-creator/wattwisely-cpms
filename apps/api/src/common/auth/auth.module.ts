@@ -1,20 +1,23 @@
 import { Global, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { StaffAccountResolver } from '../account/staff-account.resolver';
+import { UserAccountsRepository } from '../account/user-accounts.repository';
+import { PermissionGuard } from '../permissions/permission.guard';
+import { TenantAccessRepository } from '../tenant/tenant-access.repository';
+import { TenantAccessResolver } from '../tenant/tenant-access.resolver';
 import { TenantContextGuard } from '../tenant/tenant-context.guard';
-import { TenantMembershipResolver } from '../tenant/tenant-membership.resolver';
 import { AuthenticatedUserFactory } from './authenticated-user.factory';
 import { AuthenticationGuard } from './authentication.guard';
 import { BearerTokenExtractor } from './bearer-token.extractor';
 import { KeycloakKeySetProvider } from './keycloak-key-set.provider';
 import { KeycloakTokenVerifier } from './keycloak-token.verifier';
-import { OrganizationClaimParser } from './organization-claim.parser';
 import { RouteAccessReader } from './route-access.reader';
 
 /**
- * Registers the two global guards that run, in this order, before every controller:
- *   1. AuthenticationGuard  - who is calling?
- *   2. TenantContextGuard   - which tenant are they working in?
- * Permissions (what may they do) are added in module 2.
+ * Registers the three global guards that run, in this order, before every controller:
+ *   1. AuthenticationGuard  - who is calling? (token)
+ *   2. TenantContextGuard   - which account and tenant? (database)
+ *   3. PermissionGuard      - may they do this? (roles)
  */
 @Global()
 @Module({
@@ -22,13 +25,21 @@ import { RouteAccessReader } from './route-access.reader';
     KeycloakKeySetProvider,
     KeycloakTokenVerifier,
     BearerTokenExtractor,
-    OrganizationClaimParser,
     AuthenticatedUserFactory,
     RouteAccessReader,
-    TenantMembershipResolver,
+    UserAccountsRepository,
+    StaffAccountResolver,
+    TenantAccessRepository,
+    TenantAccessResolver,
     { provide: APP_GUARD, useClass: AuthenticationGuard },
     { provide: APP_GUARD, useClass: TenantContextGuard },
+    { provide: APP_GUARD, useClass: PermissionGuard },
   ],
-  exports: [KeycloakKeySetProvider],
+  exports: [
+    KeycloakKeySetProvider,
+    UserAccountsRepository,
+    TenantAccessRepository,
+    TenantAccessResolver,
+  ],
 })
 export class AuthModule {}

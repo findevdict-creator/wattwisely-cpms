@@ -57,8 +57,19 @@ services:
       KEYCLOAK_ISSUER_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}/realms/wattwisely
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/wattwisely/protocol/openid-connect/certs
       KEYCLOAK_AUDIENCE: wattwisely-api
+      # Row-level security applies to this role; up.sh creates it and runs the migrations first.
+      DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
+      # Invitation e-mails link here.
+      PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
     networks: [backend]
     depends_on:
+      postgres: { condition: service_healthy }
       keycloak: { condition: service_healthy }
 
   portal:
@@ -184,6 +195,17 @@ services:
     <<: [*restart, *logging]
     ports:
       - '127.0.0.1:8025:8025'
+      - '127.0.0.1:1025:1025'
+    networks: [backend]
+
+  # Lets "npm start" on this machine reach Postgres at 127.0.0.1:5432.
+  postgres-dev-port:
+    image: alpine/socat:1.8.1.1
+    profiles: [dev]
+    <<: [*restart, *logging]
+    command: ['TCP-LISTEN:5432,fork,reuseaddr', 'TCP:postgres:5432']
+    ports:
+      - '127.0.0.1:5432:5432'
     networks: [backend]
 
 networks:

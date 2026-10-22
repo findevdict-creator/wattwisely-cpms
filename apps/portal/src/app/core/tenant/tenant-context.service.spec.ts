@@ -4,8 +4,8 @@ import { LastTenantStore } from './last-tenant.store';
 import { TenantContextService } from './tenant-context.service';
 
 describe('TenantContextService', () => {
-  const acme = { id: 'org-acme', alias: 'acme-charging' };
-  const volt = { id: 'org-volt', alias: 'volt-hotels' };
+  const acme = { id: 'org-acme', slug: 'acme-charging', name: 'Acme Charging', status: 'active' };
+  const volt = { id: 'org-volt', slug: 'volt-hotels', name: 'Volt Hotels', status: 'active' };
   const meWith = (tenants: Me['tenants']): Me => ({
     id: 'user-1',
     email: 'u@test',

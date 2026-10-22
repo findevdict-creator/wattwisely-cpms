@@ -40,6 +40,7 @@ write_addresses() {
     set_env_value ACME_EMAIL admin@localhost
     set_env_value PORTAL_DEV_URL http://localhost:4200
     set_env_value SMTP_HOST mailpit
+    set_env_value SMTP_FROM no-reply@wattwisely.localhost
     set_env_value SMTP_PORT 1025
     set_env_value SMTP_AUTH false
     set_env_value SMTP_STARTTLS false
@@ -56,7 +57,8 @@ write_addresses() {
 
 write_secrets() {
   local key
-  for key in POSTGRES_PASSWORD KEYCLOAK_DB_PASSWORD KEYCLOAK_ADMIN_PASSWORD VALKEY_PASSWORD S3_SECRET_KEY; do
+  for key in POSTGRES_PASSWORD DB_MIGRATOR_PASSWORD DB_APP_PASSWORD KEYCLOAK_DB_PASSWORD \
+    KEYCLOAK_ADMIN_PASSWORD VALKEY_PASSWORD S3_SECRET_KEY; do
     set_env_value "$key" "$(random_secret 32)"
   done
   set_env_value S3_ACCESS_KEY "$(random_secret 20)"

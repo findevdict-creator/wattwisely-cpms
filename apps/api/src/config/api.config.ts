@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsString, IsUrl, Max, Min } from 'class-validator';
+import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsString, IsUrl, Max, Min } from 'class-validator';
 
 /**
  * Typed settings for the API, read from environment variables at startup.
@@ -26,4 +26,31 @@ export class ApiConfig {
   @IsString()
   @IsNotEmpty()
   keycloakAudience!: string;
+
+  /** Postgres, as the wattwisely_app role (row-level security always applies to it). */
+  @IsUrl({ require_tld: false, protocols: ['postgres', 'postgresql'] })
+  databaseUrl!: string;
+
+  /** The portal's public address, used for links in e-mails (e.g. invitations). */
+  @IsUrl({ require_tld: false })
+  portalUrl!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  smtpHost!: string;
+
+  @IsInt()
+  smtpPort!: number;
+
+  @IsEmail({ require_tld: false })
+  smtpFrom!: string;
+
+  @IsString()
+  smtpUser!: string;
+
+  @IsString()
+  smtpPassword!: string;
+
+  @IsBoolean()
+  smtpStartTls!: boolean;
 }

@@ -17,13 +17,6 @@ info "Safety backup before updating"
 info "Pulling images"
 compose pull --quiet
 
-run_migrations() {
-  # Database migrations arrive with module 2 (tenancy). From then on this runs
-  # "compose run --rm api node migrate.js" before the new API starts.
-  info "No database migrations yet"
-}
-run_migrations
-
-info "Restarting with the new images"
-"$(dirname "$0")/up.sh"
+info "Restarting with the new images (up.sh runs the database migrations first)"
+"$(dirname "$0")/up.sh" --no-pull
 "$(dirname "$0")/health.sh"

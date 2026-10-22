@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthenticatedRequest } from '../request/authenticated-request';
 import { RequestAuth } from '../request/request-auth';
+import { RequestOrigin } from '../request/request-origin';
 import { AuthenticatedUserFactory } from './authenticated-user.factory';
 import { BearerTokenExtractor } from './bearer-token.extractor';
 import { KeycloakTokenVerifier } from './keycloak-token.verifier';
@@ -27,7 +28,8 @@ export class AuthenticationGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const token = this.tokenExtractor.extract(request.headers.authorization);
     const claims = await this.tokenVerifier.verify(token);
-    request.auth = new RequestAuth(this.userFactory.create(claims));
+    const origin = new RequestOrigin(request.ip, String(request.id));
+    request.auth = new RequestAuth(this.userFactory.create(claims), origin);
     return true;
   }
 }

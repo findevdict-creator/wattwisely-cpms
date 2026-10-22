@@ -1,52 +1,41 @@
-import { Test } from '@nestjs/testing';
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { ApiServer } from './api.server';
-import { AppModule } from './app.module';
-import { KeycloakKeySetProvider } from './common/auth/keycloak-key-set.provider';
-import { TestTokenIssuer } from './testing/test-token.issuer';
+import { TestDatabase } from './testing/test-database';
+import { TestApi } from './testing/test-api';
+import { TestData, TestPerson } from './testing/test-data';
 
 /**
- * Runs the real API in memory (all modules, guards and error handling) with a
- * fake Keycloak, and walks through the login and tenant rules end to end.
+ * Runs the real API in memory on a fresh Postgres database with a fake Keycloak,
+ * and walks through the login and tenant rules end to end.
  */
-describe('API authentication and tenant flow', () => {
-  const acme = { 'acme-charging': { id: 'org-acme' } };
-  const both = { 'acme-charging': { id: 'org-acme' }, 'volt-hotels': { id: 'org-volt' } };
-  let app: NestFastifyApplication;
-  let issuer: TestTokenIssuer;
+(TestDatabase.isConfigured() ? describe : describe.skip)('API login and tenant flow', () => {
+  const api = new TestApi();
+  let acme: string;
+  let volt: string;
+  let mia: TestPerson;
+  let solo: TestPerson;
 
   beforeAll(async () => {
-    issuer = await new TestTokenIssuer().init();
-    process.env['KEYCLOAK_ISSUER_URL'] = TestTokenIssuer.ISSUER;
-    process.env['CORS_ORIGINS'] = 'http://portal.test';
-    process.env['LOG_LEVEL'] = 'silent';
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(KeycloakKeySetProvider)
-      .useValue({ getKeySet: () => issuer.getKeySet(), isReachable: async () => true })
-      .compile();
-    app = moduleRef.createNestApplication<NestFastifyApplication>(ApiServer.createAdapter(), {
-      logger: false,
-    });
-    ApiServer.configure(app);
-    await app.init();
-    await app.getHttpAdapter().getInstance().ready();
+    await api.start();
+    acme = await api.data.tenant('acme-charging');
+    volt = await api.data.tenant('volt-hotels');
+    mia = await api.data.person('mia@demo.test', 'Mia Multi');
+    solo = await api.data.person('solo@demo.test');
+    await api.data.member(acme, mia, TestData.ROLE_IDS.owner);
+    await api.data.member(volt, mia, TestData.ROLE_IDS.readOnly);
+    await api.data.member(acme, solo, TestData.ROLE_IDS.technician);
   });
 
-  afterAll(async () => app.close());
+  afterAll(async () => api.stop());
 
-  const get = async (url: string, headers: Record<string, string> = {}) =>
-    app.inject({ method: 'GET', url, headers });
-
-  it('serves health checks without a login', async () => {
-    expect((await get('/health/live')).statusCode).toBe(200);
-    expect((await get('/health/ready')).json()).toEqual({
+  it('serves health checks without a login, including the database', async () => {
+    expect((await api.call('GET', '/health/live')).statusCode).toBe(200);
+    expect((await api.call('GET', '/health/ready')).json()).toEqual({
       status: 'ok',
-      checks: { keycloak: 'ok' },
+      checks: { keycloak: 'ok', database: 'ok' },
     });
   });
 
   it('refuses a request without a token with a problem+json body', async () => {
-    const response = await get('/v1/me');
+    const response = await api.call('GET', '/v1/me');
 
     expect(response.statusCode).toBe(401);
     expect(response.headers['content-type']).toContain('application/problem+json');
@@ -54,61 +43,84 @@ describe('API authentication and tenant flow', () => {
   });
 
   it('refuses a forged token', async () => {
-    const response = await get('/v1/me', { authorization: 'Bearer abc.def.ghi' });
+    const response = await api.call('GET', '/v1/me', { token: 'abc.def.ghi' });
 
     expect(response.json()).toMatchObject({ code: 'token_invalid' });
   });
 
   it('returns the user and their tenants from GET /v1/me', async () => {
-    const token = await issuer.sign({
-      email: 'multi@demo.test',
-      name: 'Mia Multi',
-      organization: both,
-    });
-
-    const response = await get('/v1/me', { authorization: `Bearer ${token}` });
+    const response = await api.call('GET', '/v1/me', { token: await api.issuer.signFor(mia) });
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
-      id: 'user-1',
-      email: 'multi@demo.test',
+      id: mia.accountId,
+      email: 'mia@demo.test',
       name: 'Mia Multi',
       is_platform_staff: false,
       tenants: [
-        { id: 'org-acme', alias: 'acme-charging' },
-        { id: 'org-volt', alias: 'volt-hotels' },
+        { id: acme, slug: 'acme-charging', name: 'acme charging', status: 'active' },
+        { id: volt, slug: 'volt-hotels', name: 'volt hotels', status: 'active' },
       ],
     });
   });
 
+  it('creates an account on first login with a verified e-mail, with no tenants yet', async () => {
+    const token = await api.issuer.sign({ sub: 'kc-new', email: 'new@demo.test' });
+
+    const response = await api.call('GET', '/v1/me', { token });
+
+    expect(response.json()).toMatchObject({ email: 'new@demo.test', tenants: [] });
+    expect(response.json().id).toEqual(expect.any(String));
+  });
+
+  it('never links an account through an unverified e-mail', async () => {
+    const token = await api.issuer.sign({
+      sub: 'kc-attacker',
+      email: 'mia@demo.test',
+      email_verified: false,
+    });
+
+    const me = await api.call('GET', '/v1/me', { token });
+    const tenant = await api.call('GET', '/v1/tenant', { token });
+
+    expect(me.json()).toMatchObject({ id: null, tenants: [] });
+    expect(tenant.statusCode).toBe(403);
+    expect(tenant.json()).toMatchObject({ code: 'account_unverified' });
+  });
+
   it('uses the only tenant when the user has one', async () => {
-    const token = await issuer.sign({ organization: acme });
+    const response = await api.call('GET', '/v1/tenant', { token: await api.issuer.signFor(solo) });
 
-    const response = await get('/v1/tenant', { authorization: `Bearer ${token}` });
+    expect(response.json()).toEqual({
+      id: acme,
+      slug: 'acme-charging',
+      name: 'acme charging',
+      status: 'active',
+    });
+  });
 
-    expect(response.json()).toEqual({ id: 'org-acme', alias: 'acme-charging' });
+  it('asks for X-Tenant-Id when the user has several tenants', async () => {
+    const response = await api.call('GET', '/v1/tenant', { token: await api.issuer.signFor(mia) });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({ code: 'tenant_required' });
   });
 
   it('switches tenant with X-Tenant-Id', async () => {
-    const token = await issuer.sign({ organization: both });
+    const token = await api.issuer.signFor(mia);
 
-    const response = await get('/v1/tenant', {
-      authorization: `Bearer ${token}`,
-      'x-tenant-id': 'org-volt',
-    });
+    const response = await api.call('GET', '/v1/tenant', { token, tenantId: volt });
 
-    expect(response.json()).toEqual({ id: 'org-volt', alias: 'volt-hotels' });
+    expect(response.json()).toMatchObject({ id: volt, slug: 'volt-hotels' });
   });
 
   it('answers 404 when X-Tenant-Id names a tenant the user is not in', async () => {
-    const token = await issuer.sign({ organization: acme });
+    const token = await api.issuer.signFor(solo);
 
-    const response = await get('/v1/tenant', {
-      authorization: `Bearer ${token}`,
-      'x-tenant-id': 'org-volt',
-    });
-
-    expect(response.statusCode).toBe(404);
-    expect(response.json()).toMatchObject({ code: 'tenant_not_found' });
+    for (const tenantId of [volt, 'not-a-uuid']) {
+      const response = await api.call('GET', '/v1/tenant', { token, tenantId });
+      expect(response.statusCode).toBe(404);
+      expect(response.json()).toMatchObject({ code: 'tenant_not_found' });
+    }
   });
 });

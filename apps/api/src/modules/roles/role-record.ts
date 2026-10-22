@@ -1,0 +1,9 @@
+/** A role with its permission keys, as the roles repository returns it. */
+export interface RoleRecord {
+  id: string;
+  key: string | null;
+  name: string;
+  description: string;
+  isSystem: boolean;
+  permissionKeys: string[];
+}

@@ -1,0 +1,36 @@
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 960px;
+}
+
+.search {
+  width: 360px;
+  margin-bottom: 16px;
+}
+
+.members {
+  max-width: 960px;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.email {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.expired {
+  --mat-chip-label-text-color: var(--mat-sys-error);
+}
+
+.actions {
+  text-align: right;
+}
+
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+}
