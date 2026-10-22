@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, Transaction, TransactionRunner, UuidV7 } from '@wattwisely/db';
+import { PaymentStore, RefundStore } from '@wattwisely/payments';
 import { PageRequest } from '../../common/paging/page-request';
 import { SitePermissionChecker } from '../../common/permissions/site-permission.checker';
 import { TenantAccess } from '../../common/tenant/tenant-access';
@@ -19,6 +20,9 @@ import { SessionsRepository } from './sessions.repository';
  */
 @Injectable()
 export class SessionsService {
+  private readonly payments = new PaymentStore();
+  private readonly refunds = new RefundStore();
+
   constructor(
     private readonly transactionRunner: TransactionRunner,
     private readonly sessions: SessionsRepository,
@@ -49,15 +53,16 @@ export class SessionsService {
     return this.transactionRunner.run(DatabaseSession.forTenant(access.tenant.id), async (tx) => {
       const session = await this.requireVisible(tx, access, id);
       const readings = await this.sessions.findReadings(tx, id);
+      const meterStartWh = session.meterStartWh ?? 0;
       const points = [
         { at: session.startedAt, energyWh: 0, powerW: null, socPercent: null },
         ...readings.map((reading) => ({
           ...reading,
-          energyWh: reading.energyWh === null ? null : reading.energyWh - session.meterStartWh,
+          energyWh: reading.energyWh === null ? null : reading.energyWh - meterStartWh,
         })),
       ];
       if (session.endedAt && session.meterStopWh !== null) {
-        const energyWh = session.meterStopWh - session.meterStartWh;
+        const energyWh = session.meterStopWh - meterStartWh;
         points.push({ at: session.endedAt, energyWh, powerW: null, socPercent: null });
       }
       return points.map((point) => new SessionReadingDto(point));
@@ -70,7 +75,14 @@ export class SessionsService {
       : null;
     const lines = await this.sessions.findLines(tx, session.id);
     const history = await this.sessions.findHistory(tx, session.id);
-    return new SessionDetailDto(session, { tariff, lines, history });
+    const payment = session.isPaid ? await this.payments.findBySession(tx, session.id) : null;
+    const refunds = payment ? await this.refunds.listForPayment(tx, payment.id) : [];
+    return new SessionDetailDto(session, {
+      tariff,
+      lines,
+      history,
+      payment: payment ? { payment, refunds } : null,
+    });
   }
 
   /** The session, or 404 when it does not exist or lies outside the caller's sessions:read scope. */

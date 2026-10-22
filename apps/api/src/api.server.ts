@@ -20,12 +20,16 @@ export class ApiServer {
     'If-Match',
   ];
 
+  /** The raw request body is kept, because a Stripe webhook's signature is over the exact bytes. */
+  static readonly OPTIONS = { rawBody: true };
+
   private readonly logger = new Logger(ApiServer.name);
 
   async start(): Promise<void> {
     const app = await NestFactory.create<NestFastifyApplication>(
       AppModule,
       ApiServer.createAdapter(),
+      ApiServer.OPTIONS,
     );
     ApiServer.configure(app);
     const port = app.get(ApiConfig).port;

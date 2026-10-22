@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import {
   chargers,
   chargingSessions,
   connectors,
   meterValues,
+  payments,
   sessionLineItems,
   sessionStateChanges,
   sites,
@@ -57,6 +58,9 @@ export class SessionsRepository {
     pricingEngineVersion: chargingSessions.pricingEngineVersion,
     pricingInputHash: chargingSessions.pricingInputHash,
     reviewFlags: chargingSessions.reviewFlags,
+    isPaid: chargingSessions.isPaid,
+    paymentStatus: sql<string | null>`(select ${payments.status} from ${payments}
+      where ${payments.sessionId} = ${chargingSessions.id} and ${payments.type} = 'preauth' limit 1)`,
   };
 
   /** Newest first; the cursor is the started_at and id of the last row seen. */

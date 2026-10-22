@@ -10,6 +10,7 @@ import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { MeModule } from './modules/me/me.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { TariffsModule } from './modules/tariffs/tariffs.module';
@@ -35,6 +36,7 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     OcppModule,
     TariffsModule,
     SessionsModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}

@@ -7,7 +7,7 @@ export class ActiveSessionDto {
   readonly id: string;
 
   @ApiProperty({ description: 'The OCPP 1.6 transactionId the charger uses' })
-  readonly ocpp_transaction_id: number;
+  readonly ocpp_transaction_id: number | null;
 
   @ApiProperty({ enum: ['charging', 'suspended', 'idle', 'stopping'] })
   readonly status: string;

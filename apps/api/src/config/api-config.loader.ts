@@ -18,6 +18,9 @@ export class ApiConfigLoader {
       ocppUrl: environment['OCPP_URL'] ?? '',
       ocppPlainUrl: environment['OCPP_PLAIN_URL'] ?? '',
       ...this.smtpSettings(environment),
+      stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
+      stripePublishableKey: environment['STRIPE_PUBLISHABLE_KEY'] ?? '',
+      stripeWebhookSecret: environment['STRIPE_WEBHOOK_SECRET'] ?? '',
     });
     this.validate(config);
     return config;

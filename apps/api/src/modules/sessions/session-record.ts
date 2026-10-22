@@ -11,14 +11,15 @@ export interface SessionRecord {
   connectorId: string;
   connectorLabel: string;
   ocppConnectorId: number;
-  ocppTransactionId: number;
+  /** Empty while a paid session waits for the charger to start the transaction. */
+  ocppTransactionId: number | null;
   idTag: string;
   timeZone: string;
   startedAt: Date;
   endedAt: Date | null;
   unpluggedAt: Date | null;
   closedAt: Date | null;
-  meterStartWh: number;
+  meterStartWh: number | null;
   meterStopWh: number | null;
   energyWh: number;
   stopReason: string | null;
@@ -32,6 +33,10 @@ export interface SessionRecord {
   pricingEngineVersion: string | null;
   pricingInputHash: string | null;
   reviewFlags: string[];
+  /** The driver pays by card (module 6). */
+  isPaid: boolean;
+  /** Where the card payment stands, when there is one. */
+  paymentStatus: string | null;
 }
 
 /** The tariff a session was priced with: its name and which version. */
