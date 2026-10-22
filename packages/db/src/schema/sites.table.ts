@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   check,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -15,6 +16,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { siteVisibility } from './enums';
 import { RowLevelSecurity } from './row-level-security';
+import { tariffs } from './tariffs.table';
 import { tenants } from './tenants.table';
 import { Timestamps } from './timestamps';
 import { userAccounts } from './user-accounts.table';
@@ -69,6 +71,8 @@ export const sites = pgTable(
     /** The grid connection's limit; load management (an add-on) keeps the site under it. */
     powerLimitKw: numeric('power_limit_kw', { precision: 8, scale: 1, mode: 'number' }),
     parkingNotes: text('parking_notes').notNull().default(''),
+    /** The tariff new sessions here are priced with; none means sessions are recorded but not priced. */
+    tariffId: uuid('tariff_id'),
     createdBy: uuid('created_by').references(() => userAccounts.id),
     updatedBy: uuid('updated_by').references(() => userAccounts.id),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -78,6 +82,11 @@ export const sites = pgTable(
   (table) => [
     // Lets chargers and role grants point at (tenant_id, id), so they can never cross tenants.
     unique('sites_tenant_id_unique').on(table.tenantId, table.id),
+    foreignKey({
+      name: 'sites_tariff_fk',
+      columns: [table.tenantId, table.tariffId],
+      foreignColumns: [tariffs.tenantId, tariffs.id],
+    }),
     // A name is unique within the tenant among sites that are not deleted.
     uniqueIndex('sites_name_unique')
       .on(table.tenantId, sql`lower(${table.name})`)

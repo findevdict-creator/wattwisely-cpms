@@ -50,6 +50,20 @@
       "when": 1792666063119,
       "tag": "0006_ocpp_gateway_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792677607764,
+      "tag": "0007_sessions_pricing",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792677648786,
+      "tag": "0008_sessions_pricing_grants",
+      "breakpoints": true
     }
   ]
 }
