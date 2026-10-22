@@ -1,0 +1,115 @@
+{
+  "name": "clocks go forward during the session: the 03:00 boundary is 02:00 UTC",
+  "tariff": {
+    "currency": "GBP",
+    "timeZone": "Europe/London",
+    "taxRate": 0,
+    "isTaxIncluded": true,
+    "startFee": 0,
+    "idleGraceMinutes": 0,
+    "idleFeeCap": null,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Night",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "00:00",
+        "end": "03:00",
+        "energyPricePerKwh": 1000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 0
+      },
+      {
+        "name": "Morning",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "03:00",
+        "end": "24:00",
+        "energyPricePerKwh": 2000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 0
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-29T00:30:00Z",
+    "endedAt": "2026-03-29T02:30:00Z",
+    "series": [
+      {
+        "at": "2026-03-29T00:30:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-29T00:45:00Z",
+        "wh": 2500
+      },
+      {
+        "at": "2026-03-29T01:00:00Z",
+        "wh": 5000
+      },
+      {
+        "at": "2026-03-29T01:15:00Z",
+        "wh": 7500
+      },
+      {
+        "at": "2026-03-29T01:30:00Z",
+        "wh": 10000
+      },
+      {
+        "at": "2026-03-29T01:45:00Z",
+        "wh": 12500
+      },
+      {
+        "at": "2026-03-29T02:00:00Z",
+        "wh": 15000
+      },
+      {
+        "at": "2026-03-29T02:15:00Z",
+        "wh": 17500
+      },
+      {
+        "at": "2026-03-29T02:30:00Z",
+        "wh": 20000
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-29T00:30:00Z",
+        "to": "2026-03-29T02:30:00Z"
+      }
+    ],
+    "idlePeriods": [],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "energy",
+        "bandName": "Night",
+        "quantity": 15000,
+        "unit": "wh",
+        "unitPrice": 1000,
+        "net": 150,
+        "tax": 0,
+        "gross": 150
+      },
+      {
+        "kind": "energy",
+        "bandName": "Morning",
+        "quantity": 5000,
+        "unit": "wh",
+        "unitPrice": 2000,
+        "net": 100,
+        "tax": 0,
+        "gross": 100
+      }
+    ],
+    "netTotal": 250,
+    "taxTotal": 0,
+    "grossTotal": 250,
+    "energyWh": 20000,
+    "chargingMinutes": 120,
+    "flags": []
+  }
+}

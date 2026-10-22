@@ -1,0 +1,77 @@
+{
+  "name": "a tiny session is brought up to the minimum price by one adjustment line",
+  "tariff": {
+    "currency": "EUR",
+    "timeZone": "Europe/Berlin",
+    "taxRate": 2000,
+    "isTaxIncluded": true,
+    "startFee": 0,
+    "idleGraceMinutes": 0,
+    "idleFeeCap": null,
+    "minimumPrice": 200,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Flat",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "00:00",
+        "end": "24:00",
+        "energyPricePerKwh": 2500,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 0
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-10T10:00:00Z",
+    "endedAt": "2026-03-10T10:05:00Z",
+    "series": [
+      {
+        "at": "2026-03-10T10:00:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-10T10:05:00Z",
+        "wh": 100
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-10T10:00:00Z",
+        "to": "2026-03-10T10:05:00Z"
+      }
+    ],
+    "idlePeriods": [],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "energy",
+        "bandName": "Flat",
+        "quantity": 100,
+        "unit": "wh",
+        "unitPrice": 2500,
+        "net": 2,
+        "tax": 1,
+        "gross": 3
+      },
+      {
+        "kind": "adjustment",
+        "bandName": null,
+        "quantity": 1,
+        "unit": "session",
+        "unitPrice": null,
+        "net": 164,
+        "tax": 33,
+        "gross": 197
+      }
+    ],
+    "netTotal": 166,
+    "taxTotal": 34,
+    "grossTotal": 200,
+    "energyWh": 100,
+    "flags": []
+  }
+}

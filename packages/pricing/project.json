@@ -1,0 +1,14 @@
+{
+  "name": "pricing",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/pricing/src",
+  "projectType": "library",
+  "tags": ["scope:pricing", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}
