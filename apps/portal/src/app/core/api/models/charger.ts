@@ -66,6 +66,15 @@ export interface Charger {
   updated_at: string;
 }
 
+/** One plug's QR code for the sticker on the charger (module 7): where it leads and the drawing. */
+export interface ConnectorQrCode {
+  connector_id: string;
+  ocpp_connector_id: number;
+  label: string;
+  url: string;
+  svg: string;
+}
+
 /** What to type into the charger. The password is only ever in this answer. */
 export interface ChargerSetupCard {
   ocpp_url: string;

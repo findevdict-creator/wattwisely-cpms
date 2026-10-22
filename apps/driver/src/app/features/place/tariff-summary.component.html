@@ -1,0 +1,53 @@
+@let tariff = this.tariff();
+@if (currentBand(); as band) {
+  <div class="now" data-testid="price-now">
+    <span class="label">Now</span>
+    <span class="price">{{ tariff.currency }} {{ price(band.energy_price_per_kwh) }} / kWh</span>
+    @if (isCharged(band.time_price_per_hour)) {
+      <span class="extra">+ {{ price(band.time_price_per_hour) }} / hour</span>
+    }
+    <span class="hint">{{ band.name }}, {{ when(band) }}</span>
+  </div>
+}
+<ul class="bands">
+  @for (band of otherBands(); track band.name) {
+    <li>
+      <span>{{ band.name }}, {{ when(band) }}</span>
+      <span class="number">
+        {{ price(band.energy_price_per_kwh) }} / kWh
+        @if (isCharged(band.time_price_per_hour)) {
+          + {{ price(band.time_price_per_hour) }} / h
+        }
+      </span>
+    </li>
+  }
+</ul>
+<ul class="rules">
+  @if (tariff.start_fee > 0) {
+    <li>Start fee {{ tariff.start_fee | money: tariff.currency }}</li>
+  }
+  @if (idleFeePerMinute(); as idle) {
+    @if (isCharged(idle)) {
+      <li>
+        Idle fee {{ price(idle) }} / min after {{ tariff.idle_grace_minutes }} min once charging has
+        finished
+        @if (tariff.idle_fee_cap !== null) {
+          (at most {{ tariff.idle_fee_cap | money: tariff.currency }})
+        }
+      </li>
+    }
+  }
+  @if (tariff.minimum_price !== null) {
+    <li>Minimum {{ tariff.minimum_price | money: tariff.currency }}</li>
+  }
+  @if (tariff.maximum_price !== null) {
+    <li>Maximum {{ tariff.maximum_price | money: tariff.currency }}</li>
+  }
+  <li>
+    @if (tariff.is_tax_included) {
+      Prices include {{ tariff.tax_rate }}% tax
+    } @else {
+      Plus {{ tariff.tax_rate }}% tax
+    }
+  </li>
+</ul>

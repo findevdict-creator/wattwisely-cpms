@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>QR codes for drivers</h2>
+<mat-dialog-content>
+  <p class="hint">
+    Stick one on each plug. A driver scans it with their phone, sees the prices, pays by card and
+    charges; no app to install.
+  </p>
+  @if (codes(); as codes) {
+    <div class="codes">
+      @for (code of codes; track code.connector_id) {
+        <div class="code" [attr.data-testid]="'qr-' + code.label">
+          <div class="label">Plug {{ code.label }}</div>
+          <div class="drawing" [innerHTML]="code.drawing"></div>
+          <div class="url">{{ code.url }}</div>
+        </div>
+      } @empty {
+        <p class="hint">Add the charger's connectors first; each one gets a code.</p>
+      }
+    </div>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else {
+    <mat-spinner diameter="32" />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+  <button mat-flat-button (click)="print()" [disabled]="!codes()?.length" data-testid="print-qr">
+    <mat-icon>print</mat-icon>
+    Print
+  </button>
+</mat-dialog-actions>
