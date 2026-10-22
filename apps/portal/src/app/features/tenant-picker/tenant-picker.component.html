@@ -1,0 +1,12 @@
+<mat-card appearance="outlined" class="card">
+  <mat-card-header>
+    <mat-card-title>Choose a workspace</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-action-list data-testid="tenant-picker">
+      @for (tenant of tenantContext.tenants(); track tenant.id) {
+        <button mat-list-item (click)="open(tenant)">{{ tenant.alias }}</button>
+      }
+    </mat-action-list>
+  </mat-card-content>
+</mat-card>

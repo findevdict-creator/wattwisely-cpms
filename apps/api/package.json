@@ -1,0 +1,22 @@
+{
+  "name": "@wattwisely/api",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0",
+    "@nestjs/platform-fastify": "^11.2.7",
+    "@nestjs/swagger": "^11.4.7",
+    "class-validator": "^0.15.1",
+    "class-transformer": "^0.5.1",
+    "fastify": "5.11.3",
+    "jose": "^6.2.13",
+    "@fastify/static": "^10.1.7"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.0"
+  }
+}

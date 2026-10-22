@@ -1,0 +1,6 @@
+/dist
+/coverage
+/.nx/cache
+/.nx/workspace-data
+package-lock.json
+deploy/keycloak/realm/*.json

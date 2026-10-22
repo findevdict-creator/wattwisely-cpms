@@ -1,0 +1,198 @@
+# Wattwisely CPMS - the whole platform on one server.
+#
+# Start it with ./scripts/up.sh (not "docker compose up" directly): the script
+# also unseals OpenBao and waits until every service is healthy.
+# All settings come from .env, created by ./scripts/install.sh from .env.example.
+#
+# Only Caddy is reachable from the internet (ports 80 and 443). Everything else
+# talks over the private "backend" network.
+
+name: wattwisely
+
+x-restart: &restart
+  restart: unless-stopped
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 20m
+      max-file: '5'
+
+services:
+  # ---------- Entry point: HTTPS certificates and routing ----------
+  caddy:
+    image: caddy:2.11.7-alpine
+    <<: [*restart, *logging]
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      PUBLIC_SCHEME: ${PUBLIC_SCHEME}
+      PORTAL_HOST: ${PORTAL_HOST}
+      API_HOST: ${API_HOST}
+      AUTH_HOST: ${AUTH_HOST}
+      ACME_EMAIL: ${ACME_EMAIL}
+      KEYCLOAK_ADMIN_ALLOWED_IPS: ${KEYCLOAK_ADMIN_ALLOWED_IPS:-private_ranges}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [backend]
+    depends_on:
+      api: { condition: service_healthy }
+      portal: { condition: service_healthy }
+      keycloak: { condition: service_healthy }
+
+  # ---------- Wattwisely applications ----------
+  api:
+    image: ${WATTWISELY_IMAGE_PREFIX}/api:${WATTWISELY_VERSION}
+    build: { context: .., dockerfile: apps/api/Dockerfile }
+    <<: [*restart, *logging]
+    environment:
+      PORT: 3000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}}
+      # The issuer is the public address written into tokens; the keys are fetched over the private network.
+      KEYCLOAK_ISSUER_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}/realms/wattwisely
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/wattwisely/protocol/openid-connect/certs
+      KEYCLOAK_AUDIENCE: wattwisely-api
+    networks: [backend]
+    depends_on:
+      keycloak: { condition: service_healthy }
+
+  portal:
+    image: ${WATTWISELY_IMAGE_PREFIX}/portal:${WATTWISELY_VERSION}
+    build: { context: .., dockerfile: apps/portal/Dockerfile }
+    <<: [*restart, *logging]
+    environment:
+      PORTAL_API_URL: ${PUBLIC_SCHEME}://${API_HOST}
+      PORTAL_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
+      PORTAL_KEYCLOAK_REALM: wattwisely
+      PORTAL_KEYCLOAK_CLIENT_ID: wattwisely-portal
+    networks: [backend]
+
+  # Later modules add their services here: ocpp-gateway, worker, driver, admin.
+
+  # ---------- Login: Keycloak ----------
+  keycloak:
+    image: keycloak/keycloak:26.8.1
+    <<: [*restart, *logging]
+    command: ['start', '--import-realm']
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HOSTNAME: ${PUBLIC_SCHEME}://${AUTH_HOST}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: 'true'
+      KC_HTTP_ENABLED: 'true'
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: 'true'
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # Values used by keycloak/realm/wattwisely-realm.json when the realm is first imported.
+      PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
+      PORTAL_DEV_URL: ${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}}
+      KC_REALM_SSL_REQUIRED: external
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_AUTH: ${SMTP_AUTH:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+    volumes:
+      - ./keycloak/realm:/opt/keycloak/data/import:ro
+    networks: [backend]
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      # The image has no curl, so the check talks HTTP over bash's /dev/tcp.
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          grep -q '"UP"' <&3
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  # ---------- Data ----------
+  postgres:
+    image: postgres:16.15-alpine
+    <<: [*restart, *logging]
+    environment:
+      POSTGRES_DB: wattwisely
+      POSTGRES_USER: wattwisely
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    networks: [backend]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wattwisely -d wattwisely']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine
+    <<: [*restart, *logging]
+    command: ['valkey-server', '--requirepass', '${VALKEY_PASSWORD}', '--appendonly', 'yes']
+    volumes:
+      - valkey-data:/data
+    networks: [backend]
+    healthcheck:
+      test: ['CMD-SHELL', 'valkey-cli -a "$$VALKEY_PASSWORD" --no-auth-warning ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      VALKEY_PASSWORD: ${VALKEY_PASSWORD}
+
+  # Secrets store (Stripe keys, tenant credentials). Starts sealed; up.sh unseals it.
+  openbao:
+    image: openbao/openbao:2.7.1
+    <<: [*restart, *logging]
+    command: ['server']
+    environment:
+      BAO_ADDR: http://127.0.0.1:8200
+    volumes:
+      - ./openbao/config.hcl:/openbao/config/config.hcl:ro
+      - openbao-data:/openbao/file
+    networks: [backend]
+
+  # S3-compatible file storage (logos, invoices, exports).
+  object-storage:
+    image: chrislusf/seaweedfs:4.48
+    <<: [*restart, *logging]
+    command: ['server', '-dir=/data', '-s3', '-s3.port=8333', '-s3.config=/etc/seaweedfs/s3.json']
+    volumes:
+      - ./seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+      - object-storage-data:/data
+    networks: [backend]
+
+  # ---------- Development only (COMPOSE_PROFILES=dev) ----------
+  # Catches every e-mail so nothing reaches real inboxes. Web UI on http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.31.6
+    profiles: [dev]
+    <<: [*restart, *logging]
+    ports:
+      - '127.0.0.1:8025:8025'
+    networks: [backend]
+
+networks:
+  backend:
+
+volumes:
+  caddy-data:
+  caddy-config:
+  postgres-data:
+  valkey-data:
+  openbao-data:
+  object-storage-data:
