@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { and, asc, eq, gt, ilike, inArray, isNull, or, sql, SQL } from 'drizzle-orm';
-import { chargers, sites } from '@wattwisely/db';
+import { chargerConnections, chargers, sites, Transaction } from '@wattwisely/db';
 import { SiteScopeCondition } from '../../../common/database/site-scope.condition';
-import { Transaction } from '../../../common/database/transaction-runner';
 import { ListCursor } from '../../../common/paging/list-cursor';
 import { SiteScope } from '../../../common/permissions/site-scope';
 import { ChargerRecord } from './charger-record';
@@ -34,6 +33,8 @@ export class ChargersRepository {
     visibilityOverride: chargers.visibilityOverride,
     siteVisibility: sites.visibility,
     status: sql<ChargerStatus>`${ChargerStatusSql.expression()}`,
+    isOnline: sql<boolean>`${ChargerStatusSql.isOnline()}`,
+    connectedAt: chargerConnections.connectedAt,
     ocppVersion: chargers.ocppVersion,
     chargePointSerial: chargers.chargePointSerial,
     chargeBoxSerial: chargers.chargeBoxSerial,
@@ -104,7 +105,14 @@ export class ChargersRepository {
     return tx
       .select(ChargersRepository.COLUMNS)
       .from(chargers)
-      .innerJoin(sites, eq(sites.id, chargers.siteId));
+      .innerJoin(sites, eq(sites.id, chargers.siteId))
+      .leftJoin(
+        chargerConnections,
+        and(
+          eq(chargerConnections.chargerId, chargers.id),
+          gt(chargerConnections.leaseExpiresAt, sql`now()`),
+        ),
+      );
   }
 
   private static conditions(filter: ChargerFilter, cursor: ListCursor | null): (SQL | undefined)[] {

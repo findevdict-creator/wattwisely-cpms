@@ -49,6 +49,12 @@ export class ChargerDto {
   @ApiProperty({ enum: ChargerStatusSql.VALUES })
   readonly status: ChargerStatus;
 
+  @ApiProperty({ description: 'A gateway holds the charger’s socket right now' })
+  readonly is_online: boolean;
+
+  @ApiProperty({ nullable: true, description: 'When the current connection was made' })
+  readonly connected_at: string | null;
+
   @ApiProperty({ enum: ['1.6', '2.0.1'], nullable: true, description: 'Learned when it connects' })
   readonly ocpp_version: string | null;
 
@@ -100,6 +106,8 @@ export class ChargerDto {
     this.visibility_override = charger.visibilityOverride;
     this.visibility = charger.visibilityOverride ?? charger.siteVisibility;
     this.status = charger.status;
+    this.is_online = charger.isOnline;
+    this.connected_at = charger.connectedAt?.toISOString() ?? null;
     this.ocpp_version = charger.ocppVersion;
     this.charge_point_serial = charger.chargePointSerial;
     this.charge_box_serial = charger.chargeBoxSerial;

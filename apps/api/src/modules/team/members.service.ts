@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseSession } from '../../common/database/database-session';
-import { TransactionRunner } from '../../common/database/transaction-runner';
+import { DatabaseSession, TransactionRunner } from '@wattwisely/db';
 import { TenantAccess } from '../../common/tenant/tenant-access';
 import { ListMembersQueryDto } from './dto/list-members-query.dto';
 import { MemberDto } from './dto/member.dto';

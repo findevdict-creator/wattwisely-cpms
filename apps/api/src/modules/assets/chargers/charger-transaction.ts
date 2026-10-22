@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseErrors } from '../../../common/database/database-errors';
-import { DatabaseSession } from '../../../common/database/database-session';
-import { Transaction, TransactionRunner } from '../../../common/database/transaction-runner';
+import { DatabaseErrors, DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
 import { RequestAuth } from '../../../common/request/request-auth';
 import { AssetChangeRecorder } from '../asset-change.recorder';
 import { AssetErrors } from '../asset-errors';

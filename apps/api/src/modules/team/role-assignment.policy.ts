@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Transaction } from '../../common/database/transaction-runner';
+import { Transaction } from '@wattwisely/db';
 import { PermissionSet } from '../../common/permissions/permission-set';
 import { ProblemException } from '../../common/problem/problem.exception';
 import { AssetErrors } from '../assets/asset-errors';

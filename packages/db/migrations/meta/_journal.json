@@ -36,6 +36,20 @@
       "when": 1792662042591,
       "tag": "0004_sites_chargers_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792666062073,
+      "tag": "0005_ocpp_gateway",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792666063119,
+      "tag": "0006_ocpp_gateway_grants",
+      "breakpoints": true
     }
   ]
 }

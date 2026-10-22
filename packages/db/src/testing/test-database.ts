@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { join } from 'node:path';
 import { Client } from 'pg';
-import { DatabaseMigrator } from '@wattwisely/db';
+import { DatabaseMigrator } from '../database.migrator';
 
 /**
  * A throw-away database for one test file, migrated like production.
@@ -15,7 +15,7 @@ export class TestDatabase {
   static readonly ROLE_PASSWORD = 'wattwisely-test';
   /** Any fixed number: the key of the advisory lock around role setup. */
   static readonly ROLES_LOCK = 7_355_608;
-  static readonly MIGRATIONS = join(__dirname, '../../../../packages/db/migrations');
+  static readonly MIGRATIONS = join(__dirname, '../../migrations');
 
   private constructor(
     private readonly adminUrl: URL,

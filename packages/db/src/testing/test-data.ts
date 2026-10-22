@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { UuidV7 } from '../common/database/uuid-v7';
+import { UuidV7 } from '../client/uuid-v7';
 import { TestDatabase } from './test-database';
 
 /** A person created for a test: their account and the Keycloak id their tokens carry. */
@@ -77,13 +77,29 @@ export class TestData {
     return id;
   }
 
-  /** A charger on a site, registered without a password, as the setup wizard would. */
-  async charger(tenantId: string, siteId: string, identity: string): Promise<string> {
+  /**
+   * A charger on a site, as the setup wizard would register it: without a password unless
+   * `passwordHash` is given (the gateway then expects HTTP Basic auth with it).
+   */
+  async charger(
+    tenantId: string,
+    siteId: string,
+    identity: string,
+    options: { passwordHash?: string; allowPlainWs?: boolean } = {},
+  ): Promise<string> {
     const id = UuidV7.create();
     await this.sql(
-      `insert into chargers (id, tenant_id, site_id, ocpp_identity, auth_mode)
-       values ($1, $2, $3, $4, 'none')`,
-      [id, tenantId, siteId, identity],
+      `insert into chargers (id, tenant_id, site_id, ocpp_identity, auth_mode, password_hash, allow_plain_ws)
+       values ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        id,
+        tenantId,
+        siteId,
+        identity,
+        options.passwordHash ? 'password' : 'none',
+        options.passwordHash ?? null,
+        options.allowPlainWs ?? false,
+      ],
     );
     return id;
   }

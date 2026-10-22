@@ -1,6 +1,5 @@
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { TestApi } from '../../../testing/test-api';
-import { TestData, TestPerson } from '../../../testing/test-data';
-import { TestDatabase } from '../../../testing/test-database';
 
 /** Stories AST-02 and AST-03 end to end: register chargers, manage their connectors, within one's scope. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Chargers and connectors', () => {

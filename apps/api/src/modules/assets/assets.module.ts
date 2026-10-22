@@ -36,6 +36,13 @@ import { SitesService } from './sites/sites.service';
     ConnectorsRepository,
     ConnectorsService,
   ],
-  exports: [SitesRepository, SitesService, ChargersRepository, ConnectorsRepository],
+  exports: [
+    SitesRepository,
+    SitesService,
+    ChargersRepository,
+    ChargersService,
+    ConnectorsRepository,
+    AssetChangeRecorder,
+  ],
 })
 export class AssetsModule {}

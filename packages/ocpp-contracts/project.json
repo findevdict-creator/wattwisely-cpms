@@ -1,0 +1,14 @@
+{
+  "name": "ocpp-contracts",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/ocpp-contracts/src",
+  "projectType": "library",
+  "tags": ["scope:ocpp-contracts", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

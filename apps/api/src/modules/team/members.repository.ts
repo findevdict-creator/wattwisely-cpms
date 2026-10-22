@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { and, asc, eq, ilike, inArray, ne, or, SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
-import { membershipRoles, roles, tenantMemberships, userAccounts } from '@wattwisely/db';
-import { Transaction } from '../../common/database/transaction-runner';
+import {
+  membershipRoles,
+  roles,
+  tenantMemberships,
+  Transaction,
+  userAccounts,
+} from '@wattwisely/db';
 import { MemberGrant, MemberRecord } from './member-record';
 
 /** Filters for the members list. Without a status, removed members are left out. */

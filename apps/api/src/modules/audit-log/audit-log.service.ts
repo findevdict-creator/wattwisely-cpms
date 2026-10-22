@@ -1,7 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DatabaseSession } from '../../common/database/database-session';
-import { TransactionRunner } from '../../common/database/transaction-runner';
-import { UuidV7 } from '../../common/database/uuid-v7';
+import { DatabaseSession, TransactionRunner, UuidV7 } from '@wattwisely/db';
 import { ProblemException } from '../../common/problem/problem.exception';
 import { TenantAccess } from '../../common/tenant/tenant-access';
 import { AuditLogCursor } from './audit-log-cursor';

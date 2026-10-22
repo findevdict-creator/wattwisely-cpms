@@ -1,6 +1,5 @@
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { TestApi } from '../../../testing/test-api';
-import { TestData, TestPerson } from '../../../testing/test-data';
-import { TestDatabase } from '../../../testing/test-database';
 
 /** Story AST-03 end to end: a charger's connectors, and the status derived from them. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Connectors', () => {
@@ -72,6 +71,12 @@ import { TestDatabase } from '../../../testing/test-database';
       `update chargers set last_boot_at = now(), last_seen_at = now(), heartbeat_interval_s = 60 where id = $1`,
       [charger.id],
     );
+    // A gateway holding a live lease on the socket is what makes the charger online.
+    await api.data.sql(
+      `insert into charger_connections (charger_id, tenant_id, instance_id, connection_id, ocpp_version, is_booted, lease_expires_at)
+       values ($1, $2, 'gateway-test', gen_random_uuid(), '1.6', true, now() + interval '1 minute')`,
+      [charger.id, acme],
+    );
     await api.data.sql(
       `update connectors set status = 'charging', status_changed_at = now() where charger_id = $1`,
       [charger.id],
@@ -90,10 +95,7 @@ import { TestDatabase } from '../../../testing/test-database';
     expect(reported.statusCode).toBe(409);
     expect(reported.json()).toMatchObject({ code: 'connector_reported' });
 
-    await api.data.sql(
-      `update chargers set last_seen_at = now() - interval '10 minutes' where id = $1`,
-      [charger.id],
-    );
+    await api.data.sql('delete from charger_connections where charger_id = $1', [charger.id]);
     expect((await api.call('GET', `/v1/chargers/${charger.id}`, asOwner())).json().status).toBe(
       'offline',
     );

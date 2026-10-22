@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseErrors } from '../../../common/database/database-errors';
-import { DatabaseSession } from '../../../common/database/database-session';
-import { Transaction, TransactionRunner } from '../../../common/database/transaction-runner';
-import { UuidV7 } from '../../../common/database/uuid-v7';
+import {
+  DatabaseErrors,
+  DatabaseSession,
+  Transaction,
+  TransactionRunner,
+  UuidV7,
+} from '@wattwisely/db';
+import { ConnectorLabel } from '@wattwisely/ocpp-contracts';
 import { SitePermissionChecker } from '../../../common/permissions/site-permission.checker';
 import { VersionConflict } from '../../../common/problem/version-conflict';
 import { RequestAuth } from '../../../common/request/request-auth';
@@ -10,7 +14,6 @@ import { AssetChangeRecorder } from '../asset-change.recorder';
 import { AssetErrors } from '../asset-errors';
 import { ChargerRecord } from '../chargers/charger-record';
 import { ChargersService } from '../chargers/chargers.service';
-import { ConnectorLabel } from './connector-label';
 import { ConnectorRecord } from './connector-record';
 import { ConnectorsRepository } from './connectors.repository';
 import { AddConnectorRequestDto } from './dto/add-connector-request.dto';

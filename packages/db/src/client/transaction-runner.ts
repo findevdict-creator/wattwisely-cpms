@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { Database, DatabaseClient } from './database.client';
 import { DatabaseSession } from './database-session';
@@ -11,7 +10,6 @@ export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
  * (Database Design, "How RLS works"). Services call this; repositories never open
  * their own transactions, so one service call is all-or-nothing.
  */
-@Injectable()
 export class TransactionRunner {
   constructor(private readonly client: DatabaseClient) {}
 

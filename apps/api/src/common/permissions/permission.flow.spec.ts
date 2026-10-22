@@ -1,10 +1,9 @@
 import { Type } from '@nestjs/common';
 import { PATH_METADATA } from '@nestjs/common/constants';
 import { ModulesContainer } from '@nestjs/core';
+import { TestData, TestDatabase, TestPerson } from '@wattwisely/db/testing';
 import { RouteAccess } from '../auth/route-access.decorator';
 import { TestApi } from '../../testing/test-api';
-import { TestData, TestPerson } from '../../testing/test-data';
-import { TestDatabase } from '../../testing/test-database';
 import { PermissionCatalog } from './permission-catalog';
 
 /** Finds controller routes without a RouteAccess marker or with an unknown permission. */

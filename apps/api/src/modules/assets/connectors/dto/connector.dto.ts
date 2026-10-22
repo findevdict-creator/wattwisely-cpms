@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ConnectorRecord } from '../connector-record';
+import { ActiveSessionDto } from './active-session.dto';
 
 /** A connector as the API returns it, inside a charger or from the connector endpoints. */
 export class ConnectorDto {
@@ -42,6 +43,9 @@ export class ConnectorDto {
   @ApiProperty({ description: 'Send back as If-Match when changing the connector' })
   readonly version: number;
 
+  @ApiProperty({ type: ActiveSessionDto, nullable: true, description: 'The charge running now' })
+  readonly active_session: ActiveSessionDto | null;
+
   constructor(connector: ConnectorRecord) {
     this.id = connector.id;
     this.charger_id = connector.chargerId;
@@ -56,5 +60,8 @@ export class ConnectorDto {
     this.status_info = connector.statusInfo;
     this.status_changed_at = connector.statusChangedAt?.toISOString() ?? null;
     this.version = connector.version;
+    this.active_session = connector.activeSession
+      ? new ActiveSessionDto(connector.activeSession)
+      : null;
   }
 }

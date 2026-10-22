@@ -1,3 +1,12 @@
+/** The charging session running on a connector right now, as the gateway recorded it. */
+export interface ActiveSession {
+  id: string;
+  ocppTransactionId: number;
+  /** ISO 8601, as Postgres' json_build_object writes a timestamptz. */
+  startedAt: string;
+  energyWh: number;
+}
+
 /** One connectors row as the repository returns it. */
 export interface ConnectorRecord {
   id: string;
@@ -13,4 +22,5 @@ export interface ConnectorRecord {
   statusInfo: string | null;
   statusChangedAt: Date | null;
   version: number;
+  activeSession: ActiveSession | null;
 }

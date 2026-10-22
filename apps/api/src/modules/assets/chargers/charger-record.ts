@@ -15,6 +15,9 @@ export interface ChargerRecord {
   visibilityOverride: 'public' | 'private' | null;
   siteVisibility: 'public' | 'private';
   status: ChargerStatus;
+  /** A gateway holds its socket right now. */
+  isOnline: boolean;
+  connectedAt: Date | null;
   ocppVersion: '1.6' | '2.0.1' | null;
   chargePointSerial: string | null;
   chargeBoxSerial: string | null;

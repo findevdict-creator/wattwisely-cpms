@@ -3,12 +3,13 @@
   "version": "0.0.0",
   "license": "UNLICENSED",
   "scripts": {
-    "start": "nx run-many -t serve -p api portal",
+    "start": "nx run-many -t serve -p api portal ocpp-gateway",
     "build": "nx run-many -t build",
     "test": "nx run-many -t test",
     "lint": "nx run-many -t lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "sim": "nx build charger-sim-cli && node dist/apps/charger-sim/main.js"
   },
   "private": true,
   "dependencies": {
@@ -22,10 +23,12 @@
     "@angular/platform-browser-dynamic": "~22.2.0",
     "@angular/router": "~22.2.0",
     "@fastify/static": "^10.1.7",
+    "@fastify/websocket": "^11.3.4",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-fastify": "^11.2.7",
     "@nestjs/swagger": "^11.4.7",
+    "ajv": "^8.20.0",
     "angular-oauth2-oidc": "^22.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
@@ -35,7 +38,8 @@
     "nodemailer": "^8.0.11",
     "pg": "^8.23.1",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "~7.8.0"
+    "rxjs": "~7.8.0",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@angular-devkit/core": "~22.2.0",
@@ -63,6 +67,7 @@
     "@types/node": "^22.0.0",
     "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.2",
     "@typescript-eslint/utils": "^8.58.0",
     "angular-eslint": "^22.5.0",
     "drizzle-kit": "^0.31.11",

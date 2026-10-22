@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Transaction } from '../../../common/database/transaction-runner';
+import { Transaction } from '@wattwisely/db';
 import { SitePermissionChecker } from '../../../common/permissions/site-permission.checker';
 import { VersionConflict } from '../../../common/problem/version-conflict';
 import { RequestAuth } from '../../../common/request/request-auth';

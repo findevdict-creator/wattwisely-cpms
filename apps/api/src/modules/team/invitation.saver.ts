@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Transaction } from '@wattwisely/db';
 import { UserAccountsRepository } from '../../common/account/user-accounts.repository';
-import { Transaction } from '../../common/database/transaction-runner';
 import { RequestAuth } from '../../common/request/request-auth';
 import { InviteMemberRequestDto } from './dto/invite-member-request.dto';
 import { InvitationToken } from './invitation-token';
