@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import { chargingSessions, Transaction, UuidV7 } from '@wattwisely/db';
 import {
   SessionColumns,
@@ -53,6 +53,55 @@ export class SessionsRepository {
     return rows[0] as SessionRow;
   }
 
+  /**
+   * The paid session waiting for this start (module 6): the one the remote start command
+   * belongs to, or else the newest one waiting on the connector (the gateway may have
+   * restarted and forgotten which tag it issued).
+   */
+  async findWaiting(
+    tx: Transaction,
+    connectorId: string,
+    commandId: string | null,
+  ): Promise<SessionRow | null> {
+    const rows = await tx
+      .select(SessionColumns.SELECT)
+      .from(chargingSessions)
+      .where(
+        and(
+          eq(chargingSessions.status, 'starting'),
+          or(
+            eq(chargingSessions.connectorId, connectorId),
+            commandId ? eq(chargingSessions.commandId, commandId) : sql`false`,
+          ),
+        ),
+      )
+      .orderBy(
+        desc(sql`${chargingSessions.commandId} = ${commandId ?? sql`null`}::uuid`),
+        desc(chargingSessions.startedAt),
+      )
+      .limit(1);
+    return (rows[0] as SessionRow | undefined) ?? null;
+  }
+
+  /** The charger started a session that was waiting for it: it gets its transaction id and start reading now. */
+  async adopt(tx: Transaction, session: SessionRow, start: SessionStart): Promise<SessionRow> {
+    const rows = await tx
+      .update(chargingSessions)
+      .set({
+        ocppTransactionId: sql`nextval('ocpp_transaction_id_seq')`,
+        connectorId: start.connectorId,
+        idTag: start.idTag,
+        startedAt: start.startedAt,
+        meterStartWh: start.meterStartWh,
+        energyIncreasedAt: start.startedAt,
+        lastEventAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(chargingSessions.id, session.id))
+      .returning(SessionColumns.SELECT);
+    return rows[0] as SessionRow;
+  }
+
   async findByTransactionId(tx: Transaction, chargerId: string, ocppTransactionId: number) {
     const rows = await tx
       .select(SessionColumns.SELECT)
@@ -92,7 +141,7 @@ export class SessionsRepository {
       .set({
         endedAt: stop.endedAt,
         meterStopWh: stop.meterStopWh,
-        energyWh: Math.max(0, stop.meterStopWh - session.meterStartWh),
+        energyWh: Math.max(0, stop.meterStopWh - (session.meterStartWh ?? 0)),
         stopReason: stop.stopReason,
         lastEventAt: new Date(),
       })
@@ -105,7 +154,7 @@ export class SessionsRepository {
     session: SessionRow,
     reading: { meterWh: number; at: Date },
   ): Promise<number> {
-    const energyWh = Math.max(session.energyWh, reading.meterWh - session.meterStartWh);
+    const energyWh = Math.max(session.energyWh, reading.meterWh - (session.meterStartWh ?? 0));
     const isIncreased = energyWh > session.energyWh;
     await tx
       .update(chargingSessions)

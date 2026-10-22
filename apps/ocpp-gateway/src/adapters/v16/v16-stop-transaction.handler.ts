@@ -69,7 +69,7 @@ export class V16StopTransactionHandler implements ActionHandler {
     if (V16StopTransactionHandler.UNPLUG_REASONS.includes(stop.reason ?? '')) {
       await this.store.sessions.markUnplugged(tx, session.id, endedAt);
     }
-    const energyWh = Math.max(0, stop.meterStop - session.meterStartWh);
+    const energyWh = Math.max(0, stop.meterStop - (session.meterStartWh ?? 0));
     await this.recorder.move(tx, session, 'transaction_ended', {
       occurredAt: endedAt,
       energyWh,
