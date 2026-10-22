@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { TenantMembership } from '../../common/tenant/tenant-membership';
+import { TenantSummary } from '../../common/tenant/tenant-summary';
 import { CurrentTenantDto } from './dto/current-tenant.dto';
 
-/** Tenant details. Module 2 reads name, status and settings from the tenants table. */
+/** Tenant details, as loaded from the tenants table by TenantContextGuard. */
 @Injectable()
 export class TenancyService {
-  describe(tenant: TenantMembership): CurrentTenantDto {
+  describe(tenant: TenantSummary): CurrentTenantDto {
     return new CurrentTenantDto(tenant);
   }
 }

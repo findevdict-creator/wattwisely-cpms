@@ -14,7 +14,10 @@
     "class-transformer": "^0.5.1",
     "fastify": "5.11.3",
     "jose": "^6.2.13",
-    "@fastify/static": "^10.1.7"
+    "@fastify/static": "^10.1.7",
+    "drizzle-orm": "^0.45.4",
+    "pg": "^8.23.1",
+    "nodemailer": "^8.0.11"
   },
   "devDependencies": {
     "@nestjs/testing": "^11.0.0"

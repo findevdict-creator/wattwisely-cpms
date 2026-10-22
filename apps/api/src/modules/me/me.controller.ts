@@ -15,7 +15,7 @@ export class MeController {
   constructor(private readonly meService: MeService) {}
 
   @Get()
-  me(@CurrentAuth() auth: RequestAuth): MeResponseDto {
-    return this.meService.describe(auth.user);
+  me(@CurrentAuth() auth: RequestAuth): Promise<MeResponseDto> {
+    return this.meService.describe(auth);
   }
 }

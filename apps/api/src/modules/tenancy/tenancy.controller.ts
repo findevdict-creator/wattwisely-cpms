@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
+import { RouteAccess } from '../../common/auth/route-access.decorator';
 import { CurrentAuth } from '../../common/request/current-auth.decorator';
 import { RequestAuth } from '../../common/request/request-auth';
 import { CurrentTenantDto } from './dto/current-tenant.dto';
@@ -7,7 +8,7 @@ import { TenancyService } from './tenancy.service';
 
 /**
  * GET /v1/tenant - the first tenant-scoped endpoint.
- * It shows the full path every tenant endpoint takes: token check, then tenant check.
+ * It shows the full path every tenant endpoint takes: token, tenant, then permission check.
  */
 @ApiTags('tenancy')
 @ApiBearerAuth()
@@ -16,13 +17,13 @@ import { TenancyService } from './tenancy.service';
   required: false,
   description: 'Needed when you belong to more than one tenant',
 })
+@RouteAccess.anyMember()
 @Controller('tenant')
 export class TenancyController {
   constructor(private readonly tenancyService: TenancyService) {}
 
   @Get()
   current(@CurrentAuth() auth: RequestAuth): CurrentTenantDto {
-    // TenantContextGuard guarantees a tenant on every route not marked withoutTenant().
-    return this.tenancyService.describe(auth.tenant as NonNullable<RequestAuth['tenant']>);
+    return this.tenancyService.describe(auth.requireAccess().tenant);
   }
 }

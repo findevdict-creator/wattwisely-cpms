@@ -1,16 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TenantMembership } from '../../../common/tenant/tenant-membership';
+import { TenantSummary } from '../../../common/tenant/tenant-summary';
 
 /** One tenant in the user's tenant switcher. */
 export class TenantMembershipDto {
-  @ApiProperty({ example: '7f9c2b1e-0c4d-4a8e-9a39-2d2c7c1f5b10' })
+  @ApiProperty({ example: '0192f5c4-7d3e-7a10-9a39-2d2c7c1f5b10' })
   readonly id: string;
 
   @ApiProperty({ example: 'acme-charging' })
-  readonly alias: string;
+  readonly slug: string;
 
-  constructor(membership: TenantMembership) {
-    this.id = membership.id;
-    this.alias = membership.alias;
+  @ApiProperty({ example: 'Acme Charging' })
+  readonly name: string;
+
+  @ApiProperty({ enum: ['trial', 'active', 'suspended'] })
+  readonly status: string;
+
+  constructor(tenant: TenantSummary) {
+    this.id = tenant.id;
+    this.slug = tenant.slug;
+    this.name = tenant.name;
+    this.status = tenant.status;
   }
 }

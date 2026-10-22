@@ -24,7 +24,7 @@ export class HealthController {
       throw new ProblemException(
         HttpStatus.SERVICE_UNAVAILABLE,
         'not_ready',
-        'Keycloak cannot be reached.',
+        'Keycloak or the database cannot be reached.',
       );
     }
     return status;

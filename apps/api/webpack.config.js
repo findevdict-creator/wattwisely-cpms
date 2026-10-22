@@ -14,8 +14,13 @@ module.exports = {
       target: 'node',
       compiler: 'tsc',
       main: './src/main.ts',
+      // migrate.js applies database migrations before the API starts (deploy/scripts/up.sh).
+      additionalEntryPoints: [{ entryName: 'migrate', entryPath: './src/migrate.ts' }],
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
+      assets: [
+        './src/assets',
+        { input: '../../packages/db/migrations', glob: '**/*', output: 'migrations' },
+      ],
       optimization: false,
       outputHashing: 'none',
       generatePackageJson: true,

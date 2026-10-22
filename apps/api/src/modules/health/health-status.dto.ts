@@ -5,7 +5,7 @@ export class HealthStatusDto {
   @ApiProperty({ enum: ['ok', 'unavailable'] })
   readonly status: 'ok' | 'unavailable';
 
-  @ApiProperty({ example: { keycloak: 'ok' } })
+  @ApiProperty({ example: { keycloak: 'ok', database: 'ok' } })
   readonly checks: Record<string, 'ok' | 'unavailable'>;
 
   constructor(checks: Record<string, 'ok' | 'unavailable'>) {
