@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Transaction } from '@wattwisely/db';
 import { PAYMENT_GATEWAY, PaymentGateway, PaymentRow } from '@wattwisely/payments';
 import { SessionStore } from '@wattwisely/session-engine';
+import { TenantBrandLookup } from '../../branding/tenant-brand.lookup';
 import { PaymentErrors } from '../payment-errors';
 import { ChargePlaceLookup } from './charge-place.lookup';
 import { ChargeReceiptLookup } from './charge-receipt.lookup';
@@ -22,6 +23,7 @@ export class ChargeViewBuilder {
   constructor(
     @Inject(PAYMENT_GATEWAY) private readonly gateway: PaymentGateway,
     private readonly places: ChargePlaceLookup,
+    private readonly brands: TenantBrandLookup,
   ) {}
 
   /** The client secret is passed in right after the hold was created; otherwise it is re-read. */
@@ -41,6 +43,7 @@ export class ChargeViewBuilder {
       ...(await this.places.placeOf(tx, session.connectorId)),
       outcome: await this.receipts.of(tx, session.id),
       isStopRequested: await this.stops.isPending(tx, session.id),
+      brand: await this.brands.current(tx, payment.tenantId),
       clientSecret: isWaiting ? (clientSecret ?? (await this.clientSecret(payment))) : null,
       publishableKey: isWaiting ? this.gateway.publishableKey() : null,
     });

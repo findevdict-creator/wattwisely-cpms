@@ -23,3 +23,4 @@ export * from './payment-accounts.table';
 export * from './payments.table';
 export * from './refunds.table';
 export * from './payment-webhook-events.table';
+export * from './tenant-branding.table';

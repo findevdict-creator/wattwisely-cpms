@@ -93,6 +93,7 @@ export class TestApi {
       CORS_ORIGINS: 'http://portal.test',
       LOG_LEVEL: 'silent',
       DATABASE_URL: database.urlFor('wattwisely_app'),
+      API_URL: 'http://api.test',
       PORTAL_URL: 'http://portal.test',
       OCPP_URL: 'wss://ocpp.test/ocpp',
       OCPP_PLAIN_URL: 'ws://ocpp-plain.test/ocpp',
