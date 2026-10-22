@@ -29,7 +29,7 @@ http_check() {
 }
 
 info "Containers"
-for service in caddy api portal keycloak postgres valkey openbao object-storage; do
+for service in caddy api portal ocpp-gateway keycloak postgres valkey openbao object-storage; do
   state="$(container_state "$service")"
   if [[ "$state" == "healthy" || "$state" == "running" ]]; then
     report "$service" ok
@@ -41,6 +41,7 @@ done
 info "Endpoints"
 report "API ready" "$(http_check http://api:3000/health/ready)"
 report "Portal" "$(http_check http://portal:8080/healthz)"
+report "OCPP gateway ready" "$(http_check http://ocpp-gateway:3100/health/ready)"
 report "Keycloak realm" "$(http_check http://keycloak:8080/realms/wattwisely/.well-known/openid-configuration)"
 sealed="$(compose exec -T openbao bao status -format=json 2>/dev/null | grep -o '"sealed": *[a-z]*' || true)"
 if [[ "$sealed" == *false ]]; then

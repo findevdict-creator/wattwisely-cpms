@@ -4,24 +4,25 @@ Everything runs with Docker Compose on one Linux server. A single server suits a
 
 ## What runs
 
-| Service          | Image             | Role                                                          | Reachable from the internet                                               |
-| ---------------- | ----------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `caddy`          | caddy             | HTTPS certificates (Let's Encrypt) and routing                | Yes, ports 80 and 443                                                     |
-| `api`            | ghcr.io/…/api     | Wattwisely REST API                                           | Through Caddy: `api.<domain>`                                             |
-| `portal`         | ghcr.io/…/portal  | Tenant portal                                                 | Through Caddy: `portal.<domain>`                                          |
-| `keycloak`       | keycloak/keycloak | Login, two-factor, SSO                                        | Through Caddy: `auth.<domain>` (admin console only from private networks) |
-| `postgres`       | postgres 16       | Databases for Wattwisely and Keycloak                         | No                                                                        |
-| `valkey`         | valkey            | Live updates between instances (used from the OCPP module on) | No                                                                        |
-| `openbao`        | openbao           | Encrypted platform secrets such as Stripe keys                | No                                                                        |
-| `object-storage` | seaweedfs         | S3-compatible file storage for logos, invoices, exports       | No                                                                        |
-| `mailpit`        | mailpit           | Catches e-mail in local trials only                           | Local only                                                                |
+| Service          | Image                  | Role                                                                 | Reachable from the internet                                               |
+| ---------------- | ---------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `caddy`          | caddy                  | HTTPS certificates (Let's Encrypt) and routing                       | Yes, ports 80 and 443                                                     |
+| `api`            | ghcr.io/…/api          | Wattwisely REST API                                                  | Through Caddy: `api.<domain>`                                             |
+| `portal`         | ghcr.io/…/portal       | Tenant portal                                                        | Through Caddy: `portal.<domain>`                                          |
+| `ocpp-gateway`   | ghcr.io/…/ocpp-gateway | Where chargers connect (OCPP 1.6J over WebSocket)                    | Through Caddy: `ocpp.<domain>` (wss) and `ocpp-plain.<domain>` (ws)       |
+| `keycloak`       | keycloak/keycloak      | Login, two-factor, SSO                                               | Through Caddy: `auth.<domain>` (admin console only from private networks) |
+| `postgres`       | postgres 16            | Databases for Wattwisely and Keycloak                                | No                                                                        |
+| `valkey`         | valkey                 | Reserved for live updates once the gateway runs on several instances | No                                                                        |
+| `openbao`        | openbao                | Encrypted platform secrets such as Stripe keys                       | No                                                                        |
+| `object-storage` | seaweedfs              | S3-compatible file storage for logos, invoices, exports              | No                                                                        |
+| `mailpit`        | mailpit                | Catches e-mail in local trials only                                  | Local only                                                                |
 
-Later modules add `ocpp-gateway`, `worker`, `driver` and `admin` to the same file.
+Later modules add `worker`, `driver` and `admin` to the same file.
 
 ## Server checklist
 
 1. A Linux server with at least 4 GB RAM and 40 GB disk, Docker Engine and the Compose plugin installed.
-2. DNS records `portal.<domain>`, `api.<domain>` and `auth.<domain>` pointing at the server.
+2. DNS records `portal.<domain>`, `api.<domain>`, `auth.<domain>`, `ocpp.<domain>` and `ocpp-plain.<domain>` pointing at the server.
 3. Ports 80 and 443 open. Nothing else needs to be open.
 4. An SMTP account for e-mails (password resets and team invitations).
 5. If the GitHub repository is private: `docker login ghcr.io` with a GitHub token that can read packages.
@@ -62,7 +63,7 @@ Run a nightly backup and copy it off the server, for example with cron:
 
 ## Versions and images
 
-A GitHub Action builds the `api` and `portal` images and pushes them to GitHub's container registry:
+A GitHub Action builds the `api`, `portal` and `ocpp-gateway` images and pushes them to GitHub's container registry:
 
 | Event          | Image tags             |
 | -------------- | ---------------------- |

@@ -32,6 +32,8 @@ services:
       PORTAL_HOST: ${PORTAL_HOST}
       API_HOST: ${API_HOST}
       AUTH_HOST: ${AUTH_HOST}
+      OCPP_HOST: ${OCPP_HOST}
+      OCPP_PLAIN_HOST: ${OCPP_PLAIN_HOST}
       ACME_EMAIL: ${ACME_EMAIL}
       KEYCLOAK_ADMIN_ALLOWED_IPS: ${KEYCLOAK_ADMIN_ALLOWED_IPS:-private_ranges}
     volumes:
@@ -42,6 +44,7 @@ services:
     depends_on:
       api: { condition: service_healthy }
       portal: { condition: service_healthy }
+      ocpp-gateway: { condition: service_healthy }
       keycloak: { condition: service_healthy }
 
   # ---------- Wattwisely applications ----------
@@ -61,7 +64,7 @@ services:
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
       # Invitation e-mails link here.
       PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
-      # Where chargers connect (the OCPP gateway arrives in module 4); printed on charger setup cards.
+      # Where chargers connect (served by ocpp-gateway below); printed on charger setup cards.
       OCPP_URL: ${OCPP_URL}
       OCPP_PLAIN_URL: ${OCPP_PLAIN_URL}
       SMTP_HOST: ${SMTP_HOST}
@@ -86,7 +89,27 @@ services:
       PORTAL_KEYCLOAK_CLIENT_ID: wattwisely-portal
     networks: [backend]
 
-  # Later modules add their services here: ocpp-gateway, worker, driver, admin.
+  # Chargers connect here over WebSocket (OCPP 1.6J). Caddy terminates TLS and forwards
+  # ws://ocpp-gateway:3100/ocpp/<identity>; the gateway talks to the API through Postgres.
+  ocpp-gateway:
+    image: ${WATTWISELY_IMAGE_PREFIX}/ocpp-gateway:${WATTWISELY_VERSION}
+    build: { context: .., dockerfile: apps/ocpp-gateway/Dockerfile }
+    <<: [*restart, *logging]
+    environment:
+      PORT: 3100
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
+      # Caddy sets X-Forwarded-Proto, so the gateway knows wss from ws and refuses plain ws
+      # unless the charger was registered with "allow plain ws".
+      OCPP_TRUST_PROXY: 'true'
+      OCPP_REQUIRE_TLS: ${OCPP_REQUIRE_TLS:-true}
+      OCPP_ACCEPT_UNKNOWN_ID_TAGS: ${OCPP_ACCEPT_UNKNOWN_ID_TAGS:-false}
+    networks: [backend]
+    depends_on:
+      postgres: { condition: service_healthy }
+      api: { condition: service_healthy }
+
+  # Later modules add their services here: worker, driver, admin.
 
   # ---------- Login: Keycloak ----------
   keycloak:
