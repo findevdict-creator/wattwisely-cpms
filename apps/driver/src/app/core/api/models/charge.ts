@@ -1,3 +1,5 @@
+import { PublicBranding } from './branding';
+
 export type SessionStatus =
   | 'authorising'
   | 'starting'
@@ -70,4 +72,5 @@ export interface Charge {
   client_secret: string | null;
   publishable_key: string | null;
   provider_account_id: string;
+  branding: PublicBranding;
 }

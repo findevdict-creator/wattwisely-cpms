@@ -1,7 +1,7 @@
 @if (store.charge(); as charge) {
   <header class="where">
     <h1>{{ charge.site_name }} · Plug {{ charge.connector_label }}</h1>
-    <p class="hint">{{ charge.operator_name }} · {{ charge.charger_identity }}</p>
+    <p class="hint">{{ charge.branding.name }} · {{ charge.charger_identity }}</p>
   </header>
 
   @switch (phase()) {
@@ -92,14 +92,31 @@
         </p>
       </section>
       @if (charge.receipt; as receipt) {
-        <section class="panel">
-          <h2>Receipt</h2>
+        <section class="panel receipt" data-testid="receipt-panel">
+          <header class="issuer">
+            @if (charge.branding.logo_url; as logoUrl) {
+              <img class="logo" [src]="logoUrl" [alt]="charge.branding.name" />
+            }
+            <div>
+              <h2>Receipt</h2>
+              <div class="hint">
+                {{ charge.branding.name }} · {{ charge.site_name }}, plug
+                {{ charge.connector_label }}
+              </div>
+            </div>
+          </header>
           <ww-charge-receipt
             [receipt]="receipt"
             [currency]="charge.currency"
             [timeZone]="charge.time_zone"
           />
-          <p class="hint">Questions about this charge? Contact {{ charge.operator_name }}.</p>
+          <ww-support-contact
+            [brand]="charge.branding"
+            lead="Questions about this charge? Contact"
+          />
+          <p class="hint powered-by">
+            Charging by {{ charge.operator_name }} · Powered by {{ charge.branding.platform_name }}
+          </p>
         </section>
       }
     }
@@ -109,6 +126,7 @@
         <h2>{{ statusLabel() }}</h2>
         <p>{{ failureLabel() }}</p>
         <a mat-stroked-button [routerLink]="['/c', charge.charger_identity, '1']">Try again</a>
+        <ww-support-contact [brand]="charge.branding" lead="Need help? Contact" />
       </section>
     }
   }

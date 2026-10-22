@@ -10,6 +10,7 @@ import { HomeComponent } from './features/home/home.component';
 import { InvitationComponent } from './features/invitation/invitation.component';
 import { NoWorkspaceComponent } from './features/no-workspace/no-workspace.component';
 import { PaymentsComponent } from './features/payments/payments.component';
+import { BrandingComponent } from './features/settings/branding.component';
 import { SessionComponent } from './features/sessions/session.component';
 import { SessionsComponent } from './features/sessions/sessions.component';
 import { SiteComponent } from './features/sites/site.component';
@@ -98,6 +99,12 @@ export const APP_ROUTES: Routes = [
             component: PaymentsComponent,
             canActivate: [PermissionGuard],
             data: { permission: ['payments:read', 'settings:payments'] },
+          },
+          {
+            path: 'settings/branding',
+            component: BrandingComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'settings:read' },
           },
           {
             path: 'team',

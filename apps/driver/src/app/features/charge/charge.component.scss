@@ -62,3 +62,25 @@ h2 {
   justify-content: center;
   padding: 48px;
 }
+
+.issuer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.logo {
+  height: 36px;
+  max-width: 120px;
+  object-fit: contain;
+}
+
+.powered-by {
+  margin: 12px 0 0;
+  font-size: 12px;
+}
