@@ -1,4 +1,4 @@
-/** The words and colours the portal uses for site, charger and connector statuses. */
+/** The words and colours the portal uses for site, charger, connector and session statuses. */
 export class StatusLabels {
   static readonly SITE: Record<string, string> = {
     ok: 'OK',
@@ -29,6 +29,34 @@ export class StatusLabels {
     unknown: 'Not reported yet',
   };
 
+  static readonly SESSION: Record<string, string> = {
+    authorising: 'Authorising',
+    starting: 'Starting',
+    charging: 'Charging',
+    suspended: 'Paused',
+    idle: 'Idle, still plugged in',
+    stopping: 'Stopped, waiting to price',
+    completed: 'Completed',
+    not_started: 'Did not start',
+    failed: 'Failed',
+  };
+
+  /** Why a session needs a look before it is charged to the driver. */
+  static readonly REVIEW_FLAG: Record<string, string> = {
+    long_session: 'Longer than 48 hours',
+    gap_crosses_band: 'Readings missing across a price change',
+    no_energy: 'No energy delivered',
+    meter_reset: 'Meter went backwards',
+    implausible_jump: 'Meter jumped more than the connector can deliver',
+    no_tariff: 'The site had no tariff',
+  };
+
+  static readonly FAILURE: Record<string, string> = {
+    no_valid_stop_data: 'The charger never reported how it ended',
+    stale: 'The charger went silent for a day',
+    closed_by_staff: 'Closed by staff',
+  };
+
   static readonly COMMAND: Record<string, string> = {
     queued: 'Waiting for the charger',
     sent: 'Sent',
@@ -49,13 +77,22 @@ export class StatusLabels {
 
   /** The CSS tone class: good, busy, bad or quiet. */
   static toneOf(status: string): string {
-    if (['ok', 'available', 'accepted'].includes(status)) {
+    if (['ok', 'available', 'accepted', 'completed'].includes(status)) {
       return 'good';
     }
     if (
-      ['charging', 'preparing', 'finishing', 'occupied', 'reserved', 'queued', 'sent'].includes(
-        status,
-      )
+      [
+        'charging',
+        'preparing',
+        'finishing',
+        'occupied',
+        'reserved',
+        'queued',
+        'sent',
+        'authorising',
+        'starting',
+        'stopping',
+      ].includes(status)
     ) {
       return 'busy';
     }
@@ -75,6 +112,18 @@ export class StatusLabels {
 
   static connector(status: string): string {
     return StatusLabels.CONNECTOR[status] ?? status;
+  }
+
+  static session(status: string): string {
+    return StatusLabels.SESSION[status] ?? status;
+  }
+
+  static reviewFlag(flag: string): string {
+    return StatusLabels.REVIEW_FLAG[flag] ?? flag;
+  }
+
+  static failure(reason: string | null): string {
+    return reason ? (StatusLabels.FAILURE[reason] ?? reason) : '';
   }
 
   static command(status: string): string {

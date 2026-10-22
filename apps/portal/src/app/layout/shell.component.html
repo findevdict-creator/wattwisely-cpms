@@ -46,6 +46,23 @@
           <span matListItemTitle>Chargers</span>
         </a>
       }
+      @if (permissions.can('sessions:read')) {
+        <a
+          mat-list-item
+          routerLink="/sessions"
+          routerLinkActive="active"
+          data-testid="nav-sessions"
+        >
+          <mat-icon matListItemIcon>receipt_long</mat-icon>
+          <span matListItemTitle>Sessions</span>
+        </a>
+      }
+      @if (permissions.can('tariffs:read')) {
+        <a mat-list-item routerLink="/tariffs" routerLinkActive="active" data-testid="nav-tariffs">
+          <mat-icon matListItemIcon>sell</mat-icon>
+          <span matListItemTitle>Tariffs</span>
+        </a>
+      }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
           <mat-icon matListItemIcon>group</mat-icon>

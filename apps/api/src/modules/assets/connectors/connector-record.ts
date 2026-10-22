@@ -1,10 +1,17 @@
-/** The charging session running on a connector right now, as the gateway recorded it. */
+/**
+ * The session on a connector right now (charging, suspended, idle, or stopping until
+ * the car leaves), as the gateway recorded it, with its cost so far.
+ */
 export interface ActiveSession {
   id: string;
   ocppTransactionId: number;
+  status: string;
   /** ISO 8601, as Postgres' json_build_object writes a timestamptz. */
   startedAt: string;
   energyWh: number;
+  /** Minor units; null when the site has no tariff or the worker has not priced it yet. */
+  grossAmount: number | null;
+  currency: string | null;
 }
 
 /** One connectors row as the repository returns it. */

@@ -1,0 +1,39 @@
+.bands {
+  border-collapse: collapse;
+  margin-bottom: 8px;
+
+  th {
+    text-align: left;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+
+  td {
+    padding: 4px 8px;
+  }
+
+  input {
+    font: inherit;
+    padding: 6px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 4px;
+    width: 120px;
+  }
+
+  input.ng-invalid.ng-touched {
+    border-color: var(--mat-sys-error);
+  }
+
+  .time {
+    width: 56px;
+  }
+
+  .price {
+    width: 72px;
+  }
+
+  .days {
+    width: 160px;
+  }
+}

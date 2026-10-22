@@ -1,0 +1,131 @@
+{
+  "name": "a session from Friday into Saturday changes band at midnight",
+  "tariff": {
+    "currency": "EUR",
+    "timeZone": "Europe/Berlin",
+    "taxRate": 0,
+    "isTaxIncluded": true,
+    "startFee": 0,
+    "idleGraceMinutes": 0,
+    "idleFeeCap": null,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Weekday",
+        "days": ["mon", "tue", "wed", "thu", "fri"],
+        "start": "00:00",
+        "end": "24:00",
+        "energyPricePerKwh": 3000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 0
+      },
+      {
+        "name": "Weekend",
+        "days": ["sat", "sun"],
+        "start": "00:00",
+        "end": "24:00",
+        "energyPricePerKwh": 1500,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 0
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-13T22:00:00Z",
+    "endedAt": "2026-03-14T01:00:00Z",
+    "series": [
+      {
+        "at": "2026-03-13T22:00:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-13T22:15:00Z",
+        "wh": 750
+      },
+      {
+        "at": "2026-03-13T22:30:00Z",
+        "wh": 1500
+      },
+      {
+        "at": "2026-03-13T22:45:00Z",
+        "wh": 2250
+      },
+      {
+        "at": "2026-03-13T23:00:00Z",
+        "wh": 3000
+      },
+      {
+        "at": "2026-03-13T23:15:00Z",
+        "wh": 3750
+      },
+      {
+        "at": "2026-03-13T23:30:00Z",
+        "wh": 4500
+      },
+      {
+        "at": "2026-03-13T23:45:00Z",
+        "wh": 5250
+      },
+      {
+        "at": "2026-03-14T00:00:00Z",
+        "wh": 6000
+      },
+      {
+        "at": "2026-03-14T00:15:00Z",
+        "wh": 6750
+      },
+      {
+        "at": "2026-03-14T00:30:00Z",
+        "wh": 7500
+      },
+      {
+        "at": "2026-03-14T00:45:00Z",
+        "wh": 8250
+      },
+      {
+        "at": "2026-03-14T01:00:00Z",
+        "wh": 9000
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-13T22:00:00Z",
+        "to": "2026-03-14T01:00:00Z"
+      }
+    ],
+    "idlePeriods": [],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "energy",
+        "bandName": "Weekday",
+        "quantity": 3000,
+        "unit": "wh",
+        "unitPrice": 3000,
+        "net": 90,
+        "tax": 0,
+        "gross": 90
+      },
+      {
+        "kind": "energy",
+        "bandName": "Weekend",
+        "quantity": 6000,
+        "unit": "wh",
+        "unitPrice": 1500,
+        "net": 90,
+        "tax": 0,
+        "gross": 90
+      }
+    ],
+    "netTotal": 180,
+    "taxTotal": 0,
+    "grossTotal": 180,
+    "energyWh": 9000,
+    "chargingMinutes": 180,
+    "flags": []
+  }
+}

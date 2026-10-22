@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -11,6 +11,9 @@ import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { Site } from '../../core/api/models/site';
 import { SitesApiService } from '../../core/api/sites-api.service';
+import { Tariff } from '../../core/api/models/tariff';
+import { TariffsApiService } from '../../core/api/tariffs-api.service';
+import { PermissionsService } from '../../core/permissions/permissions.service';
 import { OpeningHoursForm } from './opening-hours-form';
 import { SiteForm } from './site-form';
 
@@ -30,16 +33,28 @@ import { SiteForm } from './site-form';
   templateUrl: './site-dialog.component.html',
   styleUrl: './site-dialog.component.scss',
 })
-export class SiteDialogComponent {
+export class SiteDialogComponent implements OnInit {
   protected readonly site = inject<Site | null>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject<MatDialogRef<SiteDialogComponent, Site>>(MatDialogRef);
   private readonly sitesApi = inject(SitesApiService);
+  private readonly tariffsApi = inject(TariffsApiService);
+  protected readonly permissions = inject(PermissionsService);
 
   protected readonly form = this.site ? SiteForm.from(this.site) : new SiteForm();
   protected readonly timeZones = SiteForm.TIME_ZONES;
   protected readonly weekdays = OpeningHoursForm.WEEKDAYS;
   protected readonly error = signal('');
   protected readonly isSaving = signal(false);
+  protected readonly tariffs = signal<Tariff[]>([]);
+
+  /** The tariffs to choose from; without tariffs:read the field is not shown. */
+  ngOnInit(): void {
+    if (this.permissions.can('tariffs:read')) {
+      firstValueFrom(this.tariffsApi.list())
+        .then((page) => this.tariffs.set(page.items))
+        .catch(() => this.tariffs.set([]));
+    }
+  }
 
   protected async save(): Promise<void> {
     this.form.fields.markAllAsTouched();

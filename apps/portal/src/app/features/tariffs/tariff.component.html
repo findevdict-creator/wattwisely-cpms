@@ -1,0 +1,103 @@
+@let form = store.form();
+@let tariff = store.tariff();
+<header class="title">
+  <div>
+    <a routerLink="/tariffs" class="back"><mat-icon>arrow_back</mat-icon> Tariffs</a>
+    <h1>{{ tariff?.name ?? 'New tariff' }}</h1>
+    @if (tariff) {
+      <p class="hint">
+        Used by {{ tariff.site_count }} site(s). Prices version {{ tariff.current_version.number }}.
+        @if (tariff.status === 'archived') {
+          Archived.
+        }
+      </p>
+    }
+  </div>
+  @if (tariff && tariff.status === 'active' && permissions.canChange('tariffs:delete')) {
+    <button mat-stroked-button (click)="archive()" data-testid="archive-tariff">Archive</button>
+  }
+</header>
+
+<mat-card appearance="outlined" class="section">
+  <mat-card-content [formGroup]="form.fields">
+    <div class="row">
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" data-testid="tariff-name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Currency</mat-label>
+        <input matInput formControlName="currency" maxlength="3" />
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Tax rate (%)</mat-label>
+        <input matInput formControlName="taxRate" />
+      </mat-form-field>
+      <mat-checkbox formControlName="isTaxIncluded">Prices include tax</mat-checkbox>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Start fee</mat-label>
+        <input matInput formControlName="startFee" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Minimum price</mat-label>
+        <input matInput formControlName="minimumPrice" placeholder="None" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Maximum price</mat-label>
+        <input matInput formControlName="maximumPrice" placeholder="None" />
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Free idle minutes</mat-label>
+        <input matInput type="number" formControlName="idleGraceMinutes" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Idle fee cap</mat-label>
+        <input matInput formControlName="idleFeeCap" placeholder="None" />
+      </mat-form-field>
+    </div>
+    <mat-checkbox formControlName="isFreeWithoutEnergy">
+      A session that delivers no energy costs nothing
+    </mat-checkbox>
+  </mat-card-content>
+</mat-card>
+
+<h2>Bands</h2>
+<ww-tariff-bands [bands]="form.bands" [currency]="form.currency" [isEditable]="isEditable()" />
+
+@if (isEditable()) {
+  <mat-form-field appearance="outline" class="note" [formGroup]="form.fields">
+    <mat-label>Why the prices change (shown in the history)</mat-label>
+    <input matInput formControlName="note" />
+  </mat-form-field>
+}
+@if (error()) {
+  <p class="error" role="alert" data-testid="tariff-error">{{ error() }}</p>
+}
+@if (isEditable()) {
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-tariff">
+    {{ tariff ? 'Save' : 'Create tariff' }}
+  </button>
+}
+
+<h2>Preview</h2>
+<ww-tariff-preview [form]="form" />
+
+@if (store.versions().length > 0) {
+  <h2>Price history</h2>
+  <ul class="versions">
+    @for (version of store.versions(); track version.id) {
+      <li>
+        Version {{ version.number }}, {{ version.created_at | date: 'medium' }}
+        @if (version.note) {
+          · {{ version.note }}
+        }
+      </li>
+    }
+  </ul>
+}

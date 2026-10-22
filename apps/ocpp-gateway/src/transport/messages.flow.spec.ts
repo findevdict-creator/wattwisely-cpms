@@ -113,14 +113,16 @@ import { TestGateway } from '../testing/test-gateway';
       idTag: 'ANY-TAG',
     });
     const ended = await gateway.eventually(
-      `select status, meter_stop_wh::int, energy_wh::int, stop_reason from charging_sessions where id = $1 and status = 'ended'`,
+      `select status, meter_stop_wh::int, energy_wh::int, stop_reason, unplugged_at = ended_at as is_unplugged
+       from charging_sessions where id = $1 and status = 'stopping'`,
       [session['id']],
     );
     expect(ended).toEqual({
-      status: 'ended',
+      status: 'stopping',
       meter_stop_wh: 2200,
       energy_wh: 1200,
       stop_reason: 'EVDisconnected',
+      is_unplugged: true,
     });
     const samples = await gateway.row(
       'select count(*)::int as n from meter_values where session_id = $1',

@@ -1,0 +1,88 @@
+{
+  "name": "a night band that runs past midnight is one line, with tax on top of the prices",
+  "tariff": {
+    "currency": "EUR",
+    "timeZone": "Europe/Berlin",
+    "taxRate": 1900,
+    "isTaxIncluded": false,
+    "startFee": 0,
+    "idleGraceMinutes": 0,
+    "idleFeeCap": null,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Day",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "06:00",
+        "end": "22:00",
+        "energyPricePerKwh": 3500,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 0
+      },
+      {
+        "name": "Night",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "22:00",
+        "end": "06:00",
+        "energyPricePerKwh": 2000,
+        "timePricePerHour": 1200,
+        "idleFeePerMinute": 0
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-11T22:00:00Z",
+    "endedAt": "2026-03-12T00:00:00Z",
+    "series": [
+      {
+        "at": "2026-03-11T22:00:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-12T00:00:00Z",
+        "wh": 8000
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-11T22:00:00Z",
+        "to": "2026-03-12T00:00:00Z"
+      }
+    ],
+    "idlePeriods": [],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "energy",
+        "bandName": "Night",
+        "quantity": 8000,
+        "unit": "wh",
+        "unitPrice": 2000,
+        "net": 160,
+        "tax": 30,
+        "gross": 190
+      },
+      {
+        "kind": "time",
+        "bandName": "Night",
+        "quantity": 120,
+        "unit": "min",
+        "unitPrice": 1200,
+        "net": 24,
+        "tax": 5,
+        "gross": 29
+      }
+    ],
+    "netTotal": 184,
+    "taxTotal": 35,
+    "grossTotal": 219,
+    "energyWh": 8000,
+    "chargingMinutes": 120,
+    "idleMinutes": 0,
+    "flags": []
+  }
+}

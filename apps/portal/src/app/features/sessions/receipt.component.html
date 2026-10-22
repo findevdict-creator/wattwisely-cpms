@@ -1,0 +1,49 @@
+<table class="receipt" data-testid="receipt">
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>When</th>
+      <th class="number">Quantity</th>
+      <th class="number">Unit price</th>
+      <th class="number">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (line of lines(); track $index) {
+      <tr>
+        <td>{{ labelOf(line) }}</td>
+        <td>
+          @if (line.from && line.to) {
+            {{ line.from | zonedTime: timeZone() }} to {{ line.to | zonedTime: timeZone() }}
+          }
+        </td>
+        <td class="number">
+          @switch (line.unit) {
+            @case ('wh') {
+              {{ line.quantity / 1000 | number: '1.0-3' }} kWh
+            }
+            @case ('min') {
+              {{ line.quantity | number: '1.0-0' }} min
+            }
+          }
+        </td>
+        <td class="number">{{ line.unit_price ?? '' }}</td>
+        <td class="number">{{ line.gross | money: currency() }}</td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="5" class="hint">Nothing to charge.</td>
+      </tr>
+    }
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4">Of which tax</td>
+      <td class="number">{{ totals().tax | money: currency() }}</td>
+    </tr>
+    <tr class="grand">
+      <td colspan="4">Total</td>
+      <td class="number" data-testid="receipt-total">{{ totals().gross | money: currency() }}</td>
+    </tr>
+  </tfoot>
+</table>

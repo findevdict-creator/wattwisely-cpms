@@ -1,0 +1,108 @@
+{
+  "name": "the worked example from the design: 8.80 in all, 1.47 tax",
+  "tariff": {
+    "currency": "GBP",
+    "timeZone": "Europe/London",
+    "taxRate": 2000,
+    "isTaxIncluded": true,
+    "startFee": 0,
+    "idleGraceMinutes": 15,
+    "idleFeeCap": 1000,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Off-peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "00:00",
+        "end": "17:00",
+        "energyPricePerKwh": 3000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      },
+      {
+        "name": "Peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "17:00",
+        "end": "24:00",
+        "energyPricePerKwh": 4000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-10T16:30:00Z",
+    "endedAt": "2026-03-10T17:30:00Z",
+    "series": [
+      {
+        "at": "2026-03-10T16:30:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-10T17:00:00Z",
+        "wh": 10000
+      },
+      {
+        "at": "2026-03-10T17:30:00Z",
+        "wh": 22000
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-10T16:30:00Z",
+        "to": "2026-03-10T17:30:00Z"
+      }
+    ],
+    "idlePeriods": [
+      {
+        "from": "2026-03-10T17:30:00Z",
+        "to": "2026-03-10T17:55:00Z"
+      }
+    ],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "energy",
+        "bandName": "Off-peak",
+        "quantity": 10000,
+        "unit": "wh",
+        "unitPrice": 3000,
+        "net": 250,
+        "tax": 50,
+        "gross": 300
+      },
+      {
+        "kind": "energy",
+        "bandName": "Peak",
+        "quantity": 12000,
+        "unit": "wh",
+        "unitPrice": 4000,
+        "net": 400,
+        "tax": 80,
+        "gross": 480
+      },
+      {
+        "kind": "idle",
+        "bandName": "Peak",
+        "quantity": 10,
+        "unit": "min",
+        "unitPrice": 1000,
+        "net": 83,
+        "tax": 17,
+        "gross": 100
+      }
+    ],
+    "netTotal": 733,
+    "taxTotal": 147,
+    "grossTotal": 880,
+    "energyWh": 22000,
+    "chargingMinutes": 60,
+    "idleMinutes": 25,
+    "billableIdleMinutes": 10,
+    "flags": []
+  }
+}

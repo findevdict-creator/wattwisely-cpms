@@ -9,8 +9,12 @@ import { ChargersComponent } from './features/chargers/chargers.component';
 import { HomeComponent } from './features/home/home.component';
 import { InvitationComponent } from './features/invitation/invitation.component';
 import { NoWorkspaceComponent } from './features/no-workspace/no-workspace.component';
+import { SessionComponent } from './features/sessions/session.component';
+import { SessionsComponent } from './features/sessions/sessions.component';
 import { SiteComponent } from './features/sites/site.component';
 import { SitesComponent } from './features/sites/sites.component';
+import { TariffComponent } from './features/tariffs/tariff.component';
+import { TariffsComponent } from './features/tariffs/tariffs.component';
 import { TeamComponent } from './features/team/team.component';
 import { TenantPickerComponent } from './features/tenant-picker/tenant-picker.component';
 import { ShellComponent } from './layout/shell.component';
@@ -57,6 +61,36 @@ export const APP_ROUTES: Routes = [
             component: ChargerComponent,
             canActivate: [PermissionGuard],
             data: { permission: 'chargers:read' },
+          },
+          {
+            path: 'sessions',
+            component: SessionsComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'sessions:read' },
+          },
+          {
+            path: 'sessions/:id',
+            component: SessionComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'sessions:read' },
+          },
+          {
+            path: 'tariffs',
+            component: TariffsComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'tariffs:read' },
+          },
+          {
+            path: 'tariffs/new',
+            component: TariffComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'tariffs:write' },
+          },
+          {
+            path: 'tariffs/:id',
+            component: TariffComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'tariffs:read' },
           },
           {
             path: 'team',

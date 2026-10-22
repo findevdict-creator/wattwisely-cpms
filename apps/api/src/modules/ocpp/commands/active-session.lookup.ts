@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { chargingSessions, Transaction, UuidV7 } from '@wattwisely/db';
+import { SessionStates } from '@wattwisely/session-engine';
 
 /** The running session a remote stop names, with the OCPP transaction id the charger knows it by. */
 export interface ActiveSessionRef {
@@ -8,7 +9,7 @@ export interface ActiveSessionRef {
   ocppTransactionId: number;
 }
 
-/** Finds the running session on a charger for RemoteStopTransaction. */
+/** Finds the running session (charging, suspended or idle) on a charger for RemoteStopTransaction. */
 @Injectable()
 export class ActiveSessionLookup {
   async find(
@@ -26,7 +27,7 @@ export class ActiveSessionLookup {
         and(
           eq(chargingSessions.id, sessionId),
           eq(chargingSessions.chargerId, chargerId),
-          eq(chargingSessions.status, 'charging'),
+          inArray(chargingSessions.status, SessionStates.ACTIVE),
         ),
       );
     return rows[0] ?? null;

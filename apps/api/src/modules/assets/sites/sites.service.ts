@@ -3,6 +3,8 @@ import { DatabaseSession, Transaction, TransactionRunner, UuidV7 } from '@wattwi
 import { PageRequest } from '../../../common/paging/page-request';
 import { SitePermissionChecker } from '../../../common/permissions/site-permission.checker';
 import { TenantAccess } from '../../../common/tenant/tenant-access';
+import { TariffErrors } from '../../tariffs/tariff-errors';
+import { TariffsService } from '../../tariffs/tariffs.service';
 import { AssetErrors } from '../asset-errors';
 import { ListSitesQueryDto } from './dto/list-sites-query.dto';
 import { SitePageDto } from './dto/site-page.dto';
@@ -16,6 +18,7 @@ export class SitesService {
   constructor(
     private readonly transactionRunner: TransactionRunner,
     private readonly sites: SitesRepository,
+    private readonly tariffs: TariffsService,
   ) {}
 
   async list(access: TenantAccess, query: ListSitesQueryDto): Promise<SitePageDto> {
@@ -62,6 +65,13 @@ export class SitesService {
   /** Does a (non-deleted) site with this id exist in the tenant? For ids named in request bodies. */
   async exists(tx: Transaction, id: string): Promise<boolean> {
     return UuidV7.isUuid(id) && (await this.sites.findExistingIds(tx, [id])).has(id);
+  }
+
+  /** A tariff named in a site's request body must be an active tariff of the tenant. */
+  async requireTariff(tx: Transaction, tariffId: string | null | undefined): Promise<void> {
+    if (tariffId && !(await this.tariffs.isAssignable(tx, tariffId))) {
+      throw TariffErrors.unknown();
+    }
   }
 
   async withFleets(tx: Transaction, records: SiteRecord[]): Promise<SiteSummary[]> {

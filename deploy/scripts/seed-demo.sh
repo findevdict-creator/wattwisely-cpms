@@ -9,6 +9,8 @@
 #     multi@demo.test    Operations at Acme Charging and Owner of Volt Hotels (tenant switcher)
 #     nobody@demo.test   member of no tenant (shows the "No workspace" page)
 #   Sites of Acme Charging: Riverside Car Park (two chargers), Depot North (one charger, waiting)
+#   Tariff of Acme Charging: Standard (off-peak 0.30, peak 0.40 per kWh from 17:00), on both sites
+#   One finished session at Riverside: the worker prices it within a minute (8.80, the design's example)
 #
 # Every user is asked to set up an authenticator app at first login (two-factor is required).
 source "$(dirname "$0")/lib/common.sh"
@@ -91,6 +93,19 @@ INSERT INTO chargers (id, tenant_id, site_id, ocpp_identity, vendor, model, auth
   ('01900000-0000-7000-8000-00000000d003', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000c002',
    'SN-AB129934', 'Wallbox', 'Pulsar Plus', 'none', NULL)
 ON CONFLICT DO NOTHING;
+INSERT INTO tariffs (id, tenant_id, name, currency) VALUES
+  ('01900000-0000-7000-8000-00000000f001', '01900000-0000-7000-8000-00000000a001', 'Standard', 'GBP')
+ON CONFLICT DO NOTHING;
+INSERT INTO tariff_versions (id, tenant_id, tariff_id, number, tax_rate, is_tax_included, start_fee,
+  idle_grace_minutes, idle_fee_cap, is_free_without_energy, bands, note) VALUES
+  ('01900000-0000-7000-8000-00000000f101', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000f001',
+   1, 2000, true, 0, 15, 1000, true,
+   '[{"name": "Off-peak", "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"], "start": "00:00", "end": "17:00", "energyPricePerKwh": 3000, "timePricePerHour": 0, "idleFeePerMinute": 1000},
+     {"name": "Peak", "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"], "start": "17:00", "end": "24:00", "energyPricePerKwh": 4000, "timePricePerHour": 0, "idleFeePerMinute": 1000}]',
+   'Demo prices')
+ON CONFLICT DO NOTHING;
+UPDATE sites SET tariff_id = '01900000-0000-7000-8000-00000000f001'
+WHERE tenant_id = '01900000-0000-7000-8000-00000000a001' AND tariff_id IS NULL;
 -- Two chargers have reported in (so the sites show a status); the third is still waiting.
 UPDATE chargers SET last_boot_at = now(), last_heartbeat_at = now(), last_seen_at = now(),
   ocpp_version = '1.6', registration_status = 'accepted', heartbeat_interval_s = 300
@@ -101,6 +116,27 @@ INSERT INTO connectors (id, tenant_id, charger_id, ocpp_connector_id, type, curr
   ('01900000-0000-7000-8000-00000000e003', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d002', 1, 'ccs2', 'dc', 180, 'A', 'available', now()),
   ('01900000-0000-7000-8000-00000000e004', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d002', 2, 'chademo', 'dc', 50, 'B', 'faulted', now()),
   ('01900000-0000-7000-8000-00000000e005', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d003', 1, 'type2', 'ac', 7.4, 'A', 'unknown', NULL)
+ON CONFLICT DO NOTHING;
+-- A charge that stopped and whose car has left: 10 kWh before 17:00, 12 kWh after, 25 minutes idle.
+INSERT INTO charging_sessions (id, tenant_id, site_id, charger_id, connector_id, ocpp_transaction_id, id_tag,
+  status, time_zone, started_at, ended_at, unplugged_at, meter_start_wh, meter_stop_wh, energy_wh,
+  tariff_version_id, currency, stop_reason, last_event_at) VALUES
+  ('01900000-0000-7000-8000-000000005001', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000c001',
+   '01900000-0000-7000-8000-00000000d001', '01900000-0000-7000-8000-00000000e001', nextval('ocpp_transaction_id_seq'),
+   'DEMO-CARD-1', 'stopping', 'Europe/London', '2026-03-10 16:30Z', '2026-03-10 17:30Z', '2026-03-10 17:55Z',
+   100000, 122000, 22000, '01900000-0000-7000-8000-00000000f101', 'GBP', 'EVDisconnected', '2026-03-10 17:55Z')
+ON CONFLICT DO NOTHING;
+INSERT INTO session_state_changes (id, tenant_id, session_id, from_status, to_status, event, occurred_at) VALUES
+  ('01900000-0000-7000-8000-000000005101', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000005001',
+   NULL, 'charging', 'transaction_started', '2026-03-10 16:30Z'),
+  ('01900000-0000-7000-8000-000000005102', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000005001',
+   'charging', 'stopping', 'transaction_ended', '2026-03-10 17:30Z'),
+  ('01900000-0000-7000-8000-000000005103', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000005001',
+   'stopping', 'stopping', 'unplugged', '2026-03-10 17:55Z')
+ON CONFLICT DO NOTHING;
+INSERT INTO meter_values (id, tenant_id, charger_id, session_id, measured_at, energy_wh, samples) VALUES
+  ('01900000-0000-7000-8000-000000005201', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000d001',
+   '01900000-0000-7000-8000-000000005001', '2026-03-10 17:00Z', 110000, '[]')
 ON CONFLICT DO NOTHING;
 SQL
 }

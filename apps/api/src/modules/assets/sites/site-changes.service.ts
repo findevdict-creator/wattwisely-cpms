@@ -49,6 +49,7 @@ export class SiteChangesService {
       updatedBy: auth.requireAccount().id,
     };
     await this.run(auth, async (tx) => {
+      await this.reader.requireTariff(tx, request.tariff_id);
       await this.sites.insert(tx, row);
       const after = (await this.sites.findById(tx, id)) as SiteRecord;
       await this.record(tx, auth, 'sites.created', { before: null, after });
@@ -66,6 +67,7 @@ export class SiteChangesService {
     await this.run(auth, async (tx) => {
       const before = await this.reader.requireVisible(tx, access, id);
       SitePermissionChecker.requireAt(access, 'sites:write', before.id);
+      await this.reader.requireTariff(tx, request.tariff_id);
       const changes = {
         ...SiteChangesService.columnsOf(request),
         updatedBy: auth.requireAccount().id,
@@ -134,6 +136,7 @@ export class SiteChangesService {
       visibility: request.visibility,
       powerLimitKw: request.power_limit_kw,
       parkingNotes: request.parking_notes?.trim(),
+      tariffId: request.tariff_id,
     };
   }
 }

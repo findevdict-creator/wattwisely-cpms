@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -76,4 +77,13 @@ export class UpdateSiteRequestDto {
   @IsString()
   @MaxLength(500)
   readonly parking_notes?: string;
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'The tariff new sessions here are priced with; null: sessions are not priced',
+  })
+  @IsOptional()
+  @IsUUID()
+  readonly tariff_id?: string | null;
 }

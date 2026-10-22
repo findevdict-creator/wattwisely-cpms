@@ -32,6 +32,16 @@ export class ChargerMessages {
     });
   }
 
+  /** A status the charger timestamps in the past, as it does when it sends queued messages. */
+  statusAt(connectorId: number, status: string, at: Date) {
+    return this.charger.callForResult('StatusNotification', {
+      connectorId,
+      status,
+      errorCode: 'NoError',
+      timestamp: at.toISOString(),
+    });
+  }
+
   authorize(idTag: string) {
     return this.charger.callForResult<{ idTagInfo: { status: string } }>('Authorize', { idTag });
   }
@@ -46,7 +56,12 @@ export class ChargerMessages {
   stopTransaction(
     transactionId: number,
     meterStop: number,
-    extra: { reason?: string; idTag?: string; transactionData?: unknown[] } = {},
+    extra: {
+      reason?: string;
+      idTag?: string;
+      transactionData?: unknown[];
+      timestamp?: string;
+    } = {},
   ) {
     return this.charger.callForResult('StopTransaction', {
       transactionId,
@@ -63,6 +78,16 @@ export class ChargerMessages {
     energyWh: number,
     powerW?: number,
   ) {
+    return this.meterValuesAt(connectorId, transactionId, { energyWh, powerW, at: new Date() });
+  }
+
+  /** The same, for a sample taken at a given moment. */
+  meterValuesAt(
+    connectorId: number,
+    transactionId: number | undefined,
+    sample: { energyWh: number; powerW?: number; at: Date },
+  ) {
+    const { energyWh, powerW, at } = sample;
     const sampledValue = [
       { value: String(energyWh), measurand: 'Energy.Active.Import.Register', unit: 'Wh' },
       ...(powerW === undefined
@@ -72,7 +97,7 @@ export class ChargerMessages {
     return this.charger.callForResult('MeterValues', {
       connectorId,
       ...(transactionId === undefined ? {} : { transactionId }),
-      meterValue: [{ timestamp: new Date().toISOString(), sampledValue }],
+      meterValue: [{ timestamp: at.toISOString(), sampledValue }],
     });
   }
 }

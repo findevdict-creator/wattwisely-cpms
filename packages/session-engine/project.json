@@ -1,0 +1,14 @@
+{
+  "name": "session-engine",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/session-engine/src",
+  "projectType": "library",
+  "tags": ["scope:session-engine", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

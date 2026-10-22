@@ -1,16 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
+import { SessionRow, SessionStates } from '@wattwisely/session-engine';
 import { ChargerConnection } from '../../connection/charger-connection';
-import { ChargerEventPublisher } from '../../events/charger-event.publisher';
+import { SessionRecorder } from '../../sessions/session-recorder';
 import { GatewayRepositories } from '../../storage/gateway-repositories';
-import { SessionRecord } from '../../storage/sessions.repository';
 import { ActionHandler, HandlerResult } from '../action-handler';
 import { V16MeterReader } from './v16-meter-reader';
 import { StopTransactionRequest } from './v16-messages';
 
-/** StopTransaction: closes the session with its final meter reading and reason. An unknown id is answered anyway. */
+/**
+ * StopTransaction: records the final meter reading and reason and moves the session to
+ * stopping; the worker prices it once the car has left. When the reason says the car
+ * was unplugged, that is recorded too. An unknown or repeated stop is answered anyway.
+ */
 @Injectable()
 export class V16StopTransactionHandler implements ActionHandler {
+  static readonly UNPLUG_REASONS = ['EVDisconnected', 'EmergencyStop'];
+
   readonly action = 'StopTransaction';
 
   private readonly logger = new Logger(V16StopTransactionHandler.name);
@@ -18,7 +24,7 @@ export class V16StopTransactionHandler implements ActionHandler {
   constructor(
     private readonly transactionRunner: TransactionRunner,
     private readonly store: GatewayRepositories,
-    private readonly publisher: ChargerEventPublisher,
+    private readonly recorder: SessionRecorder,
   ) {}
 
   async handle(connection: ChargerConnection, payload: unknown): Promise<HandlerResult> {
@@ -35,7 +41,7 @@ export class V16StopTransactionHandler implements ActionHandler {
         this.logger.warn(`${charger.identity} stopped unknown transaction ${stop.transactionId}`);
         return;
       }
-      if (session.status === 'charging') {
+      if (session.endedAt === null && !SessionStates.isEnd(session.status)) {
         await this.close(tx, connection, session, stop);
       }
     });
@@ -45,12 +51,13 @@ export class V16StopTransactionHandler implements ActionHandler {
   private async close(
     tx: Transaction,
     connection: ChargerConnection,
-    session: SessionRecord,
+    session: SessionRow,
     stop: StopTransactionRequest,
   ): Promise<void> {
     const charger = connection.charger;
+    const endedAt = new Date(stop.timestamp);
     await this.store.sessions.stop(tx, session, {
-      endedAt: new Date(stop.timestamp),
+      endedAt,
       meterStopWh: stop.meterStop,
       stopReason: stop.reason ?? null,
     });
@@ -59,12 +66,16 @@ export class V16StopTransactionHandler implements ActionHandler {
       { id: session.id, tenantId: charger.tenantId, chargerId: charger.id },
       V16MeterReader.read(stop.transactionData ?? []),
     );
-    await this.publisher.publish(tx, charger, 'session.updated', {
-      session_id: session.id,
-      connector_id: session.connectorId,
-      status: 'ended',
-      energy_wh: Math.max(0, stop.meterStop - session.meterStartWh),
-      stop_reason: stop.reason ?? null,
+    if (V16StopTransactionHandler.UNPLUG_REASONS.includes(stop.reason ?? '')) {
+      await this.store.sessions.markUnplugged(tx, session.id, endedAt);
+    }
+    const energyWh = Math.max(0, stop.meterStop - session.meterStartWh);
+    await this.recorder.move(tx, session, 'transaction_ended', {
+      occurredAt: endedAt,
+      energyWh,
+      details: { reason: stop.reason ?? null },
+      extra: { stop_reason: stop.reason ?? null },
+      isAnnouncedAnyway: true,
     });
   }
 }

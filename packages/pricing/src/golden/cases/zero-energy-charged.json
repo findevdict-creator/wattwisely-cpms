@@ -1,0 +1,91 @@
+{
+  "name": "with 'free without energy' off, the start fee and idle fee still apply",
+  "tariff": {
+    "currency": "GBP",
+    "timeZone": "Europe/London",
+    "taxRate": 2000,
+    "isTaxIncluded": true,
+    "startFee": 100,
+    "idleGraceMinutes": 15,
+    "idleFeeCap": 1000,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": false,
+    "bands": [
+      {
+        "name": "Off-peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "00:00",
+        "end": "17:00",
+        "energyPricePerKwh": 3000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      },
+      {
+        "name": "Peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "17:00",
+        "end": "24:00",
+        "energyPricePerKwh": 4000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-10T10:00:00Z",
+    "endedAt": "2026-03-10T10:10:00Z",
+    "series": [
+      {
+        "at": "2026-03-10T10:00:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-10T10:10:00Z",
+        "wh": 0
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-10T10:00:00Z",
+        "to": "2026-03-10T10:10:00Z"
+      }
+    ],
+    "idlePeriods": [
+      {
+        "from": "2026-03-10T10:10:00Z",
+        "to": "2026-03-10T10:40:00Z"
+      }
+    ],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "start_fee",
+        "bandName": null,
+        "quantity": 1,
+        "unit": "session",
+        "unitPrice": null,
+        "net": 83,
+        "tax": 17,
+        "gross": 100
+      },
+      {
+        "kind": "idle",
+        "bandName": "Off-peak",
+        "quantity": 15,
+        "unit": "min",
+        "unitPrice": 1000,
+        "net": 125,
+        "tax": 25,
+        "gross": 150
+      }
+    ],
+    "netTotal": 208,
+    "taxTotal": 42,
+    "grossTotal": 250,
+    "energyWh": 0,
+    "flags": ["no_energy"]
+  }
+}

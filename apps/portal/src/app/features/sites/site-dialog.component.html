@@ -108,6 +108,20 @@
     </table>
   }
 
+  @if (permissions.can('tariffs:read')) {
+    <h3>Pricing</h3>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Tariff</mat-label>
+      <mat-select formControlName="tariffId" data-testid="site-tariff">
+        <mat-option [value]="null">No tariff: sessions here are not priced</mat-option>
+        @for (tariff of tariffs(); track tariff.id) {
+          <mat-option [value]="tariff.id">{{ tariff.name }} ({{ tariff.currency }})</mat-option>
+        }
+      </mat-select>
+      <mat-hint>New prices apply to sessions that start after you save.</mat-hint>
+    </mat-form-field>
+  }
+
   <h3>More</h3>
   <div class="row">
     <mat-form-field appearance="outline">

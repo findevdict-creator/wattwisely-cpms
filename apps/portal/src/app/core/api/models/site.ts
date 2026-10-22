@@ -34,6 +34,8 @@ export interface Site {
   visibility: SiteVisibility;
   power_limit_kw: number | null;
   parking_notes: string;
+  /** The tariff new sessions are priced with; null: sessions here are not priced. */
+  tariff_id: string | null;
   status: SiteStatus;
   charger_count: number;
   connector_count: number;
@@ -55,6 +57,7 @@ export interface SiteInput {
   visibility: SiteVisibility;
   power_limit_kw?: number | null;
   parking_notes?: string;
+  tariff_id?: string | null;
 }
 
 /** One page of GET /v1/sites. */

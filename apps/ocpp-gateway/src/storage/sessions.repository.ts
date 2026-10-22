@@ -1,18 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { chargingSessions, Transaction, UuidV7 } from '@wattwisely/db';
-
-/** A charging_sessions row as the gateway works with it. */
-export interface SessionRecord {
-  id: string;
-  connectorId: string;
-  ocppTransactionId: number;
-  status: 'charging' | 'ended';
-  idTag: string;
-  startedAt: Date;
-  meterStartWh: number;
-  energyWh: number;
-}
+import {
+  SessionColumns,
+  SessionPricingSnapshot,
+  SessionRow,
+  SessionState,
+  SessionStates,
+} from '@wattwisely/session-engine';
 
 /** What StartTransaction records. */
 export interface SessionStart {
@@ -32,36 +27,35 @@ export interface SessionStop {
   stopReason: string | null;
 }
 
-/** The gateway's reads and writes on charging_sessions. */
+/** The gateway's reads and writes on charging_sessions. State changes go through SessionTransitions. */
 @Injectable()
 export class SessionsRepository {
-  static readonly COLUMNS = {
-    id: chargingSessions.id,
-    connectorId: chargingSessions.connectorId,
-    ocppTransactionId: chargingSessions.ocppTransactionId,
-    status: chargingSessions.status,
-    idTag: chargingSessions.idTag,
-    startedAt: chargingSessions.startedAt,
-    meterStartWh: chargingSessions.meterStartWh,
-    energyWh: chargingSessions.energyWh,
-  };
+  /** States in which the charger may still report on the session. */
+  static readonly UNFINISHED: SessionState[] = [...SessionStates.ACTIVE, 'stopping'];
 
-  /** Opens the session with the next OCPP transaction id from the platform-wide sequence. */
-  async start(tx: Transaction, start: SessionStart): Promise<SessionRecord> {
+  /** Opens the session with the next OCPP transaction id, the site's tariff version and time zone. */
+  async start(
+    tx: Transaction,
+    start: SessionStart,
+    snapshot: SessionPricingSnapshot,
+  ): Promise<SessionRow> {
     const rows = await tx
       .insert(chargingSessions)
       .values({
         id: UuidV7.create(),
         ...start,
+        ...snapshot,
+        status: 'charging',
+        energyIncreasedAt: start.startedAt,
         ocppTransactionId: sql`nextval('ocpp_transaction_id_seq')`,
       })
-      .returning(SessionsRepository.COLUMNS);
-    return rows[0] as SessionRecord;
+      .returning(SessionColumns.SELECT);
+    return rows[0] as SessionRow;
   }
 
   async findByTransactionId(tx: Transaction, chargerId: string, ocppTransactionId: number) {
     const rows = await tx
-      .select(SessionsRepository.COLUMNS)
+      .select(SessionColumns.SELECT)
       .from(chargingSessions)
       .where(
         and(
@@ -69,41 +63,73 @@ export class SessionsRepository {
           eq(chargingSessions.ocppTransactionId, ocppTransactionId),
         ),
       );
-    return (rows[0] as SessionRecord | undefined) ?? null;
+    return (rows[0] as SessionRow | undefined) ?? null;
   }
 
-  async findActiveOnConnector(tx: Transaction, connectorId: string): Promise<SessionRecord | null> {
+  /** The newest session on the connector in one of these states. */
+  async findOnConnector(
+    tx: Transaction,
+    connectorId: string,
+    states: SessionState[] = SessionStates.ACTIVE,
+  ): Promise<SessionRow | null> {
     const rows = await tx
-      .select(SessionsRepository.COLUMNS)
+      .select(SessionColumns.SELECT)
       .from(chargingSessions)
       .where(
-        and(eq(chargingSessions.connectorId, connectorId), eq(chargingSessions.status, 'charging')),
+        and(
+          eq(chargingSessions.connectorId, connectorId),
+          inArray(chargingSessions.status, states),
+        ),
       )
       .orderBy(desc(chargingSessions.startedAt))
       .limit(1);
-    return (rows[0] as SessionRecord | undefined) ?? null;
+    return (rows[0] as SessionRow | undefined) ?? null;
   }
 
-  async stop(tx: Transaction, session: SessionRecord, stop: SessionStop): Promise<void> {
+  async stop(tx: Transaction, session: SessionRow, stop: SessionStop): Promise<void> {
     await tx
       .update(chargingSessions)
       .set({
-        status: 'ended',
         endedAt: stop.endedAt,
         meterStopWh: stop.meterStopWh,
         energyWh: Math.max(0, stop.meterStopWh - session.meterStartWh),
         stopReason: stop.stopReason,
+        lastEventAt: new Date(),
       })
       .where(eq(chargingSessions.id, session.id));
   }
 
-  /** A new reading moves the running total, never backwards. */
-  async updateEnergy(tx: Transaction, session: SessionRecord, meterWh: number): Promise<number> {
-    const energyWh = Math.max(session.energyWh, meterWh - session.meterStartWh);
+  /** A new reading moves the running total, never backwards, and notes when it last went up. */
+  async updateEnergy(
+    tx: Transaction,
+    session: SessionRow,
+    reading: { meterWh: number; at: Date },
+  ): Promise<number> {
+    const energyWh = Math.max(session.energyWh, reading.meterWh - session.meterStartWh);
+    const isIncreased = energyWh > session.energyWh;
     await tx
       .update(chargingSessions)
-      .set({ energyWh })
-      .where(and(eq(chargingSessions.id, session.id), eq(chargingSessions.status, 'charging')));
+      .set({
+        energyWh,
+        lastEventAt: new Date(),
+        ...(isIncreased ? { energyIncreasedAt: reading.at } : {}),
+      })
+      .where(eq(chargingSessions.id, session.id));
     return energyWh;
+  }
+
+  /** The car left: the idle time ends here. The first unplug counts; a repeated one changes nothing. */
+  async markUnplugged(tx: Transaction, sessionId: string, at: Date): Promise<void> {
+    await tx
+      .update(chargingSessions)
+      .set({ unpluggedAt: at, lastEventAt: new Date() })
+      .where(and(eq(chargingSessions.id, sessionId), isNull(chargingSessions.unpluggedAt)));
+  }
+
+  async touch(tx: Transaction, sessionId: string): Promise<void> {
+    await tx
+      .update(chargingSessions)
+      .set({ lastEventAt: new Date() })
+      .where(eq(chargingSessions.id, sessionId));
   }
 }

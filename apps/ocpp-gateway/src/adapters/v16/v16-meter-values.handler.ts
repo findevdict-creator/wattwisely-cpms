@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
+import { SessionRow, SessionStates } from '@wattwisely/session-engine';
 import { ChargerConnection } from '../../connection/charger-connection';
-import { ChargerEventPublisher } from '../../events/charger-event.publisher';
+import { IdleRule } from '../../sessions/idle-rule';
+import { SessionRecorder } from '../../sessions/session-recorder';
 import { GatewayRepositories } from '../../storage/gateway-repositories';
-import { SessionRecord } from '../../storage/sessions.repository';
 import { ActionHandler, HandlerResult } from '../action-handler';
 import { V16MeterReader } from './v16-meter-reader';
 import { MeterValuesRequest } from './v16-messages';
@@ -11,7 +12,9 @@ import { MeterValuesRequest } from './v16-messages';
 /**
  * MeterValues: readings during a charge. They are stored against the running session
  * (named by transactionId, or found on the connector) and move its energy total; the
- * live stream gets the new total. Readings outside a session stay in the message log only.
+ * live stream gets the new total. New energy on an idle session means it is charging
+ * again; none for two minutes on a charging session means it has gone idle.
+ * Readings outside a session stay in the message log only.
  */
 @Injectable()
 export class V16MeterValuesHandler implements ActionHandler {
@@ -20,7 +23,7 @@ export class V16MeterValuesHandler implements ActionHandler {
   constructor(
     private readonly transactionRunner: TransactionRunner,
     private readonly store: GatewayRepositories,
-    private readonly publisher: ChargerEventPublisher,
+    private readonly recorder: SessionRecorder,
   ) {}
 
   async handle(connection: ChargerConnection, payload: unknown): Promise<HandlerResult> {
@@ -29,7 +32,7 @@ export class V16MeterValuesHandler implements ActionHandler {
     await this.transactionRunner.run(DatabaseSession.forTenant(charger.tenantId), async (tx) => {
       await this.store.chargers.touch(tx, charger.id);
       const session = await this.findSession(tx, connection, request);
-      if (session?.status === 'charging') {
+      if (session && SessionStates.isActive(session.status)) {
         await this.record(tx, connection, session, request);
       }
     });
@@ -53,13 +56,13 @@ export class V16MeterValuesHandler implements ActionHandler {
       connection.charger.id,
       request.connectorId,
     );
-    return connector ? this.store.sessions.findActiveOnConnector(tx, connector.id) : null;
+    return connector ? this.store.sessions.findOnConnector(tx, connector.id) : null;
   }
 
   private async record(
     tx: Transaction,
     connection: ChargerConnection,
-    session: SessionRecord,
+    session: SessionRow,
     request: MeterValuesRequest,
   ): Promise<void> {
     const charger = connection.charger;
@@ -69,17 +72,40 @@ export class V16MeterValuesHandler implements ActionHandler {
       { id: session.id, tenantId: charger.tenantId, chargerId: charger.id },
       readings,
     );
-    const latestWh = V16MeterReader.latestEnergyWh(readings);
-    const energyWh =
-      latestWh === null
-        ? session.energyWh
-        : await this.store.sessions.updateEnergy(tx, session, latestWh);
-    await this.publisher.publish(tx, charger, 'session.updated', {
-      session_id: session.id,
-      connector_id: session.connectorId,
-      status: 'charging',
-      energy_wh: energyWh,
-      power_w: readings[readings.length - 1]?.powerW ?? null,
+    const latest = V16MeterReader.latestEnergy(readings);
+    if (!latest) {
+      await this.recorder.announce(tx, session, {
+        status: session.status,
+        energyWh: session.energyWh,
+        extra: { power_w: readings[readings.length - 1]?.powerW ?? null },
+      });
+      return;
+    }
+    const energyWh = await this.store.sessions.updateEnergy(tx, session, latest);
+    const status = await this.followEnergy(tx, session, { energyWh, at: latest.at });
+    await this.recorder.announce(tx, session, {
+      status,
+      energyWh,
+      extra: { power_w: readings[readings.length - 1]?.powerW ?? null },
     });
+  }
+
+  /** Idle when the energy stopped going up for two minutes, charging again when it moves. */
+  private async followEnergy(
+    tx: Transaction,
+    session: SessionRow,
+    reading: { energyWh: number; at: Date },
+  ) {
+    const isIncreased = reading.energyWh > session.energyWh;
+    const event = isIncreased
+      ? 'energy_resumed'
+      : IdleRule.isIdleAt(session, reading.at)
+        ? 'energy_stopped'
+        : null;
+    if (!event) {
+      return session.status;
+    }
+    const moved = await this.recorder.move(tx, session, event, { occurredAt: reading.at });
+    return moved ?? session.status;
   }
 }

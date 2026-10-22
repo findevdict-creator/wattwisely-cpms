@@ -1,0 +1,94 @@
+{
+  "name": "idle fee past the cap is cut to the cap",
+  "tariff": {
+    "currency": "GBP",
+    "timeZone": "Europe/London",
+    "taxRate": 2000,
+    "isTaxIncluded": true,
+    "startFee": 0,
+    "idleGraceMinutes": 10,
+    "idleFeeCap": 300,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Off-peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "00:00",
+        "end": "17:00",
+        "energyPricePerKwh": 3000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      },
+      {
+        "name": "Peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "17:00",
+        "end": "24:00",
+        "energyPricePerKwh": 4000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-10T10:00:00Z",
+    "endedAt": "2026-03-10T11:00:00Z",
+    "series": [
+      {
+        "at": "2026-03-10T10:00:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-10T11:00:00Z",
+        "wh": 5000
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-10T10:00:00Z",
+        "to": "2026-03-10T11:00:00Z"
+      }
+    ],
+    "idlePeriods": [
+      {
+        "from": "2026-03-10T11:00:00Z",
+        "to": "2026-03-10T12:00:00Z"
+      }
+    ],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "energy",
+        "bandName": "Off-peak",
+        "quantity": 5000,
+        "unit": "wh",
+        "unitPrice": 3000,
+        "net": 125,
+        "tax": 25,
+        "gross": 150
+      },
+      {
+        "kind": "idle",
+        "bandName": "Off-peak",
+        "quantity": 50,
+        "unit": "min",
+        "unitPrice": 1000,
+        "net": 250,
+        "tax": 50,
+        "gross": 300
+      }
+    ],
+    "netTotal": 375,
+    "taxTotal": 75,
+    "grossTotal": 450,
+    "energyWh": 5000,
+    "chargingMinutes": 60,
+    "idleMinutes": 60,
+    "billableIdleMinutes": 50,
+    "flags": []
+  }
+}

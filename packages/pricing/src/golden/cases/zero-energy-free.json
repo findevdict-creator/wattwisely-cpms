@@ -1,0 +1,72 @@
+{
+  "name": "no energy means no charge by default, even with a start fee and idle time",
+  "tariff": {
+    "currency": "GBP",
+    "timeZone": "Europe/London",
+    "taxRate": 2000,
+    "isTaxIncluded": true,
+    "startFee": 100,
+    "idleGraceMinutes": 15,
+    "idleFeeCap": 1000,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Off-peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "00:00",
+        "end": "17:00",
+        "energyPricePerKwh": 3000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      },
+      {
+        "name": "Peak",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "17:00",
+        "end": "24:00",
+        "energyPricePerKwh": 4000,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 1000
+      }
+    ]
+  },
+  "usage": {
+    "startedAt": "2026-03-10T10:00:00Z",
+    "endedAt": "2026-03-10T10:10:00Z",
+    "series": [
+      {
+        "at": "2026-03-10T10:00:00Z",
+        "wh": 0
+      },
+      {
+        "at": "2026-03-10T10:10:00Z",
+        "wh": 0
+      }
+    ],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-10T10:00:00Z",
+        "to": "2026-03-10T10:10:00Z"
+      }
+    ],
+    "idlePeriods": [
+      {
+        "from": "2026-03-10T10:10:00Z",
+        "to": "2026-03-10T10:40:00Z"
+      }
+    ],
+    "flags": []
+  },
+  "expected": {
+    "lines": [],
+    "netTotal": 0,
+    "taxTotal": 0,
+    "grossTotal": 0,
+    "energyWh": 0,
+    "idleMinutes": 30,
+    "billableIdleMinutes": 15,
+    "flags": ["no_energy"]
+  }
+}

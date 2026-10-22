@@ -1,0 +1,80 @@
+{
+  "name": "a meter that goes backwards is a new baseline and the session is flagged",
+  "tariff": {
+    "currency": "EUR",
+    "timeZone": "Europe/Berlin",
+    "taxRate": 0,
+    "isTaxIncluded": true,
+    "startFee": 0,
+    "idleGraceMinutes": 0,
+    "idleFeeCap": null,
+    "minimumPrice": null,
+    "maximumPrice": null,
+    "isFreeWithoutEnergy": true,
+    "bands": [
+      {
+        "name": "Flat",
+        "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "start": "00:00",
+        "end": "24:00",
+        "energyPricePerKwh": 2500,
+        "timePricePerHour": 0,
+        "idleFeePerMinute": 0
+      }
+    ]
+  },
+  "readings": [
+    {
+      "at": "2026-03-10T11:00:00Z",
+      "meterWh": 1000
+    },
+    {
+      "at": "2026-03-10T10:00:00Z",
+      "meterWh": 500000
+    },
+    {
+      "at": "2026-03-10T10:30:00Z",
+      "meterWh": 505000
+    },
+    {
+      "at": "2026-03-10T10:30:00Z",
+      "meterWh": 505000
+    },
+    {
+      "at": "2026-03-10T11:30:00Z",
+      "meterWh": 3000
+    }
+  ],
+  "usage": {
+    "startedAt": "2026-03-10T10:00:00Z",
+    "endedAt": "2026-03-10T11:30:00Z",
+    "series": [],
+    "chargingPeriods": [
+      {
+        "from": "2026-03-10T10:00:00Z",
+        "to": "2026-03-10T11:30:00Z"
+      }
+    ],
+    "idlePeriods": [],
+    "flags": []
+  },
+  "expected": {
+    "lines": [
+      {
+        "kind": "energy",
+        "bandName": "Flat",
+        "quantity": 7000,
+        "unit": "wh",
+        "unitPrice": 2500,
+        "net": 175,
+        "tax": 0,
+        "gross": 175
+      }
+    ],
+    "netTotal": 175,
+    "taxTotal": 0,
+    "grossTotal": 175,
+    "energyWh": 7000,
+    "flags": ["meter_reset"]
+  }
+}

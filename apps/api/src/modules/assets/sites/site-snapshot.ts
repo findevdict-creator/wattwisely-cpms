@@ -16,6 +16,7 @@ export class SiteSnapshot {
       visibility: site.visibility,
       power_limit_kw: site.powerLimitKw,
       parking_notes: site.parkingNotes,
+      tariff_id: site.tariffId,
     };
   }
 }

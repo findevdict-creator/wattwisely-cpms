@@ -73,6 +73,14 @@
           </dd>
           <dt>Power limit</dt>
           <dd>{{ site.power_limit_kw ? site.power_limit_kw + ' kW' : 'None set' }}</dd>
+          <dt>Tariff</dt>
+          <dd data-testid="site-tariff-name">
+            @if (tariff(); as tariff) {
+              <a [routerLink]="['/tariffs', tariff.id]">{{ tariff.name }}</a>
+            } @else {
+              {{ site.tariff_id ? 'Set' : 'None: sessions here are not priced' }}
+            }
+          </dd>
           <dt>Connectors free</dt>
           <dd>{{ site.available_connector_count }} of {{ site.connector_count }}</dd>
         </dl>

@@ -87,7 +87,31 @@ export const ocppDirection = pgEnum('ocpp_direction', ['in', 'out']);
 export const ocppMessageType = pgEnum('ocpp_message_type', ['call', 'call_result', 'call_error']);
 
 /**
- * A charging session as the gateway records it from StartTransaction to StopTransaction.
- * Module 5 (sessions and pricing) adds the states around these two.
+ * A charging session's state (Sessions and Pricing design, "Session states").
+ * Working states: authorising, starting, charging, suspended, idle, stopping.
+ * End states: completed (priced), not_started, failed. The table keeps its enum's
+ * original name; module 5 replaced the module 4 values (charging, ended).
  */
-export const chargingSessionStatus = pgEnum('charging_session_status', ['charging', 'ended']);
+export const chargingSessionStatus = pgEnum('charging_session_status', [
+  'authorising',
+  'starting',
+  'charging',
+  'suspended',
+  'idle',
+  'stopping',
+  'completed',
+  'not_started',
+  'failed',
+]);
+
+/** A tariff in use can be assigned to sites; an archived one is kept only for old sessions. */
+export const tariffStatus = pgEnum('tariff_status', ['active', 'archived']);
+
+/** What a receipt line charges for (Sessions and Pricing design, "Pricing engine"). */
+export const sessionLineKind = pgEnum('session_line_kind', [
+  'start_fee',
+  'energy',
+  'time',
+  'idle',
+  'adjustment',
+]);

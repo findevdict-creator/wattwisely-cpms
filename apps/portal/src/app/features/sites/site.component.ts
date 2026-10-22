@@ -13,6 +13,8 @@ import { ChargersApiService } from '../../core/api/chargers-api.service';
 import { Charger } from '../../core/api/models/charger';
 import { Site } from '../../core/api/models/site';
 import { SitesApiService } from '../../core/api/sites-api.service';
+import { Tariff } from '../../core/api/models/tariff';
+import { TariffsApiService } from '../../core/api/tariffs-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { StatusChipComponent } from '../../shared/status-chip.component';
@@ -40,12 +42,14 @@ export class SiteComponent implements OnInit {
   protected readonly permissions = inject(PermissionsService);
   private readonly sitesApi = inject(SitesApiService);
   private readonly chargersApi = inject(ChargersApiService);
+  private readonly tariffsApi = inject(TariffsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
   protected readonly site = signal<Site | null>(null);
   protected readonly chargers = signal<Charger[]>([]);
+  protected readonly tariff = signal<Tariff | null>(null);
   protected readonly error = signal('');
   protected readonly columns = ['identity', 'model', 'status', 'connectors'];
   protected readonly describeHours = OpeningHoursText.describe;
@@ -91,6 +95,14 @@ export class SiteComponent implements OnInit {
     }
   }
 
+  /** The site's tariff, for its name; shown only to people who may read tariffs. */
+  private async loadTariff(site: Site): Promise<void> {
+    const canRead = this.permissions.can('tariffs:read');
+    this.tariff.set(
+      site.tariff_id && canRead ? await firstValueFrom(this.tariffsApi.get(site.tariff_id)) : null,
+    );
+  }
+
   private async load(): Promise<void> {
     try {
       const [site, chargers] = await Promise.all([
@@ -99,6 +111,7 @@ export class SiteComponent implements OnInit {
       ]);
       this.site.set(site);
       this.chargers.set(chargers.items);
+      await this.loadTariff(site);
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     }

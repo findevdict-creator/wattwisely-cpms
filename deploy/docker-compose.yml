@@ -109,7 +109,23 @@ services:
       postgres: { condition: service_healthy }
       api: { condition: service_healthy }
 
-  # Later modules add their services here: worker, driver, admin.
+  # Background jobs for charging sessions: final prices once the car leaves, the running
+  # cost every 30 seconds, and closing sessions whose charger went silent for a day.
+  # No inbound traffic; it talks to the others through Postgres.
+  worker:
+    image: ${WATTWISELY_IMAGE_PREFIX}/worker:${WATTWISELY_VERSION}
+    build: { context: .., dockerfile: apps/worker/Dockerfile }
+    <<: [*restart, *logging]
+    environment:
+      PORT: 3200
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
+    networks: [backend]
+    depends_on:
+      postgres: { condition: service_healthy }
+      api: { condition: service_healthy }
+
+  # Later modules add their services here: driver, admin.
 
   # ---------- Login: Keycloak ----------
   keycloak:

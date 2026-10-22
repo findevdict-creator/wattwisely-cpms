@@ -1,0 +1,35 @@
+<div class="preview-row" [formGroup]="session">
+  <mat-form-field appearance="outline">
+    <mat-label>Starts</mat-label>
+    <input matInput type="datetime-local" formControlName="start" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Charges for (minutes)</mat-label>
+    <input matInput type="number" formControlName="minutes" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Energy (kWh)</mat-label>
+    <input matInput type="number" formControlName="energyKwh" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Stays plugged in after (minutes)</mat-label>
+    <input matInput type="number" formControlName="idleMinutes" />
+  </mat-form-field>
+</div>
+<button mat-stroked-button type="button" (click)="run()" data-testid="run-preview">
+  What would this cost?
+</button>
+@if (preview(); as result) {
+  <p class="total" data-testid="preview-total">
+    {{ result.gross_total | money: result.currency }} for
+    {{ result.energy_wh / 1000 | number: '1.0-3' }} kWh
+  </p>
+  <ww-receipt
+    [lines]="result.lines"
+    [currency]="result.currency"
+    [totals]="{ net: result.net_total, tax: result.tax_total, gross: result.gross_total }"
+  />
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
