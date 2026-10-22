@@ -104,6 +104,29 @@ export class TestData {
     return id;
   }
 
+  /** A connector on a charger, as the gateway creates it at the first StatusNotification. */
+  async connector(
+    tenantId: string,
+    chargerId: string,
+    ocppConnectorId: number,
+    maxPowerKw: number | null = 22,
+  ): Promise<string> {
+    const id = UuidV7.create();
+    await this.sql(
+      `insert into connectors (id, tenant_id, charger_id, ocpp_connector_id, label, max_power_kw)
+       values ($1, $2, $3, $4, $5, $6)`,
+      [
+        id,
+        tenantId,
+        chargerId,
+        ocppConnectorId,
+        String.fromCharCode(64 + ocppConnectorId),
+        maxPowerKw,
+      ],
+    );
+    return id;
+  }
+
   /** A tenant's own role holding exactly these permissions. */
   async customRole(tenantId: string, name: string, permissionKeys: string[]): Promise<string> {
     const id = UuidV7.create();

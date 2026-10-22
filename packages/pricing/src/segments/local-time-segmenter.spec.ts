@@ -74,6 +74,32 @@ describe('LocalTimeSegmenter', () => {
     expect(segments.map((segment) => segment.band.name)).toEqual(['A', 'B', 'A', 'B']);
   });
 
+  it('handles instants with milliseconds, as a running session has, on a normal day and around a clock change', () => {
+    const segmenter = Tariffs.segmenter(
+      'Europe/London',
+      Tariffs.band('Day', '00:00', '17:00'),
+      Tariffs.band('Evening', '17:00', '24:00'),
+    );
+
+    const normal = segmenter.split(
+      new Date('2026-10-22T13:58:34.400Z'),
+      new Date('2026-10-22T16:28:34.400Z'),
+    );
+    const aroundChange = segmenter.split(
+      new Date('2026-10-24T23:59:59.250Z'),
+      new Date('2026-10-25T02:00:00.750Z'),
+    );
+
+    expect(normal.map((segment) => [segment.band.name, segment.from.toISOString()])).toEqual([
+      ['Day', '2026-10-22T13:58:34.400Z'],
+      ['Evening', '2026-10-22T16:00:00.000Z'],
+    ]);
+    expect(aroundChange.map((segment) => segment.from.toISOString())).toEqual([
+      '2026-10-24T23:59:59.250Z',
+      '2026-10-25T01:00:00.000Z',
+    ]);
+  });
+
   it('throws when no band covers a moment', () => {
     const segmenter = Tariffs.segmenter('UTC', Tariffs.band('Day', '08:00', '20:00'));
 

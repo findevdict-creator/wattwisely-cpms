@@ -64,7 +64,9 @@ export class LocalClock {
       weekday: LocalClock.WEEKDAYS[fields['weekday']],
       secondOfDay,
     };
-    return { ...parts, offsetMs: LocalClock.wallOf(parts, secondOfDay) - instant.getTime() };
+    // The wall clock shows whole seconds, so the offset is taken from the instant's whole second.
+    const wholeSecond = Math.floor(instant.getTime() / 1000) * 1000;
+    return { ...parts, offsetMs: LocalClock.wallOf(parts, secondOfDay) - wholeSecond };
   }
 
   offsetAt(instant: Date): number {
@@ -98,23 +100,24 @@ export class LocalClock {
     return this.toInstant(this.partsOf(instant), LocalTime.DAY_SECONDS);
   }
 
-  /** The first instant in (from, to] at which the UTC offset differs from the offset at `from`. */
+  /** The first whole second in (from, to] at which the UTC offset differs from the offset at `from`. */
   transitionBetween(from: Date, to: Date): Date | null {
     const offset = this.offsetAt(from);
     if (this.offsetAt(to) === offset) {
       return null;
     }
-    let low = from.getTime();
-    let high = to.getTime();
-    while (high - low > 1000) {
-      const middle = low + Math.floor((high - low) / 2000) * 1000;
-      if (this.offsetAt(new Date(middle)) === offset) {
+    // Clocks change on a whole second: search seconds, the offset at `low` is always `offset`.
+    let low = Math.floor(from.getTime() / 1000);
+    let high = Math.ceil(to.getTime() / 1000);
+    while (high - low > 1) {
+      const middle = Math.floor((low + high) / 2);
+      if (this.offsetAt(new Date(middle * 1000)) === offset) {
         low = middle;
       } else {
         high = middle;
       }
     }
-    return new Date(high);
+    return new Date(high * 1000);
   }
 
   private wallAt(instantMs: number): number {

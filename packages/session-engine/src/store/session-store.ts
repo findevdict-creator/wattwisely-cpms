@@ -1,6 +1,6 @@
 import { and, asc, eq, inArray, isNotNull, lt, or, sql } from 'drizzle-orm';
 import { chargers, chargingSessions, connectors, Transaction } from '@wattwisely/db';
-import { SessionState } from '../state/session-state';
+import { SessionState, SessionStates } from '../state/session-state';
 import { SessionColumns, SessionRow } from './session-row';
 
 /** Totals and bookkeeping written when a session is priced. */
@@ -38,13 +38,17 @@ export class SessionStore {
   }
 
   /** Ids of the tenant's sessions in these states, oldest event first. */
-  async idsIn(tx: Transaction, states: SessionState[]): Promise<string[]> {
+  async idsIn(
+    tx: Transaction,
+    states: SessionState[],
+    limit = SessionStore.BATCH,
+  ): Promise<string[]> {
     const rows = await tx
       .select({ id: chargingSessions.id })
       .from(chargingSessions)
       .where(inArray(chargingSessions.status, states))
       .orderBy(asc(chargingSessions.lastEventAt))
-      .limit(SessionStore.BATCH);
+      .limit(limit);
     return rows.map((row) => row.id);
   }
 
@@ -73,13 +77,21 @@ export class SessionStore {
     return rows[0]?.maxPowerKw ?? null;
   }
 
-  /** The cost so far of a running session; not a final price, so priced_at stays empty. */
+  /**
+   * The cost so far of a running session; not a final price, so priced_at stays empty.
+   * Only while it is still running, so it can never overwrite a final price.
+   */
   async saveRunningCost(
     tx: Transaction,
     id: string,
     totals: { netAmount: number; taxAmount: number; grossAmount: number },
   ): Promise<void> {
-    await tx.update(chargingSessions).set(totals).where(eq(chargingSessions.id, id));
+    await tx
+      .update(chargingSessions)
+      .set(totals)
+      .where(
+        and(eq(chargingSessions.id, id), inArray(chargingSessions.status, SessionStates.ACTIVE)),
+      );
   }
 
   async savePrice(tx: Transaction, id: string, price: SessionPrice): Promise<void> {
