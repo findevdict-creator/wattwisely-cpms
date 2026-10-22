@@ -6,6 +6,7 @@ import { DatabaseModule } from './common/database/database.module';
 import { MailModule } from './common/mail/mail.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { BrandingModule } from './modules/branding/branding.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
@@ -33,6 +34,7 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     TeamModule,
     InvitationsModule,
     AuditLogModule,
+    BrandingModule,
     AssetsModule,
     OcppModule,
     TariffsModule,

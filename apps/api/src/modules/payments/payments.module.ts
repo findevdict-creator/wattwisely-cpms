@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PAYMENT_GATEWAY } from '@wattwisely/payments';
+import { BrandingModule } from '../branding/branding.module';
 import { PaymentAccountController } from './account/payment-account.controller';
 import { PaymentAccountService } from './account/payment-account.service';
 import { PaymentGatewayProvider } from './payment-gateway.provider';
@@ -22,6 +23,7 @@ import { WebhookService } from './webhooks/webhook.service';
  * talks to the provider through the PaymentGateway interface, so Stripe can be swapped.
  */
 @Module({
+  imports: [BrandingModule],
   controllers: [
     PaymentAccountController,
     PublicChargeController,

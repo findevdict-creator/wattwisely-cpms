@@ -1,0 +1,93 @@
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+}
+
+.lead {
+  max-width: 720px;
+  margin-top: 0;
+}
+
+.columns {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  max-width: 1100px;
+  flex-wrap: wrap;
+}
+
+.settings {
+  flex: 1 1 520px;
+  min-width: 0;
+}
+
+.preview {
+  flex: 0 0 auto;
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+  }
+}
+
+.card {
+  margin-bottom: 16px;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  height: 40px;
+  max-width: 220px;
+  object-fit: contain;
+  padding: 6px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.file-hint {
+  margin: 0;
+  padding: 0 16px 16px;
+}
+
+.wide {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+h3 {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.swatch {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.hint {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error {
+  color: var(--mat-sys-error);
+}

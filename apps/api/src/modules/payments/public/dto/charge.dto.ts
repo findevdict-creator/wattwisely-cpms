@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PaymentRow, PaymentStatuses } from '@wattwisely/payments';
 import { SessionRow, SessionStates } from '@wattwisely/session-engine';
+import { PublicBrandingDto } from '../../../branding/dto/public-branding.dto';
+import { TenantBrand } from '../../../branding/tenant-brand';
 import { ChargePlace } from '../charge-place.lookup';
 import { ChargeOutcome } from '../charge-receipt.lookup';
 import { ChargeReceiptDto } from './charge-receipt.dto';
@@ -13,6 +15,7 @@ export interface ChargeDetails extends ChargePlace {
   publishableKey: string | null;
   outcome: ChargeOutcome;
   isStopRequested: boolean;
+  brand: TenantBrand;
 }
 
 /**
@@ -110,6 +113,9 @@ export class ChargeDto {
   @ApiProperty({ description: 'The connected account the card form must be opened for' })
   readonly provider_account_id: string;
 
+  @ApiProperty({ type: PublicBrandingDto, description: 'How the operator wants the page to look' })
+  readonly branding: PublicBrandingDto;
+
   constructor(payment: PaymentRow, session: SessionRow, details: ChargeDetails) {
     this.charge_key = details.chargeKey;
     this.session_id = session.id;
@@ -138,5 +144,6 @@ export class ChargeDto {
     this.client_secret = details.clientSecret;
     this.publishable_key = details.publishableKey;
     this.provider_account_id = payment.providerAccountId;
+    this.branding = new PublicBrandingDto(details.brand);
   }
 }

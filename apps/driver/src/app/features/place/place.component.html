@@ -2,7 +2,7 @@
   <header class="where">
     <h1>{{ place.site_name }}</h1>
     <p class="hint">
-      {{ place.operator_name }} · {{ place.address.line1 }}, {{ place.address.city }}
+      {{ place.branding.name }} · {{ place.address.line1 }}, {{ place.address.city }}
     </p>
   </header>
 
@@ -47,9 +47,10 @@
       </button>
     } @else if (!place.is_card_payment_accepted) {
       <p class="hint" data-testid="not-accepted">
-        This charger does not take card payments yet. Ask {{ place.operator_name }} how to charge
+        This charger does not take card payments yet. Ask {{ place.branding.name }} how to charge
         here.
       </p>
+      <ww-support-contact [brand]="place.branding" lead="Contact" />
     } @else {
       <p class="hint" data-testid="not-available">
         @switch (place.availability) {
@@ -58,13 +59,16 @@
           }
           @case ('offline') {
             The charger is offline right now. Try again in a few minutes, or tell
-            {{ place.operator_name }}.
+            {{ place.branding.name }}.
           }
           @default {
             This plug cannot be used right now. Try another plug on the charger.
           }
         }
       </p>
+      @if (place.availability !== 'busy') {
+        <ww-support-contact [brand]="place.branding" lead="Contact" />
+      }
     }
     @if (store.error()) {
       <p class="error" role="alert">{{ store.error() }}</p>

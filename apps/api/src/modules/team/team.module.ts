@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AssetsModule } from '../assets/assets.module';
+import { BrandingModule } from '../branding/branding.module';
 import { RolesModule } from '../roles/roles.module';
 import { InvitationMailer } from './invitation.mailer';
 import { InvitationSaver } from './invitation.saver';
@@ -16,7 +17,7 @@ import { TeamTransaction } from './team.transaction';
 
 /** Team members, invitations and role changes. Exports what accepting an invitation needs. */
 @Module({
-  imports: [RolesModule, AssetsModule],
+  imports: [RolesModule, AssetsModule, BrandingModule],
   controllers: [MembersController, MemberInvitesController],
   providers: [
     MembersRepository,

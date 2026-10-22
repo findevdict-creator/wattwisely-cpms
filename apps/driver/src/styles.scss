@@ -1,7 +1,8 @@
 @use '@angular/material' as mat;
 
-// One Material theme for the driver app, green for charging. Tenant branding (colours,
-// logo) arrives in module 8 and will be read from the place the QR code names.
+// One Material theme for the driver app, green for charging, until a place or a charge is
+// loaded: then BrandService sets the operator's colours as variables on <html> (module 8),
+// which override the theme's tokens below.
 html {
   color-scheme: light;
   @include mat.theme(

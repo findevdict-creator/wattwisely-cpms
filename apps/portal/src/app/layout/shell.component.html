@@ -74,6 +74,17 @@
           <span matListItemTitle>Payments</span>
         </a>
       }
+      @if (permissions.can('settings:read')) {
+        <a
+          mat-list-item
+          routerLink="/settings/branding"
+          routerLinkActive="active"
+          data-testid="nav-branding"
+        >
+          <mat-icon matListItemIcon>palette</mat-icon>
+          <span matListItemTitle>Branding</span>
+        </a>
+      }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
           <mat-icon matListItemIcon>group</mat-icon>

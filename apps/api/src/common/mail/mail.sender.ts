@@ -21,7 +21,12 @@ export class MailSender {
     });
   }
 
+  /** The sender's address is the platform's; a branded message only lends it its name. */
   async send(message: MailMessage): Promise<void> {
-    await this.transport.sendMail({ from: this.config.smtpFrom, ...message });
+    const { fromName, ...mail } = message;
+    const from = fromName
+      ? { name: fromName, address: this.config.smtpFrom }
+      : this.config.smtpFrom;
+    await this.transport.sendMail({ from, ...mail });
   }
 }

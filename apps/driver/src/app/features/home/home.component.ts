@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { BrandService } from '../../core/branding/brand.service';
 import { MyChargesStore } from '../../core/charges/my-charges.store';
 import { ChargeWords } from '../../shared/charge-words';
 import { MoneyPipe } from '../../shared/money.pipe';
@@ -42,6 +43,11 @@ export class HomeComponent {
     validators: [Validators.required, Validators.pattern(/^\d{1,3}$/)],
   });
   protected readonly isFormShown = signal(false);
+
+  /** The home page is the platform's: charges from several operators may be listed. */
+  constructor() {
+    inject(BrandService).reset();
+  }
 
   protected sessionLabel(status: string): string {
     return ChargeWords.session(status);

@@ -31,6 +31,10 @@ export class ApiConfig {
   @IsUrl({ require_tld: false, protocols: ['postgres', 'postgresql'] })
   databaseUrl!: string;
 
+  /** The API's own public address, e.g. https://api.example.com (module 8): logo links in e-mails and driver pages point here. */
+  @IsUrl({ require_tld: false })
+  apiUrl!: string;
+
   /** The portal's public address, used for links in e-mails (e.g. invitations). */
   @IsUrl({ require_tld: false })
   portalUrl!: string;

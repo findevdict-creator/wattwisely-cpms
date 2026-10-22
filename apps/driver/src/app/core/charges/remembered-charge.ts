@@ -3,6 +3,7 @@ import { Charge } from '../api/models/charge';
 /** What the app keeps about a charge on this phone, so the driver can find it again. */
 export interface RememberedCharge {
   key: string;
+  /** The operator's name as its brand shows it. */
   operator_name: string;
   site_name: string;
   charger_identity: string;
@@ -18,7 +19,7 @@ export class RememberedCharges {
   static of(charge: Charge): RememberedCharge {
     return {
       key: charge.charge_key,
-      operator_name: charge.operator_name,
+      operator_name: charge.branding?.name || charge.operator_name,
       site_name: charge.site_name,
       charger_identity: charge.charger_identity,
       connector_label: charge.connector_label,

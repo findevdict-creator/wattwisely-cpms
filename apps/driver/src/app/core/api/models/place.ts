@@ -26,6 +26,8 @@ export interface PublicTariff {
   current_band: string | null;
 }
 
+import { PublicBranding } from './branding';
+
 export type PlaceAvailability = 'available' | 'busy' | 'offline' | 'out_of_service' | 'faulted';
 
 /** The plug a QR code names: who runs it, where it is, whether it is free, what it costs. */
@@ -53,4 +55,5 @@ export interface Place {
   is_card_payment_accepted: boolean;
   hold_amount: number | null;
   tariff: PublicTariff | null;
+  branding: PublicBranding;
 }
