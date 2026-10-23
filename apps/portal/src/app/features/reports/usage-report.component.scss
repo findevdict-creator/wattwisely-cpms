@@ -1,0 +1,21 @@
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.usage {
+  max-width: 1100px;
+}
+
+.totals td {
+  font-weight: 600;
+}

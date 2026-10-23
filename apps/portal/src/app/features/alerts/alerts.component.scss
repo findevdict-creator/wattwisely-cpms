@@ -1,0 +1,29 @@
+.tabs {
+  margin-bottom: 16px;
+}
+
+.alerts {
+  max-width: 1100px;
+}
+
+.title {
+  font-weight: 500;
+}
+
+.type,
+.note {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.highlight {
+  background: var(--mat-sys-secondary-container);
+}
+
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.more {
+  margin-top: 16px;
+}
