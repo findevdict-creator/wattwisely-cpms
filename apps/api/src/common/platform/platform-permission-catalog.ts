@@ -7,7 +7,8 @@ export interface PlatformPermissionDefinition {
 /**
  * What the admin console (module 9) lets Wattwisely staff do. Admin routes name one of these
  * with RouteAccess.platform(); PlatformRoleCatalog says which staff role holds which.
- * None of them gives access to a tenant's own data; that is support access, a later module.
+ * None of them gives access to a tenant's own data; that comes with a managed service
+ * agreement (module 10: tenants:manage_service assigns staff as Managed operators).
  */
 export class PlatformPermissionCatalog {
   static readonly ENTRIES = [
@@ -18,6 +19,10 @@ export class PlatformPermissionCatalog {
     },
     { key: 'tenants:suspend', label: 'Suspend and reactivate tenants' },
     { key: 'tenants:delete', label: 'Delete suspended tenants' },
+    {
+      key: 'tenants:manage_service',
+      label: 'Offer and end managed service agreements, assign Managed operators',
+    },
     { key: 'plans:read', label: 'See plans and add-on prices' },
     { key: 'plans:write', label: 'Create and change plans and add-on prices' },
     { key: 'staff:read', label: 'See Wattwisely staff and their roles' },

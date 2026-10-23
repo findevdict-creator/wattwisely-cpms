@@ -72,16 +72,28 @@
 
 @if (isEditable()) {
   <mat-form-field appearance="outline" class="note" [formGroup]="form.fields">
-    <mat-label>Why the prices change (shown in the history)</mat-label>
+    <mat-label>
+      {{
+        isProposal()
+          ? 'Why the prices change (shown to the Owner)'
+          : 'Why the prices change (shown in the history)'
+      }}
+    </mat-label>
     <input matInput formControlName="note" />
   </mat-form-field>
+}
+@if (isEditable() && isProposal()) {
+  <p class="hint" data-testid="proposal-hint">
+    This company approves tariff changes itself: saving sends your change to its Owner as a
+    proposal, and the prices apply once it is approved.
+  </p>
 }
 @if (error()) {
   <p class="error" role="alert" data-testid="tariff-error">{{ error() }}</p>
 }
 @if (isEditable()) {
   <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-tariff">
-    {{ tariff ? 'Save' : 'Create tariff' }}
+    {{ isProposal() ? 'Propose to the Owner' : tariff ? 'Save' : 'Create tariff' }}
   </button>
 }
 

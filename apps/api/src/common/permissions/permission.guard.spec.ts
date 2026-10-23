@@ -34,7 +34,13 @@ describe('PermissionGuard', () => {
     entitlements: TenantEntitlements,
     status: TenantSummary['status'] = 'active',
   ) => {
-    const tenant = new TenantSummary('t1', 'acme', 'Acme', status);
+    const tenant = new TenantSummary({
+      id: 't1',
+      slug: 'acme',
+      name: 'Acme',
+      status,
+      serviceTier: 'self_serve',
+    });
     const access = new TenantAccess('m1', tenant, [ownerGrant], entitlements);
     return new RequestAuth({} as RequestAuth['user'], {} as RequestAuth['origin'], { access });
   };

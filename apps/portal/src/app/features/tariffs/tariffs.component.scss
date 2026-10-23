@@ -5,6 +5,11 @@
   max-width: 1100px;
 }
 
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
 .toggle {
   margin-bottom: 16px;
 }

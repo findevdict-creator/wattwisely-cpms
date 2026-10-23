@@ -4,7 +4,9 @@ import { Client } from 'pg';
 import {
   TestData,
   TestDatabase,
+  TestManaged,
   TestPayments,
+  TestPlatform,
   TestSessions,
   TestTariffs,
 } from '@wattwisely/db/testing';
@@ -26,6 +28,7 @@ export class TestWorker {
     PAYMENT_SETTLE_INTERVAL_MS: '3600000',
     SESSION_START_TIMEOUT_INTERVAL_MS: '3600000',
     PAYMENT_WEBHOOK_RETRY_INTERVAL_MS: '3600000',
+    MANAGED_SERVICE_END_INTERVAL_MS: '3600000',
   };
 
   database!: TestDatabase;
@@ -33,6 +36,8 @@ export class TestWorker {
   tariffs!: TestTariffs;
   sessions!: TestSessions;
   payments!: TestPayments;
+  managed!: TestManaged;
+  platform!: TestPlatform;
   /** The payment provider in memory the jobs talk to. */
   readonly gateway = new FakePaymentGateway();
   app!: NestFastifyApplication;
@@ -46,6 +51,8 @@ export class TestWorker {
     this.tariffs = new TestTariffs(this.data);
     this.sessions = new TestSessions(this.data);
     this.payments = new TestPayments(this.data);
+    this.managed = new TestManaged(this.data);
+    this.platform = new TestPlatform(this.data);
     Object.assign(process.env, TestWorker.INTERVALS, {
       PORT: '3299',
       DATABASE_URL: this.database.urlFor('wattwisely_app'),

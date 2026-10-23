@@ -52,6 +52,8 @@ export class TariffComponent implements OnInit {
   protected readonly isEditable = computed(
     () => this.permissions.canChange('tariffs:write') && this.store.tariff()?.status !== 'archived',
   );
+  /** A Managed operator's change goes to the Owner as a proposal instead of applying. */
+  protected readonly isProposal = computed(() => this.permissions.mustProposeTariffs());
 
   ngOnInit(): void {
     const id = this.id();
@@ -69,13 +71,18 @@ export class TariffComponent implements OnInit {
     }
     this.isSaving.set(true);
     try {
-      const tariff = await this.store.save();
+      const result = await this.store.save(this.isProposal());
+      this.error.set('');
+      if (result.kind === 'proposal') {
+        this.snackBar.open('Sent to the Owner for approval.', 'OK', { duration: 6000 });
+        await this.router.navigate(['/tariffs/proposals', result.proposal.id]);
+        return;
+      }
       this.snackBar.open('Saved. New prices apply to sessions that start from now on.', 'OK', {
         duration: 6000,
       });
-      this.error.set('');
-      await this.router.navigate(['/tariffs', tariff.id]);
-      await this.store.load(tariff.id, this.isEditable());
+      await this.router.navigate(['/tariffs', result.tariff.id]);
+      await this.store.load(result.tariff.id, this.isEditable());
     } catch (error) {
       this.fail(error);
     } finally {

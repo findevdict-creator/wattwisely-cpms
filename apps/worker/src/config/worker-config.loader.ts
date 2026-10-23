@@ -12,6 +12,7 @@ export class WorkerConfigLoader {
     PAYMENT_SETTLE_INTERVAL_MS: '30000',
     SESSION_START_TIMEOUT_INTERVAL_MS: '15000',
     PAYMENT_WEBHOOK_RETRY_INTERVAL_MS: '60000',
+    MANAGED_SERVICE_END_INTERVAL_MS: '3600000',
   };
 
   load(environment: NodeJS.ProcessEnv): WorkerConfig {
@@ -26,6 +27,7 @@ export class WorkerConfigLoader {
       paymentSettleIntervalMs: Number(get('PAYMENT_SETTLE_INTERVAL_MS')),
       startTimeoutIntervalMs: Number(get('SESSION_START_TIMEOUT_INTERVAL_MS')),
       webhookRetryIntervalMs: Number(get('PAYMENT_WEBHOOK_RETRY_INTERVAL_MS')),
+      managedServiceEndIntervalMs: Number(get('MANAGED_SERVICE_END_INTERVAL_MS')),
       stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
     });
     const errors = validateSync(config);

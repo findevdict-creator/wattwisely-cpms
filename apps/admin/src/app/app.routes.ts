@@ -6,6 +6,7 @@ import { NotStaffComponent } from './features/not-staff/not-staff.component';
 import { OverviewComponent } from './features/overview/overview.component';
 import { PlansComponent } from './features/plans/plans.component';
 import { StaffComponent } from './features/staff/staff.component';
+import { ServiceReportComponent } from './features/tenants/service-report.component';
 import { TenantComponent } from './features/tenants/tenant.component';
 import { TenantsComponent } from './features/tenants/tenants.component';
 import { ShellComponent } from './layout/shell.component';
@@ -28,6 +29,7 @@ export const APP_ROUTES: Routes = [
           { path: '', component: OverviewComponent },
           { path: 'tenants', component: TenantsComponent },
           { path: 'tenants/:id', component: TenantComponent },
+          { path: 'tenants/:id/service-report', component: ServiceReportComponent },
           {
             path: 'plans',
             component: PlansComponent,

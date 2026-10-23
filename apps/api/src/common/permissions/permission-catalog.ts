@@ -1,3 +1,4 @@
+import { ManagedPermissions } from './managed-permissions';
 import { ModulePermissions } from './module-permissions';
 import { PermissionDefinition } from './permission-definition';
 
@@ -7,7 +8,8 @@ export { PermissionDefinition } from './permission-definition';
  * Every permission key the API knows, grouped by area for the role matrix screen.
  * Endpoints name one of these keys; a key that is not here does not compile.
  * The system roles that hold them are created by packages/db/migrations/0002_system_roles.sql
- * (and 0014 for the plan modules' permissions, which ModulePermissions lists).
+ * (0014 for the plan modules' permissions, which ModulePermissions lists, and 0016 for the
+ * managed service permissions, which ManagedPermissions lists).
  */
 export class PermissionCatalog {
   /** The permissions of the core modules, which every plan includes. */
@@ -143,6 +145,7 @@ export class PermissionCatalog {
   static readonly ENTRIES = [
     ...PermissionCatalog.CORE_ENTRIES,
     ...ModulePermissions.ENTRIES,
+    ...ManagedPermissions.ENTRIES,
   ] as const satisfies readonly PermissionDefinition[];
 
   static find(key: string): PermissionDefinition | undefined {

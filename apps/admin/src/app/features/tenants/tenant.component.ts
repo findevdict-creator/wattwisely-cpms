@@ -11,6 +11,7 @@ import { StaffContextService } from '../../core/staff/staff-context.service';
 import { PromptDialogComponent, PromptDialogData } from '../../shared/prompt-dialog.component';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { EditTenantDialogComponent } from './edit-tenant-dialog.component';
+import { TenantManagedServiceComponent } from './tenant-managed-service.component';
 import { TenantModulesComponent } from './tenant-modules.component';
 import { TenantOwnersComponent } from './tenant-owners.component';
 import { TenantPlanComponent } from './tenant-plan.component';
@@ -27,6 +28,7 @@ import { TenantStore } from './tenant.store';
     MatMenuModule,
     RouterLink,
     StatusChipComponent,
+    TenantManagedServiceComponent,
     TenantModulesComponent,
     TenantOwnersComponent,
     TenantPlanComponent,

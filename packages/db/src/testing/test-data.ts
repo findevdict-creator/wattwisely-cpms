@@ -20,6 +20,7 @@ export class TestData {
     finance: '00000000-0000-7000-8000-000000000003',
     technician: '00000000-0000-7000-8000-000000000004',
     readOnly: '00000000-0000-7000-8000-000000000005',
+    managedOperator: '00000000-0000-7000-8000-000000000006',
   };
 
   constructor(private readonly database: TestDatabase) {}

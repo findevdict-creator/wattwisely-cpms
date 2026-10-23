@@ -1,0 +1,86 @@
+<header class="title">
+  <div>
+    <a routerLink="/tariffs/proposals" class="back">
+      <mat-icon>arrow_back</mat-icon> Proposed changes
+    </a>
+    <h1>{{ proposal()?.name ?? 'Proposal' }}</h1>
+  </div>
+</header>
+
+@if (proposal(); as p) {
+  <mat-card appearance="outlined" class="section" data-testid="proposal-card">
+    <mat-card-content>
+      <div class="status">
+        <ww-status-chip [status]="p.status" kind="proposal" />
+        <span class="hint">
+          {{ p.tariff_id ? 'New prices for an existing tariff' : 'A new tariff' }}, proposed by
+          {{ p.proposed_by }} on {{ p.proposed_at | date: 'medium' }}.
+        </span>
+      </div>
+      @if (p.note) {
+        <p class="note" data-testid="proposal-note">{{ p.note }}</p>
+      }
+      @if (p.decided_at) {
+        <p data-testid="proposal-decision">
+          {{
+            p.status === 'withdrawn'
+              ? 'Withdrawn'
+              : p.status === 'approved'
+                ? 'Approved'
+                : 'Rejected'
+          }}
+          by {{ p.decided_by }} on {{ p.decided_at | date: 'medium' }}.
+          @if (p.decision_comment) {
+            "{{ p.decision_comment }}"
+          }
+        </p>
+      }
+      @if (p.tariff_id) {
+        <p>
+          <a [routerLink]="['/tariffs', p.tariff_id]">Compare with the prices in force</a>
+        </p>
+      }
+      @if (p.applied_tariff_id) {
+        <p><a [routerLink]="['/tariffs', p.applied_tariff_id]">Open the tariff</a></p>
+      }
+    </mat-card-content>
+    @if (canDecide() || canWithdraw()) {
+      <mat-card-actions>
+        @if (canDecide()) {
+          <button
+            mat-flat-button
+            (click)="decide('approve')"
+            [disabled]="isBusy()"
+            data-testid="approve-proposal"
+          >
+            Approve
+          </button>
+          <button
+            mat-stroked-button
+            (click)="decide('reject')"
+            [disabled]="isBusy()"
+            data-testid="reject-proposal"
+          >
+            Reject
+          </button>
+        }
+        @if (canWithdraw()) {
+          <button
+            mat-button
+            (click)="withdraw()"
+            [disabled]="isBusy()"
+            data-testid="withdraw-proposal"
+          >
+            Withdraw
+          </button>
+        }
+      </mat-card-actions>
+    }
+  </mat-card>
+
+  <h2>Proposed prices</h2>
+  <ww-proposal-prices [prices]="p.prices" [currency]="p.currency" />
+}
+@if (error()) {
+  <p class="error" role="alert" data-testid="proposal-error">{{ error() }}</p>
+}

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, isNull, ne } from 'drizzle-orm';
+import { and, eq, exists, inArray, isNull, ne, sql } from 'drizzle-orm';
 import {
+  managedServices,
   membershipRoles,
   rolePermissions,
   roles,
@@ -27,13 +28,7 @@ export class TenantAccessRepository {
     tenantId?: string,
   ): Promise<ActiveMembership[]> {
     const rows = await tx
-      .select({
-        membershipId: tenantMemberships.id,
-        id: tenants.id,
-        slug: tenants.slug,
-        name: tenants.name,
-        status: tenants.status,
-      })
+      .select(TenantAccessRepository.columns(tx))
       .from(tenantMemberships)
       .innerJoin(tenants, eq(tenants.id, tenantMemberships.tenantId))
       .where(
@@ -46,10 +41,36 @@ export class TenantAccessRepository {
         ),
       )
       .orderBy(tenants.name);
-    return rows.map((row) => ({
-      membershipId: row.membershipId,
-      tenant: new TenantSummary(row.id, row.slug, row.name, row.status),
+    return rows.map(({ membershipId, isManaged, ...tenant }) => ({
+      membershipId,
+      tenant: new TenantSummary({ ...tenant, serviceTier: isManaged ? 'managed' : 'self_serve' }),
     }));
+  }
+
+  private static columns(tx: Transaction) {
+    return {
+      membershipId: tenantMemberships.id,
+      id: tenants.id,
+      slug: tenants.slug,
+      name: tenants.name,
+      status: tenants.status,
+      isManaged: TenantAccessRepository.isManaged(tx),
+    };
+  }
+
+  /** True when a managed service agreement is in force (module 10); false where the session cannot see them. */
+  private static isManaged(tx: Transaction) {
+    return exists(
+      tx
+        .select({ one: sql`1` })
+        .from(managedServices)
+        .where(
+          and(
+            eq(managedServices.tenantId, tenants.id),
+            inArray(managedServices.status, ['active', 'ending']),
+          ),
+        ),
+    ).mapWith(Boolean);
   }
 
   /** The member's roles, one grant per role and site, each with its permission keys. */

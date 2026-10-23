@@ -5,7 +5,10 @@ import { MyPermissions } from '../api/models/my-permissions';
 import { PermissionsService } from './permissions.service';
 
 describe('PermissionsService', () => {
-  const permissionsWith = (isReadOnly: boolean): MyPermissions => ({
+  const permissionsWith = (
+    isReadOnly: boolean,
+    managedService: MyPermissions['managed_service'] = null,
+  ): MyPermissions => ({
     tenant_id: 'tenant-1',
     is_read_only: isReadOnly,
     plan: { code: 'starter', name: 'Starter' },
@@ -18,9 +21,11 @@ describe('PermissionsService', () => {
       { key: 'chargers:read', site_ids: ['site-1', 'site-2'] },
       { key: 'chargers:command', site_ids: ['site-1', 'site-2'] },
     ],
+    managed_service: managedService,
   });
 
   const serviceWith = async (permissions: MyPermissions) => {
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [{ provide: MeApiService, useValue: { getPermissions: () => of(permissions) } }],
     });
@@ -43,6 +48,38 @@ describe('PermissionsService', () => {
     expect(service.plan()?.name).toBe('Starter');
     expect(service.isModuleLocked('advanced_reports')).toBe(true);
     expect(service.isModuleLocked('sessions')).toBe(false);
+  });
+
+  it('is self-serve without a managed service', async () => {
+    const service = await serviceWith(permissionsWith(false));
+
+    expect(service.managedService()).toBeNull();
+    expect(service.isManaged()).toBe(false);
+    expect(service.mustProposeTariffs()).toBe(false);
+  });
+
+  it('knows when Wattwisely runs the tenant and whose tariff changes need approval', async () => {
+    const managed = {
+      status: 'active' as const,
+      is_operator: true,
+      is_tariff_approval_required: true,
+      account_manager_name: 'Sam Support',
+      ends_at: null,
+    };
+    const operator = await serviceWith(permissionsWith(false, managed));
+    expect(operator.isManaged()).toBe(true);
+    expect(operator.isManagedOperator()).toBe(true);
+    expect(operator.mustProposeTariffs()).toBe(true);
+
+    const owner = await serviceWith(permissionsWith(false, { ...managed, is_operator: false }));
+    expect(owner.isManaged()).toBe(true);
+    expect(owner.mustProposeTariffs()).toBe(false);
+
+    const offered = await serviceWith(
+      permissionsWith(false, { ...managed, status: 'pending_acceptance' }),
+    );
+    expect(offered.isManaged()).toBe(false);
+    expect(offered.managedService()?.status).toBe('pending_acceptance');
   });
 
   it('allows no changes in a suspended tenant', async () => {

@@ -39,6 +39,7 @@ export class ModuleCatalog {
       'tariffs:read',
       'tariffs:write',
       'tariffs:delete',
+      'tariffs:approve',
     ]),
     ModuleCatalog.core('sessions', 'Sessions', 'Charging sessions and the live dashboard', [
       'sessions:read',
@@ -72,6 +73,7 @@ export class ModuleCatalog {
       'settings:read',
       'settings:write',
       'settings:payments',
+      'managed_service:manage',
     ]),
     ModuleCatalog.core('audit', 'Audit log', 'Who changed what', ['audit:read']),
     ModuleCatalog.core('reports', 'Reports', 'Basic usage and revenue reports', ['reports:read']),

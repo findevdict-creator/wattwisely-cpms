@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MemberRecord } from '../member-record';
+import { MemberGrants, MemberRecord } from '../member-record';
 import { MemberRoleDto } from './member-role.dto';
 
 /** A team member or a pending invitation. */
@@ -42,6 +42,11 @@ export class MemberDto {
   @ApiProperty({ nullable: true })
   readonly removed_at: string | null;
 
+  @ApiProperty({
+    description: 'Wattwisely staff under the managed service agreement: shown, never edited here',
+  })
+  readonly is_managed_operator: boolean;
+
   constructor(member: MemberRecord, now: Date = new Date()) {
     this.id = member.id;
     this.user_account_id = member.userAccountId;
@@ -56,6 +61,7 @@ export class MemberDto {
       member.status === 'invited' && (member.inviteExpiresAt?.getTime() ?? 0) <= now.getTime();
     this.joined_at = MemberDto.iso(member.joinedAt);
     this.removed_at = MemberDto.iso(member.removedAt);
+    this.is_managed_operator = MemberGrants.isManagedOperator(member.grants);
   }
 
   private static iso(date: Date | null): string | null {

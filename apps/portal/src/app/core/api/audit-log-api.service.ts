@@ -12,10 +12,14 @@ export class AuditLogApiService {
   private readonly http = inject(HttpClient);
   private readonly runtimeConfig = inject(RuntimeConfig);
 
-  list(cursor: string | null): Observable<AuditLogPage> {
+  /** One page; with an actor type ('managed' for Wattwisely) only that kind of actor. */
+  list(cursor: string | null, actorType: string | null = null): Observable<AuditLogPage> {
     let params = new HttpParams().set('limit', AuditLogApiService.PAGE_SIZE);
     if (cursor) {
       params = params.set('cursor', cursor);
+    }
+    if (actorType) {
+      params = params.set('actor_type', actorType);
     }
     return this.http.get<AuditLogPage>(`${this.runtimeConfig.apiUrl}/v1/audit-log`, { params });
   }
