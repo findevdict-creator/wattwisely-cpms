@@ -130,6 +130,9 @@
       </section>
     }
   }
+  @if (isUpdatesOffered()) {
+    <ww-charge-updates [key]="key()" />
+  }
   @if (store.error()) {
     <p class="error" role="alert">{{ store.error() }}</p>
   }

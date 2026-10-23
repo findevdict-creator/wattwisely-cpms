@@ -13,6 +13,7 @@ import { SupportContactComponent } from '../../shared/support-contact.component'
 import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
 import { CardFormComponent } from './card-form.component';
 import { ChargeReceiptComponent } from './charge-receipt.component';
+import { ChargeUpdatesComponent } from './charge-updates.component';
 import { ChargeStore } from './charge.store';
 
 /**
@@ -25,6 +26,7 @@ import { ChargeStore } from './charge.store';
   imports: [
     CardFormComponent,
     ChargeReceiptComponent,
+    ChargeUpdatesComponent,
     DecimalPipe,
     DurationPipe,
     MatButtonModule,
@@ -51,6 +53,10 @@ export class ChargeComponent implements OnInit {
     const charge = this.store.charge();
     return charge ? ChargePhases.of(charge) : null;
   });
+  /** E-mail updates are offered while the charge is under way. */
+  protected readonly isUpdatesOffered = computed(() =>
+    ['starting', 'charging', 'finishing'].includes(this.phase() ?? ''),
+  );
   protected readonly statusLabel = computed(() =>
     ChargeWords.session(this.store.charge()?.session_status ?? ''),
   );

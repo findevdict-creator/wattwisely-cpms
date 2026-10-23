@@ -1,0 +1,13 @@
+.wide {
+  width: 100%;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
