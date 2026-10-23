@@ -4,6 +4,7 @@ import {
   TestData,
   TestDatabase,
   TestManaged,
+  TestNotifications,
   TestPayments,
   TestPlatform,
 } from '@wattwisely/db/testing';
@@ -43,6 +44,7 @@ export class TestApi {
   payments!: TestPayments;
   platform!: TestPlatform;
   managed!: TestManaged;
+  notifications!: TestNotifications;
   app!: NestFastifyApplication;
 
   async start(): Promise<this> {
@@ -52,6 +54,7 @@ export class TestApi {
     this.payments = new TestPayments(this.data);
     this.platform = new TestPlatform(this.data);
     this.managed = new TestManaged(this.data);
+    this.notifications = new TestNotifications(this.data);
     Object.assign(process.env, TestApi.environment(this.database));
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(KeycloakKeySetProvider)

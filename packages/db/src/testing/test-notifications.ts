@@ -29,7 +29,7 @@ export class TestNotifications {
     const id = UuidV7.create();
     await this.data.sql(
       `insert into alerts (id, tenant_id, type, status, subject_key, site_id, charger_id, title, began_at, closed_at)
-       values ($1, $2, $3, $4, $5, $6, $5, $7, $8, $9)`,
+       values ($1, $2, $3, $4, $5::text, $6, $5::uuid, $7, $8, $9)`,
       [
         id,
         place.tenantId,

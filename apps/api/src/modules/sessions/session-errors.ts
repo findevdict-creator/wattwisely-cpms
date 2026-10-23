@@ -40,7 +40,7 @@ export class SessionErrors {
     return new ProblemException(
       HttpStatus.UNPROCESSABLE_ENTITY,
       'export_too_large',
-      `More than ${limit} sessions match. Choose a shorter period or fewer sites.`,
+      `More than ${limit} sessions match. Choose a shorter period, or export them in the background from Reports.`,
     );
   }
 }
