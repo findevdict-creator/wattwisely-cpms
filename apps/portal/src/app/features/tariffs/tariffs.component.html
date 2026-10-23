@@ -1,11 +1,19 @@
 <header class="title">
   <h1>Tariffs</h1>
-  @if (permissions.canChange('tariffs:write')) {
-    <a mat-flat-button routerLink="/tariffs/new" data-testid="add-tariff">
-      <mat-icon>add</mat-icon>
-      New tariff
-    </a>
-  }
+  <div class="actions">
+    @if (permissions.managedService()) {
+      <a mat-stroked-button routerLink="/tariffs/proposals" data-testid="tariff-proposals">
+        <mat-icon>rule</mat-icon>
+        Proposed changes
+      </a>
+    }
+    @if (permissions.canChange('tariffs:write')) {
+      <a mat-flat-button routerLink="/tariffs/new" data-testid="add-tariff">
+        <mat-icon>add</mat-icon>
+        New tariff
+      </a>
+    }
+  </div>
 </header>
 
 <mat-button-toggle-group

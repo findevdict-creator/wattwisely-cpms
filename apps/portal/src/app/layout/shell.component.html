@@ -1,6 +1,12 @@
 <mat-toolbar class="top-bar">
   <span class="brand">Wattwisely</span>
   <ww-tenant-switcher />
+  @if (permissions.isManaged()) {
+    <a routerLink="/settings/managed-service" class="managed-badge" data-testid="managed-badge">
+      <mat-icon>support_agent</mat-icon>
+      Managed by Wattwisely
+    </a>
+  }
   <span class="spacer"></span>
   @if (tenantContext.me(); as me) {
     <button mat-button [matMenuTriggerFor]="userMenu" data-testid="user-menu">
@@ -99,6 +105,17 @@
           <mat-icon matListItemIcon>workspace_premium</mat-icon>
           <span matListItemTitle>Plan</span>
         </a>
+        @if (permissions.managedService()) {
+          <a
+            mat-list-item
+            routerLink="/settings/managed-service"
+            routerLinkActive="active"
+            data-testid="nav-managed-service"
+          >
+            <mat-icon matListItemIcon>support_agent</mat-icon>
+            <span matListItemTitle>Managed service</span>
+          </a>
+        }
       }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
@@ -118,6 +135,15 @@
     @if (permissions.isReadOnly()) {
       <div class="read-only" role="status" data-testid="read-only-banner">
         This company's account is suspended. You can look at everything but change nothing.
+      </div>
+    }
+    @if (
+      permissions.managedService()?.status === 'pending_acceptance' &&
+      permissions.can('managed_service:manage')
+    ) {
+      <div class="offer" role="status" data-testid="managed-offer-banner">
+        Wattwisely has offered to run your charging for you. Nothing changes until you accept.
+        <a routerLink="/settings/managed-service">Read the offer</a>
       </div>
     }
     <router-outlet />

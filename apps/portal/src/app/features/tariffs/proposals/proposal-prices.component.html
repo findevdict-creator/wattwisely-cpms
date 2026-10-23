@@ -1,0 +1,19 @@
+@let p = prices();
+<dl>
+  <dt>Tax</dt>
+  <dd>{{ p.tax_rate }}%, {{ p.is_tax_included ? 'included in the prices' : 'added on top' }}</dd>
+  <dt>Start fee</dt>
+  <dd>{{ p.start_fee | money: currency() }}</dd>
+  <dt>Minimum price</dt>
+  <dd>{{ p.minimum_price === null ? 'None' : (p.minimum_price | money: currency()) }}</dd>
+  <dt>Maximum price</dt>
+  <dd>{{ p.maximum_price === null ? 'None' : (p.maximum_price | money: currency()) }}</dd>
+  <dt>Idle</dt>
+  <dd>
+    {{ p.idle_grace_minutes }} free minutes,
+    {{ p.idle_fee_cap === null ? 'no cap' : 'capped at ' + (p.idle_fee_cap | money: currency()) }}
+  </dd>
+  <dt>No energy</dt>
+  <dd>{{ p.is_free_without_energy ? 'Costs nothing' : 'Charged as usual' }}</dd>
+</dl>
+<ww-tariff-bands [bands]="bands()" [currency]="currency()" [isEditable]="false" />

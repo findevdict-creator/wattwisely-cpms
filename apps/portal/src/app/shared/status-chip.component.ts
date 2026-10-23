@@ -10,7 +10,9 @@ export type StatusKind =
   | 'session'
   | 'payment'
   | 'refund'
-  | 'payment_account';
+  | 'payment_account'
+  | 'managed_service'
+  | 'proposal';
 
 /** A coloured dot and a word for a site, charger, connector, command, session, payment or refund status. */
 @Component({
@@ -67,6 +69,10 @@ export class StatusChipComponent {
         return StatusLabels.refund(status);
       case 'payment_account':
         return StatusLabels.paymentAccount(status);
+      case 'managed_service':
+        return StatusLabels.managedService(status);
+      case 'proposal':
+        return StatusLabels.proposal(status);
       default:
         return StatusLabels.charger(status);
     }

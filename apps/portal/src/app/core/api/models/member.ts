@@ -23,6 +23,8 @@ export interface Member {
   is_invite_expired: boolean;
   joined_at: string | null;
   removed_at: string | null;
+  /** Wattwisely staff working in the company under the managed service; not editable here. */
+  is_managed_operator: boolean;
 }
 
 /** Answer to sending or resending an invitation. */

@@ -17,11 +17,29 @@ export class PermissionsService {
   readonly roleNames = computed(() => [...new Set(this.state()?.roles.map((role) => role.name))]);
   readonly plan = computed(() => this.state()?.plan ?? null);
   readonly lockedModules = computed(() => this.state()?.locked_modules ?? []);
+  /** The managed service agreement, offered or in force; null for a self-serve tenant. */
+  readonly managedService = computed(() => this.state()?.managed_service ?? null);
+  /** True once the Owner accepted: Wattwisely staff work in the tenant as Managed operators. */
+  readonly isManaged = computed(() => {
+    const status = this.managedService()?.status;
+    return status === 'active' || status === 'ending';
+  });
+  /** True for Wattwisely staff working in this tenant as its Managed operator. */
+  readonly isManagedOperator = computed(() => this.managedService()?.is_operator ?? false);
+  /** True when this user's tariff changes become proposals for the Owner to approve. */
+  readonly mustProposeTariffs = computed(
+    () => this.isManagedOperator() && (this.managedService()?.is_tariff_approval_required ?? false),
+  );
 
   async ensureLoaded(): Promise<void> {
     if (!this.state()) {
-      this.state.set(await firstValueFrom(this.meApi.getPermissions()));
+      await this.reload();
     }
+  }
+
+  /** After a change that alters what the user may do, such as accepting the managed service. */
+  async reload(): Promise<void> {
+    this.state.set(await firstValueFrom(this.meApi.getPermissions()));
   }
 
   /** True when the user holds the permission anywhere (for some sites or the whole tenant). */

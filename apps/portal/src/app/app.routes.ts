@@ -11,11 +11,14 @@ import { InvitationComponent } from './features/invitation/invitation.component'
 import { NoWorkspaceComponent } from './features/no-workspace/no-workspace.component';
 import { PaymentsComponent } from './features/payments/payments.component';
 import { BrandingComponent } from './features/settings/branding.component';
+import { ManagedServiceComponent } from './features/settings/managed-service.component';
 import { PlanComponent } from './features/settings/plan.component';
 import { SessionComponent } from './features/sessions/session.component';
 import { SessionsComponent } from './features/sessions/sessions.component';
 import { SiteComponent } from './features/sites/site.component';
 import { SitesComponent } from './features/sites/sites.component';
+import { TariffProposalComponent } from './features/tariffs/proposals/tariff-proposal.component';
+import { TariffProposalsComponent } from './features/tariffs/proposals/tariff-proposals.component';
 import { TariffComponent } from './features/tariffs/tariff.component';
 import { TariffsComponent } from './features/tariffs/tariffs.component';
 import { TeamComponent } from './features/team/team.component';
@@ -90,6 +93,18 @@ export const APP_ROUTES: Routes = [
             data: { permission: 'tariffs:write' },
           },
           {
+            path: 'tariffs/proposals',
+            component: TariffProposalsComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'tariffs:read' },
+          },
+          {
+            path: 'tariffs/proposals/:id',
+            component: TariffProposalComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'tariffs:read' },
+          },
+          {
             path: 'tariffs/:id',
             component: TariffComponent,
             canActivate: [PermissionGuard],
@@ -110,6 +125,12 @@ export const APP_ROUTES: Routes = [
           {
             path: 'settings/plan',
             component: PlanComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'settings:read' },
+          },
+          {
+            path: 'settings/managed-service',
+            component: ManagedServiceComponent,
             canActivate: [PermissionGuard],
             data: { permission: 'settings:read' },
           },

@@ -99,6 +99,23 @@ export class StatusLabels {
     restricted: 'Restricted by Stripe',
   };
 
+  /** Where the managed service agreement stands (module 10). */
+  static readonly MANAGED_SERVICE: Record<string, string> = {
+    pending_acceptance: 'Waiting for your acceptance',
+    active: 'Managed by Wattwisely',
+    ending: 'Ending',
+    ended: 'Ended',
+    withdrawn: 'Withdrawn',
+  };
+
+  /** Where a proposed tariff change stands. */
+  static readonly PROPOSAL: Record<string, string> = {
+    proposed: 'Waiting for approval',
+    approved: 'Approved',
+    rejected: 'Rejected',
+    withdrawn: 'Withdrawn',
+  };
+
   static readonly COMMAND_ACTION: Record<string, string> = {
     remote_start: 'Start charging',
     remote_stop: 'Stop charging',
@@ -109,7 +126,16 @@ export class StatusLabels {
 
   /** Which statuses get which colour; anything else is quiet. */
   static readonly TONES: Record<'good' | 'busy' | 'bad', string[]> = {
-    good: ['ok', 'available', 'accepted', 'completed', 'captured', 'succeeded', 'active'],
+    good: [
+      'ok',
+      'available',
+      'accepted',
+      'completed',
+      'captured',
+      'succeeded',
+      'active',
+      'approved',
+    ],
     busy: [
       'charging',
       'preparing',
@@ -124,6 +150,9 @@ export class StatusLabels {
       'pending',
       'authorised',
       'awaiting_approval',
+      'pending_acceptance',
+      'proposed',
+      'ending',
     ],
     bad: [
       'problem',
@@ -181,6 +210,14 @@ export class StatusLabels {
 
   static paymentAccount(status: string): string {
     return StatusLabels.PAYMENT_ACCOUNT[status] ?? status;
+  }
+
+  static managedService(status: string): string {
+    return StatusLabels.MANAGED_SERVICE[status] ?? status;
+  }
+
+  static proposal(status: string): string {
+    return StatusLabels.PROPOSAL[status] ?? status;
   }
 
   static commandAction(action: string): string {

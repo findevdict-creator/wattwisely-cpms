@@ -23,6 +23,10 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+.wattwisely {
+  --mat-chip-container-height: 24px;
+}
+
 .expired {
   --mat-chip-label-text-color: var(--mat-sys-error);
 }
