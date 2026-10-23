@@ -12,17 +12,21 @@ interface Transition {
  * `next` answers where an event leads, or null when the event is not allowed in that
  * state; callers then leave the session alone. `null` as a from-state is a new session.
  *
- * In this module sessions start at `charging`: a session row is created when the charger
- * starts the transaction. Authorising and starting are entered once payment holds and
- * driver authorisation exist (later modules); their moves are already here.
+ * A free session starts at `charging`: its row is created when the charger starts the
+ * transaction. A paid session (module 6) starts at `authorising` when the card hold is
+ * requested, moves to `starting` once the hold is confirmed and RemoteStart is sent, and
+ * to `charging` when the charger starts; a declined card, a rejected start or a charger
+ * that never starts end it as `not_started`.
  */
 export class SessionStateMachine {
   static readonly WORKING_TRANSACTION: SessionState[] = ['charging', 'suspended', 'idle'];
   static readonly TRANSITIONS: Record<SessionEvent, Transition[]> = {
+    hold_requested: [{ from: [null], to: 'authorising' }],
     authorised: [{ from: ['authorising'], to: 'starting' }],
     declined: [{ from: ['authorising'], to: 'not_started' }],
     transaction_started: [{ from: [null, 'authorising', 'starting'], to: 'charging' }],
     start_timeout: [{ from: ['starting'], to: 'not_started' }],
+    start_rejected: [{ from: ['starting'], to: 'not_started' }],
     suspended: [{ from: ['charging', 'idle'], to: 'suspended' }],
     resumed: [{ from: ['suspended'], to: 'charging' }],
     energy_stopped: [{ from: ['charging'], to: 'idle' }],

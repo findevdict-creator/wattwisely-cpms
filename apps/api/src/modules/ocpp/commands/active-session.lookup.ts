@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull } from 'drizzle-orm';
 import { chargingSessions, Transaction, UuidV7 } from '@wattwisely/db';
 import { SessionStates } from '@wattwisely/session-engine';
 
@@ -28,8 +28,10 @@ export class ActiveSessionLookup {
           eq(chargingSessions.id, sessionId),
           eq(chargingSessions.chargerId, chargerId),
           inArray(chargingSessions.status, SessionStates.ACTIVE),
+          isNotNull(chargingSessions.ocppTransactionId),
         ),
       );
-    return rows[0] ?? null;
+    const row = rows[0];
+    return row ? { id: row.id, ocppTransactionId: row.ocppTransactionId ?? 0 } : null;
   }
 }

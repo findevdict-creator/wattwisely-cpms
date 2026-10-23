@@ -14,10 +14,11 @@ export class ApiConfigLoader {
       corsOrigins: this.splitList(environment['CORS_ORIGINS']),
       ...this.keycloakSettings(environment),
       databaseUrl: environment['DATABASE_URL'] ?? '',
-      portalUrl: environment['PORTAL_URL'] ?? '',
-      ocppUrl: environment['OCPP_URL'] ?? '',
-      ocppPlainUrl: environment['OCPP_PLAIN_URL'] ?? '',
+      ...this.publicAddresses(environment),
       ...this.smtpSettings(environment),
+      stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
+      stripePublishableKey: environment['STRIPE_PUBLISHABLE_KEY'] ?? '',
+      stripeWebhookSecret: environment['STRIPE_WEBHOOK_SECRET'] ?? '',
     });
     this.validate(config);
     return config;
@@ -30,6 +31,17 @@ export class ApiConfigLoader {
       keycloakJwksUrl:
         environment['KEYCLOAK_JWKS_URL'] ?? `${issuerUrl}/protocol/openid-connect/certs`,
       keycloakAudience: environment['KEYCLOAK_AUDIENCE'] ?? ApiConfigLoader.DEFAULT_AUDIENCE,
+    };
+  }
+
+  /** Where the API, the portal, the driver app and the gateway are reached from outside. */
+  private publicAddresses(environment: NodeJS.ProcessEnv): Partial<ApiConfig> {
+    return {
+      apiUrl: environment['API_URL'] ?? '',
+      portalUrl: environment['PORTAL_URL'] ?? '',
+      ocppUrl: environment['OCPP_URL'] ?? '',
+      ocppPlainUrl: environment['OCPP_PLAIN_URL'] ?? '',
+      driverUrl: environment['DRIVER_URL'] ?? '',
     };
   }
 

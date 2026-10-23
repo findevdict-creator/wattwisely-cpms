@@ -51,7 +51,7 @@ export class MemberInvitesService {
     const inviter = auth.requireAccount();
     const isSent = await this.mailer.send({
       to: member.email,
-      tenantName: auth.requireAccess().tenant.name,
+      tenantId: auth.requireAccess().tenant.id,
       inviterName: inviter.name || inviter.email,
       roleNames: [...new Set(member.grants.map((grant) => grant.roleName))],
       token: token.value,

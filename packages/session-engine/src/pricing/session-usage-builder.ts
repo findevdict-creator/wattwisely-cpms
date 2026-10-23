@@ -65,7 +65,8 @@ export class SessionUsageBuilder {
   private static readingsOf(facts: SessionFacts): RawReading[] {
     const { session } = facts;
     const readings: RawReading[] = [
-      { at: session.startedAt, meterWh: session.meterStartWh },
+      // A session that is priced has started, so the start reading is there; 0 is only a type guard.
+      { at: session.startedAt, meterWh: session.meterStartWh ?? 0 },
       ...facts.readings,
     ];
     if (session.endedAt && session.meterStopWh !== null) {

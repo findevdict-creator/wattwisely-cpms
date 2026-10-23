@@ -31,6 +31,10 @@ export class ApiConfig {
   @IsUrl({ require_tld: false, protocols: ['postgres', 'postgresql'] })
   databaseUrl!: string;
 
+  /** The API's own public address, e.g. https://api.example.com (module 8): logo links in e-mails and driver pages point here. */
+  @IsUrl({ require_tld: false })
+  apiUrl!: string;
+
   /** The portal's public address, used for links in e-mails (e.g. invitations). */
   @IsUrl({ require_tld: false })
   portalUrl!: string;
@@ -42,6 +46,10 @@ export class ApiConfig {
   /** The same for the few chargers that cannot do TLS, e.g. ws://ocpp-plain.example.com/ocpp. */
   @IsUrl({ require_tld: false, protocols: ['ws', 'wss'] })
   ocppPlainUrl!: string;
+
+  /** The driver app's public address, e.g. https://charge.example.com (module 7): QR codes point there. */
+  @IsUrl({ require_tld: false })
+  driverUrl!: string;
 
   @IsString()
   @IsNotEmpty()
@@ -61,4 +69,16 @@ export class ApiConfig {
 
   @IsBoolean()
   smtpStartTls!: boolean;
+
+  /** Stripe (module 6). Empty keys switch card payments off; free sessions keep working. */
+  @IsString()
+  stripeSecretKey!: string;
+
+  /** Handed to the driver's page for Stripe's card form. */
+  @IsString()
+  stripePublishableKey!: string;
+
+  /** The signing secret of the Connect webhook endpoint (POST /v1/webhooks/stripe). */
+  @IsString()
+  stripeWebhookSecret!: string;
 }

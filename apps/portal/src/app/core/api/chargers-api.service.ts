@@ -9,6 +9,7 @@ import {
   ChargerPage,
   Connector,
   ConnectorInput,
+  ConnectorQrCode,
   RegisterChargerInput,
   RegisteredCharger,
 } from './models/charger';
@@ -66,6 +67,11 @@ export class ChargersApiService {
     return this.http.post<Charger>(this.url(`chargers/${charger.id}/fingerprint/reset`), null, {
       headers: ChargersApiService.ifMatch(charger),
     });
+  }
+
+  /** The QR codes drivers scan, one per plug (module 7). */
+  qrCodes(chargerId: string): Observable<ConnectorQrCode[]> {
+    return this.http.get<ConnectorQrCode[]>(this.url(`chargers/${chargerId}/qr-codes`));
   }
 
   addConnector(chargerId: string, input: ConnectorInput): Observable<Connector> {

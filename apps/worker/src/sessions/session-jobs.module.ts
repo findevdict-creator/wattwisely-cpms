@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { HoldWatcher } from '@wattwisely/payments';
 import {
   ChargerEventNotifier,
   SessionFinaliser,
@@ -19,6 +20,7 @@ import { StaleSessionSweepJob } from './stale-session-sweep.job';
     { provide: SessionPricer, useValue: new SessionPricer() },
     { provide: SessionFinaliser, useValue: new SessionFinaliser() },
     { provide: ChargerEventNotifier, useValue: new ChargerEventNotifier() },
+    { provide: HoldWatcher, useValue: new HoldWatcher() },
     TenantIterator,
     SessionBatch,
     LiveCostParts,
@@ -26,5 +28,6 @@ import { StaleSessionSweepJob } from './stale-session-sweep.job';
     LiveCostJob,
     StaleSessionSweepJob,
   ],
+  exports: [TenantIterator, SessionBatch],
 })
 export class SessionJobsModule {}

@@ -124,12 +124,18 @@
 
   <header class="section">
     <h2>Connectors</h2>
-    @if (permissions.canChange('chargers:write')) {
-      <button mat-stroked-button (click)="editConnector(null)" data-testid="add-connector">
-        <mat-icon>add</mat-icon>
-        Add connector
+    <div class="actions">
+      <button mat-stroked-button (click)="showQrCodes()" data-testid="qr-codes">
+        <mat-icon>qr_code_2</mat-icon>
+        QR codes
       </button>
-    }
+      @if (permissions.canChange('chargers:write')) {
+        <button mat-stroked-button (click)="editConnector(null)" data-testid="add-connector">
+          <mat-icon>add</mat-icon>
+          Add connector
+        </button>
+      }
+    </div>
   </header>
   <div class="connectors">
     @for (connector of charger.connectors; track connector.id) {

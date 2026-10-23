@@ -6,10 +6,13 @@ import { DatabaseModule } from './common/database/database.module';
 import { MailModule } from './common/mail/mail.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { BrandingModule } from './modules/branding/branding.module';
+import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { MeModule } from './modules/me/me.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { TariffsModule } from './modules/tariffs/tariffs.module';
@@ -31,10 +34,13 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     TeamModule,
     InvitationsModule,
     AuditLogModule,
+    BrandingModule,
     AssetsModule,
     OcppModule,
     TariffsModule,
     SessionsModule,
+    PaymentsModule,
+    DriversModule,
   ],
 })
 export class AppModule {}

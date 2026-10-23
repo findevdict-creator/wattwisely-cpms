@@ -49,12 +49,16 @@ export class StatusLabels {
     meter_reset: 'Meter went backwards',
     implausible_jump: 'Meter jumped more than the connector can deliver',
     no_tariff: 'The site had no tariff',
+    capture_above_hold: 'The price was above the card hold; only the hold was taken',
   };
 
   static readonly FAILURE: Record<string, string> = {
     no_valid_stop_data: 'The charger never reported how it ended',
     stale: 'The charger went silent for a day',
     closed_by_staff: 'Closed by staff',
+    declined: 'The card was refused or never confirmed',
+    start_timeout: 'The charger did not start in time',
+    start_rejected: 'The charger refused to start',
   };
 
   static readonly COMMAND: Record<string, string> = {
@@ -67,6 +71,34 @@ export class StatusLabels {
     failed: 'Failed',
   };
 
+  /** Where a card payment stands (module 6). */
+  static readonly PAYMENT: Record<string, string> = {
+    pending: 'Waiting for the card',
+    authorised: 'Hold on the card',
+    captured: 'Taken',
+    released: 'Hold released',
+    failed: 'Card refused',
+    capture_failed: 'Could not take the payment',
+    partially_refunded: 'Partly refunded',
+    refunded: 'Refunded',
+  };
+
+  static readonly REFUND: Record<string, string> = {
+    awaiting_approval: 'Needs approval',
+    pending: 'Sent to the provider',
+    succeeded: 'Refunded',
+    failed: 'Failed',
+    cancelled: 'Cancelled',
+  };
+
+  /** How far the company's Stripe account has come. */
+  static readonly PAYMENT_ACCOUNT: Record<string, string> = {
+    not_connected: 'Not connected',
+    pending: 'Setup not finished',
+    active: 'Taking payments',
+    restricted: 'Restricted by Stripe',
+  };
+
   static readonly COMMAND_ACTION: Record<string, string> = {
     remote_start: 'Start charging',
     remote_stop: 'Stop charging',
@@ -75,31 +107,40 @@ export class StatusLabels {
     change_availability: 'Change availability',
   };
 
+  /** Which statuses get which colour; anything else is quiet. */
+  static readonly TONES: Record<'good' | 'busy' | 'bad', string[]> = {
+    good: ['ok', 'available', 'accepted', 'completed', 'captured', 'succeeded', 'active'],
+    busy: [
+      'charging',
+      'preparing',
+      'finishing',
+      'occupied',
+      'reserved',
+      'queued',
+      'sent',
+      'authorising',
+      'starting',
+      'stopping',
+      'pending',
+      'authorised',
+      'awaiting_approval',
+    ],
+    bad: [
+      'problem',
+      'offline',
+      'faulted',
+      'rejected',
+      'timed_out',
+      'failed',
+      'capture_failed',
+      'restricted',
+    ],
+  };
+
   /** The CSS tone class: good, busy, bad or quiet. */
   static toneOf(status: string): string {
-    if (['ok', 'available', 'accepted', 'completed'].includes(status)) {
-      return 'good';
-    }
-    if (
-      [
-        'charging',
-        'preparing',
-        'finishing',
-        'occupied',
-        'reserved',
-        'queued',
-        'sent',
-        'authorising',
-        'starting',
-        'stopping',
-      ].includes(status)
-    ) {
-      return 'busy';
-    }
-    if (['problem', 'offline', 'faulted', 'rejected', 'timed_out', 'failed'].includes(status)) {
-      return 'bad';
-    }
-    return 'quiet';
+    const tones = Object.keys(StatusLabels.TONES) as (keyof typeof StatusLabels.TONES)[];
+    return tones.find((tone) => StatusLabels.TONES[tone].includes(status)) ?? 'quiet';
   }
 
   static site(status: string): string {
@@ -128,6 +169,18 @@ export class StatusLabels {
 
   static command(status: string): string {
     return StatusLabels.COMMAND[status] ?? status;
+  }
+
+  static payment(status: string): string {
+    return StatusLabels.PAYMENT[status] ?? status;
+  }
+
+  static refund(status: string): string {
+    return StatusLabels.REFUND[status] ?? status;
+  }
+
+  static paymentAccount(status: string): string {
+    return StatusLabels.PAYMENT_ACCOUNT[status] ?? status;
   }
 
   static commandAction(action: string): string {

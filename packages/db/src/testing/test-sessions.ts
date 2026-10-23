@@ -21,6 +21,10 @@ export interface TestSessionOptions {
   readings?: { at: string; meterWh: number }[];
   history?: { from: string | null; to: string; event: string; at: string }[];
   lastEventAt?: string;
+  /** False for a paid session the charger has not started yet: no transaction id, no start reading. */
+  hasStarted?: boolean;
+  commandId?: string | null;
+  createdAt?: string;
 }
 
 /**
@@ -42,6 +46,9 @@ export class TestSessions {
       { from: 'charging', to: 'stopping', event: 'transaction_ended', at: '2026-03-10T17:30:00Z' },
     ],
     lastEventAt: '2026-03-10T17:55:00Z',
+    hasStarted: true,
+    commandId: null,
+    createdAt: '2026-03-10T16:30:00Z',
   };
 
   constructor(private readonly data: TestData) {}
@@ -52,29 +59,36 @@ export class TestSessions {
     await this.data.sql(
       `insert into charging_sessions (id, tenant_id, site_id, charger_id, connector_id, ocpp_transaction_id,
          id_tag, status, time_zone, started_at, ended_at, unplugged_at, meter_start_wh, meter_stop_wh,
-         energy_wh, tariff_version_id, currency, last_event_at)
-       values ($1, $2, $3, $4, $5, nextval('ocpp_transaction_id_seq'), 'TEST-TAG', $6, 'Europe/London',
-         $7, $8, $9, $10, $11, $12, $13, case when $13::uuid is null then null else 'GBP' end, $14)`,
-      [
-        id,
-        place.tenantId,
-        place.siteId,
-        place.chargerId,
-        place.connectorId,
-        session.status,
-        session.startedAt,
-        session.endedAt,
-        session.unpluggedAt,
-        session.meterStartWh,
-        session.meterStopWh,
-        Math.max(0, (session.meterStopWh ?? session.meterStartWh) - session.meterStartWh),
-        session.tariffVersionId,
-        session.lastEventAt,
-      ],
+         energy_wh, tariff_version_id, currency, last_event_at, command_id, created_at)
+       values ($1, $2, $3, $4, $5, case when $15 then nextval('ocpp_transaction_id_seq') end, 'TEST-TAG', $6,
+         'Europe/London', $7, $8, $9, case when $15 then $10::bigint end, $11, $12, $13,
+         case when $13::uuid is null then null else 'GBP' end, $14, $16, $17)`,
+      [id, ...TestSessions.placeValues(place), ...TestSessions.sessionValues(session)],
     );
     await this.addHistory(place, id, session.history);
     await this.addReadings(place, id, session.readings);
     return id;
+  }
+
+  private static placeValues(place: SessionPlace): unknown[] {
+    return [place.tenantId, place.siteId, place.chargerId, place.connectorId];
+  }
+
+  private static sessionValues(session: Required<TestSessionOptions>): unknown[] {
+    return [
+      session.status,
+      session.startedAt,
+      session.endedAt,
+      session.unpluggedAt,
+      session.meterStartWh,
+      session.meterStopWh,
+      Math.max(0, (session.meterStopWh ?? session.meterStartWh) - session.meterStartWh),
+      session.tariffVersionId,
+      session.lastEventAt,
+      session.hasStarted,
+      session.commandId,
+      session.createdAt,
+    ];
   }
 
   private async addHistory(

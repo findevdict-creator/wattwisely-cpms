@@ -4,7 +4,8 @@
  */
 export interface ActiveSession {
   id: string;
-  ocppTransactionId: number;
+  /** Empty while a paid session waits for the charger to start the transaction. */
+  ocppTransactionId: number | null;
   status: string;
   /** ISO 8601, as Postgres' json_build_object writes a timestamptz. */
   startedAt: string;

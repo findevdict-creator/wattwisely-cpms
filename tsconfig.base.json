@@ -24,7 +24,10 @@
       "@wattwisely/ocpp-contracts": ["./packages/ocpp-contracts/src/index.ts"],
       "@wattwisely/charger-sim": ["./packages/charger-sim/src/index.ts"],
       "@wattwisely/pricing": ["./packages/pricing/src/index.ts"],
-      "@wattwisely/session-engine": ["./packages/session-engine/src/index.ts"]
+      "@wattwisely/session-engine": ["./packages/session-engine/src/index.ts"],
+      "@wattwisely/payments": ["./packages/payments/src/index.ts"],
+      "@wattwisely/payments/testing": ["./packages/payments/src/testing/index.ts"],
+      "@wattwisely/payments-stripe": ["./packages/payments-stripe/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

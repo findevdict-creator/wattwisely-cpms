@@ -1,3 +1,4 @@
+import { SessionPayment } from './payment';
 import { ReceiptLine } from './tariff';
 
 export type SessionState =
@@ -33,6 +34,9 @@ export interface Session {
   is_priced: boolean;
   review_flags: string[];
   failure_reason: string | null;
+  /** The driver pays by card (module 6). */
+  is_paid: boolean;
+  payment_status: string | null;
 }
 
 /** One step of a session's timeline. */
@@ -46,11 +50,12 @@ export interface SessionStateChange {
 
 /** GET /v1/sessions/{id}: the session with its receipt and timeline. */
 export interface SessionDetail extends Session {
-  ocpp_transaction_id: number;
+  /** Empty while a paid session waits for the charger to start the transaction. */
+  ocpp_transaction_id: number | null;
   ocpp_connector_id: number;
   time_zone: string;
   closed_at: string | null;
-  meter_start_wh: number;
+  meter_start_wh: number | null;
   meter_stop_wh: number | null;
   stop_reason: string | null;
   tariff: { id: string; name: string; version_number: number } | null;
@@ -59,6 +64,8 @@ export interface SessionDetail extends Session {
   pricing_input_hash: string | null;
   lines: ReceiptLine[];
   state_changes: SessionStateChange[];
+  /** The card payment, when the driver paid by card. */
+  payment: SessionPayment | null;
 }
 
 /** One point of the energy chart. */

@@ -20,6 +20,7 @@ import { ConnectorCardComponent } from './connector-card.component';
 import { ConnectorDialogComponent } from './connector-dialog.component';
 import { LiveEventApplier } from './live-event.applier';
 import { EditChargerDialogComponent } from './edit-charger-dialog.component';
+import { QrCodesDialogComponent } from './qr-codes-dialog.component';
 import { SetupCardComponent } from './setup-card.component';
 
 /**
@@ -111,6 +112,11 @@ export class ChargerComponent implements OnInit, OnDestroy {
     if (isConfirmed && (await this.store.remove())) {
       await this.router.navigate(['/chargers']);
     }
+  }
+
+  /** The stickers for the plugs (module 7). */
+  protected showQrCodes(): void {
+    this.dialog.open(QrCodesDialogComponent, { data: this.store.charger(), width: '640px' });
   }
 
   protected async editConnector(connector: Connector | null): Promise<void> {

@@ -1,0 +1,45 @@
+.now {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+
+  .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--mat-sys-primary);
+  }
+
+  .price {
+    font-size: 28px;
+    font-weight: 500;
+  }
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bands li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.number {
+  white-space: nowrap;
+}
+
+.rules {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+
+  li {
+    padding: 2px 0;
+  }
+}

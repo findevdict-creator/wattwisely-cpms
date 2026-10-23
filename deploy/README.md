@@ -9,6 +9,7 @@ Everything runs with Docker Compose on one Linux server. A single server suits a
 | `caddy`          | caddy                  | HTTPS certificates (Let's Encrypt) and routing                       | Yes, ports 80 and 443                                                     |
 | `api`            | ghcr.io/…/api          | Wattwisely REST API                                                  | Through Caddy: `api.<domain>`                                             |
 | `portal`         | ghcr.io/…/portal       | Tenant portal                                                        | Through Caddy: `portal.<domain>`                                          |
+| `driver`         | ghcr.io/…/driver       | Driver app: what a plug's QR code opens (prices, card, receipt)      | Through Caddy: `charge.<domain>`                                          |
 | `ocpp-gateway`   | ghcr.io/…/ocpp-gateway | Where chargers connect (OCPP 1.6J over WebSocket)                    | Through Caddy: `ocpp.<domain>` (wss) and `ocpp-plain.<domain>` (ws)       |
 | `worker`         | ghcr.io/…/worker       | Background jobs: prices sessions, running costs, stale sessions      | No                                                                        |
 | `keycloak`       | keycloak/keycloak      | Login, two-factor, SSO                                               | Through Caddy: `auth.<domain>` (admin console only from private networks) |
@@ -18,12 +19,12 @@ Everything runs with Docker Compose on one Linux server. A single server suits a
 | `object-storage` | seaweedfs              | S3-compatible file storage for logos, invoices, exports              | No                                                                        |
 | `mailpit`        | mailpit                | Catches e-mail in local trials only                                  | Local only                                                                |
 
-Later modules add `driver` and `admin` to the same file.
+Later modules add `admin` to the same file.
 
 ## Server checklist
 
 1. A Linux server with at least 4 GB RAM and 40 GB disk, Docker Engine and the Compose plugin installed.
-2. DNS records `portal.<domain>`, `api.<domain>`, `auth.<domain>`, `ocpp.<domain>` and `ocpp-plain.<domain>` pointing at the server.
+2. DNS records `portal.<domain>`, `api.<domain>`, `auth.<domain>`, `charge.<domain>`, `ocpp.<domain>` and `ocpp-plain.<domain>` pointing at the server.
 3. Ports 80 and 443 open. Nothing else needs to be open.
 4. An SMTP account for e-mails (password resets and team invitations).
 5. If the GitHub repository is private: `docker login ghcr.io` with a GitHub token that can read packages.
@@ -64,7 +65,7 @@ Run a nightly backup and copy it off the server, for example with cron:
 
 ## Versions and images
 
-A GitHub Action builds the `api`, `portal`, `ocpp-gateway` and `worker` images and pushes them to GitHub's container registry:
+A GitHub Action builds the `api`, `portal`, `driver`, `ocpp-gateway` and `worker` images and pushes them to GitHub's container registry:
 
 | Event          | Image tags             |
 | -------------- | ---------------------- |
@@ -81,7 +82,7 @@ Set `WATTWISELY_VERSION` in `.env` to a released version on a real server. `main
 ./scripts/seed-demo.sh
 ```
 
-Open <http://portal.localhost>. Demo users (password `Wattwisely-demo-1`): `owner@acme.test` (Owner, one tenant), `tech@acme.test` (Technician, no Team page), `multi@demo.test` (two tenants), `nobody@demo.test` (no tenant). E-mails land in Mailpit at <http://localhost:8025>. The Keycloak admin console is at <http://auth.localhost/admin>.
+Open <http://portal.localhost>. The driver app is at <http://charge.localhost>: open a charger in the portal and press "QR codes" to see the addresses the stickers carry. Demo users (password `Wattwisely-demo-1`): `owner@acme.test` (Owner, one tenant), `tech@acme.test` (Technician, no Team page), `multi@demo.test` (two tenants), `nobody@demo.test` (no tenant). E-mails land in Mailpit at <http://localhost:8025>. The Keycloak admin console is at <http://auth.localhost/admin>.
 
 ## Good to know
 

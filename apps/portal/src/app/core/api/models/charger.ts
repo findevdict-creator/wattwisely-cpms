@@ -9,7 +9,7 @@ export type ConnectorType =
 /** The session on a connector right now: running, or stopped while the car is still plugged in. */
 export interface ActiveSession {
   id: string;
-  ocpp_transaction_id: number;
+  ocpp_transaction_id: number | null;
   status: 'charging' | 'suspended' | 'idle' | 'stopping';
   started_at: string;
   energy_wh: number;
@@ -64,6 +64,15 @@ export interface Charger {
   version: number;
   created_at: string;
   updated_at: string;
+}
+
+/** One plug's QR code for the sticker on the charger (module 7): where it leads and the drawing. */
+export interface ConnectorQrCode {
+  connector_id: string;
+  ocpp_connector_id: number;
+  label: string;
+  url: string;
+  svg: string;
 }
 
 /** What to type into the charger. The password is only ever in this answer. */

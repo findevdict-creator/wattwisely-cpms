@@ -24,6 +24,12 @@
 	reverse_proxy api:3000
 }
 
+# Drivers: the QR code on a plug opens charge.<domain>/c/<charger id>/<plug>.
+{$PUBLIC_SCHEME}://{$DRIVER_HOST} {
+	import security_headers
+	reverse_proxy driver:8080
+}
+
 # Chargers: wss://ocpp.<domain>/ocpp/<identity>. WebSocket upgrades pass through as they are.
 {$PUBLIC_SCHEME}://{$OCPP_HOST} {
 	reverse_proxy ocpp-gateway:3100
