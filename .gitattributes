@@ -1,0 +1,5 @@
+# Keep LF line endings on every checkout, Windows included: the shell scripts, the
+# Caddyfile and the Postgres init script run inside Linux containers, where CRLF breaks them.
+* text=auto eol=lf
+*.ico binary
+*.png binary
