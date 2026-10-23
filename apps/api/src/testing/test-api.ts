@@ -100,7 +100,6 @@ export class TestApi {
       OCPP_URL: 'wss://ocpp.test/ocpp',
       OCPP_PLAIN_URL: 'ws://ocpp-plain.test/ocpp',
       DRIVER_URL: 'http://charge.test',
-      ADMIN_URL: 'http://admin.test',
       SMTP_HOST: 'smtp.test',
       SMTP_FROM: 'no-reply@wattwisely.test',
     };

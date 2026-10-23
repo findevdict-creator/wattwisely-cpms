@@ -30,6 +30,13 @@
 	reverse_proxy driver:8080
 }
 
+# Wattwisely staff: the admin console (module 9). Open to the internet like the portal; the API
+# refuses anyone without a staff role. Add "not remote_ip" rules here to limit it to an office or VPN.
+{$PUBLIC_SCHEME}://{$ADMIN_HOST} {
+	import security_headers
+	reverse_proxy admin:8080
+}
+
 # Chargers: wss://ocpp.<domain>/ocpp/<identity>. WebSocket upgrades pass through as they are.
 {$PUBLIC_SCHEME}://{$OCPP_HOST} {
 	reverse_proxy ocpp-gateway:3100

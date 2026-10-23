@@ -35,6 +35,7 @@ services:
       OCPP_HOST: ${OCPP_HOST}
       OCPP_PLAIN_HOST: ${OCPP_PLAIN_HOST}
       DRIVER_HOST: ${DRIVER_HOST}
+      ADMIN_HOST: ${ADMIN_HOST}
       ACME_EMAIL: ${ACME_EMAIL}
       KEYCLOAK_ADMIN_ALLOWED_IPS: ${KEYCLOAK_ADMIN_ALLOWED_IPS:-private_ranges}
     volumes:
@@ -46,6 +47,7 @@ services:
       api: { condition: service_healthy }
       portal: { condition: service_healthy }
       driver: { condition: service_healthy }
+      admin: { condition: service_healthy }
       ocpp-gateway: { condition: service_healthy }
       keycloak: { condition: service_healthy }
 
@@ -57,7 +59,7 @@ services:
     environment:
       PORT: 3000
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}}
+      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PUBLIC_SCHEME}://${ADMIN_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}},${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}}
       # The issuer is the public address written into tokens; the keys are fetched over the private network.
       KEYCLOAK_ISSUER_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}/realms/wattwisely
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/wattwisely/protocol/openid-connect/certs
@@ -97,6 +99,8 @@ services:
       PORTAL_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
       PORTAL_KEYCLOAK_REALM: wattwisely
       PORTAL_KEYCLOAK_CLIENT_ID: wattwisely-portal
+      # Wattwisely staff get a link to the admin console (module 9) in the portal's user menu.
+      PORTAL_ADMIN_URL: ${PUBLIC_SCHEME}://${ADMIN_HOST}
     networks: [backend]
 
   # Chargers connect here over WebSocket (OCPP 1.6J). Caddy terminates TLS and forwards
@@ -147,7 +151,18 @@ services:
       DRIVER_API_URL: ${PUBLIC_SCHEME}://${API_HOST}
     networks: [backend]
 
-  # Later modules add their services here: admin.
+  # The admin console (module 9): Wattwisely staff manage tenants, plans, add-ons and each
+  # other here. Static files; it talks to the API, which checks the staff role on every call.
+  admin:
+    image: ${WATTWISELY_IMAGE_PREFIX}/admin:${WATTWISELY_VERSION}
+    build: { context: .., dockerfile: apps/admin/Dockerfile }
+    <<: [*restart, *logging]
+    environment:
+      ADMIN_API_URL: ${PUBLIC_SCHEME}://${API_HOST}
+      ADMIN_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
+      ADMIN_KEYCLOAK_REALM: wattwisely
+      ADMIN_KEYCLOAK_CLIENT_ID: wattwisely-admin
+    networks: [backend]
 
   # ---------- Login: Keycloak ----------
   keycloak:
@@ -169,6 +184,8 @@ services:
       # Values used by keycloak/realm/wattwisely-realm.json when the realm is first imported.
       PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
       PORTAL_DEV_URL: ${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}}
+      ADMIN_URL: ${PUBLIC_SCHEME}://${ADMIN_HOST}
+      ADMIN_DEV_URL: ${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}}
       KC_REALM_SSL_REQUIRED: external
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
