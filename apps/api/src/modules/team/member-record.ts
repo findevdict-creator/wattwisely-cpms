@@ -6,6 +6,16 @@ export interface MemberGrant {
   siteId: string | null;
 }
 
+/** The person's roles, read for the team page and the audit log. */
+export class MemberGrants {
+  static readonly MANAGED_OPERATOR_KEY = 'managed-operator';
+
+  /** True for Wattwisely staff working in the tenant under a managed service agreement (module 10). */
+  static isManagedOperator(grants: MemberGrant[]): boolean {
+    return grants.some((grant) => grant.roleKey === MemberGrants.MANAGED_OPERATOR_KEY);
+  }
+}
+
 /** A tenant membership with the person and their roles, as MembersRepository returns it. */
 export interface MemberRecord {
   id: string;

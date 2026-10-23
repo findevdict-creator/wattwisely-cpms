@@ -1,5 +1,8 @@
-/** Who did something: a member, an API key, Wattwisely staff (support inside a tenant, platform from the admin console) or the system. */
-export type AuditActorType = 'user' | 'api_key' | 'support' | 'system' | 'platform';
+/**
+ * Who did something: a member, an API key, Wattwisely staff (support inside a tenant, platform
+ * from the admin console, managed as a tenant's Managed operator) or the system.
+ */
+export type AuditActorType = 'user' | 'api_key' | 'support' | 'system' | 'platform' | 'managed';
 
 /** One audit log row as the repository returns it. */
 export interface AuditLogRecord {

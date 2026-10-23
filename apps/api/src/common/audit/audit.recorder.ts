@@ -7,7 +7,8 @@ import { AuditEntry } from './audit-entry';
  * Writes to the audit log (story SEC-01). Services call it inside the same
  * transaction as the change itself, so a change is never saved without its entry.
  * The actor, tenant, IP address and request id come from the request. Wattwisely staff in
- * the admin console are recorded as actor type "platform" (module 9).
+ * the admin console are recorded as actor type "platform" (module 9); staff working inside
+ * a tenant as its Managed operator as "managed", so the tenant can tell them apart (module 10).
  */
 @Injectable()
 export class AuditRecorder {
@@ -25,7 +26,7 @@ export class AuditRecorder {
     await tx.insert(auditLog).values({
       id: UuidV7.create(),
       tenantId,
-      actorType: auth.platform ? 'platform' : 'user',
+      actorType: AuditRecorder.actorTypeOf(auth),
       actorId: account.id,
       actorLabel: account.label,
       action: entry.action,
@@ -37,5 +38,12 @@ export class AuditRecorder {
       ip: auth.origin.ip,
       requestId: auth.origin.requestId,
     });
+  }
+
+  private static actorTypeOf(auth: RequestAuth): 'platform' | 'managed' | 'user' {
+    if (auth.platform) {
+      return 'platform';
+    }
+    return auth.access?.isManagedOperator ? 'managed' : 'user';
   }
 }

@@ -5,6 +5,7 @@ import { AuditRecorder } from '../../../common/audit/audit.recorder';
 import { PlatformRole } from '../../../common/platform/platform-role-catalog';
 import { RequestAuth } from '../../../common/request/request-auth';
 import { VersionConflict } from '../../../common/problem/version-conflict';
+import { ManagedOperatorsService } from '../../managed/admin/managed-operators.service';
 import { StaffMemberDto } from './dto/staff-member.dto';
 import { PlatformStaffRepository, StaffRecord } from './platform-staff.repository';
 import { StaffErrors } from './staff-errors';
@@ -21,13 +22,17 @@ export interface StaffTarget {
   version: number;
 }
 
-/** The database side of staff changes, inside the caller's platform transaction. */
+/**
+ * The database side of staff changes, inside the caller's platform transaction. Someone who
+ * leaves also leaves every tenant they worked in as a Managed operator (module 10).
+ */
 @Injectable()
 export class StaffWriter {
   constructor(
     private readonly staff: PlatformStaffRepository,
     private readonly accounts: UserAccountsRepository,
     private readonly audit: AuditRecorder,
+    private readonly operators: ManagedOperatorsService,
   ) {}
 
   async add(
@@ -75,6 +80,7 @@ export class StaffWriter {
     await this.ensureAdminRemains(tx);
     const after = (await this.staff.findById(tx, before.id)) as StaffRecord;
     await this.record(tx, auth, 'staff_removed', { before, after });
+    await this.operators.removeEverywhere(tx, auth, before.userAccountId);
     return { before, after };
   }
 

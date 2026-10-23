@@ -11,6 +11,7 @@ import { StaffChange, StaffWriter } from './staff.writer';
 /**
  * Wattwisely's own staff and their console roles. Adding someone creates their account if
  * they never logged in, so the role is waiting when they do. There is always one admin left.
+ * Someone who leaves also leaves every tenant they worked in as a Managed operator (module 10).
  */
 @Injectable()
 export class AdminStaffService {

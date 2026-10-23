@@ -35,6 +35,15 @@ export class TeamErrors {
     );
   }
 
+  /** A Managed operator's membership belongs to the agreement: the admin console changes it (module 10). */
+  static managedOperatorProtected(): ProblemException {
+    return new ProblemException(
+      HttpStatus.FORBIDDEN,
+      'managed_operator_protected',
+      'This person works in your account for Wattwisely under the managed service agreement. Contact your account manager to change that.',
+    );
+  }
+
   static lastOwner(): ProblemException {
     return new ProblemException(
       HttpStatus.CONFLICT,
