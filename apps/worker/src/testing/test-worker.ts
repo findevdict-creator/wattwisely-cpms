@@ -1,5 +1,5 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { Client } from 'pg';
 import {
   TestData,
@@ -11,6 +11,7 @@ import {
   TestSessions,
   TestTariffs,
 } from '@wattwisely/db/testing';
+import { FileStore, MemoryFileStore } from '@wattwisely/file-storage';
 import { PAYMENT_GATEWAY } from '@wattwisely/payments';
 import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ChargerEvent, NotifyChannels } from '@wattwisely/ocpp-contracts';
@@ -37,6 +38,8 @@ export class TestWorker {
     NOTIFICATION_SEND_INTERVAL_MS: '3600000',
     REPORT_EXPORT_INTERVAL_MS: '3600000',
     REPORT_SCHEDULE_INTERVAL_MS: '3600000',
+    RETENTION_INTERVAL_MS: '3600000',
+    QUEUE_STATS_INTERVAL_MS: '3600000',
   };
   static readonly MAIL = {
     SMTP_HOST: 'localhost',
@@ -58,9 +61,14 @@ export class TestWorker {
   /** The payment provider in memory the jobs talk to. */
   readonly gateway = new FakePaymentGateway();
   app!: NestFastifyApplication;
+  /** Object storage in memory, used when the worker was created with `isUsingObjectStorage`. */
+  readonly files = new MemoryFileStore();
   /** Every live event the worker announced, in order. */
   readonly events: ChargerEvent[] = [];
   private listener: Client | null = null;
+
+  /** Without object storage, export files stay in Postgres as in module 11. */
+  constructor(private readonly isUsingObjectStorage = false) {}
 
   async start(): Promise<this> {
     this.database = await TestDatabase.create();
@@ -76,12 +84,7 @@ export class TestWorker {
       DATABASE_URL: this.database.urlFor('wattwisely_app'),
       LOG_LEVEL: 'silent',
     });
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(PAYMENT_GATEWAY)
-      .useValue(this.gateway)
-      .overrideProvider(WorkerMailSender)
-      .useValue(this.mail)
-      .compile();
+    const moduleRef = await this.compile();
     this.app = moduleRef.createNestApplication<NestFastifyApplication>(
       WorkerServer.createAdapter(),
       { logger: false },
@@ -89,6 +92,18 @@ export class TestWorker {
     await this.app.init();
     await this.listen();
     return this;
+  }
+
+  private compile(): Promise<TestingModule> {
+    const builder = Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(PAYMENT_GATEWAY)
+      .useValue(this.gateway)
+      .overrideProvider(WorkerMailSender)
+      .useValue(this.mail);
+    if (this.isUsingObjectStorage) {
+      builder.overrideProvider(FileStore).useValue(this.files);
+    }
+    return builder.compile();
   }
 
   async stop(): Promise<void> {
