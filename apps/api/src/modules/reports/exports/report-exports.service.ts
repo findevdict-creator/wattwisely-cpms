@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { gunzipSync } from 'node:zlib';
 import { DatabaseSession, TransactionRunner, UuidV7 } from '@wattwisely/db';
+import { FileStore } from '@wattwisely/file-storage';
 import { ReportFileBuilder } from '@wattwisely/reports';
 import { AuditRecorder } from '../../../common/audit/audit.recorder';
 import { RequestAuth } from '../../../common/request/request-auth';
@@ -14,7 +15,7 @@ import { ReportExportsRepository } from './report-exports.repository';
 
 /**
  * Background exports (story SES-04): queued here, built by the worker (up to 100,000 rows,
- * kept 7 days), downloaded by the member who asked. Each member has at most 3 waiting.
+ * kept 7 days in object storage or the row), downloaded by the member who asked. Each member has at most 3 waiting.
  */
 @Injectable()
 export class ReportExportsService {
@@ -25,6 +26,7 @@ export class ReportExportsService {
     private readonly runner: TransactionRunner,
     private readonly exports: ReportExportsRepository,
     private readonly audit: AuditRecorder,
+    private readonly files: FileStore,
   ) {}
 
   async create(auth: RequestAuth, request: CreateReportExportRequestDto): Promise<ReportExportDto> {
@@ -71,9 +73,19 @@ export class ReportExportsService {
     if (!found) {
       throw ReportErrors.exportNotFound();
     }
-    if (found.status !== 'ready' || !found.data) {
+    if (found.status !== 'ready' || !(found.data || found.storageKey)) {
       throw ReportErrors.exportNotReady(found.status);
     }
-    return { fileName: found.fileName, csv: gunzipSync(found.data) };
+    const gzipped = found.storageKey ? await this.fetch(found.storageKey) : found.data;
+    return { fileName: found.fileName, csv: gunzipSync(gzipped as Buffer) };
+  }
+
+  /** The file from object storage (module 12), where the worker put it. */
+  private async fetch(storageKey: string): Promise<Buffer> {
+    try {
+      return await this.files.get(storageKey);
+    } catch {
+      throw ReportErrors.exportFileUnavailable();
+    }
   }
 }

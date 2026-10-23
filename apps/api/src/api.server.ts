@@ -5,11 +5,14 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ApiConfig } from './config/api.config';
+import { HttpMetrics } from './common/metrics/http-metrics';
 import { ProblemDetailsFilter } from './common/problem/problem-details.filter';
+import { TrustedProxies } from './common/request/trusted-proxies';
 
 /**
  * Starts the HTTP server: Fastify engine, /v1 prefix, CORS for the portals,
- * request validation, RFC 9457 errors and the OpenAPI docs at /docs.
+ * request validation, RFC 9457 errors, request metrics and, unless switched off with
+ * API_DOCS_ENABLED=false, the OpenAPI docs at /docs.
  */
 export class ApiServer {
   static readonly ALLOWED_HEADERS = [
@@ -37,25 +40,34 @@ export class ApiServer {
     this.logger.log(`API listening on port ${port}`);
   }
 
+  /**
+   * TRUST_PROXY_HOPS (module 12): how many proxies in front of the API to believe about the
+   * client's address. 1 behind Caddy, so rate limits and the audit log see the driver's or
+   * the user's own address; 0 (the default) when the API is reached directly.
+   */
   static createAdapter(): FastifyAdapter {
     return new FastifyAdapter({
       logger: { level: process.env['LOG_LEVEL'] ?? 'info' },
       requestIdHeader: 'x-request-id',
       genReqId: () => randomUUID(),
+      trustProxy: TrustedProxies.forHops(Number(process.env['TRUST_PROXY_HOPS'] ?? 0)),
     });
   }
 
   /** Everything the app needs besides its modules. Tests call this too, so they run the real setup. */
   static configure(app: NestFastifyApplication): void {
     const config = app.get(ApiConfig);
-    app.setGlobalPrefix('v1', { exclude: ['health/live', 'health/ready'] });
+    app.setGlobalPrefix('v1', { exclude: ['health/live', 'health/ready', 'metrics'] });
     app.enableCors({ origin: config.corsOrigins, allowedHeaders: ApiServer.ALLOWED_HEADERS });
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );
     app.useGlobalFilters(new ProblemDetailsFilter());
     app.enableShutdownHooks();
-    ApiServer.setUpOpenApi(app);
+    app.get(HttpMetrics).attach(app.getHttpAdapter().getInstance());
+    if (config.isApiDocsEnabled) {
+      ApiServer.setUpOpenApi(app);
+    }
   }
 
   private static setUpOpenApi(app: NestFastifyApplication): void {

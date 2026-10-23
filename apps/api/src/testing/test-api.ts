@@ -8,6 +8,7 @@ import {
   TestPayments,
   TestPlatform,
 } from '@wattwisely/db/testing';
+import { FileStore, MemoryFileStore } from '@wattwisely/file-storage';
 import { PAYMENT_GATEWAY } from '@wattwisely/payments';
 import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ApiServer } from '../api.server';
@@ -38,6 +39,8 @@ export interface TestRequest {
 export class TestApi {
   readonly mail = new RecordingMailSender();
   readonly gateway = new FakePaymentGateway();
+  /** Object storage in memory (module 12): where the worker would have put export files. */
+  readonly files = new MemoryFileStore();
   issuer!: TestTokenIssuer;
   database!: TestDatabase;
   data!: TestData;
@@ -47,7 +50,8 @@ export class TestApi {
   notifications!: TestNotifications;
   app!: NestFastifyApplication;
 
-  async start(): Promise<this> {
+  /** `environment` adds or replaces settings, e.g. to switch the rate limits on. */
+  async start(environment: Record<string, string> = {}): Promise<this> {
     this.issuer = await new TestTokenIssuer().init();
     this.database = await TestDatabase.create();
     this.data = new TestData(this.database);
@@ -55,7 +59,7 @@ export class TestApi {
     this.platform = new TestPlatform(this.data);
     this.managed = new TestManaged(this.data);
     this.notifications = new TestNotifications(this.data);
-    Object.assign(process.env, TestApi.environment(this.database));
+    Object.assign(process.env, TestApi.environment(this.database), environment);
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(KeycloakKeySetProvider)
       .useValue({ getKeySet: () => this.issuer.getKeySet(), isReachable: async () => true })
@@ -63,6 +67,8 @@ export class TestApi {
       .useValue(this.mail)
       .overrideProvider(PAYMENT_GATEWAY)
       .useValue(this.gateway)
+      .overrideProvider(FileStore)
+      .useValue(this.files)
       .compile();
     this.app = moduleRef.createNestApplication<NestFastifyApplication>(ApiServer.createAdapter(), {
       logger: false,
@@ -113,6 +119,10 @@ export class TestApi {
       DRIVER_URL: 'http://charge.test',
       SMTP_HOST: 'smtp.test',
       SMTP_FROM: 'no-reply@wattwisely.test',
+      // Tests call the API hundreds of times a minute from one address; the rate limit test turns them on.
+      RATE_LIMIT_ENABLED: 'false',
+      TRUST_PROXY_HOPS: '0',
+      API_DOCS_ENABLED: 'true',
     };
   }
 }

@@ -1,5 +1,6 @@
 # Runs on every pull request and every push to main:
-# lint (coding standards), tests, builds, formatting, deploy scripts and the Compose file.
+# lint (coding standards), tests, builds, formatting, deploy scripts, the Compose file,
+# the Caddy config and the monitoring config (alert rules with their unit tests).
 name: CI
 
 on:
@@ -29,8 +30,21 @@ jobs:
           --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      # Object storage for the file-storage tests (module 12), started below.
+      TEST_S3_ENDPOINT: http://localhost:8333
+      TEST_S3_ACCESS_KEY: test
+      TEST_S3_SECRET_KEY: test-secret
     steps:
       - uses: actions/checkout@v4
+      # The same SeaweedFS as deploy/docker-compose.yml. Not a service container: those take
+      # no command line, and SeaweedFS needs one to switch S3 on.
+      - name: Start object storage
+        run: |
+          cat >"$RUNNER_TEMP/s3.json" <<'JSON'
+          {"identities":[{"name":"ci","credentials":[{"accessKey":"test","secretKey":"test-secret"}],"actions":["Admin","Read","Write","List","Tagging"]}]}
+          JSON
+          docker run -d --name object-storage -p 8333:8333 -v "$RUNNER_TEMP/s3.json:/etc/s3.json:ro" \
+            chrislusf/seaweedfs:4.48 server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/s3.json
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -38,6 +52,14 @@ jobs:
       - run: npm install -g npm@11
       - run: npm ci
       - run: npx prettier --check .
+      - name: Wait for object storage
+        run: |
+          for _ in $(seq 1 60); do
+            curl -s -o /dev/null http://localhost:8333 && exit 0
+            sleep 2
+          done
+          docker logs object-storage
+          exit 1
       - run: npx nx run-many -t lint test build
 
   deploy:
@@ -46,9 +68,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check shell scripts
-        run: shellcheck --external-sources --source-path=SCRIPTDIR deploy/scripts/*.sh deploy/scripts/lib/*.sh deploy/postgres/init/*.sh apps/portal/docker/*.sh apps/admin/docker/*.sh
+        run: shellcheck --external-sources --source-path=SCRIPTDIR deploy/scripts/*.sh deploy/scripts/lib/*.sh deploy/postgres/init/*.sh deploy/monitoring/alertmanager/*.sh apps/portal/docker/*.sh apps/admin/docker/*.sh
       - name: Check the Compose file
         working-directory: deploy
         run: |
           cp .env.example .env
           docker compose config --quiet
+          COMPOSE_PROFILES=monitoring,dev docker compose config --quiet
+      - name: Check the Caddy config
+        working-directory: deploy
+        run: |
+          docker run --rm -v "$PWD/caddy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -e PUBLIC_SCHEME=https -e PORTAL_HOST=portal.example.com -e API_HOST=api.example.com \
+            -e AUTH_HOST=auth.example.com -e OCPP_HOST=ocpp.example.com -e OCPP_PLAIN_HOST=ocpp-plain.example.com \
+            -e DRIVER_HOST=charge.example.com -e ADMIN_HOST=admin.example.com -e ACME_EMAIL=ops@example.com \
+            -e KEYCLOAK_ADMIN_ALLOWED_IPS=private_ranges \
+            caddy:2.11.7-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Check the monitoring config
+        working-directory: deploy/monitoring
+        run: |
+          docker run --rm -v "$PWD/prometheus:/etc/prometheus:ro" -w /etc/prometheus --entrypoint promtool \
+            prom/prometheus:v3.5.0 check config prometheus.yml
+          docker run --rm -v "$PWD/prometheus:/etc/prometheus:ro" -w /etc/prometheus --entrypoint promtool \
+            prom/prometheus:v3.5.0 test rules alerts.test.yml
+          docker run --rm -v "$PWD/alertmanager:/etc/alertmanager-template:ro" \
+            -e SMTP_HOST=smtp.example.com -e SMTP_PORT=587 -e SMTP_FROM=no-reply@example.com \
+            -e SMTP_USER=alerts -e "SMTP_PASSWORD=it's \"quoted\"" -e SMTP_STARTTLS=true -e ALERT_EMAIL_TO=ops@example.com \
+            --entrypoint /bin/sh prom/alertmanager:v0.28.1 /etc/alertmanager-template/start.sh --check
+          python3 -m json.tool grafana/dashboards/wattwisely-overview.json >/dev/null

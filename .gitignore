@@ -51,6 +51,7 @@ deploy/.env
 deploy/.secrets/
 deploy/backups/
 deploy/seaweedfs/s3.json
+deploy/monitoring/textfile/
 
 # local settings for "npm start"
 apps/*/.env

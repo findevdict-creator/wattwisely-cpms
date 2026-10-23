@@ -10,6 +10,7 @@ source "$(dirname "$0")/lib/database.sh"
 SOURCE="${1:-}"
 [[ -n "$SOURCE" && -d "$SOURCE" ]] || die "Usage: ./scripts/restore.sh <backup directory> [--yes]"
 SOURCE="$(cd "$SOURCE" && pwd)"
+verify_backup_checksums "$SOURCE"
 
 if [[ "${2:-}" != "--yes" ]]; then
   read -r -p "This replaces ALL current data with the backup in $SOURCE. Type 'restore' to continue: " answer

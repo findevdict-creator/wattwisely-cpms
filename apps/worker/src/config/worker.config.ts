@@ -1,4 +1,17 @@
-import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsString, IsUrl, Max, Min } from 'class-validator';
+import 'reflect-metadata';
+import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { RetentionPeriods } from './retention-periods';
 import { SmtpSettings } from '@wattwisely/mail';
 
 /**
@@ -75,6 +88,21 @@ export class WorkerConfig implements SmtpSettings {
   @IsInt()
   @Min(100)
   reportScheduleIntervalMs!: number;
+
+  /** How often old data is deleted (module 12). */
+  @IsInt()
+  @Min(1000)
+  retentionIntervalMs!: number;
+
+  /** How often the queue sizes the monitoring reads are counted (module 12). */
+  @IsInt()
+  @Min(1000)
+  queueStatsIntervalMs!: number;
+
+  /** How long things are kept, in days (module 12). See docs/modules/12-hardening-operations.md. */
+  @ValidateNested()
+  @Type(() => RetentionPeriods)
+  retention!: RetentionPeriods;
 
   /** Where the API serves tenant logos, for the brand bar of e-mails. */
   @IsUrl({ require_tld: false })

@@ -15,7 +15,8 @@ import { RowLevelSecurity } from './row-level-security';
 /**
  * The raw OCPP message log: every frame in and out, as the gateway saw it. The portal
  * shows it on the charger page; support reads it when a charger misbehaves.
- * Retention (90 days, partitions) is a later operations task.
+ * The worker's retention job deletes entries older than 90 days (module 12); the second
+ * index is what it deletes by.
  */
 export const ocppMessages = pgTable(
   'ocpp_messages',
@@ -41,6 +42,7 @@ export const ocppMessages = pgTable(
       foreignColumns: [chargers.tenantId, chargers.id],
     }),
     index('ocpp_messages_charger_idx').on(table.tenantId, table.chargerId, table.receivedAt),
+    index('ocpp_messages_received_idx').on(table.tenantId, table.receivedAt),
     pgPolicy('ocpp_messages_tenant_isolation', {
       to: RowLevelSecurity.APP_ROLE,
       using: RowLevelSecurity.isCurrentTenant(table.tenantId),

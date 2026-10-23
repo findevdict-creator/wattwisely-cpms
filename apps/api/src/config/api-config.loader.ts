@@ -1,6 +1,7 @@
 import { plainToInstance } from 'class-transformer';
-import { validateSync } from 'class-validator';
+import { ValidationError, validateSync } from 'class-validator';
 import { ApiConfig } from './api.config';
+import { RateLimits } from './rate-limits';
 
 /** Builds an ApiConfig from environment variables and refuses to start if anything is invalid. */
 export class ApiConfigLoader {
@@ -19,6 +20,8 @@ export class ApiConfigLoader {
       stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
       stripePublishableKey: environment['STRIPE_PUBLISHABLE_KEY'] ?? '',
       stripeWebhookSecret: environment['STRIPE_WEBHOOK_SECRET'] ?? '',
+      isApiDocsEnabled: environment['API_DOCS_ENABLED'] !== 'false',
+      rateLimits: this.rateLimits(environment),
     });
     this.validate(config);
     return config;
@@ -56,6 +59,20 @@ export class ApiConfigLoader {
     };
   }
 
+  /** Module 12: the budgets per client address and minute; RATE_LIMIT_ENABLED=false turns them off. */
+  private rateLimits(environment: NodeJS.ProcessEnv): RateLimits {
+    const number = (key: string, fallback: number) => Number(environment[key] ?? fallback);
+    return plainToInstance(RateLimits, {
+      isEnabled: environment['RATE_LIMIT_ENABLED'] !== 'false',
+      default: number('RATE_LIMIT_PER_MINUTE', RateLimits.DEFAULT_PER_MINUTE),
+      public: number('RATE_LIMIT_PUBLIC_PER_MINUTE', RateLimits.PUBLIC_PER_MINUTE),
+      public_write: number(
+        'RATE_LIMIT_PUBLIC_WRITE_PER_MINUTE',
+        RateLimits.PUBLIC_WRITE_PER_MINUTE,
+      ),
+    });
+  }
+
   private splitList(value: string | undefined): string[] {
     return (value ?? '')
       .split(',')
@@ -66,8 +83,15 @@ export class ApiConfigLoader {
   private validate(config: ApiConfig): void {
     const errors = validateSync(config);
     if (errors.length > 0) {
-      const details = errors.map((error) => Object.values(error.constraints ?? {}).join(', '));
-      throw new Error(`Invalid API configuration: ${details.join('; ')}`);
+      throw new Error(`Invalid API configuration: ${this.messages(errors).join('; ')}`);
     }
+  }
+
+  /** Every broken rule, the rate limits' included. */
+  private messages(errors: ValidationError[]): string[] {
+    return errors.flatMap((error) => [
+      ...Object.values(error.constraints ?? {}),
+      ...this.messages(error.children ?? []),
+    ]);
   }
 }

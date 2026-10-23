@@ -1,0 +1,35 @@
+# Prometheus (module 12): scrapes the three Wattwisely services and the server itself every
+# 15 seconds and keeps 30 days (see --storage.tsdb.retention.time in docker-compose.yml).
+# The /metrics addresses are only reachable on the private network; Caddy refuses them from outside.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+scrape_configs:
+  - job_name: api
+    static_configs:
+      - targets: ['api:3000']
+
+  - job_name: ocpp-gateway
+    static_configs:
+      - targets: ['ocpp-gateway:3100']
+
+  - job_name: worker
+    static_configs:
+      - targets: ['worker:3200']
+
+  - job_name: node
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']

@@ -14,19 +14,37 @@
 	}
 }
 
+# Module 12: no other site may show these pages in a frame (clickjacking). Not on Keycloak,
+# whose session check runs in an iframe inside the portal. "?" keeps a policy the service
+# set itself, such as the API's stricter one on tenant logos.
+(no_framing) {
+	header ?X-Frame-Options "DENY"
+	header ?Content-Security-Policy "frame-ancestors 'none'"
+}
+
+# Module 12: Prometheus reads /metrics over the private network; from outside it does not exist.
+(internal_only) {
+	@internal path /metrics /metrics/*
+	respond @internal "Not found" 404
+}
+
 {$PUBLIC_SCHEME}://{$PORTAL_HOST} {
 	import security_headers
+	import no_framing
 	reverse_proxy portal:8080
 }
 
 {$PUBLIC_SCHEME}://{$API_HOST} {
 	import security_headers
+	import no_framing
+	import internal_only
 	reverse_proxy api:3000
 }
 
 # Drivers: the QR code on a plug opens charge.<domain>/c/<charger id>/<plug>.
 {$PUBLIC_SCHEME}://{$DRIVER_HOST} {
 	import security_headers
+	import no_framing
 	reverse_proxy driver:8080
 }
 
@@ -34,17 +52,20 @@
 # refuses anyone without a staff role. Add "not remote_ip" rules here to limit it to an office or VPN.
 {$PUBLIC_SCHEME}://{$ADMIN_HOST} {
 	import security_headers
+	import no_framing
 	reverse_proxy admin:8080
 }
 
 # Chargers: wss://ocpp.<domain>/ocpp/<identity>. WebSocket upgrades pass through as they are.
 {$PUBLIC_SCHEME}://{$OCPP_HOST} {
+	import internal_only
 	reverse_proxy ocpp-gateway:3100
 }
 
 # Plain ws:// for the few chargers that cannot do TLS; the gateway only lets in chargers
 # registered with "allow plain ws" (X-Forwarded-Proto tells it which door was used).
 http://{$OCPP_PLAIN_HOST} {
+	import internal_only
 	reverse_proxy ocpp-gateway:3100
 }
 

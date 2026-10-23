@@ -129,6 +129,29 @@ import { TestApi } from '../../testing/test-api';
     ).toBe(404);
   });
 
+  it('downloads an export from object storage, and says so when the storage is down', async () => {
+    const created = await api.call('POST', '/v1/reports/exports', {
+      token: owner,
+      body: { kind: 'sessions', from: '2026-03-01T00:00:00Z', to: '2026-04-01T00:00:00Z' },
+    });
+    const id = created.json().id;
+    const key = `exports/${acme}/${id}.csv.gz`;
+    await api.files.put(key, gzipSync(Buffer.from('session_id\r\nstored')), 'application/gzip');
+    await api.data.sql(
+      "update report_exports set status = 'ready', storage_key = $2, row_count = 1 where id = $1",
+      [id, key],
+    );
+
+    const file = await api.call('GET', `/v1/reports/exports/${id}/download`, { token: owner });
+    await api.files.remove(key);
+    const gone = await api.call('GET', `/v1/reports/exports/${id}/download`, { token: owner });
+
+    expect(file.statusCode).toBe(200);
+    expect(file.body).toBe('session_id\r\nstored');
+    expect(gone.statusCode).toBe(503);
+    expect(gone.json().code).toBe('export_unavailable');
+  });
+
   it('checks the permission of the kind of file, and caps the waiting exports', async () => {
     const sessions = await api.call('POST', '/v1/reports/exports', {
       token: technician,

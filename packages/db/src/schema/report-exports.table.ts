@@ -18,7 +18,7 @@ import { userAccounts } from './user-accounts.table';
 /**
  * A CSV file built in the background (story SES-04 and the reports): the API stores what
  * was asked for, with the caller's site scope already applied; the worker builds the file,
- * keeps it here gzipped for seven days and tells the person who asked. A scheduled report
+ * keeps it gzipped in object storage (or in this row without one) for seven days and tells the person who asked. A scheduled report
  * is an export too, with the schedule's recipients instead of a person.
  */
 export const reportExports = pgTable(
@@ -40,8 +40,13 @@ export const reportExports = pgTable(
     fileName: text('file_name').notNull(),
     rowCount: integer('row_count'),
     sizeBytes: integer('size_bytes'),
-    /** The CSV, gzipped; emptied when the export expires. */
+    /** The CSV, gzipped, when there is no object storage; emptied when the export expires. */
     data: bytea('data'),
+    /**
+     * Where the gzipped CSV is in object storage (module 12), e.g.
+     * exports/<tenant id>/<export id>.csv.gz; data stays empty then. Removed on expiry.
+     */
+    storageKey: text('storage_key'),
     error: text('error'),
     startedAt: timestamp('started_at', { withTimezone: true }),
     finishedAt: timestamp('finished_at', { withTimezone: true }),

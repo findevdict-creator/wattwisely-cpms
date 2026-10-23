@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ChargerConnection } from '../connection/charger-connection';
+import { GatewayMetrics } from '../metrics/gateway-metrics';
 import { CallProcessor } from './call-processor';
 import { FrameLogger } from './frame-logger';
 import { OcppCallError } from './ocpp-call-error';
@@ -18,6 +19,7 @@ export class MessagePipeline {
   constructor(
     private readonly processor: CallProcessor,
     private readonly frames: FrameLogger,
+    private readonly metrics: GatewayMetrics,
   ) {}
 
   async handle(connection: ChargerConnection, text: string): Promise<void> {
@@ -38,9 +40,11 @@ export class MessagePipeline {
   }
 
   private async answer(connection: ChargerConnection, frame: CallFrame): Promise<void> {
+    const startedAt = performance.now();
     try {
       const result = await this.processor.process(connection, frame);
       connection.send(OcppFrameCodec.encodeResult(frame.id, result.reply));
+      this.metrics.call(frame.action, 'ok', (performance.now() - startedAt) / 1000);
       this.frames.result(connection, frame.id, frame.action, result.reply);
       await result.after?.();
     } catch (error) {
@@ -50,6 +54,7 @@ export class MessagePipeline {
           : new OcppCallError('InternalError', 'The message could not be processed.');
       this.logger.warn(`${frame.action} from ${connection.charger.identity}: ${callError.message}`);
       connection.send(OcppFrameCodec.encodeError(frame.id, callError));
+      this.metrics.call(frame.action, callError.code, (performance.now() - startedAt) / 1000);
       this.frames.error(connection, frame.id, frame.action, callError);
     }
   }

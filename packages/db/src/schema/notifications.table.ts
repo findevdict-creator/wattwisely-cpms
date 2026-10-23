@@ -54,6 +54,8 @@ export const notifications = pgTable(
       .on(table.tenantId, table.sendAfter)
       .where(sql`${table.status} = 'pending'`),
     index('notifications_session_idx').on(table.tenantId, table.sessionId),
+    /** The retention job deletes sent and given-up e-mails by age (module 12). */
+    index('notifications_created_idx').on(table.tenantId, table.createdAt),
     pgPolicy('notifications_tenant_isolation', {
       to: RowLevelSecurity.APP_ROLE,
       using: RowLevelSecurity.isCurrentTenant(table.tenantId),

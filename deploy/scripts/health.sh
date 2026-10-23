@@ -28,8 +28,11 @@ http_check() {
   if compose exec -T caddy wget -q -T 5 -O /dev/null "$1" 2>/dev/null; then echo ok; else echo "no answer from $1"; fi
 }
 
+services=(caddy api portal driver ocpp-gateway worker keycloak postgres valkey openbao object-storage)
+is_profile_on monitoring && services+=(prometheus alertmanager grafana node-exporter)
+
 info "Containers"
-for service in caddy api portal driver ocpp-gateway worker keycloak postgres valkey openbao object-storage; do
+for service in "${services[@]}"; do
   state="$(container_state "$service")"
   if [[ "$state" == "healthy" || "$state" == "running" ]]; then
     report "$service" ok
@@ -45,6 +48,14 @@ report "Driver app" "$(http_check http://driver:8080/healthz)"
 report "OCPP gateway ready" "$(http_check http://ocpp-gateway:3100/health/ready)"
 report "Worker ready" "$(http_check http://worker:3200/health/ready)"
 report "Keycloak realm" "$(http_check http://keycloak:8080/realms/wattwisely/.well-known/openid-configuration)"
+if is_profile_on monitoring; then
+  report "Prometheus ready" "$(http_check http://prometheus:9090/-/ready)"
+  report "Alertmanager ready" "$(http_check http://alertmanager:9093/-/ready)"
+  report "Grafana" "$(http_check http://grafana:3000/api/health)"
+  firing="$(compose exec -T caddy wget -q -T 5 -O - 'http://prometheus:9090/api/v1/alerts' 2>/dev/null |
+    grep -o '"state":"firing"' | wc -l | tr -d ' ' || true)"
+  if [[ "${firing:-0}" == "0" ]]; then report "Alerts firing" ok; else report "Alerts firing" "$firing (see Grafana or http://localhost:9090/alerts)"; fi
+fi
 sealed="$(compose exec -T openbao bao status -format=json 2>/dev/null | grep -o '"sealed": *[a-z]*' || true)"
 if [[ "$sealed" == *false ]]; then
   report "OpenBao unsealed" ok
