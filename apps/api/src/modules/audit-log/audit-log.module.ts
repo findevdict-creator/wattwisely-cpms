@@ -6,5 +6,6 @@ import { AuditLogService } from './audit-log.service';
 @Module({
   controllers: [AuditLogController],
   providers: [AuditLogService, AuditLogRepository],
+  exports: [AuditLogRepository],
 })
 export class AuditLogModule {}

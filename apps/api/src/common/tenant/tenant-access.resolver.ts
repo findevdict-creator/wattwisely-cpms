@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { DatabaseSession, TransactionRunner, UuidV7 } from '@wattwisely/db';
 import { StaffAccount } from '../account/staff-account';
 import { ExpiringCache } from '../cache/expiring-cache';
+import { TenantEntitlementsRepository } from '../entitlements/tenant-entitlements.repository';
 import { ProblemException } from '../problem/problem.exception';
 import { TenantAccess } from './tenant-access';
 import { ActiveMembership, TenantAccessRepository } from './tenant-access.repository';
@@ -14,7 +15,8 @@ import { ActiveMembership, TenantAccessRepository } from './tenant-access.reposi
  *
  * Access is cached for 30 seconds per person and tenant. A change made on this
  * instance clears the cache at once (forget); other instances see it within 30 seconds.
- * That is how removing a member ends their access within 60 seconds while they stay logged in.
+ * That is how removing a member ends their access within 60 seconds while they stay logged in,
+ * and how a plan change in the admin console reaches the tenant's members (forgetTenant).
  */
 @Injectable()
 export class TenantAccessResolver {
@@ -26,6 +28,7 @@ export class TenantAccessResolver {
   constructor(
     private readonly transactionRunner: TransactionRunner,
     private readonly repository: TenantAccessRepository,
+    private readonly entitlements: TenantEntitlementsRepository,
   ) {}
 
   async resolve(
@@ -59,6 +62,11 @@ export class TenantAccessResolver {
     this.cache.deleteByPrefix(`${userAccountId}:`);
   }
 
+  /** Clears every member's cached access to one tenant, after its plan or modules change. */
+  forgetTenant(tenantId: string): void {
+    this.cache.deleteBySuffix(`:${tenantId}`);
+  }
+
   private async requireAccess(account: StaffAccount, tenantId: string): Promise<TenantAccess> {
     const access = UuidV7.isUuid(tenantId) ? await this.load(account, tenantId) : null;
     if (!access) {
@@ -85,7 +93,8 @@ export class TenantAccessResolver {
           return null;
         }
         const grants = await this.repository.findGrants(tx, membership.membershipId);
-        return new TenantAccess(membership.membershipId, membership.tenant, grants);
+        const entitlements = await this.entitlements.load(tx, tenantId);
+        return new TenantAccess(membership.membershipId, membership.tenant, grants, entitlements);
       },
     );
     if (access) {

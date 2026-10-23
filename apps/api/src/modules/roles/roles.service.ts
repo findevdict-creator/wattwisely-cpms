@@ -36,7 +36,7 @@ export class RolesService {
     return role;
   }
 
-  listPermissions(): PermissionDto[] {
-    return PermissionCatalog.ENTRIES.map((entry) => new PermissionDto(entry));
+  listPermissions(access: TenantAccess): PermissionDto[] {
+    return PermissionCatalog.ENTRIES.map((entry) => new PermissionDto(entry, access.entitlements));
   }
 }

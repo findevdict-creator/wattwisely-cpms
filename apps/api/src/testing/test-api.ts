@@ -1,6 +1,6 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
-import { TestData, TestDatabase, TestPayments } from '@wattwisely/db/testing';
+import { TestData, TestDatabase, TestPayments, TestPlatform } from '@wattwisely/db/testing';
 import { PAYMENT_GATEWAY } from '@wattwisely/payments';
 import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ApiServer } from '../api.server';
@@ -35,6 +35,7 @@ export class TestApi {
   database!: TestDatabase;
   data!: TestData;
   payments!: TestPayments;
+  platform!: TestPlatform;
   app!: NestFastifyApplication;
 
   async start(): Promise<this> {
@@ -42,6 +43,7 @@ export class TestApi {
     this.database = await TestDatabase.create();
     this.data = new TestData(this.database);
     this.payments = new TestPayments(this.data);
+    this.platform = new TestPlatform(this.data);
     Object.assign(process.env, TestApi.environment(this.database));
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(KeycloakKeySetProvider)
@@ -90,7 +92,7 @@ export class TestApi {
   private static environment(database: TestDatabase): Record<string, string> {
     return {
       KEYCLOAK_ISSUER_URL: TestTokenIssuer.ISSUER,
-      CORS_ORIGINS: 'http://portal.test',
+      CORS_ORIGINS: 'http://portal.test,http://admin.test',
       LOG_LEVEL: 'silent',
       DATABASE_URL: database.urlFor('wattwisely_app'),
       API_URL: 'http://api.test',
@@ -98,6 +100,7 @@ export class TestApi {
       OCPP_URL: 'wss://ocpp.test/ocpp',
       OCPP_PLAIN_URL: 'ws://ocpp-plain.test/ocpp',
       DRIVER_URL: 'http://charge.test',
+      ADMIN_URL: 'http://admin.test',
       SMTP_HOST: 'smtp.test',
       SMTP_FROM: 'no-reply@wattwisely.test',
     };

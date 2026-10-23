@@ -6,22 +6,26 @@ import { AuditEntry } from './audit-entry';
 /**
  * Writes to the audit log (story SEC-01). Services call it inside the same
  * transaction as the change itself, so a change is never saved without its entry.
- * The actor, tenant, IP address and request id come from the request.
+ * The actor, tenant, IP address and request id come from the request. Wattwisely staff in
+ * the admin console are recorded as actor type "platform" (module 9).
  */
 @Injectable()
 export class AuditRecorder {
-  /** `tenantId` defaults to the request's tenant; pass it on routes without one (accepting an invitation). */
+  /**
+   * `tenantId` defaults to the request's tenant; pass it on routes without one (accepting
+   * an invitation, the admin console) and null for a platform action that concerns no tenant.
+   */
   async record(
     tx: Transaction,
     auth: RequestAuth,
     entry: AuditEntry,
-    tenantId: string = auth.requireAccess().tenant.id,
+    tenantId: string | null = auth.requireAccess().tenant.id,
   ): Promise<void> {
     const account = auth.requireAccount();
     await tx.insert(auditLog).values({
       id: UuidV7.create(),
       tenantId,
-      actorType: 'user',
+      actorType: auth.platform ? 'platform' : 'user',
       actorId: account.id,
       actorLabel: account.label,
       action: entry.action,

@@ -30,7 +30,7 @@ export class RolesController {
   }
 
   @Get('permissions')
-  permissions(): PermissionDto[] {
-    return this.rolesService.listPermissions();
+  permissions(@CurrentAuth() auth: RequestAuth): PermissionDto[] {
+    return this.rolesService.listPermissions(auth.requireAccess());
   }
 }

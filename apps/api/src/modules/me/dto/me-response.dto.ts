@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PlatformAccess } from '../../../common/platform/platform-access';
 import { RequestAuth } from '../../../common/request/request-auth';
 import { TenantSummary } from '../../../common/tenant/tenant-summary';
+import { PlatformRoleDto } from './platform-role.dto';
 import { TenantMembershipDto } from './tenant-membership.dto';
 
 /** Body of GET /v1/me: the logged-in person and the tenants they can switch between. */
@@ -14,17 +16,21 @@ export class MeResponseDto {
   @ApiProperty()
   readonly name: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'True for Wattwisely staff, who can open the admin console' })
   readonly is_platform_staff: boolean;
+
+  @ApiProperty({ type: PlatformRoleDto, nullable: true })
+  readonly platform: PlatformRoleDto | null;
 
   @ApiProperty({ type: [TenantMembershipDto] })
   readonly tenants: TenantMembershipDto[];
 
-  constructor(auth: RequestAuth, tenants: TenantSummary[]) {
+  constructor(auth: RequestAuth, tenants: TenantSummary[], platform: PlatformAccess | null) {
     this.id = auth.account?.id ?? null;
     this.email = auth.account?.email ?? auth.user.email;
     this.name = auth.account?.name || auth.user.name;
-    this.is_platform_staff = auth.user.isPlatformStaff;
+    this.is_platform_staff = platform !== null;
+    this.platform = platform ? new PlatformRoleDto(platform) : null;
     this.tenants = tenants.map((tenant) => new TenantMembershipDto(tenant));
   }
 }

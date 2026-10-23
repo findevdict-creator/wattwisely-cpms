@@ -3,10 +3,12 @@ import { ConfigModule } from './config/config.module';
 import { AuditModule } from './common/audit/audit.module';
 import { AuthModule } from './common/auth/auth.module';
 import { DatabaseModule } from './common/database/database.module';
+import { EntitlementsModule } from './common/entitlements/entitlements.module';
 import { MailModule } from './common/mail/mail.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { BrandingModule } from './modules/branding/branding.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
@@ -14,7 +16,9 @@ import { MeModule } from './modules/me/me.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { PlansModule } from './modules/plans/plans.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { TariffsModule } from './modules/tariffs/tariffs.module';
 import { TeamModule } from './modules/team/team.module';
 import { TenancyModule } from './modules/tenancy/tenancy.module';
@@ -26,6 +30,7 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     DatabaseModule,
     MailModule,
     AuditModule,
+    EntitlementsModule,
     AuthModule,
     HealthModule,
     MeModule,
@@ -41,6 +46,9 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     SessionsModule,
     PaymentsModule,
     DriversModule,
+    PlansModule,
+    SubscriptionModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

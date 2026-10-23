@@ -56,6 +56,7 @@ import { TestApi } from './testing/test-api';
       email: 'mia@demo.test',
       name: 'Mia Multi',
       is_platform_staff: false,
+      platform: null,
       tenants: [
         { id: acme, slug: 'acme-charging', name: 'acme charging', status: 'active' },
         { id: volt, slug: 'volt-hotels', name: 'volt hotels', status: 'active' },
