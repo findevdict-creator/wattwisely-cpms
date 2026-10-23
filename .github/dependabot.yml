@@ -1,0 +1,72 @@
+# Dependabot (module 12): weekly pull requests that upgrade dependencies, grouped so a
+# framework moves in one pull request. Security fixes come as soon as an advisory is out.
+# CI checks every one like any other pull request.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      nx:
+        patterns: ['nx', '@nx/*']
+      angular:
+        patterns: ['@angular/*', '@angular-devkit/*', '@schematics/angular', 'zone.js']
+      nestjs:
+        patterns: ['@nestjs/*']
+      aws-sdk:
+        patterns: ['@aws-sdk/*']
+      lint-and-test:
+        patterns:
+          [
+            'eslint*',
+            '@eslint/*',
+            'typescript-eslint',
+            '@typescript-eslint/*',
+            'jest*',
+            '@types/*',
+            'prettier',
+          ]
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+
+  # Base images of the six Wattwisely images.
+  - package-ecosystem: docker
+    directories:
+      - /apps/api
+      - /apps/ocpp-gateway
+      - /apps/worker
+      - /apps/portal
+      - /apps/driver
+      - /apps/admin
+    schedule:
+      interval: weekly
+      day: monday
+    # A new Node.js major goes with .nvmrc and CI, by hand.
+    ignore:
+      - dependency-name: node
+        update-types: ['version-update:semver-major']
+    groups:
+      base-images:
+        patterns: ['*']
+
+  # The images deploy/docker-compose.yml runs: Postgres, Keycloak, Caddy, monitoring.
+  - package-ecosystem: docker-compose
+    directory: /deploy
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    # A new Postgres major needs its data migrated (pg_upgrade or dump and restore), never
+    # just a new image tag.
+    ignore:
+      - dependency-name: postgres
+        update-types: ['version-update:semver-major']

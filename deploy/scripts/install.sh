@@ -53,6 +53,7 @@ write_addresses() {
     set_env_value SMTP_AUTH false
     set_env_value SMTP_STARTTLS false
     set_env_value COMPOSE_PROFILES dev
+    set_env_value API_DOCS_ENABLED true
   else
     [[ -n "$DOMAIN" && -n "$EMAIL" ]] || die "Pass --domain and --email, or --local for a trial (see --help)."
     set_env_value PORTAL_HOST "portal.$DOMAIN"
@@ -66,13 +67,15 @@ write_addresses() {
     set_env_value OCPP_PLAIN_URL "ws://ocpp-plain.$DOMAIN/ocpp"
     set_env_value ACME_EMAIL "$EMAIL"
     set_env_value SMTP_FROM "no-reply@$DOMAIN"
+    set_env_value ALERT_EMAIL_TO "$EMAIL"
+    set_env_value COMPOSE_PROFILES monitoring
   fi
 }
 
 write_secrets() {
   local key
   for key in POSTGRES_PASSWORD DB_MIGRATOR_PASSWORD DB_APP_PASSWORD KEYCLOAK_DB_PASSWORD \
-    KEYCLOAK_ADMIN_PASSWORD VALKEY_PASSWORD S3_SECRET_KEY; do
+    KEYCLOAK_ADMIN_PASSWORD VALKEY_PASSWORD S3_SECRET_KEY GRAFANA_ADMIN_PASSWORD; do
     set_env_value "$key" "$(random_secret 32)"
   done
   set_env_value S3_ACCESS_KEY "$(random_secret 20)"
@@ -102,6 +105,7 @@ main() {
   echo "  - Start everything:        ./scripts/up.sh"
   $IS_LOCAL && echo "  - Add demo tenants/users:  ./scripts/seed-demo.sh"
   echo "  - Keycloak admin password: grep KEYCLOAK_ADMIN_PASSWORD $ENV_FILE"
+  $IS_LOCAL || echo "  - Alerts are e-mailed to $EMAIL; Grafana password: grep GRAFANA_ADMIN_PASSWORD $ENV_FILE"
 }
 
 main

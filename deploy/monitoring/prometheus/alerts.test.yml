@@ -1,0 +1,125 @@
+# Unit tests for alerts.yml (module 12), run in CI with: promtool test rules alerts.test.yml
+rule_files:
+  - alerts.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: a service that stops answering raises ServiceDown after 2 minutes
+    interval: 1m
+    input_series:
+      - series: 'up{job="worker"}'
+        values: '1 1 0 0 0 0'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: ServiceDown
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: ServiceDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: worker }
+            exp_annotations:
+              summary: 'worker is not answering'
+              description: 'Prometheus could not read worker/metrics for 2 minutes. Run ./scripts/health.sh and ./scripts/logs.sh worker.'
+
+  - name: a job that runs every 15 seconds stalls after 10 minutes, an hourly one after 3 hours
+    interval: 1m
+    input_series:
+      # Both last succeeded at time 0.
+      - series: 'wattwisely_worker_job_last_success_timestamp_seconds{job="NotificationSendJob"}'
+        values: '0x200'
+      - series: 'wattwisely_worker_job_interval_seconds{job="NotificationSendJob"}'
+        values: '15x200'
+      - series: 'wattwisely_worker_job_last_success_timestamp_seconds{job="RetentionJob"}'
+        values: '0x200'
+      - series: 'wattwisely_worker_job_interval_seconds{job="RetentionJob"}'
+        values: '3600x200'
+    alert_rule_test:
+      # Past 10 minutes for 5 minutes: the hourly job is still fine.
+      - eval_time: 14m
+        alertname: JobStalled
+        exp_alerts: []
+      - eval_time: 17m
+        alertname: JobStalled
+        exp_alerts:
+          - exp_labels: { severity: critical, job: NotificationSendJob }
+            exp_annotations:
+              summary: 'NotificationSendJob has not finished a run'
+              description: 'NotificationSendJob last succeeded 17m 0s ago.'
+      - eval_time: 190m
+        alertname: JobStalled
+        exp_alerts:
+          - exp_labels: { severity: critical, job: NotificationSendJob }
+            exp_annotations:
+              summary: 'NotificationSendJob has not finished a run'
+              description: 'NotificationSendJob last succeeded 3h 10m 0s ago.'
+          - exp_labels: { severity: critical, job: RetentionJob }
+            exp_annotations:
+              summary: 'RetentionJob has not finished a run'
+              description: 'RetentionJob last succeeded 3h 10m 0s ago.'
+
+  - name: the API error rate counts only 5xx, and only with enough traffic
+    interval: 1m
+    input_series:
+      - series: 'wattwisely_http_request_duration_seconds_count{route="/v1/sites",status="200"}'
+        values: '0+600x20'
+      - series: 'wattwisely_http_request_duration_seconds_count{route="/v1/sites",status="500"}'
+        values: '0+60x20'
+      # A 404 is the caller's mistake, not a failure, but it counts in the total.
+      - series: 'wattwisely_http_request_duration_seconds_count{route="/v1/sites",status="404"}'
+        values: '0+300x20'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: ApiErrorRate
+        exp_alerts:
+          - exp_labels: { severity: critical }
+            exp_annotations:
+              summary: 'More than 5% of API requests fail'
+              description: '6.25% of API requests answered with a 5xx over the last 5 minutes.'
+
+  - name: a Stripe webhook answered with a 5xx alerts at once
+    interval: 1m
+    input_series:
+      - series: 'wattwisely_http_request_duration_seconds_count{route="/v1/webhooks/stripe",status="500"}'
+        values: '0 0 1 1 1'
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: StripeWebhookFailing
+        exp_alerts:
+          - exp_labels: { severity: critical }
+            exp_annotations:
+              summary: 'Stripe webhooks are failing'
+              description: 'The API answered a Stripe webhook with a 5xx in the last 15 minutes. Stripe retries, but payments and payouts wait until it succeeds.'
+
+  - name: a third of the chargers dropping off raises ChargerConnectionsDropped
+    interval: 1m
+    input_series:
+      - series: 'wattwisely_ocpp_connections'
+        values: '30x80 12x20'
+    alert_rule_test:
+      - eval_time: 79m
+        alertname: ChargerConnectionsDropped
+        exp_alerts: []
+      - eval_time: 90m
+        alertname: ChargerConnectionsDropped
+        exp_alerts:
+          - exp_labels: { severity: critical }
+            exp_annotations:
+              summary: 'Many chargers disconnected'
+              description: 'Only 12 chargers are connected, less than 70% of the last hour. Check the gateway, Caddy and the server network.'
+
+  - name: the disk alert fires below 10% free
+    interval: 1m
+    input_series:
+      - series: 'node_filesystem_avail_bytes{mountpoint="/",fstype="ext4"}'
+        values: '8x20'
+      - series: 'node_filesystem_size_bytes{mountpoint="/",fstype="ext4"}'
+        values: '100x20'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: DiskAlmostFull
+        exp_alerts:
+          - exp_labels: { severity: critical, mountpoint: '/', fstype: ext4 }
+            exp_annotations:
+              summary: 'The server disk is almost full'
+              description: 'Only 8% of the disk is free. Old backups in deploy/backups are the usual cause.'

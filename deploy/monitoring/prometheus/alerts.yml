@@ -1,0 +1,171 @@
+# Alert rules (module 12). Alertmanager e-mails each firing alert to ALERT_EMAIL_TO.
+# "critical" means drivers or chargers are affected now; "warning" means look today.
+# The thresholds are starting points: tune them once real traffic shows what is normal.
+groups:
+  - name: services
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~"api|ocpp-gateway|worker"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.job }} is not answering'
+          description: 'Prometheus could not read {{ $labels.job }}/metrics for 2 minutes. Run ./scripts/health.sh and ./scripts/logs.sh {{ $labels.job }}.'
+
+      - alert: ApiErrorRate
+        expr: |
+          sum(rate(wattwisely_http_request_duration_seconds_count{status=~"5.."}[5m]))
+            / sum(rate(wattwisely_http_request_duration_seconds_count[5m])) > 0.05
+          and sum(rate(wattwisely_http_request_duration_seconds_count[5m])) > 0.1
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: 'More than 5% of API requests fail'
+          description: '{{ $value | humanizePercentage }} of API requests answered with a 5xx over the last 5 minutes.'
+
+      - alert: ApiSlow
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(wattwisely_http_request_duration_seconds_bucket{route!="unmatched"}[5m]))) > 2
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: 'API answers are slow'
+          description: '95% of API requests took up to {{ $value | humanizeDuration }} over the last 5 minutes.'
+
+      - alert: StripeWebhookFailing
+        expr: sum(increase(wattwisely_http_request_duration_seconds_count{route="/v1/webhooks/stripe",status=~"5.."}[15m])) > 0
+        labels: { severity: critical }
+        annotations:
+          summary: 'Stripe webhooks are failing'
+          description: 'The API answered a Stripe webhook with a 5xx in the last 15 minutes. Stripe retries, but payments and payouts wait until it succeeds.'
+
+  - name: chargers
+    rules:
+      - alert: ChargerConnectionsDropped
+        expr: |
+          sum(wattwisely_ocpp_connections) < 0.7 * sum(max_over_time(wattwisely_ocpp_connections[1h] offset 10m))
+          and sum(max_over_time(wattwisely_ocpp_connections[1h] offset 10m)) >= 5
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Many chargers disconnected'
+          description: 'Only {{ $value }} chargers are connected, less than 70% of the last hour. Check the gateway, Caddy and the server network.'
+
+      - alert: ChargerCommandsTimingOut
+        expr: |
+          sum(rate(wattwisely_ocpp_commands_total{status="timed_out"}[15m]))
+            / sum(rate(wattwisely_ocpp_commands_total[15m])) > 0.2
+          and sum(increase(wattwisely_ocpp_commands_total[15m])) >= 5
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Chargers do not answer commands'
+          description: '{{ $value | humanizePercentage }} of remote start, stop and reset commands timed out over 15 minutes.'
+
+      - alert: ChargerCommandsSlow
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(wattwisely_ocpp_command_duration_seconds_bucket[15m]))) > 2
+          and sum(increase(wattwisely_ocpp_commands_total[15m])) >= 5
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Chargers answer commands slowly'
+          description: '95% of commands took up to {{ $value | humanizeDuration }} to be answered.'
+
+      - alert: MessageLogDropping
+        expr: increase(wattwisely_ocpp_message_log_dropped_total[15m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: 'OCPP messages are missing from the log'
+          description: 'The gateway dropped {{ $value }} log entries in 15 minutes because the database could not keep up.'
+
+  - name: background-jobs
+    rules:
+      - alert: JobFailing
+        expr: increase(wattwisely_worker_job_runs_total{result="failed"}[15m]) >= 3
+        labels: { severity: warning }
+        annotations:
+          summary: '{{ $labels.job }} keeps failing'
+          description: '{{ $labels.job }} failed {{ $value }} times in 15 minutes. See ./scripts/logs.sh worker.'
+
+      - alert: JobStalled
+        expr: |
+          time() - wattwisely_worker_job_last_success_timestamp_seconds
+            > clamp_min(3 * wattwisely_worker_job_interval_seconds, 600)
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.job }} has not finished a run'
+          description: '{{ $labels.job }} last succeeded {{ $value | humanizeDuration }} ago.'
+
+      - alert: EmailBacklog
+        expr: wattwisely_outbox_oldest_due_seconds > 900
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: 'E-mails are waiting to be sent'
+          description: 'The oldest e-mail due has waited {{ $value | humanizeDuration }}. Check the SMTP settings and ./scripts/logs.sh worker.'
+
+      - alert: ExportBacklog
+        expr: wattwisely_exports_oldest_queued_seconds > 1800
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Report exports are waiting'
+          description: 'The oldest queued export has waited {{ $value | humanizeDuration }}.'
+
+      - alert: PaymentWebhooksPending
+        expr: wattwisely_payment_webhook_oldest_pending_seconds > 1800
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Stripe events are not being processed'
+          description: 'The oldest unprocessed Stripe event has waited {{ $value | humanizeDuration }}.'
+
+  - name: server
+    rules:
+      - alert: DiskAlmostFull
+        expr: |
+          node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}
+            / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} < 0.10
+        for: 10m
+        labels: { severity: critical }
+        annotations:
+          summary: 'The server disk is almost full'
+          description: 'Only {{ $value | humanizePercentage }} of the disk is free. Old backups in deploy/backups are the usual cause.'
+
+      - alert: MemoryLow
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.10
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: 'The server is low on memory'
+          description: 'Only {{ $value | humanizePercentage }} of memory is available.'
+
+      - alert: BackupMissing
+        expr: |
+          time() - wattwisely_backup_last_success_timestamp_seconds > 26 * 3600
+          or absent(wattwisely_backup_last_success_timestamp_seconds)
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: 'No backup in the last day'
+          description: 'backup.sh has not finished in 26 hours, or never ran on this server. Check the cron entry in README.md.'
+
+      - alert: RestoreDrillOverdue
+        expr: |
+          time() - wattwisely_restore_drill_last_success_timestamp_seconds > 35 * 86400
+          or absent(wattwisely_restore_drill_last_success_timestamp_seconds)
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: 'No restore drill this month'
+          description: 'No backup has been proven to restore in 35 days. Run ./scripts/restore-drill.sh.'
+
+      - alert: MonitoringTargetMissing
+        expr: up{job="node"} == 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Server metrics are missing'
+          description: 'node-exporter is not answering, so disk and memory alerts cannot fire.'
