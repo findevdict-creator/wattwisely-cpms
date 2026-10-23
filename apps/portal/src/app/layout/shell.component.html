@@ -9,6 +9,12 @@
     </button>
     <mat-menu #userMenu="matMenu">
       <div class="user-details" mat-menu-item disabled>{{ me.email }}</div>
+      @if (me.is_platform_staff && adminUrl) {
+        <a mat-menu-item [href]="adminUrl" data-testid="admin-console">
+          <mat-icon>admin_panel_settings</mat-icon>
+          Admin console
+        </a>
+      }
       <button mat-menu-item (click)="logout()" data-testid="logout">
         <mat-icon>logout</mat-icon>
         Log out
@@ -83,6 +89,15 @@
         >
           <mat-icon matListItemIcon>palette</mat-icon>
           <span matListItemTitle>Branding</span>
+        </a>
+        <a
+          mat-list-item
+          routerLink="/settings/plan"
+          routerLinkActive="active"
+          data-testid="nav-plan"
+        >
+          <mat-icon matListItemIcon>workspace_premium</mat-icon>
+          <span matListItemTitle>Plan</span>
         </a>
       }
       @if (permissions.can('team:read')) {

@@ -15,6 +15,8 @@ export class PermissionsService {
   /** A suspended tenant can look at everything it could before, but change nothing. */
   readonly isReadOnly = computed(() => this.state()?.is_read_only ?? true);
   readonly roleNames = computed(() => [...new Set(this.state()?.roles.map((role) => role.name))]);
+  readonly plan = computed(() => this.state()?.plan ?? null);
+  readonly lockedModules = computed(() => this.state()?.locked_modules ?? []);
 
   async ensureLoaded(): Promise<void> {
     if (!this.state()) {
@@ -25,6 +27,11 @@ export class PermissionsService {
   /** True when the user holds the permission anywhere (for some sites or the whole tenant). */
   can(key: string): boolean {
     return this.state()?.permissions.some((permission) => permission.key === key) ?? false;
+  }
+
+  /** True when the tenant's plan leaves the module out, e.g. 'advanced_reports'. Ask Wattwisely to add it. */
+  isModuleLocked(moduleKey: string): boolean {
+    return this.lockedModules().includes(moduleKey);
   }
 
   /** True when the user holds a permission that changes things, and the tenant is not suspended. */

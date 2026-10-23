@@ -4,6 +4,9 @@
  * runs on any server; nothing environment-specific is compiled in.
  */
 export class RuntimeConfig {
+  /** Where Wattwisely staff find the admin console; empty when it is not deployed. */
+  adminUrl = '';
+
   constructor(
     readonly apiUrl: string,
     readonly keycloakUrl: string,
