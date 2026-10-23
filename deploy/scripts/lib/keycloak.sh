@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Talking to Keycloak from the scripts, through kcadm inside the container.
 
 kcadm() {
