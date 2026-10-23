@@ -45,6 +45,11 @@ export class WorkerConfig {
   @Min(100)
   webhookRetryIntervalMs!: number;
 
+  /** How often managed service agreements whose end date has passed are ended (module 10). */
+  @IsInt()
+  @Min(100)
+  managedServiceEndIntervalMs!: number;
+
   /** Stripe's secret key, the same as the API's. Empty switches the payment jobs' provider calls off. */
   @IsString()
   stripeSecretKey!: string;
