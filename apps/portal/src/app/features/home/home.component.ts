@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { TenantApiService } from '../../core/api/tenant-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { TenantContextService } from '../../core/tenant/tenant-context.service';
+import { HomeOverviewComponent } from './home-overview.component';
 
 /**
  * The first page after login. It shows what the API knows about you,
@@ -11,7 +12,7 @@ import { TenantContextService } from '../../core/tenant/tenant-context.service';
  */
 @Component({
   selector: 'ww-home',
-  imports: [MatCardModule],
+  imports: [HomeOverviewComponent, MatCardModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

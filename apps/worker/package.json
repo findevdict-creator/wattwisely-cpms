@@ -11,6 +11,7 @@
     "@nestjs/platform-fastify": "^11.2.7",
     "class-validator": "^0.15.1",
     "class-transformer": "^0.5.1",
+    "nodemailer": "^8.0.11",
     "fastify": "5.11.3",
     "drizzle-orm": "^0.45.4",
     "pg": "^8.23.1"

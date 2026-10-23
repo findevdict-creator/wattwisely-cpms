@@ -220,3 +220,46 @@ export const tariffProposalStatus = pgEnum('tariff_proposal_status', [
   'rejected',
   'withdrawn',
 ]);
+
+/**
+ * What a charger alert is about (story NTF-04): a charger offline past its grace period, a
+ * connector reporting Faulted, a session stuck (SES-05), three failed starts within an hour,
+ * or a charger that did not boot within five minutes of an accepted reset (CMD-02).
+ */
+export const alertType = pgEnum('alert_type', [
+  'charger_offline',
+  'connector_faulted',
+  'session_stuck',
+  'start_failures',
+  'reset_no_return',
+]);
+
+/** open: the condition holds; acknowledged: someone is on it; closed: it cleared by itself. */
+export const alertStatus = pgEnum('alert_status', ['open', 'acknowledged', 'closed']);
+
+/**
+ * An e-mail in the outbox (module 11): pending until sent, sent, failed after the last try or
+ * refused for good, cancelled when it stopped being worth sending (its alert closed during
+ * the recipient's quiet hours, the driver switched the event off).
+ */
+export const notificationStatus = pgEnum('notification_status', [
+  'pending',
+  'sent',
+  'failed',
+  'cancelled',
+]);
+
+/** What a report or an export contains: sessions, usage per site or charger, or the audit log. */
+export const reportKind = pgEnum('report_kind', ['sessions', 'usage', 'audit_log']);
+
+/** A background export: queued, being built, ready to download, failed, or expired and emptied. */
+export const reportExportStatus = pgEnum('report_export_status', [
+  'queued',
+  'running',
+  'ready',
+  'failed',
+  'expired',
+]);
+
+/** How often a scheduled report goes out (advanced_reports): every Monday, or on the 1st. */
+export const reportFrequency = pgEnum('report_frequency', ['weekly', 'monthly']);

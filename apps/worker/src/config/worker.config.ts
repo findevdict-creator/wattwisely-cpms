@@ -1,11 +1,12 @@
-import { IsInt, IsString, IsUrl, Max, Min } from 'class-validator';
+import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsString, IsUrl, Max, Min } from 'class-validator';
+import { SmtpSettings } from '@wattwisely/mail';
 
 /**
  * Typed settings for the worker, read from environment variables at startup and
  * validated, so a wrong setting stops the worker at boot. The intervals come from the
  * Sessions and Pricing design; tests make them long and run the jobs by hand.
  */
-export class WorkerConfig {
+export class WorkerConfig implements SmtpSettings {
   @IsInt()
   @Min(1)
   @Max(65535)
@@ -49,6 +50,58 @@ export class WorkerConfig {
   @IsInt()
   @Min(100)
   managedServiceEndIntervalMs!: number;
+
+  /** How often chargers are checked for problems that open or close alerts (module 11). */
+  @IsInt()
+  @Min(100)
+  alertScanIntervalMs!: number;
+
+  /** How often sessions are checked for the e-mails their drivers asked for. */
+  @IsInt()
+  @Min(100)
+  sessionNotifyIntervalMs!: number;
+
+  /** How often the e-mail outbox is sent. */
+  @IsInt()
+  @Min(100)
+  notificationSendIntervalMs!: number;
+
+  /** How often queued report exports are built, and old ones expired. */
+  @IsInt()
+  @Min(100)
+  reportExportIntervalMs!: number;
+
+  /** How often scheduled reports that are due are queued. */
+  @IsInt()
+  @Min(100)
+  reportScheduleIntervalMs!: number;
+
+  /** Where the API serves tenant logos, for the brand bar of e-mails. */
+  @IsUrl({ require_tld: false })
+  apiUrl!: string;
+
+  /** The portal's address, for links in staff e-mails. */
+  @IsUrl({ require_tld: false })
+  portalUrl!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  smtpHost!: string;
+
+  @IsInt()
+  smtpPort!: number;
+
+  @IsEmail({ require_tld: false })
+  smtpFrom!: string;
+
+  @IsString()
+  smtpUser!: string;
+
+  @IsString()
+  smtpPassword!: string;
+
+  @IsBoolean()
+  smtpStartTls!: boolean;
 
   /** Stripe's secret key, the same as the API's. Empty switches the payment jobs' provider calls off. */
   @IsString()

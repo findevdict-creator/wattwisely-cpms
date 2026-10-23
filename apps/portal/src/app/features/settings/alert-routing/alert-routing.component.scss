@@ -1,0 +1,27 @@
+.intro,
+.rules,
+.defaults {
+  max-width: 1100px;
+}
+
+.rule {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+
+  mat-form-field {
+    width: 220px;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.defaults {
+  margin-top: 32px;
+}

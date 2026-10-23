@@ -1,5 +1,9 @@
 <h1>Welcome{{ tenantContext.me()?.name ? ', ' + tenantContext.me()?.name : '' }}</h1>
 
+@if (permissions.can('reports:read')) {
+  <ww-home-overview />
+}
+
 <mat-card appearance="outlined" class="card">
   <mat-card-header>
     <mat-card-title>You are signed in</mat-card-title>

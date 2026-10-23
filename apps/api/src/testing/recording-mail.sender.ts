@@ -1,4 +1,4 @@
-import { MailMessage } from '../common/mail/mail-message';
+import { MailMessage } from '@wattwisely/mail';
 
 /** Stands in for MailSender in tests: keeps every message instead of sending it. */
 export class RecordingMailSender {

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { LogoUrl } from '@wattwisely/mail';
 import { ApiConfig } from '../../config/api.config';
 
 /**
@@ -10,7 +11,6 @@ export class LogoUrlBuilder {
   constructor(private readonly config: ApiConfig) {}
 
   for(slug: string, etag: string): string {
-    const base = this.config.apiUrl.replace(/\/+$/, '');
-    return `${base}/v1/public/branding/${encodeURIComponent(slug)}/logo?v=${etag}`;
+    return LogoUrl.of(this.config.apiUrl, slug, etag);
   }
 }

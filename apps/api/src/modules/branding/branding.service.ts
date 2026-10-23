@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
+import { BrandColour } from '@wattwisely/mail';
 import { SitePermissionChecker } from '../../common/permissions/site-permission.checker';
 import { RequestAuth } from '../../common/request/request-auth';
 import { TenantAccess } from '../../common/tenant/tenant-access';
-import { BrandColour } from './brand-colour';
 import { BrandingErrors } from './branding-errors';
 import { BrandingRecord } from './branding-record';
 import { BrandingRepository } from './branding.repository';

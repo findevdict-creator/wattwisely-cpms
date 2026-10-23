@@ -1,0 +1,57 @@
+<h2 mat-dialog-title>{{ data.schedule ? 'Edit scheduled report' : 'Schedule a report' }}</h2>
+<mat-dialog-content [formGroup]="form">
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" maxlength="100" data-testid="schedule-name" />
+  </mat-form-field>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>How often</mat-label>
+      <mat-select formControlName="frequency">
+        <mat-option value="weekly">Every Monday, for the week before</mat-option>
+        <mat-option value="monthly">On the 1st, for the month before</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Rows</mat-label>
+      <mat-select formControlName="groupBy">
+        <mat-option value="site">One per site</mat-option>
+        <mat-option value="charger">One per charger</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Site</mat-label>
+    <mat-select formControlName="siteId">
+      <mat-option [value]="null">Every site</mat-option>
+      @for (site of data.sites; track site.id) {
+        <mat-option [value]="site.id">{{ site.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Send to</mat-label>
+    <textarea
+      matInput
+      formControlName="recipients"
+      rows="2"
+      placeholder="finance@example.com, ops@example.com"
+      data-testid="schedule-recipients"
+    ></textarea>
+    <mat-hint>E-mail addresses, separated by commas. They need no portal account.</mat-hint>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Time zone</mat-label>
+    <input matInput formControlName="timeZone" />
+  </mat-form-field>
+  <mat-checkbox formControlName="isActive">Send this report</mat-checkbox>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="false">Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-schedule">
+    Save
+  </button>
+</mat-dialog-actions>

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TenantBrand } from '@wattwisely/mail';
 import { BrandingRecord } from '../branding-record';
-import { TenantBrand } from '../tenant-brand';
 import { PublicBrandingDto } from './public-branding.dto';
 
 /**

@@ -27,7 +27,9 @@
       "@wattwisely/session-engine": ["./packages/session-engine/src/index.ts"],
       "@wattwisely/payments": ["./packages/payments/src/index.ts"],
       "@wattwisely/payments/testing": ["./packages/payments/src/testing/index.ts"],
-      "@wattwisely/payments-stripe": ["./packages/payments-stripe/src/index.ts"]
+      "@wattwisely/payments-stripe": ["./packages/payments-stripe/src/index.ts"],
+      "@wattwisely/mail": ["./packages/mail/src/index.ts"],
+      "@wattwisely/reports": ["./packages/reports/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
