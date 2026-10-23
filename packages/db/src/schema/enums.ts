@@ -8,7 +8,8 @@ export const membershipStatus = pgEnum('membership_status', ['invited', 'active'
 
 /**
  * Who did something recorded in the audit log. platform: Wattwisely staff acting from the
- * admin console (module 9); support: staff inside a tenant under time-limited support access.
+ * admin console (module 9); support: staff inside a tenant under time-limited support access;
+ * managed: Wattwisely staff working inside a managed tenant as its Managed operator (module 10).
  */
 export const auditActorType = pgEnum('audit_actor_type', [
   'user',
@@ -16,6 +17,7 @@ export const auditActorType = pgEnum('audit_actor_type', [
   'support',
   'system',
   'platform',
+  'managed',
 ]);
 
 /** public: any driver or guest may charge. private: only the tenant's own drivers (story AST-04). */
@@ -198,3 +200,23 @@ export const addonPricingUnit = pgEnum('addon_pricing_unit', [
  * ends on a date, or an override by Wattwisely staff (which can also switch a plan's module off).
  */
 export const entitlementSource = pgEnum('entitlement_source', ['addon', 'trial', 'override']);
+
+/**
+ * A managed service agreement's life: offered by Wattwisely and pending the Owner's acceptance,
+ * active, ending (notice given, the end date is set), ended, or withdrawn before acceptance.
+ */
+export const managedServiceStatus = pgEnum('managed_service_status', [
+  'pending_acceptance',
+  'active',
+  'ending',
+  'ended',
+  'withdrawn',
+]);
+
+/** A tariff change proposed by a Managed operator waits for the tenant's Owner (story MGT-03). */
+export const tariffProposalStatus = pgEnum('tariff_proposal_status', [
+  'proposed',
+  'approved',
+  'rejected',
+  'withdrawn',
+]);
