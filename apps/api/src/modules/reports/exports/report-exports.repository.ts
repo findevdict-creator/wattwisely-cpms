@@ -81,9 +81,13 @@ export class ReportExportsRepository {
     tx: Transaction,
     membershipId: string,
     id: string,
-  ): Promise<(ReportExportRecord & { data: Buffer | null }) | null> {
+  ): Promise<(ReportExportRecord & { data: Buffer | null; storageKey: string | null }) | null> {
     const [row] = await tx
-      .select({ ...ReportExportsRepository.COLUMNS, data: reportExports.data })
+      .select({
+        ...ReportExportsRepository.COLUMNS,
+        data: reportExports.data,
+        storageKey: reportExports.storageKey,
+      })
       .from(reportExports)
       .where(and(eq(reportExports.id, id), eq(reportExports.membershipId, membershipId)));
     return row ?? null;

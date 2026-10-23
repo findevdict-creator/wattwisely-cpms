@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { DatabaseSession, ocppMessages, TransactionRunner, UuidV7 } from '@wattwisely/db';
+import { GatewayMetrics } from '../metrics/gateway-metrics';
 import { MessageLogEntry } from './message-log-entry';
 
 /**
@@ -17,7 +18,10 @@ export class MessageLogWriter implements OnModuleInit, OnModuleDestroy {
   private timer: NodeJS.Timeout | null = null;
   private flushing: Promise<void> = Promise.resolve();
 
-  constructor(private readonly transactionRunner: TransactionRunner) {}
+  constructor(
+    private readonly transactionRunner: TransactionRunner,
+    private readonly metrics: GatewayMetrics,
+  ) {}
 
   onModuleInit(): void {
     this.timer = setInterval(() => void this.flush(), MessageLogWriter.FLUSH_INTERVAL_MS);
@@ -75,6 +79,7 @@ export class MessageLogWriter implements OnModuleInit, OnModuleDestroy {
         ),
       );
     } catch (error) {
+      this.metrics.droppedLog(entries.length);
       this.logger.error(
         `Dropped ${entries.length} message log entries: ${(error as Error).message}`,
       );

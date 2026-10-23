@@ -5,6 +5,8 @@ import { AuthModule } from './common/auth/auth.module';
 import { DatabaseModule } from './common/database/database.module';
 import { EntitlementsModule } from './common/entitlements/entitlements.module';
 import { MailModule } from './common/mail/mail.module';
+import { ApiMetricsModule } from './common/metrics/api-metrics.module';
+import { FileStorageModule } from './common/storage/file-storage.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { BrandingModule } from './modules/branding/branding.module';
@@ -32,6 +34,8 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
   imports: [
     ConfigModule,
     DatabaseModule,
+    ApiMetricsModule,
+    FileStorageModule,
     MailModule,
     AuditModule,
     EntitlementsModule,

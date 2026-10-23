@@ -1,4 +1,17 @@
-import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsString, IsUrl, Max, Min } from 'class-validator';
+import 'reflect-metadata';
+import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { RateLimits } from './rate-limits';
 
 /**
  * Typed settings for the API, read from environment variables at startup.
@@ -81,4 +94,13 @@ export class ApiConfig {
   /** The signing secret of the Connect webhook endpoint (POST /v1/webhooks/stripe). */
   @IsString()
   stripeWebhookSecret!: string;
+
+  /** Module 12: the OpenAPI pages at /docs (API_DOCS_ENABLED). Off on a production server. */
+  @IsBoolean()
+  isApiDocsEnabled!: boolean;
+
+  /** Module 12: requests per client address and minute (RATE_LIMIT_*). */
+  @ValidateNested()
+  @Type(() => RateLimits)
+  rateLimits!: RateLimits;
 }

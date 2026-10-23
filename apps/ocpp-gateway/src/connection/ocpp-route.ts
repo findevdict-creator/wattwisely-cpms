@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { WebSocket } from 'ws';
+import { GatewayMetrics } from '../metrics/gateway-metrics';
 import { AcceptedUpgrade } from './accepted-upgrade';
 import { ConnectionOpener } from './connection-opener';
 import { UpgradeGuard } from './upgrade-guard';
@@ -20,13 +21,16 @@ export class OcppRoute {
   constructor(
     private readonly guard: UpgradeGuard,
     private readonly opener: ConnectionOpener,
+    private readonly metrics: GatewayMetrics,
   ) {}
 
   async preHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     const upgrade = UpgradeRequest.from(request);
     try {
       this.accepted.set(request, await this.guard.check(upgrade));
+      this.metrics.upgrade('accepted');
     } catch (error) {
+      this.metrics.upgrade(error instanceof UpgradeRefusal ? error.reason : 'internal_error');
       if (error instanceof UpgradeRefusal) {
         this.logger.warn(`Refused ${upgrade.identity} from ${upgrade.ip}: ${error.message}`);
         await reply.code(error.status).headers(error.headers).send({ error: error.reason });

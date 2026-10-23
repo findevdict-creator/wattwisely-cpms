@@ -31,6 +31,15 @@ export class ReportErrors {
     );
   }
 
+  /** Module 12: the file is in object storage, which cannot be reached right now. */
+  static exportFileUnavailable(): ProblemException {
+    return new ProblemException(
+      HttpStatus.SERVICE_UNAVAILABLE,
+      'export_unavailable',
+      'The file cannot be fetched right now. Try again in a few minutes.',
+    );
+  }
+
   static tooManyExports(limit: number): ProblemException {
     return new ProblemException(
       HttpStatus.TOO_MANY_REQUESTS,

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
+import { RateLimit } from '../../../common/rate-limit/rate-limit.decorator';
 import { RouteAccess } from '../../../common/auth/route-access.decorator';
 import { WebhookReceiptDto } from './webhook-receipt.dto';
 import { WebhookService } from './webhook.service';
@@ -20,6 +21,7 @@ import { WebhookService } from './webhook.service';
  */
 @ApiExcludeController()
 @RouteAccess.public()
+@RateLimit.exempt()
 @Controller('webhooks')
 export class StripeWebhookController {
   constructor(private readonly service: WebhookService) {}
