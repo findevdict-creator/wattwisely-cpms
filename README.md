@@ -46,7 +46,7 @@ To review and test the modules step by step, including the ones still in open pu
 
 ## Try it on your machine
 
-You need Docker. This starts the whole platform with demo users:
+You need Docker (Docker Desktop on macOS or Windows, with at least 4 GB of memory for Docker), and for the charger simulator Node.js 22.12+ with npm 11. This starts the whole platform with demo users:
 
 ```sh
 cd deploy
@@ -55,30 +55,57 @@ cd deploy
 ./scripts/seed-demo.sh            # demo tenants, users, sites, chargers, a tariff, a session and a brand
 ```
 
-Open <http://portal.localhost> and log in as `multi@demo.test` with password `Wattwisely-demo-1`. Keycloak asks you to set up an authenticator app (two-factor login is required), then shows the portal. See [deploy/README.md](deploy/README.md) for servers, updates and backups.
+The first `up.sh --build` takes several minutes. On Windows run the scripts from WSL 2 or Git Bash.
+
+| Address                       | What                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| <http://portal.localhost>     | Tenant portal                                                                             |
+| <http://charge.localhost>     | Driver app, for example <http://charge.localhost/c/WW-7KQ4M2XR9T/1>                       |
+| <http://api.localhost/docs>   | API reference (Swagger)                                                                   |
+| <http://auth.localhost/admin> | Keycloak admin console: user `admin`, password `KEYCLOAK_ADMIN_PASSWORD` in `deploy/.env` |
+| <http://localhost:8025>       | Mailpit: every e-mail the platform sends                                                  |
+
+Demo users, all with password `Wattwisely-demo-1`: `owner@acme.test` (Owner of Acme Charging), `tech@acme.test` (Technician, one site), `multi@demo.test` (two tenants) and `nobody@demo.test` (no tenant). Keycloak asks each user to set up an authenticator app at first login (two-factor login is required): scan the code with Google Authenticator, Microsoft Authenticator or 1Password.
+
+Connect a simulated charger as the demo charger `WW-7KQ4M2XR9T` (from the repository root; the demo chargers need no password). Its page in the portal then shows it online, with a "Start charging" button on each connector:
+
+```sh
+npm ci
+npm run sim -- --url ws://ocpp.localhost/ocpp --identity WW-7KQ4M2XR9T
+```
+
+Browsers find `*.localhost` by themselves, but Node.js on macOS, Windows and many Linux machines does not. If the simulator (or `npm start` below) fails with `ENOTFOUND`, add this line to `/etc/hosts` (Windows: `C:\Windows\System32\drivers\etc\hosts`):
+
+```text
+127.0.0.1 portal.localhost api.localhost auth.localhost charge.localhost ocpp.localhost ocpp-plain.localhost
+```
+
+Card payments are off until you add Stripe test keys (`sk_test_…`, `pk_test_…` from <https://dashboard.stripe.com/test/apikeys>) to `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` in `deploy/.env` and run `./scripts/up.sh --build` again; see [module 6](docs/modules/6-stripe-payments.md). Stop everything with `./scripts/down.sh`; the data stays. See [deploy/README.md](deploy/README.md) for servers, updates and backups.
 
 ## Develop
 
-Requirements: Node.js 22 (see `.nvmrc`) and npm 11 (`npm install -g npm@11`).
+Requirements: Node.js 22.12 or later (see `.nvmrc`) and npm 11 (`npm install -g npm@11`). npm 10 refuses the lock file.
 
 ```sh
-npm install
+npm ci
 npm test          # unit and API flow tests (API database tests need TEST_DATABASE_URL, see module 2)
 npm run lint      # coding standards (fails on any rule break)
 npm run build
 ```
 
-To change code with live reload, keep the Docker stack above running for Keycloak, then:
+To change code with live reload, keep the Docker stack above running for Postgres, Keycloak and Mailpit, add the hosts line above, then:
 
 ```sh
 cp apps/api/.env.example apps/api/.env
 cp apps/ocpp-gateway/.env.example apps/ocpp-gateway/.env
 cp apps/worker/.env.example apps/worker/.env
+# Put DB_APP_PASSWORD from deploy/.env in place of CHANGE_ME in all three files:
+sed -i.bak "s/CHANGE_ME/$(grep '^DB_APP_PASSWORD=' deploy/.env | cut -d= -f2)/" apps/{api,ocpp-gateway,worker}/.env && rm apps/*/.env.bak
 npm start         # API on http://localhost:3000, portal on http://localhost:4200, driver app on http://localhost:4300, OCPP gateway on ws://localhost:3100/ocpp, worker on :3200
-npm run sim -- --identity <charger id from the portal> [--password …]   # a simulated charger against the gateway
+npm run sim -- --identity WW-7KQ4M2XR9T   # a simulated charger against the local gateway (ws://localhost:3100/ocpp)
 ```
 
-The portal reads its settings from `apps/portal/public/config.json` in development, the driver app from `apps/driver/public/config.json`.
+The portal reads its settings from `apps/portal/public/config.json` in development, the driver app from `apps/driver/public/config.json`. Log in at <http://localhost:4200> with the demo users above.
 
 ## Coding standards
 
