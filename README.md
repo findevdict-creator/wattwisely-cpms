@@ -53,7 +53,7 @@ cd deploy
 ./scripts/seed-demo.sh            # demo tenants, users, sites, chargers, a tariff, a session and a brand
 ```
 
-The first `up.sh --build` takes several minutes. On Windows run the scripts from WSL 2 or Git Bash.
+The first `up.sh --build` takes several minutes. On Windows run the scripts from WSL 2 or Git Bash. If it stops with "Ports are not available" for port 5432, a Postgres already runs on your machine: stop it, or set `POSTGRES_DEV_PORT=5433` in `deploy/.env` and run `up.sh` again.
 
 | Address                       | What                                                                                      |
 | ----------------------------- | ----------------------------------------------------------------------------------------- |
@@ -99,6 +99,7 @@ cp apps/ocpp-gateway/.env.example apps/ocpp-gateway/.env
 cp apps/worker/.env.example apps/worker/.env
 # Put DB_APP_PASSWORD from deploy/.env in place of CHANGE_ME in all three files:
 sed -i.bak "s/CHANGE_ME/$(grep '^DB_APP_PASSWORD=' deploy/.env | cut -d= -f2)/" apps/{api,ocpp-gateway,worker}/.env && rm apps/*/.env.bak
+# If you set POSTGRES_DEV_PORT in deploy/.env, change 5432 in the three DATABASE_URLs to that port too.
 npm start         # API on http://localhost:3000, portal on http://localhost:4200, driver app on http://localhost:4300, OCPP gateway on ws://localhost:3100/ocpp, worker on :3200
 npm run sim -- --identity WW-7KQ4M2XR9T   # a simulated charger against the local gateway (ws://localhost:3100/ocpp)
 ```
