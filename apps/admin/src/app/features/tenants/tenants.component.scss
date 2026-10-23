@@ -1,0 +1,22 @@
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search {
+  width: 320px;
+}
+
+.tenants {
+  max-width: 1100px;
+}
+
+.name {
+  font-weight: 500;
+  color: inherit;
+}
+
+.more {
+  margin-top: 16px;
+}

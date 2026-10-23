@@ -1,0 +1,70 @@
+<a routerLink="/tenants" class="back"><mat-icon>arrow_back</mat-icon> All tenants</a>
+
+@if (store.tenant(); as tenant) {
+  <div class="title">
+    <div>
+      <h1 data-testid="tenant-name">{{ tenant.name }}</h1>
+      <div class="facts">
+        <ww-status-chip [status]="tenant.status" />
+        <span>{{ tenant.slug }}</span>
+        @if (tenant.region) {
+          <span>{{ tenant.region }}</span>
+        }
+        <span>{{
+          tenant.payment_mode === 'managed' ? 'Managed payments' : 'Direct payments'
+        }}</span>
+        <span>since {{ tenant.created_at | date: 'mediumDate' }}</span>
+      </div>
+    </div>
+    @if (staff.can('tenants:write') && tenant.status !== 'cancelled') {
+      <button mat-stroked-button [matMenuTriggerFor]="actions" data-testid="tenant-actions">
+        Actions <mat-icon>expand_more</mat-icon>
+      </button>
+      <mat-menu #actions="matMenu">
+        <button mat-menu-item (click)="edit()">
+          <mat-icon>edit</mat-icon>
+          Edit details
+        </button>
+        @if (staff.can('tenants:suspend') && tenant.status !== 'suspended') {
+          <button mat-menu-item (click)="suspend()" data-testid="suspend-tenant">
+            <mat-icon>pause_circle</mat-icon>
+            Suspend
+          </button>
+        }
+        @if (staff.can('tenants:suspend') && tenant.status === 'suspended') {
+          <button mat-menu-item (click)="reactivate()" data-testid="reactivate-tenant">
+            <mat-icon>play_circle</mat-icon>
+            Reactivate
+          </button>
+        }
+        @if (staff.can('tenants:delete') && tenant.status === 'suspended') {
+          <button mat-menu-item (click)="delete()" data-testid="delete-tenant">
+            <mat-icon>delete_forever</mat-icon>
+            Delete
+          </button>
+        }
+      </mat-menu>
+    }
+  </div>
+
+  @if (tenant.status === 'suspended') {
+    <p class="notice" role="status">
+      Suspended since {{ tenant.suspended_at | date: 'medium' }}.
+      @if (tenant.can_delete_from) {
+        It can be deleted from {{ tenant.can_delete_from | date: 'mediumDate' }}.
+      }
+    </p>
+  }
+  @if (tenant.status === 'cancelled') {
+    <p class="notice" role="status">Deleted on {{ tenant.deleted_at | date: 'medium' }}.</p>
+  }
+
+  <div class="cards">
+    <ww-tenant-plan [tenant]="tenant" />
+    <ww-tenant-owners [tenant]="tenant" />
+  </div>
+  <ww-tenant-modules [tenant]="tenant" />
+}
+@if (store.error()) {
+  <p class="error" role="alert">{{ store.error() }}</p>
+}

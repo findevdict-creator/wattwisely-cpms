@@ -1,0 +1,28 @@
+.members {
+  max-width: 960px;
+  margin-bottom: 32px;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.actions {
+  text-align: right;
+}
+
+.roles {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  max-width: 960px;
+}
+
+.roles dt {
+  font-weight: 500;
+}
+
+.roles dd {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
