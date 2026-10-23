@@ -1,5 +1,5 @@
-import { MailMessage } from '../../../common/mail/mail-message';
-import { TenantBrand } from '../tenant-brand';
+import { MailMessage } from '../sending/mail-message';
+import { TenantBrand } from '../brand/tenant-brand';
 
 /** What an e-mail says; the layout adds the brand around it. */
 export interface MailContent {

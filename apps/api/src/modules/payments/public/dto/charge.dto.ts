@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PaymentRow, PaymentStatuses } from '@wattwisely/payments';
 import { SessionRow, SessionStates } from '@wattwisely/session-engine';
+import { TenantBrand } from '@wattwisely/mail';
 import { PublicBrandingDto } from '../../../branding/dto/public-branding.dto';
-import { TenantBrand } from '../../../branding/tenant-brand';
 import { ChargePlace } from '../charge-place.lookup';
 import { ChargeOutcome } from '../charge-receipt.lookup';
 import { ChargeReceiptDto } from './charge-receipt.dto';

@@ -1,0 +1,14 @@
+{
+  "name": "reports",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/mail/src",
+  "projectType": "library",
+  "tags": ["scope:reports", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

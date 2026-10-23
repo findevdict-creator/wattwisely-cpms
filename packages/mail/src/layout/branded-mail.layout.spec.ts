@@ -1,4 +1,4 @@
-import { TenantBrand } from '../tenant-brand';
+import { TenantBrand } from '../brand/tenant-brand';
 import { BrandedMailLayout } from './branded-mail.layout';
 
 describe('BrandedMailLayout', () => {

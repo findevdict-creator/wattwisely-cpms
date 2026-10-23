@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, TransactionRunner } from '@wattwisely/db';
+import { SessionCsv } from '@wattwisely/reports';
 import { TenantAccess } from '../../common/tenant/tenant-access';
 import { ListSessionsQueryDto } from './dto/list-sessions-query.dto';
-import { SessionCsv } from './session-csv';
 import { SessionErrors } from './session-errors';
 import { SessionFilters } from './session-filters';
 import { SessionsRepository } from './sessions.repository';

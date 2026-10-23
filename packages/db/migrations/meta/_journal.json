@@ -120,6 +120,20 @@
       "when": 1792761661265,
       "tag": "0016_managed_tenants_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792766355911,
+      "tag": "0017_notifications_reports",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792766366538,
+      "tag": "0018_notifications_reports_grants",
+      "breakpoints": true
     }
   ]
 }

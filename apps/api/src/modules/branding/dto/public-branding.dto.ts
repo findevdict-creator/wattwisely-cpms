@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TenantBrand } from '../tenant-brand';
+import { TenantBrand } from '@wattwisely/mail';
 
 /**
  * A tenant's brand as the driver's pages paint it: the name, the colours, where the logo

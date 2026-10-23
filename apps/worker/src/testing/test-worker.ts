@@ -5,6 +5,7 @@ import {
   TestData,
   TestDatabase,
   TestManaged,
+  TestNotifications,
   TestPayments,
   TestPlatform,
   TestSessions,
@@ -14,7 +15,9 @@ import { PAYMENT_GATEWAY } from '@wattwisely/payments';
 import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ChargerEvent, NotifyChannels } from '@wattwisely/ocpp-contracts';
 import { AppModule } from '../app.module';
+import { WorkerMailSender } from '../mail/worker-mail.sender';
 import { WorkerServer } from '../worker.server';
+import { RecordingMailSender } from './recording-mail.sender';
 
 /**
  * The real worker on a fresh test database. Its timers are set far apart, so a test
@@ -29,6 +32,17 @@ export class TestWorker {
     SESSION_START_TIMEOUT_INTERVAL_MS: '3600000',
     PAYMENT_WEBHOOK_RETRY_INTERVAL_MS: '3600000',
     MANAGED_SERVICE_END_INTERVAL_MS: '3600000',
+    ALERT_SCAN_INTERVAL_MS: '3600000',
+    SESSION_NOTIFY_INTERVAL_MS: '3600000',
+    NOTIFICATION_SEND_INTERVAL_MS: '3600000',
+    REPORT_EXPORT_INTERVAL_MS: '3600000',
+    REPORT_SCHEDULE_INTERVAL_MS: '3600000',
+  };
+  static readonly MAIL = {
+    SMTP_HOST: 'localhost',
+    SMTP_FROM: 'no-reply@wattwisely.test',
+    API_URL: 'http://api.test',
+    PORTAL_URL: 'http://portal.test',
   };
 
   database!: TestDatabase;
@@ -37,7 +51,10 @@ export class TestWorker {
   sessions!: TestSessions;
   payments!: TestPayments;
   managed!: TestManaged;
+  notifications!: TestNotifications;
   platform!: TestPlatform;
+  /** Every e-mail the worker sent. */
+  readonly mail = new RecordingMailSender();
   /** The payment provider in memory the jobs talk to. */
   readonly gateway = new FakePaymentGateway();
   app!: NestFastifyApplication;
@@ -52,8 +69,9 @@ export class TestWorker {
     this.sessions = new TestSessions(this.data);
     this.payments = new TestPayments(this.data);
     this.managed = new TestManaged(this.data);
+    this.notifications = new TestNotifications(this.data);
     this.platform = new TestPlatform(this.data);
-    Object.assign(process.env, TestWorker.INTERVALS, {
+    Object.assign(process.env, TestWorker.INTERVALS, TestWorker.MAIL, {
       PORT: '3299',
       DATABASE_URL: this.database.urlFor('wattwisely_app'),
       LOG_LEVEL: 'silent',
@@ -61,6 +79,8 @@ export class TestWorker {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(PAYMENT_GATEWAY)
       .useValue(this.gateway)
+      .overrideProvider(WorkerMailSender)
+      .useValue(this.mail)
       .compile();
     this.app = moduleRef.createNestApplication<NestFastifyApplication>(
       WorkerServer.createAdapter(),

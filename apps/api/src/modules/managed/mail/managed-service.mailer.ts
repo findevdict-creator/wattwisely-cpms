@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { BrandedMailLayout, MailContent } from '@wattwisely/mail';
 import { ApiConfig } from '../../../config/api.config';
 import { MailSender } from '../../../common/mail/mail.sender';
-import { BrandedMailLayout, MailContent } from '../../branding/mail/branded-mail.layout';
 import { TenantBrandLookup } from '../../branding/tenant-brand.lookup';
 import { OwnerContact } from './owner-contacts.repository';
 

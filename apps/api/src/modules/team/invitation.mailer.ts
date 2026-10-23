@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { BrandedMailLayout, TenantBrand } from '@wattwisely/mail';
 import { ApiConfig } from '../../config/api.config';
 import { MailSender } from '../../common/mail/mail.sender';
-import { BrandedMailLayout } from '../branding/mail/branded-mail.layout';
-import { TenantBrand } from '../branding/tenant-brand';
 import { TenantBrandLookup } from '../branding/tenant-brand.lookup';
 
 /** What goes into an invitation e-mail. */

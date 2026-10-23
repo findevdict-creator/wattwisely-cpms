@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TenantBrand } from '@wattwisely/mail';
 import { SiteAddressDto } from '../../../assets/sites/dto/site-address.dto';
 import { ChargerRecord } from '../../../assets/chargers/charger-record';
 import { PublicBrandingDto } from '../../../branding/dto/public-branding.dto';
-import { TenantBrand } from '../../../branding/tenant-brand';
 import { PublicConnector } from '../../../payments/public/charge-place.lookup';
 import { PlaceAvailability } from '../place-availability';
 import { PlaceSite } from '../place-site.lookup';
