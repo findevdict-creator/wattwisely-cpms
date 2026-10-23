@@ -1,0 +1,14 @@
+{
+  "name": "observability",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/observability/src",
+  "projectType": "library",
+  "tags": ["scope:observability", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

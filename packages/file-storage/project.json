@@ -1,0 +1,14 @@
+{
+  "name": "file-storage",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/file-storage/src",
+  "projectType": "library",
+  "tags": ["scope:file-storage", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}
