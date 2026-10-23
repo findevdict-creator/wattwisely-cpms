@@ -11,7 +11,8 @@ cat > /usr/share/nginx/html/config.json <<JSON
   "apiUrl": "${PORTAL_API_URL}",
   "keycloakUrl": "${PORTAL_KEYCLOAK_URL}",
   "keycloakRealm": "${PORTAL_KEYCLOAK_REALM:-wattwisely}",
-  "keycloakClientId": "${PORTAL_KEYCLOAK_CLIENT_ID:-wattwisely-portal}"
+  "keycloakClientId": "${PORTAL_KEYCLOAK_CLIENT_ID:-wattwisely-portal}",
+  "adminUrl": "${PORTAL_ADMIN_URL:-}"
 }
 JSON
 echo "portal: wrote config.json for API ${PORTAL_API_URL}"

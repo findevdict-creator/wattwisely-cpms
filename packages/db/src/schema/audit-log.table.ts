@@ -6,7 +6,8 @@ import { tenants } from './tenants.table';
 /**
  * Who did what, when, and what changed. Append-only: the API's database role may
  * insert and read rows but never update or delete them (see the grants migration).
- * Rows without a tenant_id are platform actions, readable only by the admin console.
+ * Rows without a tenant_id are platform actions (a plan edited, a staff member added),
+ * written and read only by the admin console (module 9), which also reads every tenant's rows.
  */
 export const auditLog = pgTable(
   'audit_log',
@@ -41,6 +42,16 @@ export const auditLog = pgTable(
       for: 'insert',
       to: RowLevelSecurity.APP_ROLE,
       withCheck: RowLevelSecurity.isCurrentTenant(table.tenantId),
+    }),
+    pgPolicy('audit_log_platform_read', {
+      for: 'select',
+      to: RowLevelSecurity.APP_ROLE,
+      using: RowLevelSecurity.isPlatformAccess(),
+    }),
+    pgPolicy('audit_log_platform_append', {
+      for: 'insert',
+      to: RowLevelSecurity.APP_ROLE,
+      withCheck: RowLevelSecurity.isPlatformAccess(),
     }),
   ],
 );

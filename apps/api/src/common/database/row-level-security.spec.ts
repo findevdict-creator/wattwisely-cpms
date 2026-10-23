@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { TestData, TestDatabase } from '@wattwisely/db/testing';
+import { TestData, TestDatabase, TestPlatform } from '@wattwisely/db/testing';
 import { PermissionCatalog } from '../permissions/permission-catalog';
 
 /**
@@ -100,11 +100,46 @@ import { PermissionCatalog } from '../permissions/permission-catalog';
     }
   });
 
-  it('keeps the audit log append-only and tenants read-only for the API', async () => {
+  it('keeps the audit log append-only, and tenants writable only with platform access', async () => {
     await expect(inTenant(acme, 'delete from audit_log')).rejects.toThrow(/permission denied/);
-    await expect(inTenant(acme, "update tenants set name = 'x'")).rejects.toThrow(
-      /permission denied/,
-    );
+    const asTenant = await inTenant(acme, "update tenants set name = 'x' returning id");
+    expect(asTenant.rowCount).toBe(0);
+
+    await app.query('begin');
+    try {
+      await app.query("select set_config('app.platform_access', 'true', true)");
+      const asPlatform = await app.query("update tenants set region = 'GB' returning id");
+      expect(asPlatform.rowCount).toBe(2);
+      const otherTenantsData = await app.query('select id from sites');
+      expect(otherTenantsData.rows).toEqual([]);
+    } finally {
+      await app.query('rollback');
+    }
+  });
+
+  it('shows a tenant its own plan only, and platform staff their own staff row', async () => {
+    const platform = new TestPlatform(data);
+    await platform.subscription(acme, TestPlatform.PLAN_IDS.starter);
+    await platform.subscription(volt, TestPlatform.PLAN_IDS.growth);
+    const ana = await data.person('ana@wattwisely.test');
+    await platform.staff(ana, 'admin');
+
+    const own = await inTenant(acme, 'select tenant_id from tenant_subscriptions');
+    const none = await app.query('select tenant_id from tenant_subscriptions');
+    await app.query('begin');
+    try {
+      await app.query("select set_config('app.user_account_id', $1, true)", [ana.accountId]);
+      const mine = await app.query('select role from platform_staff');
+      expect(mine.rows).toEqual([{ role: 'admin' }]);
+      const write = app.query("update platform_staff set role = 'viewer' returning id");
+      expect((await write).rowCount).toBe(0);
+    } finally {
+      await app.query('rollback');
+    }
+
+    expect(own.rows).toEqual([{ tenant_id: acme }]);
+    expect(none.rows).toEqual([]);
+    expect((await app.query('select id from platform_staff')).rows).toEqual([]);
   });
 
   it('only grants permissions the API knows, and gives the Owner role all of them', async () => {

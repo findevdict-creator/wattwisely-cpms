@@ -3,6 +3,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { StaffAccountResolver } from '../account/staff-account.resolver';
 import { UserAccountsRepository } from '../account/user-accounts.repository';
 import { PermissionGuard } from '../permissions/permission.guard';
+import { PlatformAccessRepository } from '../platform/platform-access.repository';
+import { PlatformAccessResolver } from '../platform/platform-access.resolver';
+import { PlatformTransaction } from '../platform/platform-transaction';
 import { TenantAccessRepository } from '../tenant/tenant-access.repository';
 import { TenantAccessResolver } from '../tenant/tenant-access.resolver';
 import { TenantContextGuard } from '../tenant/tenant-context.guard';
@@ -16,8 +19,8 @@ import { RouteAccessReader } from './route-access.reader';
 /**
  * Registers the three global guards that run, in this order, before every controller:
  *   1. AuthenticationGuard  - who is calling? (token)
- *   2. TenantContextGuard   - which account and tenant? (database)
- *   3. PermissionGuard      - may they do this? (roles)
+ *   2. TenantContextGuard   - which account and tenant, or which staff role? (database)
+ *   3. PermissionGuard      - may they do this? (roles, and the tenant's plan)
  */
 @Global()
 @Module({
@@ -31,6 +34,9 @@ import { RouteAccessReader } from './route-access.reader';
     StaffAccountResolver,
     TenantAccessRepository,
     TenantAccessResolver,
+    PlatformAccessRepository,
+    PlatformAccessResolver,
+    PlatformTransaction,
     { provide: APP_GUARD, useClass: AuthenticationGuard },
     { provide: APP_GUARD, useClass: TenantContextGuard },
     { provide: APP_GUARD, useClass: PermissionGuard },
@@ -40,6 +46,8 @@ import { RouteAccessReader } from './route-access.reader';
     UserAccountsRepository,
     TenantAccessRepository,
     TenantAccessResolver,
+    PlatformAccessResolver,
+    PlatformTransaction,
   ],
 })
 export class AuthModule {}

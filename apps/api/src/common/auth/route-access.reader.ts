@@ -15,6 +15,11 @@ export class RouteAccessReader {
     return this.read<boolean>(RouteAccess.WITHOUT_TENANT_KEY, context) === true;
   }
 
+  /** The platform permission an admin console route needs, or undefined on tenant routes. */
+  requiredPlatformPermission(context: ExecutionContext): string | undefined {
+    return this.read<string>(RouteAccess.PLATFORM_KEY, context);
+  }
+
   /** The permission key the route needs, RouteAccess.ANY_MEMBER, or undefined when it declares none. */
   requiredPermission(context: ExecutionContext): string | undefined {
     return this.read<string>(RouteAccess.PERMISSION_KEY, context);

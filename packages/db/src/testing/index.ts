@@ -3,3 +3,4 @@ export * from './test-data';
 export * from './test-tariffs';
 export * from './test-sessions';
 export * from './test-payments';
+export * from './test-platform';

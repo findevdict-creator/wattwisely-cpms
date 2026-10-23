@@ -9,7 +9,7 @@ export class AuditLogEntryDto {
   @ApiProperty()
   readonly occurred_at: string;
 
-  @ApiProperty({ enum: ['user', 'api_key', 'support', 'system'] })
+  @ApiProperty({ enum: ['user', 'api_key', 'support', 'system', 'platform'] })
   readonly actor_type: string;
 
   @ApiProperty({ nullable: true })

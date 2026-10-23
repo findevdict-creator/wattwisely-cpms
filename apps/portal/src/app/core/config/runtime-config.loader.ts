@@ -10,11 +10,13 @@ export class RuntimeConfigLoader {
       throw new Error(`Could not load ${RuntimeConfigLoader.URL} (HTTP ${response.status})`);
     }
     const json = (await response.json()) as Record<string, string>;
-    return new RuntimeConfig(
+    const config = new RuntimeConfig(
       json['apiUrl'],
       json['keycloakUrl'],
       json['keycloakRealm'],
       json['keycloakClientId'],
     );
+    config.adminUrl = json['adminUrl'] ?? '';
+    return config;
   }
 }

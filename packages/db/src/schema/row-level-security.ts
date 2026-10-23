@@ -10,6 +10,7 @@ import { AnyPgColumn, pgRole } from 'drizzle-orm/pg-core';
  *   app.invite_token_hash  only while someone opens an invitation link
  *   app.charger_identity   only while the OCPP gateway looks up a charger that is connecting
  *   app.provider_account_id only while a payment webhook looks up whose connected account it is about
+ *   app.platform_access    'true' only in admin console requests by Wattwisely staff (module 9)
  * A policy compares a row with these settings. When a setting is missing the
  * comparison is null, so the row is hidden: forgetting to set the tenant shows nothing.
  */
@@ -42,6 +43,16 @@ export class RowLevelSecurity {
   /** `tenant_id = <current tenant>`: the rule for every tenant-owned table. */
   static isCurrentTenant(column: AnyPgColumn): SQL {
     return sql`${column} = ${RowLevelSecurity.currentTenant()}`;
+  }
+
+  /** True inside an admin console request: platform staff see and change every tenant's plan rows. */
+  static isPlatformAccess(): SQL {
+    return sql`current_setting('app.platform_access', true) = 'true'`;
+  }
+
+  /** The row of the logged-in person themselves, e.g. their own platform_staff row. */
+  static isCurrentUserAccount(column: AnyPgColumn): SQL {
+    return sql`${column} = ${RowLevelSecurity.currentUserAccount()}`;
   }
 
   private static setting(name: string): SQL {

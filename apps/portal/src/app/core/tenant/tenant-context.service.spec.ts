@@ -11,6 +11,7 @@ describe('TenantContextService', () => {
     email: 'u@test',
     name: 'U',
     is_platform_staff: false,
+    platform: null,
     tenants,
   });
   let service: TenantContextService;

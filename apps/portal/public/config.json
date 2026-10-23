@@ -2,5 +2,6 @@
   "apiUrl": "http://localhost:3000",
   "keycloakUrl": "http://auth.localhost",
   "keycloakRealm": "wattwisely",
-  "keycloakClientId": "wattwisely-portal"
+  "keycloakClientId": "wattwisely-portal",
+  "adminUrl": "http://localhost:4400"
 }

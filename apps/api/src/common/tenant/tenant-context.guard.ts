@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { StaffAccountResolver } from '../account/staff-account.resolver';
 import { RouteAccessReader } from '../auth/route-access.reader';
+import { PlatformAccessResolver } from '../platform/platform-access.resolver';
 import { ProblemException } from '../problem/problem.exception';
 import { AuthenticatedRequest } from '../request/authenticated-request';
 import { TenantAccessResolver } from './tenant-access.resolver';
@@ -9,7 +10,8 @@ import { TenantAccessResolver } from './tenant-access.resolver';
  * Step 2 of every request: who is this in our database, and which tenant are they working in?
  * The tenant must be one of the caller's active memberships, read from the database on
  * every request (cached briefly), never from the URL. Routes marked
- * RouteAccess.withoutTenant() get the account only.
+ * RouteAccess.withoutTenant() get the account only; routes marked RouteAccess.platform()
+ * get the caller's Wattwisely staff role instead of a tenant (module 9).
  */
 @Injectable()
 export class TenantContextGuard implements CanActivate {
@@ -17,6 +19,7 @@ export class TenantContextGuard implements CanActivate {
     private readonly routeAccess: RouteAccessReader,
     private readonly accountResolver: StaffAccountResolver,
     private readonly accessResolver: TenantAccessResolver,
+    private readonly platformResolver: PlatformAccessResolver,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,6 +33,11 @@ export class TenantContextGuard implements CanActivate {
     const account = await this.accountResolver.resolve(request.auth.user);
     request.auth = request.auth.withAccount(account);
     if (this.routeAccess.isWithoutTenant(context)) {
+      return true;
+    }
+    if (this.routeAccess.requiredPlatformPermission(context)) {
+      const platform = await this.platformResolver.resolve(request.auth.requireAccount());
+      request.auth = request.auth.withPlatform(PlatformAccessResolver.require(platform));
       return true;
     }
     const access = await this.accessResolver.resolve(

@@ -7,6 +7,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../core/auth/auth.service';
+import { RuntimeConfig } from '../core/config/runtime-config';
 import { PermissionsService } from '../core/permissions/permissions.service';
 import { TenantContextService } from '../core/tenant/tenant-context.service';
 import { TenantSwitcherComponent } from './tenant-switcher.component';
@@ -33,6 +34,8 @@ export class ShellComponent {
   protected readonly tenantContext = inject(TenantContextService);
   protected readonly permissions = inject(PermissionsService);
   private readonly authService = inject(AuthService);
+  /** Only Wattwisely staff see the link; the console itself turns everyone else away. */
+  protected readonly adminUrl = inject(RuntimeConfig).adminUrl;
 
   protected logout(): void {
     this.authService.logout();

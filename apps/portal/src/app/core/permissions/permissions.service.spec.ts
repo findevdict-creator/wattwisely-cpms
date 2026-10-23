@@ -8,6 +8,8 @@ describe('PermissionsService', () => {
   const permissionsWith = (isReadOnly: boolean): MyPermissions => ({
     tenant_id: 'tenant-1',
     is_read_only: isReadOnly,
+    plan: { code: 'starter', name: 'Starter' },
+    locked_modules: ['advanced_reports'],
     roles: [
       { role_id: 'r1', key: 'technician', name: 'Technician', site_id: 'site-1' },
       { role_id: 'r1', key: 'technician', name: 'Technician', site_id: 'site-2' },
@@ -33,6 +35,14 @@ describe('PermissionsService', () => {
     expect(service.can('chargers:command')).toBe(true);
     expect(service.can('team:manage')).toBe(false);
     expect(service.roleNames()).toEqual(['Technician']);
+  });
+
+  it('knows the plan and which modules it leaves locked', async () => {
+    const service = await serviceWith(permissionsWith(false));
+
+    expect(service.plan()?.name).toBe('Starter');
+    expect(service.isModuleLocked('advanced_reports')).toBe(true);
+    expect(service.isModuleLocked('sessions')).toBe(false);
   });
 
   it('allows no changes in a suspended tenant', async () => {

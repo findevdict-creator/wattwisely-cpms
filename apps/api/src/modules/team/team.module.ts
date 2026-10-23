@@ -31,6 +31,6 @@ import { TeamTransaction } from './team.transaction';
     RoleAssignmentPolicy,
     TeamTransaction,
   ],
-  exports: [MembersRepository, MembershipsWriter, MemberChangeRecorder],
+  exports: [MembersRepository, MembershipsWriter, MemberChangeRecorder, InvitationMailer],
 })
 export class TeamModule {}

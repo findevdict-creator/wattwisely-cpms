@@ -7,6 +7,7 @@ import {
   UuidV7,
 } from '@wattwisely/db';
 import { ConnectorLabel } from '@wattwisely/ocpp-contracts';
+import { PlanLimits } from '../../../common/entitlements/plan-limits';
 import { SitePermissionChecker } from '../../../common/permissions/site-permission.checker';
 import { VersionConflict } from '../../../common/problem/version-conflict';
 import { RequestAuth } from '../../../common/request/request-auth';
@@ -55,6 +56,7 @@ export class ConnectorsService {
     const id = UuidV7.create();
     const row = await this.run(auth, async (tx) => {
       const charger = await this.requireWritable(tx, auth, chargerId);
+      await PlanLimits.ensureConnectorRoom(tx, auth.requireAccess());
       const existing = await this.connectors.findByChargers(tx, [charger.id]);
       await this.connectors.insert(tx, {
         id,

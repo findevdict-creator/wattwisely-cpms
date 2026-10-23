@@ -37,10 +37,10 @@ export class ListAuditLogQueryDto {
   @MaxLength(500)
   readonly action?: string;
 
-  @ApiProperty({ required: false, enum: ['user', 'api_key', 'support', 'system'] })
+  @ApiProperty({ required: false, enum: ['user', 'api_key', 'support', 'system', 'platform'] })
   @IsOptional()
-  @IsIn(['user', 'api_key', 'support', 'system'])
-  readonly actor_type?: 'user' | 'api_key' | 'support' | 'system';
+  @IsIn(['user', 'api_key', 'support', 'system', 'platform'])
+  readonly actor_type?: 'user' | 'api_key' | 'support' | 'system' | 'platform';
 
   @ApiProperty({ required: false })
   @IsOptional()
