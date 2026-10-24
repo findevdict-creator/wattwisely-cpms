@@ -14,6 +14,7 @@ export class DemoCharger {
   private heartbeat: NodeJS.Timeout | null = null;
   private connectors: ConnectorState[] = [];
   private isStopping = false;
+  private hasTappedCard = false;
 
   constructor(private readonly options: SimOptions) {}
 
@@ -78,6 +79,25 @@ export class DemoCharger {
     await messages.status(0, 'Available');
     for (const connector of this.connectors) {
       await connector.setStatus(connector.status);
+    }
+    await this.tapCard(messages);
+  }
+
+  /** `--tag`: a driver holds their RFID card against connector 1, once (module 13). */
+  private async tapCard(messages: ChargerMessages): Promise<void> {
+    const tag = this.options.tag;
+    if (!tag || this.hasTappedCard) {
+      return;
+    }
+    this.hasTappedCard = true;
+    const answer = await messages.authorize(tag);
+    this.log(`authorize ${tag}: ${answer.idTagInfo.status}`);
+    if (answer.idTagInfo.status === 'Accepted') {
+      await this.connectors[0]?.startCharging(
+        tag,
+        this.options.powerW,
+        this.options.meterIntervalS,
+      );
     }
   }
 

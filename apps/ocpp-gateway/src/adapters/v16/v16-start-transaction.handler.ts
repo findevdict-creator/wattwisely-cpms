@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
 import { SessionRow } from '@wattwisely/session-engine';
-import { TagPolicy } from '../../commands/tag-policy';
+import { TagDecision, TagPolicy } from '../../commands/tag-policy';
 import { ChargerConnection } from '../../connection/charger-connection';
 import { SessionOpener } from '../../sessions/session-opener';
 import { GatewayRepositories } from '../../storage/gateway-repositories';
@@ -27,37 +27,49 @@ export class V16StartTransactionHandler implements ActionHandler {
   async handle(connection: ChargerConnection, payload: unknown): Promise<HandlerResult> {
     const start = payload as StartTransactionRequest;
     const charger = connection.charger;
-    const { status, commandId } = this.tags.start(charger.id, start.idTag);
-    const session = await this.transactionRunner.run(
+    const { session, status } = await this.transactionRunner.run(
       DatabaseSession.forTenant(charger.tenantId),
       async (tx) => {
         await this.store.chargers.touch(tx, charger.id);
+        const decision = await this.tags.start(tx, charger.id, start.idTag);
         const connector = await this.store.connectors.findOrCreate(tx, charger, start.connectorId);
         const existing = await this.store.sessions.findOnConnector(tx, connector.id);
         if (existing && V16StartTransactionHandler.isSame(existing, start)) {
-          return existing;
+          return { session: existing, status: decision.status };
         }
-        return this.open(tx, connection, connector.id, { ...start, commandId });
+        const opened = await this.open(tx, connection, {
+          connectorId: connector.id,
+          start,
+          decision,
+        });
+        return { session: opened, status: decision.status };
       },
     );
     return { reply: { transactionId: session.ocppTransactionId ?? 0, idTagInfo: { status } } };
   }
 
+  /** The session carries the driver and card behind the tag, when it was a registered card (module 13). */
   private async open(
     tx: Transaction,
     connection: ChargerConnection,
-    connectorId: string,
-    start: StartTransactionRequest & { commandId: string | null },
+    opening: {
+      connectorId: string;
+      start: StartTransactionRequest;
+      decision: TagDecision & { commandId: string | null };
+    },
   ): Promise<SessionRow> {
     const charger = connection.charger;
+    const { connectorId, start, decision } = opening;
     return this.opener.open(tx, charger, {
       tenantId: charger.tenantId,
       chargerId: charger.id,
       connectorId,
       idTag: start.idTag,
+      driverId: decision.driverId,
+      rfidCardId: decision.cardId,
       startedAt: new Date(start.timestamp),
       meterStartWh: start.meterStart,
-      commandId: start.commandId,
+      commandId: decision.commandId,
     });
   }
 
