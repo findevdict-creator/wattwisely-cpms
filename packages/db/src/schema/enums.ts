@@ -263,3 +263,12 @@ export const reportExportStatus = pgEnum('report_export_status', [
 
 /** How often a scheduled report goes out (advanced_reports): every Monday, or on the 1st. */
 export const reportFrequency = pgEnum('report_frequency', ['weekly', 'monthly']);
+
+/** A driver profile (module 13): active, or blocked so none of their cards may charge. */
+export const driverStatus = pgEnum('driver_status', ['active', 'blocked']);
+
+/**
+ * An RFID card (module 13): active, blocked by staff, or reported lost by the driver.
+ * A blocked or lost card answers Blocked at the charger; an expired one answers Expired.
+ */
+export const rfidCardStatus = pgEnum('rfid_card_status', ['active', 'blocked', 'lost']);

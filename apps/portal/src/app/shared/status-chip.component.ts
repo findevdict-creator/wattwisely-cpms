@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { DriverStatusLabels } from './driver-status-labels';
 import { StatusLabels } from './status-labels';
 
 /** Which table of words a status comes from. */
@@ -12,7 +13,9 @@ export type StatusKind =
   | 'refund'
   | 'payment_account'
   | 'managed_service'
-  | 'proposal';
+  | 'proposal'
+  | 'driver'
+  | 'card';
 
 /** A coloured dot and a word for a site, charger, connector, command, session, payment or refund status. */
 @Component({
@@ -53,28 +56,23 @@ export class StatusChipComponent {
     StatusChipComponent.labelOf(this.kind(), this.status()),
   );
 
-  private static labelOf(kind: string, status: string): string {
-    switch (kind) {
-      case 'site':
-        return StatusLabels.site(status);
-      case 'connector':
-        return StatusLabels.connector(status);
-      case 'command':
-        return StatusLabels.command(status);
-      case 'session':
-        return StatusLabels.session(status);
-      case 'payment':
-        return StatusLabels.payment(status);
-      case 'refund':
-        return StatusLabels.refund(status);
-      case 'payment_account':
-        return StatusLabels.paymentAccount(status);
-      case 'managed_service':
-        return StatusLabels.managedService(status);
-      case 'proposal':
-        return StatusLabels.proposal(status);
-      default:
-        return StatusLabels.charger(status);
-    }
+  /** The table of words for each kind; chargers for a kind nobody named. */
+  private static readonly WORDS: Record<StatusKind, (status: string) => string> = {
+    site: StatusLabels.site,
+    charger: StatusLabels.charger,
+    connector: StatusLabels.connector,
+    command: StatusLabels.command,
+    session: StatusLabels.session,
+    payment: StatusLabels.payment,
+    refund: StatusLabels.refund,
+    payment_account: StatusLabels.paymentAccount,
+    managed_service: StatusLabels.managedService,
+    proposal: StatusLabels.proposal,
+    driver: DriverStatusLabels.driver,
+    card: DriverStatusLabels.card,
+  };
+
+  private static labelOf(kind: StatusKind, status: string): string {
+    return (StatusChipComponent.WORDS[kind] ?? StatusLabels.charger)(status);
   }
 }

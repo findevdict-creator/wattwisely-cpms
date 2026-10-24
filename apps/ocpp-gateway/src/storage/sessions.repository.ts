@@ -15,6 +15,9 @@ export interface SessionStart {
   chargerId: string;
   connectorId: string;
   idTag: string;
+  /** The driver and card behind the tag, when it was a registered RFID card (module 13). */
+  driverId?: string | null;
+  rfidCardId?: string | null;
   startedAt: Date;
   meterStartWh: number;
   commandId: string | null;

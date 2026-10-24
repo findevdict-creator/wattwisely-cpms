@@ -39,7 +39,12 @@
           <dt>Car left</dt>
           <dd>{{ (session.unplugged_at | zonedTime: session.time_zone : true) || 'Not yet' }}</dd>
           <dt>Card or token</dt>
-          <dd>{{ session.id_tag }}</dd>
+          <dd>
+            {{ session.id_tag }}
+            @if (session.driver_id) {
+              · <a [routerLink]="['/drivers', session.driver_id]">{{ session.driver_name }}</a>
+            }
+          </dd>
           <dt>Transaction</dt>
           <dd>{{ session.ocpp_transaction_id ?? 'Not started by the charger yet' }}</dd>
           @if (session.stop_reason) {

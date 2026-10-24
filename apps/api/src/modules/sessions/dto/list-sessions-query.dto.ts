@@ -39,6 +39,11 @@ export class ListSessionsQueryDto {
   @IsUUID('all')
   readonly charger_id?: string;
 
+  @ApiProperty({ required: false, description: 'Only the sessions this driver started' })
+  @IsOptional()
+  @IsUUID('all')
+  readonly driver_id?: string;
+
   @ApiProperty({ required: false, description: 'Comma list, e.g. charging,idle' })
   @IsOptional()
   @Matches(/^[a-z_]+(,[a-z_]+)*$/, { message: 'status must be a comma list of states' })

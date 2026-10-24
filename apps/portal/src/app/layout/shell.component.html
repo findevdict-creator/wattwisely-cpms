@@ -85,6 +85,12 @@
           <span matListItemTitle>Sessions</span>
         </a>
       }
+      @if (permissions.can('drivers:read')) {
+        <a mat-list-item routerLink="/drivers" routerLinkActive="active" data-testid="nav-drivers">
+          <mat-icon matListItemIcon>badge</mat-icon>
+          <span matListItemTitle>Drivers</span>
+        </a>
+      }
       @if (permissions.can('reports:read')) {
         <a mat-list-item routerLink="/reports" routerLinkActive="active" data-testid="nav-reports">
           <mat-icon matListItemIcon>bar_chart</mat-icon>

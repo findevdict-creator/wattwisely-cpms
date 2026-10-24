@@ -13,6 +13,7 @@ export class SessionFilters {
       scope: SitePermissionChecker.scopeOf(access, key),
       siteId: query.site_id,
       chargerId: query.charger_id,
+      driverId: query.driver_id,
       statuses: query.status ? SessionFilters.statusesOf(query.status) : undefined,
       from: query.from ? new Date(query.from) : undefined,
       to: query.to ? new Date(query.to) : undefined,
