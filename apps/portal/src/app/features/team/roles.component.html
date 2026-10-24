@@ -1,0 +1,94 @@
+<header class="title">
+  <div>
+    <a routerLink="/team" class="back"><mat-icon>arrow_back</mat-icon> Team</a>
+    <h1>Roles and permissions</h1>
+  </div>
+  @if (canManage()) {
+    <button mat-flat-button (click)="edit(null)" data-testid="add-role">
+      <mat-icon>add</mat-icon>
+      New role
+    </button>
+  }
+</header>
+<p class="hint">
+  Each column is a role, each row a permission. The five built-in roles are the same for every
+  company and cannot be changed.
+  @if (isLocked()) {
+    <span data-testid="custom-roles-locked">
+      Custom roles, with a chosen set of permissions, come with the Growth and Enterprise plans. Ask
+      Wattwisely to add them.
+    </span>
+  } @else if (canManage()) {
+    <span>Custom roles are yours to shape: start from a built-in role and adjust it.</span>
+  }
+</p>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+@if (!isLoading() && !error()) {
+  <div class="scroll">
+    <table class="matrix" data-testid="permission-matrix">
+      <thead>
+        <tr>
+          <th class="permission">Permission</th>
+          @for (role of roles(); track role.id) {
+            <th [attr.data-role]="role.id" [class.custom]="!role.is_system">
+              <span class="role-name" [matTooltip]="role.description">{{ role.name }}</span>
+              <span class="members">{{ members(role) }}</span>
+              @if (!role.is_system && canManage()) {
+                <span class="role-actions">
+                  <button mat-icon-button aria-label="Edit role" (click)="edit(role)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    aria-label="Delete role"
+                    [disabled]="role.member_count > 0"
+                    [matTooltip]="role.member_count > 0 ? 'Held by ' + members(role) : ''"
+                    (click)="remove(role)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </span>
+              }
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (group of groups(); track group.module) {
+          <tr class="group" [attr.data-module]="group.module">
+            <th [attr.colspan]="roles().length + 1">
+              {{ group.name }}
+              @if (group.isLocked) {
+                <mat-icon
+                  class="lock"
+                  inline
+                  matTooltip="Not in your plan: these permissions do nothing until Wattwisely adds the module"
+                >
+                  lock
+                </mat-icon>
+              }
+            </th>
+          </tr>
+          @for (permission of group.permissions; track permission.key) {
+            <tr [attr.data-permission]="permission.key">
+              <th class="permission">
+                {{ permission.label }}
+                <span class="key">{{ permission.key }}</span>
+              </th>
+              @for (role of roles(); track role.id) {
+                <td [class.held]="holds(role, permission.key)">
+                  @if (holds(role, permission.key)) {
+                    <mat-icon inline>check</mat-icon>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+}
