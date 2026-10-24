@@ -17,6 +17,9 @@
 #   Branding of Acme Charging: blue and orange, a logo, help@acme.test (drivers and e-mails see it)
 #   Alerts (module 11): the worker opens them within a minute (a faulted plug, two chargers no longer connected);
 #     Acme Charging has a weekly usage report e-mailed to owner@acme.test every Monday
+#   Drivers of Acme Charging (module 13): Dana Driver with card DEMO-CARD-1 (the finished session is hers) in the
+#     "Depot staff" access group that opens the private Depot North; Priya Patel with a lost card and its replacement;
+#     Ben Blocked, blocked with every card refused. A simulator that authorises with DEMO-CARD-1 is accepted
 #
 # Every user is asked to set up an authenticator app at first login (two-factor is required).
 source "$(dirname "$0")/lib/common.sh"
@@ -200,6 +203,35 @@ SELECT gen_random_uuid(), operator.tenant_id, '01900000-0000-7000-8000-00000000a
 FROM operator JOIN user_accounts ad ON lower(ad.email) = 'admin@wattwisely.test';
 -- Module 11: Acme Charging (Growth, so Advanced reports) e-mails a usage report to its Owner every Monday.
 -- The faulted plug B on the ABB charger, and the two chargers that reported in but are not connected, raise alerts by themselves.
+INSERT INTO drivers (id, tenant_id, name, email, phone, reference, notes, status, blocked_at, block_reason) VALUES
+  ('01900000-0000-7000-8000-000000007001', '01900000-0000-7000-8000-00000000a001', 'Dana Driver', 'dana@acme.test',
+   '+44 7700 900123', 'EMP-0042', 'Drives the depot van', 'active', NULL, ''),
+  ('01900000-0000-7000-8000-000000007002', '01900000-0000-7000-8000-00000000a001', 'Priya Patel', 'priya@acme.test',
+   NULL, 'EMP-0058', '', 'active', NULL, ''),
+  ('01900000-0000-7000-8000-000000007003', '01900000-0000-7000-8000-00000000a001', 'Ben Blocked', NULL,
+   NULL, 'EMP-0077', '', 'blocked', now() - interval '2 days', 'Left the company')
+ON CONFLICT DO NOTHING;
+INSERT INTO rfid_cards (id, tenant_id, driver_id, id_tag, label, status, last_used_at) VALUES
+  ('01900000-0000-7000-8000-000000008001', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007001',
+   'DEMO-CARD-1', 'Van key fob', 'active', '2026-03-10 16:30Z'),
+  ('01900000-0000-7000-8000-000000008002', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007002',
+   'DEMO-CARD-2', 'First card', 'lost', NULL),
+  ('01900000-0000-7000-8000-000000008003', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007002',
+   'DEMO-CARD-3', 'Replacement', 'active', NULL),
+  ('01900000-0000-7000-8000-000000008004', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007003',
+   'DEMO-CARD-4', '', 'blocked', NULL)
+ON CONFLICT DO NOTHING;
+INSERT INTO access_groups (id, tenant_id, name, description) VALUES
+  ('01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000a001', 'Depot staff', 'May charge at Depot North')
+ON CONFLICT DO NOTHING;
+INSERT INTO access_group_sites (tenant_id, group_id, site_id) VALUES
+  ('01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000c002')
+ON CONFLICT DO NOTHING;
+INSERT INTO access_group_members (tenant_id, group_id, driver_id) VALUES
+  ('01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-000000007001')
+ON CONFLICT DO NOTHING;
+UPDATE charging_sessions SET driver_id = '01900000-0000-7000-8000-000000007001', rfid_card_id = '01900000-0000-7000-8000-000000008001'
+  WHERE id = '01900000-0000-7000-8000-000000005001' AND driver_id IS NULL;
 INSERT INTO report_schedules (id, tenant_id, name, frequency, group_by, recipients, time_zone, next_run_at)
 VALUES ('01900000-0000-7000-8000-000000006001', '01900000-0000-7000-8000-00000000a001', 'Weekly usage',
   'weekly', 'site', '["owner@acme.test"]', 'Europe/London',
@@ -223,4 +255,5 @@ seed_database
 info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL_HOST) with password $DEMO_PASSWORD"
 info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_HOST) as admin@wattwisely.test or support@wattwisely.test"
 info "Volt Hotels is managed by Wattwisely: support@wattwisely.test works in it as Managed operator, multi@demo.test approves its tariff changes"
+info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted, DEMO-CARD-4 is blocked"
 info "Drivers see plug A of the Riverside charger at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/c/WW-7KQ4M2XR9T/1 (the QR code on the charger page); it shows as offline until a charger or the simulator connects with that identity"
