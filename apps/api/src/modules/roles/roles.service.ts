@@ -1,13 +1,13 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DatabaseSession, TransactionRunner } from '@wattwisely/db';
 import { PermissionCatalog } from '../../common/permissions/permission-catalog';
-import { ProblemException } from '../../common/problem/problem.exception';
 import { TenantAccess } from '../../common/tenant/tenant-access';
 import { PermissionDto } from './dto/permission.dto';
 import { RoleDto } from './dto/role.dto';
+import { RoleErrors } from './role-errors';
 import { RolesRepository } from './roles.repository';
 
-/** The roles a tenant can give and the permissions behind them. Read-only until custom roles (M2). */
+/** The roles a tenant can give (built-in and its own) and the permissions behind them. */
 @Injectable()
 export class RolesService {
   constructor(
@@ -27,11 +27,7 @@ export class RolesService {
     const roles = await this.list(access);
     const role = roles.find((candidate) => candidate.id === roleId);
     if (!role) {
-      throw new ProblemException(
-        HttpStatus.NOT_FOUND,
-        'role_not_found',
-        'This role does not exist.',
-      );
+      throw RoleErrors.notFound();
     }
     return role;
   }

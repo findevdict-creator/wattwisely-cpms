@@ -7,11 +7,15 @@ describe('RoleAssignmentPolicy', () => {
   const policy = { check: RoleAssignmentPolicy.checkAgainst };
   const technician: RoleRecord = {
     id: 'technician',
+    tenantId: null,
     key: 'technician',
     name: 'Technician',
     description: '',
     isSystem: true,
     permissionKeys: ['chargers:read', 'chargers:command'],
+    version: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
   const actorWith = (siteId: string | null, keys: string[]) =>
     PermissionSet.fromGrants([
