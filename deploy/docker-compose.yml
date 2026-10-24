@@ -100,6 +100,10 @@ services:
       # Module 16: requests per API key and minute. Webhook endpoints must be public addresses.
       RATE_LIMIT_API_KEY_PER_MINUTE: ${RATE_LIMIT_API_KEY_PER_MINUTE:-600}
       WEBHOOK_ALLOW_PRIVATE_URLS: 'false'
+      # Module 17: the WhatsApp Business app behind the messaging add-on.
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN:-}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
       # The interactive API reference at /docs. Off unless asked for.
       API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
     networks: [backend]
@@ -183,6 +187,11 @@ services:
       # Module 16: webhook scan and delivery cadence; endpoints must be public addresses.
       WEBHOOK_INTERVAL_MS: ${WEBHOOK_INTERVAL_MS:-15000}
       WEBHOOK_ALLOW_PRIVATE_URLS: 'false'
+      # Module 17: load management rounds and chat sending; chat links point at the driver app.
+      LOAD_MANAGEMENT_INTERVAL_MS: ${LOAD_MANAGEMENT_INTERVAL_MS:-10000}
+      MESSAGING_INTERVAL_MS: ${MESSAGING_INTERVAL_MS:-10000}
+      DRIVER_URL: ${PUBLIC_SCHEME}://${DRIVER_HOST}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }

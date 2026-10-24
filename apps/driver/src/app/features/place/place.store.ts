@@ -25,8 +25,11 @@ export class PlaceStore {
     }
   }
 
-  /** Opens the session and the hold; the charge is remembered on this phone. Null when it failed. */
-  async start(): Promise<Charge | null> {
+  /**
+   * Opens the session and the hold; the charge is remembered on this phone. Null when it failed.
+   * `chatRef` comes from the link a driver got in a chat, so the chat follows the charge.
+   */
+  async start(chatRef?: string): Promise<Charge | null> {
     const place = this.place();
     if (!place) {
       return null;
@@ -35,7 +38,7 @@ export class PlaceStore {
     this.error.set('');
     try {
       const charge = await firstValueFrom(
-        this.api.start(place.charger_identity, place.ocpp_connector_id),
+        this.api.start(place.charger_identity, place.ocpp_connector_id, chatRef),
       );
       this.myCharges.remember(charge);
       return charge;

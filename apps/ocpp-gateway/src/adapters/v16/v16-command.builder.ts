@@ -1,14 +1,17 @@
 import {
   ChangeAvailabilityPayload,
+  ClearChargingProfilePayload,
   CommandCatalog,
   CommandStatus,
   RemoteStartPayload,
   RemoteStopPayload,
   ResetPayload,
+  SetChargingProfilePayload,
   UnlockPayload,
 } from '@wattwisely/ocpp-contracts';
 import { GatewayCommand } from '../../storage/gateway-commands.repository';
 import { CallReply } from '../../transport/call-reply';
+import { V16ChargingProfile } from './v16-charging-profile';
 
 /** The outcome of a command as charger_commands records it. */
 export interface CommandOutcome {
@@ -19,8 +22,8 @@ export interface CommandOutcome {
 
 /** Turns a platform command into its OCPP 1.6 CALL, and the charger's reply into an outcome. */
 export class V16CommandBuilder {
-  /** The reply statuses that mean the charger will do it. */
-  static readonly ACCEPTED = ['Accepted', 'Scheduled', 'Unlocked'];
+  /** The reply statuses that mean the charger will do it ("Unknown" is ClearChargingProfile's "nothing to clear"). */
+  static readonly ACCEPTED = ['Accepted', 'Scheduled', 'Unlocked', 'Unknown'];
 
   static toCall(command: GatewayCommand): { action: string; payload: unknown } {
     return {
@@ -76,6 +79,10 @@ export class V16CommandBuilder {
         const change = command.payload as ChangeAvailabilityPayload;
         return { connectorId: change.ocpp_connector_id, type: change.type };
       }
+      case 'set_charging_profile':
+        return V16ChargingProfile.set(command.payload as SetChargingProfilePayload);
+      case 'clear_charging_profile':
+        return V16ChargingProfile.clear(command.payload as ClearChargingProfilePayload);
     }
   }
 }

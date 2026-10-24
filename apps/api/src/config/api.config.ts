@@ -106,6 +106,18 @@ export class ApiConfig {
   @IsBoolean()
   isWebhookPrivateUrlAllowed!: boolean;
 
+  /** Module 17: the app secret Meta signs webhook deliveries with (WHATSAPP_APP_SECRET). Empty refuses them all. */
+  @IsString()
+  whatsappAppSecret!: string;
+
+  /** Module 17: the token Meta echoes when the webhook is subscribed (WHATSAPP_VERIFY_TOKEN). */
+  @IsString()
+  whatsappVerifyToken!: string;
+
+  /** Module 17: the platform's WhatsApp Business token; empty means every channel brings its own. */
+  @IsString()
+  whatsappAccessToken!: string;
+
   /** Module 12: requests per client address and minute (RATE_LIMIT_*). */
   @ValidateNested()
   @Type(() => RateLimits)

@@ -1,6 +1,7 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import {
+  TestAddons,
   TestBilling,
   TestData,
   TestDatabase,
@@ -53,6 +54,8 @@ export class TestApi {
   billing!: TestBilling;
   /** Module 16's API keys and webhook endpoints. */
   integrations!: TestIntegrations;
+  /** Module 17's load policies and chat channels. */
+  addons!: TestAddons;
   notifications!: TestNotifications;
   app!: NestFastifyApplication;
 
@@ -60,13 +63,7 @@ export class TestApi {
   async start(environment: Record<string, string> = {}): Promise<this> {
     this.issuer = await new TestTokenIssuer().init();
     this.database = await TestDatabase.create();
-    this.data = new TestData(this.database);
-    this.payments = new TestPayments(this.data);
-    this.platform = new TestPlatform(this.data);
-    this.managed = new TestManaged(this.data);
-    this.billing = new TestBilling(this.data);
-    this.integrations = new TestIntegrations(this.data);
-    this.notifications = new TestNotifications(this.data);
+    this.prepareHelpers();
     Object.assign(process.env, TestApi.environment(this.database), environment);
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(KeycloakKeySetProvider)
@@ -86,6 +83,18 @@ export class TestApi {
     await this.app.init();
     await this.app.getHttpAdapter().getInstance().ready();
     return this;
+  }
+
+  /** The row writers for tests, all on the fresh database. */
+  private prepareHelpers(): void {
+    this.data = new TestData(this.database);
+    this.payments = new TestPayments(this.data);
+    this.platform = new TestPlatform(this.data);
+    this.managed = new TestManaged(this.data);
+    this.billing = new TestBilling(this.data);
+    this.integrations = new TestIntegrations(this.data);
+    this.addons = new TestAddons(this.data);
+    this.notifications = new TestNotifications(this.data);
   }
 
   async stop(): Promise<void> {
@@ -127,6 +136,9 @@ export class TestApi {
       DRIVER_URL: 'http://charge.test',
       SMTP_HOST: 'smtp.test',
       SMTP_FROM: 'no-reply@wattwisely.test',
+      WHATSAPP_APP_SECRET: 'wa-app-secret',
+      WHATSAPP_VERIFY_TOKEN: 'verify-me',
+      WHATSAPP_ACCESS_TOKEN: 'platform-token',
       // Tests call the API hundreds of times a minute from one address; the rate limit test turns them on.
       RATE_LIMIT_ENABLED: 'false',
       TRUST_PROXY_HOPS: '0',

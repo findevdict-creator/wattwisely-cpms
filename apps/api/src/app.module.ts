@@ -17,8 +17,10 @@ import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
+import { LoadManagementModule } from './modules/load-management/load-management.module';
 import { ManagedModule } from './modules/managed/managed.module';
 import { MeModule } from './modules/me/me.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -65,6 +67,8 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     AdminModule,
     InvoicesModule,
     IntegrationsModule,
+    LoadManagementModule,
+    MessagingModule,
   ],
 })
 export class AppModule {}

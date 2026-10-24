@@ -185,6 +185,17 @@
           <span matListItemTitle>Webhooks</span>
         </a>
       }
+      @if (permissions.can('messaging:manage')) {
+        <a
+          mat-list-item
+          routerLink="/settings/messaging"
+          routerLinkActive="active"
+          data-testid="nav-messaging"
+        >
+          <mat-icon matListItemIcon>chat</mat-icon>
+          <span matListItemTitle>WhatsApp charging</span>
+        </a>
+      }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
           <mat-icon matListItemIcon>group</mat-icon>

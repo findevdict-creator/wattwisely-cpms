@@ -68,13 +68,18 @@ export const connectorStatus = pgEnum('connector_status', [
   'unknown',
 ]);
 
-/** What the platform can ask a charger to do (OCPP gateway design, "Commands"). */
+/**
+ * What the platform can ask a charger to do (OCPP gateway design, "Commands"). The two
+ * charging profile commands are the worker's, for load management (module 17).
+ */
 export const chargerCommandAction = pgEnum('charger_command_action', [
   'remote_start',
   'remote_stop',
   'reset',
   'unlock',
   'change_availability',
+  'set_charging_profile',
+  'clear_charging_profile',
 ]);
 
 /**
@@ -303,4 +308,27 @@ export const webhookDeliveryStatus = pgEnum('webhook_delivery_status', [
   'pending',
   'delivered',
   'failed',
+]);
+
+/**
+ * How a site's power cap is shared among its charging chargers (module 17, load management):
+ * equally, or by each charger's priority, the most important first.
+ */
+export const loadStrategy = pgEnum('load_strategy', ['equal_share', 'priority']);
+
+/** The messaging apps drivers can charge from (module 17). WhatsApp Business is the first. */
+export const messagingProvider = pgEnum('messaging_provider', ['whatsapp']);
+
+/** Which way a chat message went: in from the driver, out from the platform. */
+export const messagingDirection = pgEnum('messaging_direction', ['in', 'out']);
+
+/**
+ * An outbound chat message's life (module 17): pending until the worker sent it, sent, or failed
+ * after the last try. An inbound message is `received`.
+ */
+export const messagingMessageStatus = pgEnum('messaging_message_status', [
+  'pending',
+  'sent',
+  'failed',
+  'received',
 ]);
