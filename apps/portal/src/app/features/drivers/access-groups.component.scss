@@ -1,0 +1,41 @@
+.title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  max-width: 1100px;
+
+  h1 {
+    margin-top: 4px;
+  }
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-on-surface-variant);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.groups {
+  max-width: 1100px;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.row-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.hint,
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.hint {
+  font-size: 13px;
+}

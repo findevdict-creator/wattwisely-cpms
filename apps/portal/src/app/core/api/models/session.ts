@@ -23,6 +23,9 @@ export interface Session {
   connector_id: string;
   connector_label: string;
   id_tag: string;
+  /** The driver whose RFID card started it, when it was a registered card (module 13). */
+  driver_id: string | null;
+  driver_name: string | null;
   started_at: string;
   ended_at: string | null;
   unplugged_at: string | null;
@@ -89,4 +92,5 @@ export interface SessionFilter {
   from?: string;
   to?: string;
   needs_review?: 'true';
+  driver_id?: string;
 }

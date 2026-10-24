@@ -1,0 +1,64 @@
+<header class="title">
+  <div>
+    <a routerLink="/drivers" class="back"><mat-icon>arrow_back</mat-icon> Drivers</a>
+    <h1>Access groups</h1>
+  </div>
+  @if (permissions.canChange('drivers:write')) {
+    <button mat-flat-button (click)="edit(null)" data-testid="add-group">
+      <mat-icon>add</mat-icon>
+      New group
+    </button>
+  }
+</header>
+<p class="hint">
+  A private site admits only the drivers of a group that names it. Public sites admit every active
+  card.
+</p>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+@if (!isLoading() && groups().length === 0) {
+  <p class="empty" data-testid="no-groups">No access group yet.</p>
+} @else {
+  <table mat-table [dataSource]="groups()" class="groups" data-testid="groups">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Group</th>
+      <td mat-cell *matCellDef="let group">
+        <span class="name">{{ group.name }}</span>
+        @if (group.description) {
+          <br /><span class="hint">{{ group.description }}</span>
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="sites">
+      <th mat-header-cell *matHeaderCellDef>Opens</th>
+      <td mat-cell *matCellDef="let group">
+        {{ group.sites.length === 0 ? 'No site yet' : names(group.sites) }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="members">
+      <th mat-header-cell *matHeaderCellDef>Drivers</th>
+      <td mat-cell *matCellDef="let group">
+        @if (group.members.length === 0) {
+          None
+        } @else if (group.members.length <= 3) {
+          {{ names(group.members) }}
+        } @else {
+          {{ group.members.length }} drivers
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let group" class="row-actions">
+        @if (permissions.canChange('drivers:write')) {
+          <button mat-button (click)="edit(group)">Edit</button>
+          <button mat-button (click)="remove(group)">Delete</button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+}

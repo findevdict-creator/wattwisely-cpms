@@ -7,6 +7,9 @@ import { AlertsComponent } from './features/alerts/alerts.component';
 import { AuditLogComponent } from './features/audit-log/audit-log.component';
 import { ChargerComponent } from './features/chargers/charger.component';
 import { ChargersComponent } from './features/chargers/chargers.component';
+import { AccessGroupsComponent } from './features/drivers/access-groups.component';
+import { DriverComponent } from './features/drivers/driver.component';
+import { DriversComponent } from './features/drivers/drivers.component';
 import { HomeComponent } from './features/home/home.component';
 import { InvitationComponent } from './features/invitation/invitation.component';
 import { NoWorkspaceComponent } from './features/no-workspace/no-workspace.component';
@@ -100,6 +103,24 @@ export const APP_ROUTES: Routes = [
             component: SessionComponent,
             canActivate: [PermissionGuard],
             data: { permission: 'sessions:read' },
+          },
+          {
+            path: 'drivers',
+            component: DriversComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'drivers:read' },
+          },
+          {
+            path: 'drivers/groups',
+            component: AccessGroupsComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'drivers:read' },
+          },
+          {
+            path: 'drivers/:id',
+            component: DriverComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'drivers:read' },
           },
           {
             path: 'tariffs',
