@@ -31,6 +31,12 @@ export class SessionDto {
   @ApiProperty({ description: 'The RFID card or token that started it' })
   readonly id_tag: string;
 
+  @ApiProperty({ nullable: true, type: String, description: 'The driver whose card started it' })
+  readonly driver_id: string | null;
+
+  @ApiProperty({ nullable: true, type: String })
+  readonly driver_name: string | null;
+
   @ApiProperty()
   readonly started_at: string;
 
@@ -83,6 +89,8 @@ export class SessionDto {
     this.connector_id = session.connectorId;
     this.connector_label = session.connectorLabel;
     this.id_tag = session.idTag;
+    this.driver_id = session.driverId;
+    this.driver_name = session.driverName;
     this.started_at = session.startedAt.toISOString();
     this.ended_at = session.endedAt?.toISOString() ?? null;
     this.unplugged_at = session.unpluggedAt?.toISOString() ?? null;
