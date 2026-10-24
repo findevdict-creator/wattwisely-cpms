@@ -1,0 +1,174 @@
+<a routerLink="/invoices" class="back"><mat-icon>arrow_back</mat-icon> All invoices</a>
+
+@if (store.invoice(); as invoice) {
+  <div class="title">
+    <div>
+      <h1 data-testid="invoice-title">
+        {{ invoice.number ?? 'Draft invoice' }} · {{ invoice.month_label }}
+      </h1>
+      <div class="facts">
+        <ww-status-chip [status]="status()" />
+        <a [routerLink]="['/tenants', invoice.tenant_id]">{{ invoice.tenant_name }}</a>
+        @if (invoice.issued_at) {
+          <span>issued {{ invoice.issued_at | date: 'mediumDate' }}</span>
+        }
+        @if (invoice.due_at && !invoice.paid_at) {
+          <span>due {{ invoice.due_at | date: 'mediumDate' }}</span>
+        }
+        @if (invoice.paid_at) {
+          <span>paid {{ invoice.paid_at | date: 'mediumDate' }}</span>
+        }
+        @if (invoice.voided_at) {
+          <span>voided {{ invoice.voided_at | date: 'mediumDate' }}</span>
+        }
+      </div>
+    </div>
+    @if (canWrite() && (isDraft() || invoice.status === 'issued')) {
+      <button mat-stroked-button [matMenuTriggerFor]="actions" data-testid="invoice-actions">
+        Actions <mat-icon>expand_more</mat-icon>
+      </button>
+      <mat-menu #actions="matMenu">
+        @if (isDraft()) {
+          <button mat-menu-item (click)="issue()" data-testid="issue-invoice">
+            <mat-icon>send</mat-icon>
+            Issue and send
+          </button>
+          <button mat-menu-item (click)="addLine()" data-testid="add-line">
+            <mat-icon>add</mat-icon>
+            Add a line
+          </button>
+          <button mat-menu-item (click)="regenerate()" data-testid="regenerate-invoice">
+            <mat-icon>refresh</mat-icon>
+            Work the fee lines out again
+          </button>
+        }
+        @if (invoice.status === 'issued') {
+          <button mat-menu-item (click)="pay()" data-testid="pay-invoice">
+            <mat-icon>paid</mat-icon>
+            Mark paid
+          </button>
+        }
+        <button mat-menu-item (click)="voidInvoice()" data-testid="void-invoice">
+          <mat-icon>block</mat-icon>
+          Void
+        </button>
+      </mat-menu>
+    }
+  </div>
+
+  @if (invoice.void_reason) {
+    <p class="notice" role="status">Voided: {{ invoice.void_reason }}</p>
+  }
+  @if (invoice.is_overdue) {
+    <p class="notice" role="status">
+      Overdue since {{ invoice.due_at | date: 'mediumDate' }}. The tenant's subscription is marked
+      past due until it is paid or voided.
+    </p>
+  }
+
+  <div class="cards">
+    <mat-card>
+      <mat-card-header><mat-card-title>Billed to</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <dl>
+          <dt>Tenant</dt>
+          <dd>
+            {{ invoice.tenant_name }} <span class="sub">({{ invoice.tenant_slug }})</span>
+          </dd>
+          <dt>Contact</dt>
+          <dd>
+            {{ invoice.billing_name || '—' }}
+            @if (invoice.billing_email) {
+              <div class="sub">{{ invoice.billing_email }}</div>
+            }
+          </dd>
+          @if (invoice.billing_reference) {
+            <dt>Their reference</dt>
+            <dd>{{ invoice.billing_reference }}</dd>
+          }
+          <dt>Period</dt>
+          <dd>
+            {{ invoice.period_start | date: 'mediumDate' }} –
+            {{ invoice.period_end | date: 'mediumDate' }}
+          </dd>
+          @if (invoice.payment_reference) {
+            <dt>Payment</dt>
+            <dd>{{ invoice.payment_reference }}</dd>
+          }
+        </dl>
+      </mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>Totals</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <dl data-testid="invoice-totals">
+          <dt>Subtotal</dt>
+          <dd>{{ invoice.subtotal | money: invoice.currency }}</dd>
+          <dt>Tax ({{ invoice.tax_rate_bps / 100 }} %)</dt>
+          <dd>{{ invoice.tax_amount | money: invoice.currency }}</dd>
+          <dt><strong>Total</strong></dt>
+          <dd>
+            <strong>{{ invoice.total | money: invoice.currency }}</strong>
+          </dd>
+        </dl>
+        @if (isDraft()) {
+          <p class="hint">
+            Worked out when drafted. If the plan, prices or tax rate changed since, work the fee
+            lines out again before issuing.
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <table mat-table [dataSource]="invoice.lines" class="lines" data-testid="invoice-lines">
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Line</th>
+      <td mat-cell *matCellDef="let line">
+        {{ line.description }}
+        @if (line.kind === 'adjustment' && canWrite() && isDraft()) {
+          <button
+            mat-icon-button
+            class="remove"
+            (click)="removeLine(line)"
+            aria-label="Remove line"
+            data-testid="remove-line"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="quantity">
+      <th mat-header-cell *matHeaderCellDef class="amount">Quantity</th>
+      <td mat-cell *matCellDef="let line" class="amount">
+        {{ line.unit_price === null ? '' : line.quantity }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="unit_price">
+      <th mat-header-cell *matHeaderCellDef class="amount">Unit price</th>
+      <td mat-cell *matCellDef="let line" class="amount">
+        {{ line.unit_price === null ? '' : (line.unit_price | money: invoice.currency) }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="amount">
+      <th mat-header-cell *matHeaderCellDef class="amount">Amount</th>
+      <td mat-cell *matCellDef="let line" class="amount">
+        {{ line.amount | money: invoice.currency }}
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+
+  @if (invoice.remarks.length) {
+    <ul class="remarks" data-testid="invoice-remarks">
+      @for (remark of invoice.remarks; track remark) {
+        <li>{{ remark }}</li>
+      }
+    </ul>
+  }
+}
+@if (store.error()) {
+  <p class="error" role="alert">{{ store.error() }}</p>
+}

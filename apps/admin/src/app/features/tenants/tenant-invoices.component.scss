@@ -1,0 +1,16 @@
+.empty,
+.error {
+  margin: 0;
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.empty {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+a[matListItemTitle] {
+  color: inherit;
+}

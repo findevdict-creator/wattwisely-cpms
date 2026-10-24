@@ -63,6 +63,9 @@
     <ww-tenant-plan [tenant]="tenant" />
     <ww-tenant-owners [tenant]="tenant" />
     <ww-tenant-managed-service [tenant]="tenant" />
+    @if (staff.can('billing:read')) {
+      <ww-tenant-invoices [tenant]="tenant" />
+    }
   </div>
   <ww-tenant-modules [tenant]="tenant" />
 }

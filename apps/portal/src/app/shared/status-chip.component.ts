@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { DriverStatusLabels } from './driver-status-labels';
+import { InvoiceStatusLabels } from './invoice-status-labels';
 import { StatusLabels } from './status-labels';
 
 /** Which table of words a status comes from. */
@@ -14,6 +15,7 @@ export type StatusKind =
   | 'payment_account'
   | 'managed_service'
   | 'proposal'
+  | 'invoice'
   | 'driver'
   | 'card';
 
@@ -68,6 +70,7 @@ export class StatusChipComponent {
     payment_account: StatusLabels.paymentAccount,
     managed_service: StatusLabels.managedService,
     proposal: StatusLabels.proposal,
+    invoice: InvoiceStatusLabels.invoice,
     driver: DriverStatusLabels.driver,
     card: DriverStatusLabels.card,
   };

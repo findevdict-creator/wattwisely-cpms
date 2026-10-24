@@ -20,6 +20,10 @@
         </dd>
         <dt>Tariff changes</dt>
         <dd>{{ s.is_tariff_approval_required ? 'Owner approves' : 'Applied directly' }}</dd>
+        <dt>Monthly fee</dt>
+        <dd data-testid="managed-monthly-fee">
+          {{ s.monthly_fee ? (s.monthly_fee | money: currency()) : 'None' }}
+        </dd>
         @if (s.agreement_reference) {
           <dt>Agreement</dt>
           <dd>{{ s.agreement_reference }}</dd>

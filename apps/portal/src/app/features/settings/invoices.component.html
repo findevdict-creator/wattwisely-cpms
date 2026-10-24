@@ -1,0 +1,56 @@
+<header class="title">
+  <h1>Invoices</h1>
+</header>
+<p class="hint lead">
+  Wattwisely's monthly invoices to your company for the plan, add-ons and, where you have one, the
+  managed service. Open an invoice to see every line and to print it. Questions about an invoice go
+  to Wattwisely by replying to the invoice e-mail.
+</p>
+
+@if (invoices().length) {
+  <table mat-table [dataSource]="invoices()" class="invoices" data-testid="invoices">
+    <ng-container matColumnDef="number">
+      <th mat-header-cell *matHeaderCellDef>Invoice</th>
+      <td mat-cell *matCellDef="let invoice">
+        <a class="name" [routerLink]="['/settings/invoices', invoice.id]">{{ invoice.number }}</a>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="month">
+      <th mat-header-cell *matHeaderCellDef>Month</th>
+      <td mat-cell *matCellDef="let invoice">{{ invoice.month_label }}</td>
+    </ng-container>
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>State</th>
+      <td mat-cell *matCellDef="let invoice">
+        <ww-status-chip [status]="statusOf(invoice)" kind="invoice" />
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="total">
+      <th mat-header-cell *matHeaderCellDef class="amount">Total</th>
+      <td mat-cell *matCellDef="let invoice" class="amount">
+        {{ invoice.total | money: invoice.currency }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="due">
+      <th mat-header-cell *matHeaderCellDef>Due · paid</th>
+      <td mat-cell *matCellDef="let invoice">
+        @if (invoice.paid_at) {
+          paid {{ invoice.paid_at | date: 'mediumDate' }}
+        } @else if (invoice.status === 'void') {
+          <span class="hint">cancelled</span>
+        } @else {
+          due {{ invoice.due_at | date: 'mediumDate' }}
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+} @else if (isLoaded() && !error()) {
+  <p class="hint" data-testid="no-invoices">
+    No invoices yet. Wattwisely issues the first one after your first full month on a plan.
+  </p>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

@@ -26,6 +26,8 @@ export interface ManagedService {
   status: ManagedServiceStatus;
   account_manager: AccountManager | null;
   is_tariff_approval_required: boolean;
+  /** The monthly fee in minor units of the plan currency; 0 for none. */
+  monthly_fee: number;
   agreement_reference: string;
   notes: string | null;
   offered_at: string;
@@ -41,6 +43,7 @@ export interface ManagedService {
 export interface ManagedServiceTerms {
   account_manager_id: string;
   is_tariff_approval_required: boolean;
+  monthly_fee: number;
   agreement_reference: string;
   notes: string;
 }

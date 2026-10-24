@@ -1,0 +1,89 @@
+<div class="title">
+  <h1>Invoices</h1>
+</div>
+<p class="hint">
+  The worker drafts last month's invoice for every tenant on the 1st. Check a draft, then issue it;
+  a tenant sees it under Settings, Invoices once issued. To draft one by hand, open the tenant.
+</p>
+
+@if (filter().tenant_id) {
+  <p class="hint">Only one tenant's invoices. <a routerLink="/invoices">Show every tenant</a></p>
+}
+
+<div class="filters">
+  <mat-form-field appearance="outline">
+    <mat-label>State</mat-label>
+    <mat-select [value]="filter().status" (valueChange)="change({ status: $event })">
+      <mat-option value="">Any</mat-option>
+      @for (status of statuses; track status) {
+        <mat-option [value]="status"><ww-status-chip [status]="status" /></mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Month</mat-label>
+    <input
+      matInput
+      type="month"
+      [value]="filter().month"
+      (change)="change({ month: month.value })"
+      #month
+    />
+  </mat-form-field>
+</div>
+
+<table mat-table [dataSource]="invoices()" class="invoices" data-testid="invoices">
+  <ng-container matColumnDef="invoice">
+    <th mat-header-cell *matHeaderCellDef>Invoice</th>
+    <td mat-cell *matCellDef="let invoice">
+      <a class="name" [routerLink]="['/invoices', invoice.id]">
+        {{ invoice.number ?? 'Draft' }}
+      </a>
+      <div class="sub">{{ invoice.month_label }}</div>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="tenant">
+    <th mat-header-cell *matHeaderCellDef>Tenant</th>
+    <td mat-cell *matCellDef="let invoice">
+      <a [routerLink]="['/tenants', invoice.tenant_id]">{{ invoice.tenant_name }}</a>
+      <div class="sub">{{ invoice.tenant_slug }}</div>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>State</th>
+    <td mat-cell *matCellDef="let invoice"><ww-status-chip [status]="statusOf(invoice)" /></td>
+  </ng-container>
+  <ng-container matColumnDef="total">
+    <th mat-header-cell *matHeaderCellDef class="amount">Total</th>
+    <td mat-cell *matCellDef="let invoice" class="amount">
+      {{ invoice.total | money: invoice.currency }}
+      @if (invoice.tax_amount) {
+        <div class="sub">incl. tax {{ invoice.tax_amount | money: invoice.currency }}</div>
+      }
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="due">
+    <th mat-header-cell *matHeaderCellDef>Due · paid</th>
+    <td mat-cell *matCellDef="let invoice">
+      @if (invoice.paid_at) {
+        paid {{ invoice.paid_at | date: 'mediumDate' }}
+      } @else if (invoice.due_at) {
+        {{ invoice.due_at | date: 'mediumDate' }}
+      } @else {
+        <span class="sub">not issued</span>
+      }
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+@if (!invoices().length && !error()) {
+  <p class="empty">No invoices match.</p>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+@if (nextCursor()) {
+  <button mat-stroked-button class="more" (click)="load(nextCursor())">Show more</button>
+}

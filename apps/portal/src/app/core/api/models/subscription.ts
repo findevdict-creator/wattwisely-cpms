@@ -25,13 +25,15 @@ export interface PlanModule {
 
 /** GET /v1/subscription: the plan, its limits and modules, as the company sees them. */
 export interface Subscription {
-  plan: { code: string; name: string; description: string } | null;
+  plan: { code: string; name: string; description: string; currency: string } | null;
   status: 'trialing' | 'active' | 'past_due' | 'cancelled' | null;
   started_at: string | null;
   trial_ends_at: string | null;
   billing_email: string | null;
   billing_name: string | null;
   billing_reference: string | null;
+  /** Tax on Wattwisely's invoices in basis points: 2000 is 20 %. */
+  tax_rate_bps: number;
   usage: PlanUsage;
   modules: PlanModule[];
 }
