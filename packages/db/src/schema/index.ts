@@ -47,3 +47,6 @@ export * from './access-groups.table';
 export * from './invoices.table';
 export * from './invoice-lines.table';
 export * from './invoice-sequences.table';
+export * from './api-keys.table';
+export * from './webhook-endpoints.table';
+export * from './webhook-deliveries.table';

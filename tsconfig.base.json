@@ -32,7 +32,8 @@
       "@wattwisely/reports": ["./packages/reports/src/index.ts"],
       "@wattwisely/observability": ["./packages/observability/src/index.ts"],
       "@wattwisely/file-storage": ["./packages/file-storage/src/index.ts"],
-      "@wattwisely/billing": ["./packages/billing/src/index.ts"]
+      "@wattwisely/billing": ["./packages/billing/src/index.ts"],
+      "@wattwisely/webhooks": ["./packages/webhooks/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
