@@ -15,6 +15,7 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
 import { ManagedModule } from './modules/managed/managed.module';
 import { MeModule } from './modules/me/me.module';
@@ -63,6 +64,7 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     ReportsModule,
     AdminModule,
     InvoicesModule,
+    IntegrationsModule,
   ],
 })
 export class AppModule {}

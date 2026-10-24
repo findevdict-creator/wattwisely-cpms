@@ -9,6 +9,8 @@ import { AuditEntry } from './audit-entry';
  * The actor, tenant, IP address and request id come from the request. Wattwisely staff in
  * the admin console are recorded as actor type "platform" (module 9); staff working inside
  * a tenant as its Managed operator as "managed", so the tenant can tell them apart (module 10).
+ * A request made with an API key is recorded as actor type "api_key", with the key as the
+ * actor (module 16): what an integration did is never mistaken for what a person did.
  */
 @Injectable()
 export class AuditRecorder {
@@ -22,13 +24,13 @@ export class AuditRecorder {
     entry: AuditEntry,
     tenantId: string | null = auth.requireAccess().tenant.id,
   ): Promise<void> {
-    const account = auth.requireAccount();
+    const actor = auth.apiKey ?? auth.requireAccount();
     await tx.insert(auditLog).values({
       id: UuidV7.create(),
       tenantId,
       actorType: AuditRecorder.actorTypeOf(auth),
-      actorId: account.id,
-      actorLabel: account.label,
+      actorId: actor.id,
+      actorLabel: actor.label,
       action: entry.action,
       targetType: entry.targetType,
       targetId: entry.targetId,
@@ -40,7 +42,10 @@ export class AuditRecorder {
     });
   }
 
-  private static actorTypeOf(auth: RequestAuth): 'platform' | 'managed' | 'user' {
+  private static actorTypeOf(auth: RequestAuth): 'platform' | 'managed' | 'user' | 'api_key' {
+    if (auth.apiKey) {
+      return 'api_key';
+    }
     if (auth.platform) {
       return 'platform';
     }
