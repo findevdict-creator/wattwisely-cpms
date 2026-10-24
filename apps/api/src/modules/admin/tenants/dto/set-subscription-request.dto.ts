@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsIn,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
   Matches,
+  Max,
   MaxLength,
+  Min,
   ValidateIf,
 } from 'class-validator';
 
@@ -47,6 +50,16 @@ export class SetSubscriptionRequestDto {
   @IsString()
   @MaxLength(60)
   readonly billing_reference?: string | null;
+
+  @ApiProperty({
+    required: false,
+    description: 'Tax on invoices in basis points: 2000 is 20 %; left out keeps the current rate',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(10_000)
+  readonly tax_rate_bps?: number;
 
   @ApiProperty({ required: false, description: 'Staff notes, never shown to the tenant' })
   @IsOptional()

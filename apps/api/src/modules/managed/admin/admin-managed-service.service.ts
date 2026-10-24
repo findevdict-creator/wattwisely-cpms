@@ -58,6 +58,7 @@ export class AdminManagedServiceService {
           accountManagerId: staff?.staffId ?? service.accountManagerId,
           isTariffApprovalRequired:
             request.is_tariff_approval_required ?? service.isTariffApprovalRequired,
+          monthlyFee: request.monthly_fee ?? service.monthlyFee,
           agreementReference: request.agreement_reference?.trim() ?? service.agreementReference,
           notes: request.notes?.trim() ?? service.notes,
         },
