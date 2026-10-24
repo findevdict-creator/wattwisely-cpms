@@ -1,0 +1,120 @@
+<a routerLink="/settings/invoices" class="back no-print">
+  <mat-icon>arrow_back</mat-icon> All invoices
+</a>
+
+@if (invoice(); as invoice) {
+  <article class="sheet" data-testid="invoice">
+    <header class="sheet-head">
+      <div>
+        <div class="issuer">Wattwisely</div>
+        <h1>Invoice {{ invoice.number }}</h1>
+        <div class="facts">
+          <ww-status-chip [status]="status()" kind="invoice" />
+          <span>{{ invoice.month_label }}</span>
+        </div>
+      </div>
+      <button mat-stroked-button class="no-print" (click)="print()" data-testid="print-invoice">
+        <mat-icon>print</mat-icon>
+        Print or save as PDF
+      </button>
+    </header>
+
+    @if (invoice.void_reason) {
+      <p class="notice" role="status">This invoice was cancelled: {{ invoice.void_reason }}</p>
+    }
+    @if (invoice.is_overdue) {
+      <p class="notice" role="status">
+        This invoice was due on {{ invoice.due_at | date: 'longDate' }} and is still unpaid.
+      </p>
+    }
+
+    <div class="parties">
+      <dl>
+        <dt>Billed to</dt>
+        <dd>
+          <strong>{{ invoice.tenant_name }}</strong>
+          @if (invoice.billing_name) {
+            <div>{{ invoice.billing_name }}</div>
+          }
+          @if (invoice.billing_email) {
+            <div>{{ invoice.billing_email }}</div>
+          }
+          @if (invoice.billing_reference) {
+            <div>Your reference: {{ invoice.billing_reference }}</div>
+          }
+        </dd>
+      </dl>
+      <dl>
+        <dt>Invoice date</dt>
+        <dd>{{ invoice.issued_at | date: 'longDate' }}</dd>
+        <dt>Due</dt>
+        <dd>{{ invoice.due_at | date: 'longDate' }}</dd>
+        <dt>Period</dt>
+        <dd>
+          {{ invoice.period_start | date: 'mediumDate' }} –
+          {{ invoice.period_end | date: 'mediumDate' }}
+        </dd>
+        @if (invoice.paid_at) {
+          <dt>Paid</dt>
+          <dd>
+            {{ invoice.paid_at | date: 'longDate' }}
+            @if (invoice.payment_reference) {
+              ({{ invoice.payment_reference }})
+            }
+          </dd>
+        }
+      </dl>
+    </div>
+
+    <table mat-table [dataSource]="invoice.lines" class="lines" data-testid="invoice-lines">
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let line">{{ line.description }}</td>
+      </ng-container>
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef class="amount">Quantity</th>
+        <td mat-cell *matCellDef="let line" class="amount">
+          {{ line.unit_price === null ? '' : line.quantity }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="unit_price">
+        <th mat-header-cell *matHeaderCellDef class="amount">Unit price</th>
+        <td mat-cell *matCellDef="let line" class="amount">
+          {{ line.unit_price === null ? '' : (line.unit_price | money: invoice.currency) }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef class="amount">Amount</th>
+        <td mat-cell *matCellDef="let line" class="amount">
+          {{ line.amount | money: invoice.currency }}
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <dl class="totals" data-testid="invoice-totals">
+      <dt>Subtotal</dt>
+      <dd>{{ invoice.subtotal | money: invoice.currency }}</dd>
+      <dt>Tax ({{ invoice.tax_rate_bps / 100 }} %)</dt>
+      <dd>{{ invoice.tax_amount | money: invoice.currency }}</dd>
+      <dt class="grand">Total due</dt>
+      <dd class="grand">{{ invoice.total | money: invoice.currency }}</dd>
+    </dl>
+
+    @if (invoice.remarks.length) {
+      <ul class="remarks">
+        @for (remark of invoice.remarks; track remark) {
+          <li>{{ remark }}</li>
+        }
+      </ul>
+    }
+    <p class="hint">
+      Payment terms: 30 days from the invoice date. Questions about this invoice go to Wattwisely by
+      replying to the invoice e-mail.
+    </p>
+  </article>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

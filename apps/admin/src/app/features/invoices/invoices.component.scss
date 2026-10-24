@@ -1,0 +1,26 @@
+.hint {
+  max-width: 1100px;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.invoices {
+  max-width: 1100px;
+}
+
+.name {
+  font-weight: 500;
+  color: inherit;
+}
+
+.amount {
+  text-align: right;
+}
+
+.more {
+  margin-top: 16px;
+}

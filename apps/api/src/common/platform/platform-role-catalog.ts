@@ -26,7 +26,7 @@ export class PlatformRoleCatalog {
     {
       key: 'billing',
       name: 'Billing',
-      description: 'Plans, prices and each tenant’s plan and modules.',
+      description: 'Plans, prices, each tenant’s plan and modules, and the invoices.',
       permissionKeys: [
         'tenants:read',
         'tenants:write',
@@ -34,6 +34,8 @@ export class PlatformRoleCatalog {
         'plans:write',
         'staff:read',
         'platform_audit:read',
+        'billing:read',
+        'billing:write',
       ],
     },
     {
@@ -48,13 +50,20 @@ export class PlatformRoleCatalog {
         'plans:read',
         'staff:read',
         'platform_audit:read',
+        'billing:read',
       ],
     },
     {
       key: 'viewer',
       name: 'Viewer',
       description: 'Sees everything in the console and changes nothing.',
-      permissionKeys: ['tenants:read', 'plans:read', 'staff:read', 'platform_audit:read'],
+      permissionKeys: [
+        'tenants:read',
+        'plans:read',
+        'staff:read',
+        'platform_audit:read',
+        'billing:read',
+      ],
     },
   ];
 

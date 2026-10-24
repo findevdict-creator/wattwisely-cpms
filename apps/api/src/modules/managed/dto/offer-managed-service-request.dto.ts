@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 /** Body of POST /v1/admin/tenants/{id}/managed-service: the agreement Wattwisely offers. */
 export class OfferManagedServiceRequestDto {
@@ -11,6 +20,17 @@ export class OfferManagedServiceRequestDto {
   @IsOptional()
   @IsBoolean()
   readonly is_tariff_approval_required?: boolean;
+
+  @ApiProperty({
+    required: false,
+    default: 0,
+    description: 'The monthly fee for the service in minor units of the plan currency; 0 for none',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100_000_000)
+  readonly monthly_fee?: number;
 
   @ApiProperty({ required: false, example: 'MSA-2026-014' })
   @IsOptional()

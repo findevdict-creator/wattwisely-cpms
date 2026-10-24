@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth/auth.guard';
 import { StaffGuard } from './core/staff/staff.guard';
 import { AuditLogComponent } from './features/audit-log/audit-log.component';
+import { InvoiceComponent } from './features/invoices/invoice.component';
+import { InvoicesComponent } from './features/invoices/invoices.component';
 import { NotStaffComponent } from './features/not-staff/not-staff.component';
 import { OverviewComponent } from './features/overview/overview.component';
 import { PlansComponent } from './features/plans/plans.component';
@@ -41,6 +43,18 @@ export const APP_ROUTES: Routes = [
             component: StaffComponent,
             canActivate: [StaffGuard],
             data: { permission: 'staff:read' },
+          },
+          {
+            path: 'invoices',
+            component: InvoicesComponent,
+            canActivate: [StaffGuard],
+            data: { permission: 'billing:read' },
+          },
+          {
+            path: 'invoices/:id',
+            component: InvoiceComponent,
+            canActivate: [StaffGuard],
+            data: { permission: 'billing:read' },
           },
           {
             path: 'audit-log',

@@ -9,8 +9,10 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { ManagedServiceApiService } from '../../core/api/managed-service-api.service';
 import { ManagedNoticeRequest, ManagedService } from '../../core/api/models/managed-service';
+import { SubscriptionApiService } from '../../core/api/subscription-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { MoneyPipe } from '../../shared/money.pipe';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { ManagedNoticeDialogComponent } from './managed-notice-dialog.component';
 import { ServiceReportComponent } from './service-report.component';
@@ -27,6 +29,7 @@ import { ServiceReportComponent } from './service-report.component';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MoneyPipe,
     ServiceReportComponent,
     StatusChipComponent,
   ],
@@ -35,6 +38,7 @@ import { ServiceReportComponent } from './service-report.component';
 })
 export class ManagedServiceComponent implements OnInit {
   private readonly managedApi = inject(ManagedServiceApiService);
+  private readonly subscriptionApi = inject(SubscriptionApiService);
   protected readonly permissions = inject(PermissionsService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -42,10 +46,14 @@ export class ManagedServiceComponent implements OnInit {
   protected readonly service = signal<ManagedService | null>(null);
   protected readonly error = signal('');
   protected readonly isBusy = signal(false);
+  /** The plan's currency, which the monthly fee is in. */
+  protected readonly currency = signal('USD');
 
   async ngOnInit(): Promise<void> {
     try {
       this.service.set(await firstValueFrom(this.managedApi.get()));
+      const subscription = await firstValueFrom(this.subscriptionApi.get());
+      this.currency.set(subscription.plan?.currency ?? 'USD');
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     }

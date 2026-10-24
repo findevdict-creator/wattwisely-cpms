@@ -135,6 +135,7 @@ export class StatusLabels {
       'succeeded',
       'active',
       'approved',
+      'paid',
     ],
     busy: [
       'charging',
@@ -153,6 +154,7 @@ export class StatusLabels {
       'pending_acceptance',
       'proposed',
       'ending',
+      'issued',
     ],
     bad: [
       'problem',
@@ -163,6 +165,7 @@ export class StatusLabels {
       'failed',
       'capture_failed',
       'restricted',
+      'overdue',
     ],
   };
 

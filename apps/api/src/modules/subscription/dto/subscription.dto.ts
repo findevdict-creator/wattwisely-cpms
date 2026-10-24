@@ -39,6 +39,9 @@ export class SubscriptionDto {
   @ApiProperty({ nullable: true, description: 'VAT or purchase order number on invoices' })
   readonly billing_reference: string | null;
 
+  @ApiProperty({ description: 'Tax on invoices in basis points: 2000 is 20 % (module 15)' })
+  readonly tax_rate_bps: number;
+
   @ApiProperty({ required: false, description: 'Staff notes; admin console only' })
   readonly notes?: string;
 
@@ -60,6 +63,7 @@ export class SubscriptionDto {
     this.billing_email = row.billingEmail;
     this.billing_name = row.billingName;
     this.billing_reference = row.billingReference;
+    this.tax_rate_bps = row.taxRateBps;
     if (view.hasNotes) {
       this.notes = row.notes;
     }
@@ -78,6 +82,7 @@ export class SubscriptionDto {
         billingEmail: null,
         billingName: null,
         billingReference: null,
+        taxRateBps: 0,
         notes: '',
         version: null,
       }
@@ -97,6 +102,7 @@ interface SubscriptionFields {
   billingEmail: string | null;
   billingName: string | null;
   billingReference: string | null;
+  taxRateBps: number;
   notes: string;
   version: number | null;
 }

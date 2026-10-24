@@ -176,6 +176,20 @@
       "when": 1792864488807,
       "tag": "0024_custom_roles_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792865809842,
+      "tag": "0025_invoicing",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792865821307,
+      "tag": "0026_invoicing_grants",
+      "breakpoints": true
     }
   ]
 }

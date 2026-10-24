@@ -154,6 +154,17 @@
           </a>
         }
       }
+      @if (permissions.can('invoices:read')) {
+        <a
+          mat-list-item
+          routerLink="/settings/invoices"
+          routerLinkActive="active"
+          data-testid="nav-invoices"
+        >
+          <mat-icon matListItemIcon>receipt_long</mat-icon>
+          <span matListItemTitle>Invoices</span>
+        </a>
+      }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
           <mat-icon matListItemIcon>group</mat-icon>

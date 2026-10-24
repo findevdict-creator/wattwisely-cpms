@@ -60,5 +60,6 @@ import { TenantPlanWriter } from './tenants/tenant-plan.writer';
     AdminOverviewRepository,
     AdminAuditLogService,
   ],
+  exports: [AdminTenantDescriber],
 })
 export class AdminModule {}

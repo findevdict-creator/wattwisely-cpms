@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 /** Body of PATCH /v1/admin/tenants/{id}/managed-service: only the fields sent change. Needs If-Match. */
 export class UpdateManagedServiceRequestDto {
@@ -12,6 +21,16 @@ export class UpdateManagedServiceRequestDto {
   @IsOptional()
   @IsBoolean()
   readonly is_tariff_approval_required?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description: 'The monthly fee for the service in minor units of the plan currency; 0 for none',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100_000_000)
+  readonly monthly_fee?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()

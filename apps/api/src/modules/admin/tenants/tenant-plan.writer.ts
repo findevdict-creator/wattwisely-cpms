@@ -57,10 +57,18 @@ export class TenantPlanWriter {
     return {
       status,
       trialEndsAt: trialEnd ? new Date(trialEnd) : null,
+      ...TenantPlanWriter.billing(body, current),
+      notes: TenantPlanWriter.keep(body.notes, current?.notes) ?? '',
+    };
+  }
+
+  /** The billing contact and the tax rate on invoices (module 15); left out keeps the current. */
+  private static billing(body: SetSubscriptionRequestDto, current?: SubscriptionRow) {
+    return {
       billingEmail: TenantPlanWriter.keep(body.billing_email, current?.billingEmail),
       billingName: TenantPlanWriter.keep(body.billing_name, current?.billingName),
       billingReference: TenantPlanWriter.keep(body.billing_reference, current?.billingReference),
-      notes: TenantPlanWriter.keep(body.notes, current?.notes) ?? '',
+      taxRateBps: TenantPlanWriter.keep(body.tax_rate_bps, current?.taxRateBps) ?? 0,
     };
   }
 

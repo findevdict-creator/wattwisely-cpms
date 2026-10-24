@@ -19,6 +19,7 @@ export type SubscriptionChanges = Partial<
     | 'billingEmail'
     | 'billingName'
     | 'billingReference'
+    | 'taxRateBps'
     | 'notes'
     | 'updatedBy'
   >

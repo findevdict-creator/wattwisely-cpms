@@ -119,6 +119,7 @@ export class ManagedServicesRepository {
       status: managedServices.status,
       accountManagerId: managedServices.accountManagerId,
       isTariffApprovalRequired: managedServices.isTariffApprovalRequired,
+      monthlyFee: managedServices.monthlyFee,
       agreementReference: managedServices.agreementReference,
       notes: managedServices.notes,
       offeredBy: managedServices.offeredBy,
