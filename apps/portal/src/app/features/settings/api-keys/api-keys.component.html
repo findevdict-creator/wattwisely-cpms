@@ -1,0 +1,86 @@
+<header class="title">
+  <h1>API keys</h1>
+  @if (canManage()) {
+    <button mat-flat-button (click)="add()" data-testid="add-key">
+      <mat-icon>add</mat-icon>
+      New key
+    </button>
+  }
+</header>
+<p class="hint lead">
+  Your own systems call the Wattwisely API with a key instead of a login: sent as
+  <code>Authorization: Bearer wwk_…</code>, it works within the permissions chosen when it was made
+  and shows up in the audit log as itself. The key is shown once, when it is made.
+  @if (isLocked()) {
+    <span data-testid="api-keys-locked">
+      API keys and webhooks come with the Growth and Enterprise plans. Ask Wattwisely to add them.
+    </span>
+  }
+</p>
+
+@if (keys().length) {
+  <table mat-table [dataSource]="keys()" class="keys" data-testid="api-keys">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Key</th>
+      <td mat-cell *matCellDef="let key">
+        <span class="name">{{ key.name }}</span>
+        @if (key.description) {
+          <span class="description">{{ key.description }}</span>
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="hint">
+      <th mat-header-cell *matHeaderCellDef>Token</th>
+      <td mat-cell *matCellDef="let key">
+        <code>{{ key.key_hint }}</code>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="permissions">
+      <th mat-header-cell *matHeaderCellDef>May do</th>
+      <td mat-cell *matCellDef="let key">
+        <span [matTooltip]="key.permissions.join(', ')">{{ permissionSummary(key) }}</span>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="created_by">
+      <th mat-header-cell *matHeaderCellDef>Made by</th>
+      <td mat-cell *matCellDef="let key">
+        {{ key.created_by }}
+        <span class="description">{{ key.created_at | date: 'mediumDate' }}</span>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="last_used">
+      <th mat-header-cell *matHeaderCellDef>Last used · expires</th>
+      <td mat-cell *matCellDef="let key">
+        {{ key.last_used_at ? (key.last_used_at | date: 'medium') : 'never' }}
+        <span class="description">
+          {{ key.expires_at ? 'expires ' + (key.expires_at | date: 'mediumDate') : 'no expiry' }}
+        </span>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>State</th>
+      <td mat-cell *matCellDef="let key">
+        <ww-status-chip [status]="key.status" kind="api_key" />
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let key" class="actions">
+        @if (canManage() && key.status !== 'revoked') {
+          <button mat-stroked-button (click)="revoke(key)" data-testid="revoke-key">Revoke</button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: columns"
+      [class.revoked]="row.status === 'revoked'"
+    ></tr>
+  </table>
+} @else if (isLoaded() && !error() && !isLocked()) {
+  <p class="hint" data-testid="no-keys">No keys yet. Make one to connect a system of your own.</p>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

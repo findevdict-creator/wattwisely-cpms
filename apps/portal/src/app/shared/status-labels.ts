@@ -136,6 +136,7 @@ export class StatusLabels {
       'active',
       'approved',
       'paid',
+      'delivered',
     ],
     busy: [
       'charging',
@@ -166,6 +167,8 @@ export class StatusLabels {
       'capture_failed',
       'restricted',
       'overdue',
+      'revoked',
+      'expired',
     ],
   };
 

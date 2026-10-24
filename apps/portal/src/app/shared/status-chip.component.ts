@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { DriverStatusLabels } from './driver-status-labels';
+import { IntegrationStatusLabels } from './integration-status-labels';
 import { InvoiceStatusLabels } from './invoice-status-labels';
 import { StatusLabels } from './status-labels';
 
@@ -17,7 +18,10 @@ export type StatusKind =
   | 'proposal'
   | 'invoice'
   | 'driver'
-  | 'card';
+  | 'card'
+  | 'api_key'
+  | 'webhook'
+  | 'delivery';
 
 /** A coloured dot and a word for a site, charger, connector, command, session, payment or refund status. */
 @Component({
@@ -73,6 +77,9 @@ export class StatusChipComponent {
     invoice: InvoiceStatusLabels.invoice,
     driver: DriverStatusLabels.driver,
     card: DriverStatusLabels.card,
+    api_key: IntegrationStatusLabels.apiKey,
+    webhook: IntegrationStatusLabels.webhook,
+    delivery: IntegrationStatusLabels.delivery,
   };
 
   private static labelOf(kind: StatusKind, status: string): string {
