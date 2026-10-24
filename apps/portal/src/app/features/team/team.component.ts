@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { InviteResult, Member } from '../../core/api/models/member';
 import { PermissionsService } from '../../core/permissions/permissions.service';
@@ -29,6 +30,7 @@ import { TeamStore } from './team.store';
     MatInputModule,
     MatMenuModule,
     MatTableModule,
+    RouterLink,
   ],
   providers: [TeamStore],
   templateUrl: './team.component.html',
