@@ -6,3 +6,4 @@ export * from './test-payments';
 export * from './test-platform';
 export * from './test-managed';
 export * from './test-notifications';
+export * from './test-drivers';
