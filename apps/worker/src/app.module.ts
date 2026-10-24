@@ -14,11 +14,12 @@ import { PaymentJobsModule } from './payments/payment-jobs.module';
 import { ReportsModule } from './reports/reports.module';
 import { SessionJobsModule } from './sessions/session-jobs.module';
 import { FileStorageModule } from './storage/file-storage.module';
+import { WebhookJobsModule } from './webhooks/webhook-jobs.module';
 
 /**
  * Wires the worker together: settings, the database, e-mail, object storage, metrics, the
  * session, payment, managed service, billing (module 15), alert, notification and report jobs, the retention and
- * queue count jobs (module 12), and health checks.
+ * queue count jobs (module 12), the webhook jobs (module 16), and health checks.
  */
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { FileStorageModule } from './storage/file-storage.module';
     DriverMailModule,
     ReportsModule,
     OperationsModule,
+    WebhookJobsModule,
   ],
   controllers: [HealthController],
 })

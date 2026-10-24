@@ -69,6 +69,15 @@ export class WorkerConfig implements SmtpSettings {
   @Min(100)
   invoiceIntervalMs!: number;
 
+  /** How often new events are queued for webhook endpoints and due deliveries are sent (module 16). */
+  @IsInt()
+  @Min(100)
+  webhookIntervalMs!: number;
+
+  /** Whether a webhook may point at a private or local address (WEBHOOK_ALLOW_PRIVATE_URLS, module 16). */
+  @IsBoolean()
+  isWebhookPrivateUrlAllowed!: boolean;
+
   /** How often chargers are checked for problems that open or close alerts (module 11). */
   @IsInt()
   @Min(100)
