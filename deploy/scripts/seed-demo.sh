@@ -247,6 +247,14 @@ SELECT gen_random_uuid(), '01900000-0000-7000-8000-00000000e001', '01900000-0000
     'alerts:read', 'alerts:acknowledge'
 ]) AS key
 ON CONFLICT DO NOTHING;
+-- Module 16: an API key of Acme Charging (its Growth plan includes API keys), made by Olivia, read-only. Only the
+-- hash is stored; the token is wwk_demo-fleet-tool-0000000000000000000000000000 (printed below).
+INSERT INTO api_keys (id, tenant_id, name, description, key_hash, key_hint, permission_keys, created_by)
+VALUES ('01900000-0000-7000-8000-00000000f001', '01900000-0000-7000-8000-00000000a001', 'Demo fleet tool',
+  'Reads sites, chargers and sessions for the demo.',
+  encode(sha256('wwk_demo-fleet-tool-0000000000000000000000000000'::bytea), 'hex'), '0000',
+  '["sites:read", "chargers:read", "sessions:read"]', '01900000-0000-7000-8000-00000000b001')
+ON CONFLICT DO NOTHING;
 INSERT INTO report_schedules (id, tenant_id, name, frequency, group_by, recipients, time_zone, next_run_at)
 VALUES ('01900000-0000-7000-8000-000000006001', '01900000-0000-7000-8000-00000000a001', 'Weekly usage',
   'weekly', 'site', '["owner@acme.test"]', 'Europe/London',
@@ -270,6 +278,7 @@ seed_database
 info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL_HOST) with password $DEMO_PASSWORD"
 info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_HOST) as admin@wattwisely.test or support@wattwisely.test"
 info "Volt Hotels is managed by Wattwisely: support@wattwisely.test works in it as Managed operator, multi@demo.test approves its tariff changes"
+info "Acme Charging has the API key 'Demo fleet tool': Authorization: Bearer wwk_demo-fleet-tool-0000000000000000000000000000"
 info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted, DEMO-CARD-4 is blocked"
 info "Invoices (module 15): within an hour the worker drafts last month's invoices; admin@wattwisely.test checks and issues them under Invoices in the console, owner@acme.test and multi@demo.test read theirs under Settings > Invoices"
 info "Roles (module 14): owner@acme.test shapes the Depot supervisor role under Team > Roles and permissions; multi@demo.test sees Volt Hotels' built-in roles only (Starter plan)"
