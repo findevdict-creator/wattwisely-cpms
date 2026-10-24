@@ -44,3 +44,6 @@ export * from './report-schedules.table';
 export * from './drivers.table';
 export * from './rfid-cards.table';
 export * from './access-groups.table';
+export * from './invoices.table';
+export * from './invoice-lines.table';
+export * from './invoice-sequences.table';
