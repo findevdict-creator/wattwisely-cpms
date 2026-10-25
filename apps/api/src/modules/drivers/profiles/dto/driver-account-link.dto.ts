@@ -26,7 +26,9 @@ export class DriverAccountLinkDto {
     this.email = DriverAccountLinkDto.emailOf(driver);
     this.invited_at = invitation ? invitation.invitedAt.toISOString() : null;
     this.invitation_expires_at = invitation ? invitation.expiresAt.toISOString() : null;
-    this.is_invitation_expired = invitation ? invitation.expiresAt.getTime() <= now.getTime() : false;
+    this.is_invitation_expired = invitation
+      ? invitation.expiresAt.getTime() <= now.getTime()
+      : false;
     this.linked_at = driver.linkedAt ? driver.linkedAt.toISOString() : null;
   }
 

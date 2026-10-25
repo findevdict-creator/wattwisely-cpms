@@ -12,7 +12,8 @@ export class DriverOperatorDto {
   @ApiProperty({ enum: ['active', 'blocked'] }) readonly status: string;
   @ApiProperty({
     enum: ['inherit', 'pay', 'free'],
-    description: 'Whether your sessions with this operator are paid; inherit means the operator decides (pay)',
+    description:
+      'Whether your sessions with this operator are paid; inherit means the operator decides (pay)',
   })
   readonly payment_mode: string;
   @ApiProperty({ nullable: true, type: String }) readonly linked_at: string | null;

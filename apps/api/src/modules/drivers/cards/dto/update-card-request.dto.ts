@@ -22,7 +22,8 @@ export class UpdateCardRequestDto {
   @ApiProperty({
     required: false,
     enum: ['inherit', 'pay', 'free'],
-    description: 'Whether a session this card starts is paid; free only for a card you settle another way',
+    description:
+      'Whether a session this card starts is paid; free only for a card you settle another way',
   })
   @IsOptional()
   @IsIn(['inherit', 'pay', 'free'])

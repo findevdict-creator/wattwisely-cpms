@@ -9,13 +9,15 @@ export class AccessGroupDto {
   @ApiProperty() readonly description: string;
   @ApiProperty({
     enum: ['inherit', 'pay', 'free'],
-    description: 'Whether the sessions of these drivers are paid; inherit leaves it to you, which means pay',
+    description:
+      'Whether the sessions of these drivers are paid; inherit leaves it to you, which means pay',
   })
   readonly payment_mode: string;
   @ApiProperty({
     nullable: true,
     type: Number,
-    description: 'The hold on a member’s saved card in minor units; null for your member hold amount',
+    description:
+      'The hold on a member’s saved card in minor units; null for your member hold amount',
   })
   readonly hold_amount: number | null;
   @ApiProperty({

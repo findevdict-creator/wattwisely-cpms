@@ -95,16 +95,12 @@
         "tenants_slug_unique": {
           "name": "tenants_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         },
         "tenants_keycloak_organization_id_unique": {
           "name": "tenants_keycloak_organization_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "keycloak_organization_id"
-          ]
+          "columns": ["keycloak_organization_id"]
         }
       },
       "policies": {
@@ -112,27 +108,21 @@
           "name": "tenants_visible",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "true"
         },
         "tenants_platform_insert": {
           "name": "tenants_platform_insert",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         },
         "tenants_platform_update": {
           "name": "tenants_platform_update",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -220,9 +210,7 @@
         "user_accounts_keycloak_id_unique": {
           "name": "user_accounts_keycloak_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "keycloak_id"
-          ]
+          "columns": ["keycloak_id"]
         }
       },
       "policies": {},
@@ -365,12 +353,8 @@
           "name": "tenant_memberships_tenant_id_tenants_id_fk",
           "tableFrom": "tenant_memberships",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -378,12 +362,8 @@
           "name": "tenant_memberships_user_account_id_user_accounts_id_fk",
           "tableFrom": "tenant_memberships",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "user_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -391,12 +371,8 @@
           "name": "tenant_memberships_invited_by_user_accounts_id_fk",
           "tableFrom": "tenant_memberships",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -404,12 +380,8 @@
           "name": "tenant_memberships_removed_by_user_accounts_id_fk",
           "tableFrom": "tenant_memberships",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "removed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["removed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -419,25 +391,17 @@
         "tenant_memberships_invite_token_hash_unique": {
           "name": "tenant_memberships_invite_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "invite_token_hash"
-          ]
+          "columns": ["invite_token_hash"]
         },
         "tenant_memberships_person_unique": {
           "name": "tenant_memberships_person_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "user_account_id"
-          ]
+          "columns": ["tenant_id", "user_account_id"]
         },
         "tenant_memberships_tenant_id_unique": {
           "name": "tenant_memberships_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -445,9 +409,7 @@
           "name": "tenant_memberships_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tenant_memberships\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"tenant_memberships\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -455,18 +417,14 @@
           "name": "tenant_memberships_own_rows",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tenant_memberships\".\"user_account_id\" = nullif(current_setting('app.user_account_id', true), '')::uuid"
         },
         "tenant_memberships_invitation_holder": {
           "name": "tenant_memberships_invitation_holder",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tenant_memberships\".\"invite_token_hash\" = nullif(current_setting('app.invite_token_hash', true), '')"
         }
       },
@@ -577,12 +535,8 @@
           "name": "roles_tenant_id_tenants_id_fk",
           "tableFrom": "roles",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -590,12 +544,8 @@
           "name": "roles_created_by_user_accounts_id_fk",
           "tableFrom": "roles",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -603,12 +553,8 @@
           "name": "roles_updated_by_user_accounts_id_fk",
           "tableFrom": "roles",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -618,9 +564,7 @@
         "roles_key_unique": {
           "name": "roles_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "key"
-          ]
+          "columns": ["key"]
         }
       },
       "policies": {
@@ -628,18 +572,14 @@
           "name": "roles_visible",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"roles\".\"tenant_id\" is null or \"roles\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "roles_tenant_changes": {
           "name": "roles_tenant_changes",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "not \"roles\".\"is_system\" and \"roles\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "not \"roles\".\"is_system\" and \"roles\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -701,12 +641,8 @@
           "name": "role_permissions_role_id_roles_id_fk",
           "tableFrom": "role_permissions",
           "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["role_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -714,12 +650,8 @@
           "name": "role_permissions_tenant_id_tenants_id_fk",
           "tableFrom": "role_permissions",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -729,10 +661,7 @@
         "role_permissions_unique": {
           "name": "role_permissions_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "role_id",
-            "permission_key"
-          ]
+          "columns": ["role_id", "permission_key"]
         }
       },
       "policies": {
@@ -740,18 +669,14 @@
           "name": "role_permissions_visible",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"role_permissions\".\"tenant_id\" is null or \"role_permissions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "role_permissions_tenant_changes": {
           "name": "role_permissions_tenant_changes",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"role_permissions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"role_permissions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -842,12 +767,8 @@
           "name": "membership_roles_role_id_roles_id_fk",
           "tableFrom": "membership_roles",
           "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["role_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -855,12 +776,8 @@
           "name": "membership_roles_created_by_user_accounts_id_fk",
           "tableFrom": "membership_roles",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -868,14 +785,8 @@
           "name": "membership_roles_membership_fk",
           "tableFrom": "membership_roles",
           "tableTo": "tenant_memberships",
-          "columnsFrom": [
-            "tenant_id",
-            "membership_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "membership_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -883,14 +794,8 @@
           "name": "membership_roles_site_fk",
           "tableFrom": "membership_roles",
           "tableTo": "sites",
-          "columnsFrom": [
-            "tenant_id",
-            "site_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "site_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -900,11 +805,7 @@
         "membership_roles_unique": {
           "name": "membership_roles_unique",
           "nullsNotDistinct": true,
-          "columns": [
-            "membership_id",
-            "role_id",
-            "site_id"
-          ]
+          "columns": ["membership_id", "role_id", "site_id"]
         }
       },
       "policies": {
@@ -912,9 +813,7 @@
           "name": "membership_roles_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"membership_roles\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"membership_roles\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -1096,12 +995,8 @@
           "name": "audit_log_tenant_id_tenants_id_fk",
           "tableFrom": "audit_log",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1113,36 +1008,28 @@
           "name": "audit_log_tenant_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"audit_log\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "audit_log_tenant_append": {
           "name": "audit_log_tenant_append",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "withCheck": "\"audit_log\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "audit_log_platform_read": {
           "name": "audit_log_platform_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'"
         },
         "audit_log_platform_append": {
           "name": "audit_log_platform_append",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
       },
@@ -1254,12 +1141,8 @@
           "name": "tariffs_tenant_id_tenants_id_fk",
           "tableFrom": "tariffs",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1267,12 +1150,8 @@
           "name": "tariffs_created_by_user_accounts_id_fk",
           "tableFrom": "tariffs",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1280,12 +1159,8 @@
           "name": "tariffs_updated_by_user_accounts_id_fk",
           "tableFrom": "tariffs",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1295,10 +1170,7 @@
         "tariffs_tenant_id_unique": {
           "name": "tariffs_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -1306,9 +1178,7 @@
           "name": "tariffs_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tariffs\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"tariffs\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -1429,12 +1299,8 @@
           "name": "tariff_versions_created_by_user_accounts_id_fk",
           "tableFrom": "tariff_versions",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1442,14 +1308,8 @@
           "name": "tariff_versions_tariff_fk",
           "tableFrom": "tariff_versions",
           "tableTo": "tariffs",
-          "columnsFrom": [
-            "tenant_id",
-            "tariff_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "tariff_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1459,18 +1319,12 @@
         "tariff_versions_tenant_id_unique": {
           "name": "tariff_versions_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         },
         "tariff_versions_number_unique": {
           "name": "tariff_versions_number_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tariff_id",
-            "number"
-          ]
+          "columns": ["tariff_id", "number"]
         }
       },
       "policies": {
@@ -1478,9 +1332,7 @@
           "name": "tariff_versions_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tariff_versions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"tariff_versions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -1672,12 +1524,8 @@
           "name": "sites_tenant_id_tenants_id_fk",
           "tableFrom": "sites",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1685,12 +1533,8 @@
           "name": "sites_created_by_user_accounts_id_fk",
           "tableFrom": "sites",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1698,12 +1542,8 @@
           "name": "sites_updated_by_user_accounts_id_fk",
           "tableFrom": "sites",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1711,14 +1551,8 @@
           "name": "sites_tariff_fk",
           "tableFrom": "sites",
           "tableTo": "tariffs",
-          "columnsFrom": [
-            "tenant_id",
-            "tariff_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "tariff_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1728,10 +1562,7 @@
         "sites_tenant_id_unique": {
           "name": "sites_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -1739,9 +1570,7 @@
           "name": "sites_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"sites\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"sites\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -1995,12 +1824,8 @@
           "name": "chargers_tenant_id_tenants_id_fk",
           "tableFrom": "chargers",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2008,12 +1833,8 @@
           "name": "chargers_created_by_user_accounts_id_fk",
           "tableFrom": "chargers",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2021,12 +1842,8 @@
           "name": "chargers_updated_by_user_accounts_id_fk",
           "tableFrom": "chargers",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2034,14 +1851,8 @@
           "name": "chargers_site_fk",
           "tableFrom": "chargers",
           "tableTo": "sites",
-          "columnsFrom": [
-            "tenant_id",
-            "site_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "site_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2051,10 +1862,7 @@
         "chargers_tenant_id_unique": {
           "name": "chargers_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -2062,9 +1870,7 @@
           "name": "chargers_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"chargers\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"chargers\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -2072,9 +1878,7 @@
           "name": "chargers_identity_lookup",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "lower(\"chargers\".\"ocpp_identity\") = lower(nullif(current_setting('app.charger_identity', true), ''))"
         }
       },
@@ -2241,12 +2045,8 @@
           "name": "connectors_created_by_user_accounts_id_fk",
           "tableFrom": "connectors",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2254,12 +2054,8 @@
           "name": "connectors_updated_by_user_accounts_id_fk",
           "tableFrom": "connectors",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2267,14 +2063,8 @@
           "name": "connectors_charger_fk",
           "tableFrom": "connectors",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2284,26 +2074,17 @@
         "connectors_tenant_id_unique": {
           "name": "connectors_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         },
         "connectors_ocpp_id_unique": {
           "name": "connectors_ocpp_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "charger_id",
-            "ocpp_connector_id"
-          ]
+          "columns": ["charger_id", "ocpp_connector_id"]
         },
         "connectors_label_unique": {
           "name": "connectors_label_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "charger_id",
-            "label"
-          ]
+          "columns": ["charger_id", "label"]
         }
       },
       "policies": {
@@ -2311,9 +2092,7 @@
           "name": "connectors_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"connectors\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"connectors\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -2430,14 +2209,8 @@
           "name": "charger_connections_charger_fk",
           "tableFrom": "charger_connections",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2449,9 +2222,7 @@
           "name": "charger_connections_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"charger_connections\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"charger_connections\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -2604,14 +2375,8 @@
           "name": "charger_boot_events_charger_fk",
           "tableFrom": "charger_boot_events",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2623,9 +2388,7 @@
           "name": "charger_boot_events_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"charger_boot_events\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"charger_boot_events\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -2756,14 +2519,8 @@
           "name": "ocpp_messages_charger_fk",
           "tableFrom": "ocpp_messages",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2775,9 +2532,7 @@
           "name": "ocpp_messages_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"ocpp_messages\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"ocpp_messages\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -2942,12 +2697,8 @@
           "name": "charger_commands_requested_by_user_accounts_id_fk",
           "tableFrom": "charger_commands",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "requested_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["requested_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2955,14 +2706,8 @@
           "name": "charger_commands_charger_fk",
           "tableFrom": "charger_commands",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2974,9 +2719,7 @@
           "name": "charger_commands_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"charger_commands\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"charger_commands\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -3350,14 +3093,8 @@
           "name": "charging_sessions_site_fk",
           "tableFrom": "charging_sessions",
           "tableTo": "sites",
-          "columnsFrom": [
-            "tenant_id",
-            "site_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "site_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3365,14 +3102,8 @@
           "name": "charging_sessions_charger_fk",
           "tableFrom": "charging_sessions",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3380,14 +3111,8 @@
           "name": "charging_sessions_connector_fk",
           "tableFrom": "charging_sessions",
           "tableTo": "connectors",
-          "columnsFrom": [
-            "tenant_id",
-            "connector_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "connector_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3395,14 +3120,8 @@
           "name": "charging_sessions_tariff_version_fk",
           "tableFrom": "charging_sessions",
           "tableTo": "tariff_versions",
-          "columnsFrom": [
-            "tenant_id",
-            "tariff_version_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "tariff_version_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3410,14 +3129,8 @@
           "name": "charging_sessions_driver_fk",
           "tableFrom": "charging_sessions",
           "tableTo": "drivers",
-          "columnsFrom": [
-            "tenant_id",
-            "driver_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "driver_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3425,14 +3138,8 @@
           "name": "charging_sessions_rfid_card_fk",
           "tableFrom": "charging_sessions",
           "tableTo": "rfid_cards",
-          "columnsFrom": [
-            "tenant_id",
-            "rfid_card_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "rfid_card_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3442,28 +3149,17 @@
         "charging_sessions_tenant_id_unique": {
           "name": "charging_sessions_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         },
         "charging_sessions_transaction_unique": {
           "name": "charging_sessions_transaction_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "charger_id",
-            "ocpp_transaction_id"
-          ]
+          "columns": ["tenant_id", "charger_id", "ocpp_transaction_id"]
         },
         "charging_sessions_transaction_ref_unique": {
           "name": "charging_sessions_transaction_ref_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "charger_id",
-            "ocpp_transaction_ref"
-          ]
+          "columns": ["tenant_id", "charger_id", "ocpp_transaction_ref"]
         }
       },
       "policies": {
@@ -3471,9 +3167,7 @@
           "name": "charging_sessions_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"charging_sessions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"charging_sessions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -3602,14 +3296,8 @@
           "name": "meter_values_charger_fk",
           "tableFrom": "meter_values",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3617,12 +3305,8 @@
           "name": "meter_values_session_fk",
           "tableFrom": "meter_values",
           "tableTo": "charging_sessions",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3634,9 +3318,7 @@
           "name": "meter_values_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"meter_values\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"meter_values\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -3735,14 +3417,8 @@
           "name": "session_state_changes_session_fk",
           "tableFrom": "session_state_changes",
           "tableTo": "charging_sessions",
-          "columnsFrom": [
-            "tenant_id",
-            "session_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "session_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3754,9 +3430,7 @@
           "name": "session_state_changes_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"session_state_changes\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"session_state_changes\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -3860,14 +3534,8 @@
           "name": "session_line_items_session_fk",
           "tableFrom": "session_line_items",
           "tableTo": "charging_sessions",
-          "columnsFrom": [
-            "tenant_id",
-            "session_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "session_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3877,10 +3545,7 @@
         "session_line_items_position_unique": {
           "name": "session_line_items_position_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "session_id",
-            "position"
-          ]
+          "columns": ["session_id", "position"]
         }
       },
       "policies": {
@@ -3888,9 +3553,7 @@
           "name": "session_line_items_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"session_line_items\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"session_line_items\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -4022,12 +3685,8 @@
           "name": "payment_accounts_tenant_id_tenants_id_fk",
           "tableFrom": "payment_accounts",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4035,12 +3694,8 @@
           "name": "payment_accounts_connected_by_user_accounts_id_fk",
           "tableFrom": "payment_accounts",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "connected_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["connected_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4050,17 +3705,12 @@
         "payment_accounts_tenant_unique": {
           "name": "payment_accounts_tenant_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id"
-          ]
+          "columns": ["tenant_id"]
         },
         "payment_accounts_provider_account_unique": {
           "name": "payment_accounts_provider_account_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "provider",
-            "provider_account_id"
-          ]
+          "columns": ["provider", "provider_account_id"]
         }
       },
       "policies": {
@@ -4068,9 +3718,7 @@
           "name": "payment_accounts_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"payment_accounts\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"payment_accounts\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -4078,9 +3726,7 @@
           "name": "payment_accounts_provider_lookup",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"payment_accounts\".\"provider_account_id\" = nullif(current_setting('app.provider_account_id', true), '')"
         }
       },
@@ -4359,14 +4005,8 @@
           "name": "payments_session_fk",
           "tableFrom": "payments",
           "tableTo": "charging_sessions",
-          "columnsFrom": [
-            "tenant_id",
-            "session_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "session_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4376,18 +4016,12 @@
         "payments_tenant_id_unique": {
           "name": "payments_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         },
         "payments_provider_payment_unique": {
           "name": "payments_provider_payment_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "provider_payment_id"
-          ]
+          "columns": ["tenant_id", "provider_payment_id"]
         }
       },
       "policies": {
@@ -4395,9 +4029,7 @@
           "name": "payments_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"payments\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"payments\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -4584,12 +4216,8 @@
           "name": "refunds_requested_by_user_accounts_id_fk",
           "tableFrom": "refunds",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "requested_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["requested_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4597,12 +4225,8 @@
           "name": "refunds_approved_by_user_accounts_id_fk",
           "tableFrom": "refunds",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4610,14 +4234,8 @@
           "name": "refunds_payment_fk",
           "tableFrom": "refunds",
           "tableTo": "payments",
-          "columnsFrom": [
-            "tenant_id",
-            "payment_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "payment_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4627,18 +4245,12 @@
         "refunds_tenant_id_unique": {
           "name": "refunds_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         },
         "refunds_provider_refund_unique": {
           "name": "refunds_provider_refund_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "provider_refund_id"
-          ]
+          "columns": ["tenant_id", "provider_refund_id"]
         }
       },
       "policies": {
@@ -4646,9 +4258,7 @@
           "name": "refunds_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"refunds\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"refunds\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -4760,10 +4370,7 @@
         "payment_webhook_events_event_unique": {
           "name": "payment_webhook_events_event_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "provider",
-            "event_id"
-          ]
+          "columns": ["provider", "event_id"]
         }
       },
       "policies": {},
@@ -4880,12 +4487,8 @@
           "name": "tenant_branding_tenant_id_tenants_id_fk",
           "tableFrom": "tenant_branding",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4893,12 +4496,8 @@
           "name": "tenant_branding_updated_by_user_accounts_id_fk",
           "tableFrom": "tenant_branding",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4908,9 +4507,7 @@
         "tenant_branding_tenant_unique": {
           "name": "tenant_branding_tenant_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id"
-          ]
+          "columns": ["tenant_id"]
         }
       },
       "policies": {
@@ -4918,9 +4515,7 @@
           "name": "tenant_branding_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tenant_branding\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"tenant_branding\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -5059,9 +4654,7 @@
         "plans_code_unique": {
           "name": "plans_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "policies": {
@@ -5069,27 +4662,21 @@
           "name": "plans_visible",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "true"
         },
         "plans_platform_insert": {
           "name": "plans_platform_insert",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         },
         "plans_platform_update": {
           "name": "plans_platform_update",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -5195,9 +4782,7 @@
         "addons_key_unique": {
           "name": "addons_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "key"
-          ]
+          "columns": ["key"]
         }
       },
       "policies": {
@@ -5205,27 +4790,21 @@
           "name": "addons_visible",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "true"
         },
         "addons_platform_insert": {
           "name": "addons_platform_insert",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         },
         "addons_platform_update": {
           "name": "addons_platform_update",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -5351,12 +4930,8 @@
           "name": "tenant_subscriptions_tenant_id_tenants_id_fk",
           "tableFrom": "tenant_subscriptions",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5364,12 +4939,8 @@
           "name": "tenant_subscriptions_plan_id_plans_id_fk",
           "tableFrom": "tenant_subscriptions",
           "tableTo": "plans",
-          "columnsFrom": [
-            "plan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["plan_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5377,12 +4948,8 @@
           "name": "tenant_subscriptions_updated_by_user_accounts_id_fk",
           "tableFrom": "tenant_subscriptions",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5392,9 +4959,7 @@
         "tenant_subscriptions_tenant_id_unique": {
           "name": "tenant_subscriptions_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id"
-          ]
+          "columns": ["tenant_id"]
         }
       },
       "policies": {
@@ -5402,18 +4967,14 @@
           "name": "tenant_subscriptions_tenant_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tenant_subscriptions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "tenant_subscriptions_platform_all": {
           "name": "tenant_subscriptions_platform_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -5509,12 +5070,8 @@
           "name": "tenant_entitlements_tenant_id_tenants_id_fk",
           "tableFrom": "tenant_entitlements",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5522,12 +5079,8 @@
           "name": "tenant_entitlements_granted_by_user_accounts_id_fk",
           "tableFrom": "tenant_entitlements",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "granted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["granted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5537,10 +5090,7 @@
         "tenant_entitlements_feature_unique": {
           "name": "tenant_entitlements_feature_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "feature_key"
-          ]
+          "columns": ["tenant_id", "feature_key"]
         }
       },
       "policies": {
@@ -5548,18 +5098,14 @@
           "name": "tenant_entitlements_tenant_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tenant_entitlements\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "tenant_entitlements_platform_all": {
           "name": "tenant_entitlements_platform_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -5636,12 +5182,8 @@
           "name": "platform_staff_user_account_id_user_accounts_id_fk",
           "tableFrom": "platform_staff",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "user_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5649,12 +5191,8 @@
           "name": "platform_staff_granted_by_user_accounts_id_fk",
           "tableFrom": "platform_staff",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "granted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["granted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5662,12 +5200,8 @@
           "name": "platform_staff_removed_by_user_accounts_id_fk",
           "tableFrom": "platform_staff",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "removed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["removed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5677,9 +5211,7 @@
         "platform_staff_user_account_id_unique": {
           "name": "platform_staff_user_account_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_account_id"
-          ]
+          "columns": ["user_account_id"]
         }
       },
       "policies": {
@@ -5687,36 +5219,28 @@
           "name": "platform_staff_visible",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"platform_staff\".\"user_account_id\" = nullif(current_setting('app.user_account_id', true), '')::uuid or current_setting('app.platform_access', true) = 'true'"
         },
         "platform_staff_account_manager_visible": {
           "name": "platform_staff_account_manager_visible",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"platform_staff\".\"id\" in (select \"managed_services\".\"account_manager_id\" from \"managed_services\" where \"managed_services\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid)"
         },
         "platform_staff_platform_insert": {
           "name": "platform_staff_platform_insert",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         },
         "platform_staff_platform_update": {
           "name": "platform_staff_platform_update",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -5896,12 +5420,8 @@
           "name": "managed_services_tenant_id_tenants_id_fk",
           "tableFrom": "managed_services",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5909,12 +5429,8 @@
           "name": "managed_services_offered_by_user_accounts_id_fk",
           "tableFrom": "managed_services",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "offered_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["offered_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5922,12 +5438,8 @@
           "name": "managed_services_accepted_by_user_accounts_id_fk",
           "tableFrom": "managed_services",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "accepted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["accepted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5935,12 +5447,8 @@
           "name": "managed_services_notice_given_by_user_accounts_id_fk",
           "tableFrom": "managed_services",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "notice_given_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notice_given_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5952,18 +5460,14 @@
           "name": "managed_services_tenant_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"managed_services\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "managed_services_tenant_update": {
           "name": "managed_services_tenant_update",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"managed_services\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"managed_services\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -5971,9 +5475,7 @@
           "name": "managed_services_platform_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -6075,12 +5577,8 @@
           "name": "managed_operators_tenant_id_tenants_id_fk",
           "tableFrom": "managed_operators",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6088,12 +5586,8 @@
           "name": "managed_operators_managed_service_id_managed_services_id_fk",
           "tableFrom": "managed_operators",
           "tableTo": "managed_services",
-          "columnsFrom": [
-            "managed_service_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["managed_service_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6101,12 +5595,8 @@
           "name": "managed_operators_user_account_id_user_accounts_id_fk",
           "tableFrom": "managed_operators",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "user_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6114,12 +5604,8 @@
           "name": "managed_operators_assigned_by_user_accounts_id_fk",
           "tableFrom": "managed_operators",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "assigned_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6127,12 +5613,8 @@
           "name": "managed_operators_removed_by_user_accounts_id_fk",
           "tableFrom": "managed_operators",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "removed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["removed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6140,14 +5622,8 @@
           "name": "managed_operators_membership_fk",
           "tableFrom": "managed_operators",
           "tableTo": "tenant_memberships",
-          "columnsFrom": [
-            "tenant_id",
-            "membership_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "membership_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6157,11 +5633,7 @@
         "managed_operators_live_unique": {
           "name": "managed_operators_live_unique",
           "nullsNotDistinct": true,
-          "columns": [
-            "tenant_id",
-            "user_account_id",
-            "removed_at"
-          ]
+          "columns": ["tenant_id", "user_account_id", "removed_at"]
         }
       },
       "policies": {
@@ -6169,18 +5641,14 @@
           "name": "managed_operators_tenant_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"managed_operators\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
         "managed_operators_platform_all": {
           "name": "managed_operators_platform_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -6331,12 +5799,8 @@
           "name": "tariff_proposals_tenant_id_tenants_id_fk",
           "tableFrom": "tariff_proposals",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6344,12 +5808,8 @@
           "name": "tariff_proposals_proposed_by_user_accounts_id_fk",
           "tableFrom": "tariff_proposals",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "proposed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["proposed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6357,12 +5817,8 @@
           "name": "tariff_proposals_decided_by_user_accounts_id_fk",
           "tableFrom": "tariff_proposals",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "decided_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["decided_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6370,14 +5826,8 @@
           "name": "tariff_proposals_tariff_fk",
           "tableFrom": "tariff_proposals",
           "tableTo": "tariffs",
-          "columnsFrom": [
-            "tenant_id",
-            "tariff_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "tariff_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6389,9 +5839,7 @@
           "name": "tariff_proposals_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"tariff_proposals\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"tariff_proposals\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -6642,12 +6090,8 @@
           "name": "alerts_acknowledged_by_user_accounts_id_fk",
           "tableFrom": "alerts",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "acknowledged_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["acknowledged_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6655,14 +6099,8 @@
           "name": "alerts_charger_fk",
           "tableFrom": "alerts",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6672,10 +6110,7 @@
         "alerts_tenant_id_unique": {
           "name": "alerts_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -6683,9 +6118,7 @@
           "name": "alerts_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"alerts\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"alerts\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -6797,12 +6230,8 @@
           "name": "alert_rules_role_id_roles_id_fk",
           "tableFrom": "alert_rules",
           "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["role_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6810,12 +6239,8 @@
           "name": "alert_rules_created_by_user_accounts_id_fk",
           "tableFrom": "alert_rules",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6823,14 +6248,8 @@
           "name": "alert_rules_site_fk",
           "tableFrom": "alert_rules",
           "tableTo": "sites",
-          "columnsFrom": [
-            "tenant_id",
-            "site_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "site_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6838,14 +6257,8 @@
           "name": "alert_rules_membership_fk",
           "tableFrom": "alert_rules",
           "tableTo": "tenant_memberships",
-          "columnsFrom": [
-            "tenant_id",
-            "membership_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "membership_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6857,9 +6270,7 @@
           "name": "alert_rules_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"alert_rules\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"alert_rules\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -6945,14 +6356,8 @@
           "name": "member_notification_settings_membership_fk",
           "tableFrom": "member_notification_settings",
           "tableTo": "tenant_memberships",
-          "columnsFrom": [
-            "tenant_id",
-            "membership_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "membership_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6962,10 +6367,7 @@
         "member_notification_settings_member_unique": {
           "name": "member_notification_settings_member_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "membership_id"
-          ]
+          "columns": ["tenant_id", "membership_id"]
         }
       },
       "policies": {
@@ -6973,9 +6375,7 @@
           "name": "member_notification_settings_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"member_notification_settings\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"member_notification_settings\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -7110,14 +6510,8 @@
           "name": "staff_notifications_membership_fk",
           "tableFrom": "staff_notifications",
           "tableTo": "tenant_memberships",
-          "columnsFrom": [
-            "tenant_id",
-            "membership_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "membership_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7129,9 +6523,7 @@
           "name": "staff_notifications_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"staff_notifications\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"staff_notifications\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -7325,10 +6717,7 @@
         "notifications_dedupe_unique": {
           "name": "notifications_dedupe_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "dedupe_key"
-          ]
+          "columns": ["tenant_id", "dedupe_key"]
         }
       },
       "policies": {
@@ -7336,9 +6725,7 @@
           "name": "notifications_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"notifications\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"notifications\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -7437,14 +6824,8 @@
           "name": "session_subscriptions_session_fk",
           "tableFrom": "session_subscriptions",
           "tableTo": "charging_sessions",
-          "columnsFrom": [
-            "tenant_id",
-            "session_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "session_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7454,10 +6835,7 @@
         "session_subscriptions_session_unique": {
           "name": "session_subscriptions_session_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "session_id"
-          ]
+          "columns": ["tenant_id", "session_id"]
         }
       },
       "policies": {
@@ -7465,9 +6843,7 @@
           "name": "session_subscriptions_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"session_subscriptions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"session_subscriptions\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -7661,12 +7037,8 @@
           "name": "report_exports_requested_by_user_accounts_id_fk",
           "tableFrom": "report_exports",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "requested_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["requested_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7678,9 +7050,7 @@
           "name": "report_exports_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"report_exports\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"report_exports\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -7833,12 +7203,8 @@
           "name": "report_schedules_created_by_user_accounts_id_fk",
           "tableFrom": "report_schedules",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7846,14 +7212,8 @@
           "name": "report_schedules_site_fk",
           "tableFrom": "report_schedules",
           "tableTo": "sites",
-          "columnsFrom": [
-            "tenant_id",
-            "site_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "site_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7865,9 +7225,7 @@
           "name": "report_schedules_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"report_schedules\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"report_schedules\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -7954,9 +7312,7 @@
         "driver_accounts_keycloak_id_unique": {
           "name": "driver_accounts_keycloak_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "keycloak_id"
-          ]
+          "columns": ["keycloak_id"]
         }
       },
       "policies": {},
@@ -8170,12 +7526,8 @@
           "name": "drivers_tenant_id_tenants_id_fk",
           "tableFrom": "drivers",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8183,12 +7535,8 @@
           "name": "drivers_driver_account_id_driver_accounts_id_fk",
           "tableFrom": "drivers",
           "tableTo": "driver_accounts",
-          "columnsFrom": [
-            "driver_account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["driver_account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8196,12 +7544,8 @@
           "name": "drivers_blocked_by_user_accounts_id_fk",
           "tableFrom": "drivers",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "blocked_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["blocked_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8209,12 +7553,8 @@
           "name": "drivers_created_by_user_accounts_id_fk",
           "tableFrom": "drivers",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8222,12 +7562,8 @@
           "name": "drivers_updated_by_user_accounts_id_fk",
           "tableFrom": "drivers",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8237,10 +7573,7 @@
         "drivers_tenant_id_unique": {
           "name": "drivers_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -8248,9 +7581,7 @@
           "name": "drivers_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"drivers\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"drivers\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -8258,9 +7589,7 @@
           "name": "drivers_own_account",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"drivers\".\"driver_account_id\" = nullif(current_setting('app.driver_account_id', true), '')::uuid"
         }
       },
@@ -8407,12 +7736,8 @@
           "name": "rfid_cards_created_by_user_accounts_id_fk",
           "tableFrom": "rfid_cards",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8420,14 +7745,8 @@
           "name": "rfid_cards_driver_fk",
           "tableFrom": "rfid_cards",
           "tableTo": "drivers",
-          "columnsFrom": [
-            "tenant_id",
-            "driver_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "driver_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8437,10 +7756,7 @@
         "rfid_cards_tenant_id_unique": {
           "name": "rfid_cards_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -8448,9 +7764,7 @@
           "name": "rfid_cards_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"rfid_cards\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"rfid_cards\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -8487,14 +7801,8 @@
           "name": "access_group_members_group_fk",
           "tableFrom": "access_group_members",
           "tableTo": "access_groups",
-          "columnsFrom": [
-            "tenant_id",
-            "group_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "group_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8502,14 +7810,8 @@
           "name": "access_group_members_driver_fk",
           "tableFrom": "access_group_members",
           "tableTo": "drivers",
-          "columnsFrom": [
-            "tenant_id",
-            "driver_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "driver_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8517,10 +7819,7 @@
       "compositePrimaryKeys": {
         "access_group_members_pk": {
           "name": "access_group_members_pk",
-          "columns": [
-            "group_id",
-            "driver_id"
-          ]
+          "columns": ["group_id", "driver_id"]
         }
       },
       "uniqueConstraints": {},
@@ -8529,9 +7828,7 @@
           "name": "access_group_members_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"access_group_members\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"access_group_members\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -8568,14 +7865,8 @@
           "name": "access_group_sites_group_fk",
           "tableFrom": "access_group_sites",
           "tableTo": "access_groups",
-          "columnsFrom": [
-            "tenant_id",
-            "group_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "group_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8583,14 +7874,8 @@
           "name": "access_group_sites_site_fk",
           "tableFrom": "access_group_sites",
           "tableTo": "sites",
-          "columnsFrom": [
-            "tenant_id",
-            "site_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "site_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8598,10 +7883,7 @@
       "compositePrimaryKeys": {
         "access_group_sites_pk": {
           "name": "access_group_sites_pk",
-          "columns": [
-            "group_id",
-            "site_id"
-          ]
+          "columns": ["group_id", "site_id"]
         }
       },
       "uniqueConstraints": {},
@@ -8610,9 +7892,7 @@
           "name": "access_group_sites_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"access_group_sites\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"access_group_sites\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -8725,12 +8005,8 @@
           "name": "access_groups_tenant_id_tenants_id_fk",
           "tableFrom": "access_groups",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8738,12 +8014,8 @@
           "name": "access_groups_created_by_user_accounts_id_fk",
           "tableFrom": "access_groups",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8751,12 +8023,8 @@
           "name": "access_groups_updated_by_user_accounts_id_fk",
           "tableFrom": "access_groups",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8766,10 +8034,7 @@
         "access_groups_tenant_id_unique": {
           "name": "access_groups_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -8777,9 +8042,7 @@
           "name": "access_groups_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"access_groups\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"access_groups\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -8899,12 +8162,8 @@
           "name": "driver_invitations_tenant_id_tenants_id_fk",
           "tableFrom": "driver_invitations",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8912,12 +8171,8 @@
           "name": "driver_invitations_invited_by_user_accounts_id_fk",
           "tableFrom": "driver_invitations",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8925,14 +8180,8 @@
           "name": "driver_invitations_driver_fk",
           "tableFrom": "driver_invitations",
           "tableTo": "drivers",
-          "columnsFrom": [
-            "tenant_id",
-            "driver_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "driver_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8942,9 +8191,7 @@
         "driver_invitations_token_hash_unique": {
           "name": "driver_invitations_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {
@@ -8952,9 +8199,7 @@
           "name": "driver_invitations_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"driver_invitations\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"driver_invitations\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -8962,9 +8207,7 @@
           "name": "driver_invitations_holder",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"driver_invitations\".\"token_hash\" = nullif(current_setting('app.invite_token_hash', true), '')"
         }
       },
@@ -9240,12 +8483,8 @@
           "name": "invoices_tenant_id_tenants_id_fk",
           "tableFrom": "invoices",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9253,12 +8492,8 @@
           "name": "invoices_issued_by_user_accounts_id_fk",
           "tableFrom": "invoices",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "issued_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["issued_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9266,12 +8501,8 @@
           "name": "invoices_paid_by_user_accounts_id_fk",
           "tableFrom": "invoices",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "paid_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["paid_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9279,12 +8510,8 @@
           "name": "invoices_voided_by_user_accounts_id_fk",
           "tableFrom": "invoices",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "voided_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["voided_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9292,12 +8519,8 @@
           "name": "invoices_created_by_user_accounts_id_fk",
           "tableFrom": "invoices",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -9309,18 +8532,14 @@
           "name": "invoices_tenant_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"invoices\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid and \"invoices\".\"status\" <> 'draft'"
         },
         "invoices_platform_all": {
           "name": "invoices_platform_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -9419,12 +8638,8 @@
           "name": "invoice_lines_tenant_id_tenants_id_fk",
           "tableFrom": "invoice_lines",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9432,12 +8647,8 @@
           "name": "invoice_lines_invoice_id_invoices_id_fk",
           "tableFrom": "invoice_lines",
           "tableTo": "invoices",
-          "columnsFrom": [
-            "invoice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invoice_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -9447,10 +8658,7 @@
         "invoice_lines_position_unique": {
           "name": "invoice_lines_position_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "invoice_id",
-            "position"
-          ]
+          "columns": ["invoice_id", "position"]
         }
       },
       "policies": {
@@ -9458,18 +8666,14 @@
           "name": "invoice_lines_tenant_read",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"invoice_lines\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid and \"invoice_lines\".\"invoice_id\" in (select \"invoices\".\"id\" from \"invoices\" where \"invoices\".\"status\" <> 'draft')"
         },
         "invoice_lines_platform_all": {
           "name": "invoice_lines_platform_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -9504,9 +8708,7 @@
           "name": "invoice_sequences_platform_all",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "current_setting('app.platform_access', true) = 'true'",
           "withCheck": "current_setting('app.platform_access', true) = 'true'"
         }
@@ -9657,12 +8859,8 @@
           "name": "api_keys_tenant_id_tenants_id_fk",
           "tableFrom": "api_keys",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9670,12 +8868,8 @@
           "name": "api_keys_created_by_user_accounts_id_fk",
           "tableFrom": "api_keys",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9683,12 +8877,8 @@
           "name": "api_keys_revoked_by_user_accounts_id_fk",
           "tableFrom": "api_keys",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "revoked_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["revoked_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -9700,9 +8890,7 @@
           "name": "api_keys_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"api_keys\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"api_keys\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -9710,18 +8898,14 @@
           "name": "api_keys_lookup",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"api_keys\".\"key_hash\" = nullif(current_setting('app.api_key_hash', true), '')"
         },
         "api_keys_touch": {
           "name": "api_keys_touch",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"api_keys\".\"key_hash\" = nullif(current_setting('app.api_key_hash', true), '')",
           "withCheck": "\"api_keys\".\"key_hash\" = nullif(current_setting('app.api_key_hash', true), '')"
         }
@@ -9854,12 +9038,8 @@
           "name": "webhook_endpoints_tenant_id_tenants_id_fk",
           "tableFrom": "webhook_endpoints",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9867,12 +9047,8 @@
           "name": "webhook_endpoints_created_by_user_accounts_id_fk",
           "tableFrom": "webhook_endpoints",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -9882,10 +9058,7 @@
         "webhook_endpoints_tenant_id_unique": {
           "name": "webhook_endpoints_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -9893,9 +9066,7 @@
           "name": "webhook_endpoints_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"webhook_endpoints\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"webhook_endpoints\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -10075,14 +9246,8 @@
           "name": "webhook_deliveries_endpoint_fk",
           "tableFrom": "webhook_deliveries",
           "tableTo": "webhook_endpoints",
-          "columnsFrom": [
-            "tenant_id",
-            "endpoint_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "endpoint_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -10094,9 +9259,7 @@
           "name": "webhook_deliveries_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"webhook_deliveries\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"webhook_deliveries\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -10194,12 +9357,8 @@
           "name": "site_load_policies_created_by_user_accounts_id_fk",
           "tableFrom": "site_load_policies",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10207,12 +9366,8 @@
           "name": "site_load_policies_updated_by_user_accounts_id_fk",
           "tableFrom": "site_load_policies",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10220,14 +9375,8 @@
           "name": "site_load_policies_site_fk",
           "tableFrom": "site_load_policies",
           "tableTo": "sites",
-          "columnsFrom": [
-            "tenant_id",
-            "site_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "site_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -10237,10 +9386,7 @@
         "site_load_policies_site_unique": {
           "name": "site_load_policies_site_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "site_id"
-          ]
+          "columns": ["tenant_id", "site_id"]
         }
       },
       "policies": {
@@ -10248,9 +9394,7 @@
           "name": "site_load_policies_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"site_load_policies\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"site_load_policies\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -10314,14 +9458,8 @@
           "name": "charger_load_settings_charger_fk",
           "tableFrom": "charger_load_settings",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -10331,10 +9469,7 @@
         "charger_load_settings_charger_unique": {
           "name": "charger_load_settings_charger_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "charger_id"
-          ]
+          "columns": ["tenant_id", "charger_id"]
         }
       },
       "policies": {
@@ -10342,9 +9477,7 @@
           "name": "charger_load_settings_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"charger_load_settings\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"charger_load_settings\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -10486,14 +9619,8 @@
           "name": "charger_load_allocations_charger_fk",
           "tableFrom": "charger_load_allocations",
           "tableTo": "chargers",
-          "columnsFrom": [
-            "tenant_id",
-            "charger_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "charger_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -10503,10 +9630,7 @@
         "charger_load_allocations_charger_unique": {
           "name": "charger_load_allocations_charger_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "charger_id"
-          ]
+          "columns": ["tenant_id", "charger_id"]
         }
       },
       "policies": {
@@ -10514,9 +9638,7 @@
           "name": "charger_load_allocations_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"charger_load_allocations\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"charger_load_allocations\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -10643,12 +9765,8 @@
           "name": "messaging_channels_tenant_id_tenants_id_fk",
           "tableFrom": "messaging_channels",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10656,12 +9774,8 @@
           "name": "messaging_channels_created_by_user_accounts_id_fk",
           "tableFrom": "messaging_channels",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10669,12 +9783,8 @@
           "name": "messaging_channels_updated_by_user_accounts_id_fk",
           "tableFrom": "messaging_channels",
           "tableTo": "user_accounts",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -10684,17 +9794,12 @@
         "messaging_channels_tenant_unique": {
           "name": "messaging_channels_tenant_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id"
-          ]
+          "columns": ["tenant_id"]
         },
         "messaging_channels_tenant_id_unique": {
           "name": "messaging_channels_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -10702,9 +9807,7 @@
           "name": "messaging_channels_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"messaging_channels\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"messaging_channels\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         },
@@ -10712,9 +9815,7 @@
           "name": "messaging_channels_phone_number_lookup",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "lower(\"messaging_channels\".\"phone_number_id\") = lower(nullif(current_setting('app.messaging_phone_number_id', true), ''))"
         }
       },
@@ -10862,14 +9963,8 @@
           "name": "messaging_conversations_channel_fk",
           "tableFrom": "messaging_conversations",
           "tableTo": "messaging_channels",
-          "columnsFrom": [
-            "tenant_id",
-            "channel_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "channel_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -10879,18 +9974,12 @@
         "messaging_conversations_contact_unique": {
           "name": "messaging_conversations_contact_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "channel_id",
-            "contact"
-          ]
+          "columns": ["channel_id", "contact"]
         },
         "messaging_conversations_tenant_id_unique": {
           "name": "messaging_conversations_tenant_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "tenant_id",
-            "id"
-          ]
+          "columns": ["tenant_id", "id"]
         }
       },
       "policies": {
@@ -10898,9 +9987,7 @@
           "name": "messaging_conversations_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"messaging_conversations\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"messaging_conversations\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -11075,14 +10162,8 @@
           "name": "messaging_messages_conversation_fk",
           "tableFrom": "messaging_messages",
           "tableTo": "messaging_conversations",
-          "columnsFrom": [
-            "tenant_id",
-            "conversation_id"
-          ],
-          "columnsTo": [
-            "tenant_id",
-            "id"
-          ],
+          "columnsFrom": ["tenant_id", "conversation_id"],
+          "columnsTo": ["tenant_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -11094,9 +10175,7 @@
           "name": "messaging_messages_tenant_isolation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "wattwisely_app"
-          ],
+          "to": ["wattwisely_app"],
           "using": "\"messaging_messages\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid",
           "withCheck": "\"messaging_messages\".\"tenant_id\" = nullif(current_setting('app.tenant_id', true), '')::uuid"
         }
@@ -11109,20 +10188,12 @@
     "public.addon_pricing_unit": {
       "name": "addon_pricing_unit",
       "schema": "public",
-      "values": [
-        "per_connector",
-        "per_site",
-        "per_tenant"
-      ]
+      "values": ["per_connector", "per_site", "per_tenant"]
     },
     "public.alert_status": {
       "name": "alert_status",
       "schema": "public",
-      "values": [
-        "open",
-        "acknowledged",
-        "closed"
-      ]
+      "values": ["open", "acknowledged", "closed"]
     },
     "public.alert_type": {
       "name": "alert_type",
@@ -11138,23 +10209,12 @@
     "public.audit_actor_type": {
       "name": "audit_actor_type",
       "schema": "public",
-      "values": [
-        "user",
-        "api_key",
-        "support",
-        "system",
-        "platform",
-        "managed",
-        "driver"
-      ]
+      "values": ["user", "api_key", "support", "system", "platform", "managed", "driver"]
     },
     "public.charger_auth_mode": {
       "name": "charger_auth_mode",
       "schema": "public",
-      "values": [
-        "password",
-        "none"
-      ]
+      "values": ["password", "none"]
     },
     "public.charger_command_action": {
       "name": "charger_command_action",
@@ -11172,24 +10232,12 @@
     "public.charger_command_status": {
       "name": "charger_command_status",
       "schema": "public",
-      "values": [
-        "queued",
-        "sent",
-        "accepted",
-        "rejected",
-        "timed_out",
-        "expired",
-        "failed"
-      ]
+      "values": ["queued", "sent", "accepted", "rejected", "timed_out", "expired", "failed"]
     },
     "public.charger_registration_status": {
       "name": "charger_registration_status",
       "schema": "public",
-      "values": [
-        "accepted",
-        "pending",
-        "rejected"
-      ]
+      "values": ["accepted", "pending", "rejected"]
     },
     "public.charging_session_status": {
       "name": "charging_session_status",
@@ -11226,50 +10274,27 @@
     "public.connector_type": {
       "name": "connector_type",
       "schema": "public",
-      "values": [
-        "ccs1",
-        "ccs2",
-        "type1",
-        "type2",
-        "chademo",
-        "gbt",
-        "nacs",
-        "unknown"
-      ]
+      "values": ["ccs1", "ccs2", "type1", "type2", "chademo", "gbt", "nacs", "unknown"]
     },
     "public.current_type": {
       "name": "current_type",
       "schema": "public",
-      "values": [
-        "ac",
-        "dc"
-      ]
+      "values": ["ac", "dc"]
     },
     "public.driver_payment_mode": {
       "name": "driver_payment_mode",
       "schema": "public",
-      "values": [
-        "inherit",
-        "pay",
-        "free"
-      ]
+      "values": ["inherit", "pay", "free"]
     },
     "public.driver_status": {
       "name": "driver_status",
       "schema": "public",
-      "values": [
-        "active",
-        "blocked"
-      ]
+      "values": ["active", "blocked"]
     },
     "public.entitlement_source": {
       "name": "entitlement_source",
       "schema": "public",
-      "values": [
-        "addon",
-        "trial",
-        "override"
-      ]
+      "values": ["addon", "trial", "override"]
     },
     "public.invoice_line_kind": {
       "name": "invoice_line_kind",
@@ -11287,118 +10312,67 @@
     "public.invoice_status": {
       "name": "invoice_status",
       "schema": "public",
-      "values": [
-        "draft",
-        "issued",
-        "paid",
-        "void"
-      ]
+      "values": ["draft", "issued", "paid", "void"]
     },
     "public.load_strategy": {
       "name": "load_strategy",
       "schema": "public",
-      "values": [
-        "equal_share",
-        "priority"
-      ]
+      "values": ["equal_share", "priority"]
     },
     "public.managed_service_status": {
       "name": "managed_service_status",
       "schema": "public",
-      "values": [
-        "pending_acceptance",
-        "active",
-        "ending",
-        "ended",
-        "withdrawn"
-      ]
+      "values": ["pending_acceptance", "active", "ending", "ended", "withdrawn"]
     },
     "public.membership_status": {
       "name": "membership_status",
       "schema": "public",
-      "values": [
-        "invited",
-        "active",
-        "removed"
-      ]
+      "values": ["invited", "active", "removed"]
     },
     "public.messaging_direction": {
       "name": "messaging_direction",
       "schema": "public",
-      "values": [
-        "in",
-        "out"
-      ]
+      "values": ["in", "out"]
     },
     "public.messaging_message_status": {
       "name": "messaging_message_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "sent",
-        "failed",
-        "received"
-      ]
+      "values": ["pending", "sent", "failed", "received"]
     },
     "public.messaging_provider": {
       "name": "messaging_provider",
       "schema": "public",
-      "values": [
-        "whatsapp"
-      ]
+      "values": ["whatsapp"]
     },
     "public.notification_status": {
       "name": "notification_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "sent",
-        "failed",
-        "cancelled"
-      ]
+      "values": ["pending", "sent", "failed", "cancelled"]
     },
     "public.ocpp_direction": {
       "name": "ocpp_direction",
       "schema": "public",
-      "values": [
-        "in",
-        "out"
-      ]
+      "values": ["in", "out"]
     },
     "public.ocpp_message_type": {
       "name": "ocpp_message_type",
       "schema": "public",
-      "values": [
-        "call",
-        "call_result",
-        "call_error"
-      ]
+      "values": ["call", "call_result", "call_error"]
     },
     "public.ocpp_version": {
       "name": "ocpp_version",
       "schema": "public",
-      "values": [
-        "1.6",
-        "2.0.1"
-      ]
+      "values": ["1.6", "2.0.1"]
     },
     "public.payment_account_status": {
       "name": "payment_account_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "active",
-        "restricted"
-      ]
+      "values": ["pending", "active", "restricted"]
     },
     "public.payment_mode": {
       "name": "payment_mode",
       "schema": "public",
-      "values": [
-        "direct",
-        "own_provider",
-        "managed"
-      ]
+      "values": ["direct", "own_provider", "managed"]
     },
     "public.payment_status": {
       "name": "payment_status",
@@ -11417,135 +10391,72 @@
     "public.payment_type": {
       "name": "payment_type",
       "schema": "public",
-      "values": [
-        "preauth",
-        "prepay",
-        "postpay"
-      ]
+      "values": ["preauth", "prepay", "postpay"]
     },
     "public.platform_role": {
       "name": "platform_role",
       "schema": "public",
-      "values": [
-        "admin",
-        "billing",
-        "support",
-        "viewer"
-      ]
+      "values": ["admin", "billing", "support", "viewer"]
     },
     "public.refund_status": {
       "name": "refund_status",
       "schema": "public",
-      "values": [
-        "awaiting_approval",
-        "pending",
-        "succeeded",
-        "failed",
-        "cancelled"
-      ]
+      "values": ["awaiting_approval", "pending", "succeeded", "failed", "cancelled"]
     },
     "public.report_export_status": {
       "name": "report_export_status",
       "schema": "public",
-      "values": [
-        "queued",
-        "running",
-        "ready",
-        "failed",
-        "expired"
-      ]
+      "values": ["queued", "running", "ready", "failed", "expired"]
     },
     "public.report_frequency": {
       "name": "report_frequency",
       "schema": "public",
-      "values": [
-        "weekly",
-        "monthly"
-      ]
+      "values": ["weekly", "monthly"]
     },
     "public.report_kind": {
       "name": "report_kind",
       "schema": "public",
-      "values": [
-        "sessions",
-        "usage",
-        "audit_log"
-      ]
+      "values": ["sessions", "usage", "audit_log"]
     },
     "public.rfid_card_status": {
       "name": "rfid_card_status",
       "schema": "public",
-      "values": [
-        "active",
-        "blocked",
-        "lost"
-      ]
+      "values": ["active", "blocked", "lost"]
     },
     "public.session_line_kind": {
       "name": "session_line_kind",
       "schema": "public",
-      "values": [
-        "start_fee",
-        "energy",
-        "time",
-        "idle",
-        "adjustment"
-      ]
+      "values": ["start_fee", "energy", "time", "idle", "adjustment"]
     },
     "public.site_visibility": {
       "name": "site_visibility",
       "schema": "public",
-      "values": [
-        "public",
-        "private"
-      ]
+      "values": ["public", "private"]
     },
     "public.subscription_status": {
       "name": "subscription_status",
       "schema": "public",
-      "values": [
-        "trialing",
-        "active",
-        "past_due",
-        "cancelled"
-      ]
+      "values": ["trialing", "active", "past_due", "cancelled"]
     },
     "public.tariff_proposal_status": {
       "name": "tariff_proposal_status",
       "schema": "public",
-      "values": [
-        "proposed",
-        "approved",
-        "rejected",
-        "withdrawn"
-      ]
+      "values": ["proposed", "approved", "rejected", "withdrawn"]
     },
     "public.tariff_status": {
       "name": "tariff_status",
       "schema": "public",
-      "values": [
-        "active",
-        "archived"
-      ]
+      "values": ["active", "archived"]
     },
     "public.tenant_status": {
       "name": "tenant_status",
       "schema": "public",
-      "values": [
-        "trial",
-        "active",
-        "suspended",
-        "cancelled"
-      ]
+      "values": ["trial", "active", "suspended", "cancelled"]
     },
     "public.webhook_delivery_status": {
       "name": "webhook_delivery_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "delivered",
-        "failed"
-      ]
+      "values": ["pending", "delivered", "failed"]
     }
   },
   "schemas": {},

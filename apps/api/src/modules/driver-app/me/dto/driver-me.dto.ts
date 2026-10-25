@@ -5,7 +5,8 @@ import { DriverAccount } from '../../../../common/account/driver-account';
 export class DriverMeDto {
   @ApiProperty() readonly id: string;
   @ApiProperty({ example: 'dana@example.com' }) readonly email: string;
-  @ApiProperty({ description: 'The name the driver goes by in the app' }) readonly display_name: string;
+  @ApiProperty({ description: 'The name the driver goes by in the app' })
+  readonly display_name: string;
   @ApiProperty({ nullable: true, type: String }) readonly phone: string | null;
 
   constructor(account: DriverAccount) {

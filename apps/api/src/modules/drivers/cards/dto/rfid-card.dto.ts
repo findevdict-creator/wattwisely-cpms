@@ -11,7 +11,8 @@ export class RfidCardDto {
   @ApiProperty({ enum: ['active', 'blocked', 'lost'] }) readonly status: string;
   @ApiProperty({
     enum: ['inherit', 'pay', 'free'],
-    description: 'Whether a session this card starts is paid; inherit asks the driver, then their groups',
+    description:
+      'Whether a session this card starts is paid; inherit asks the driver, then their groups',
   })
   readonly payment_mode: string;
   @ApiProperty({ nullable: true, type: String }) readonly expires_at: string | null;

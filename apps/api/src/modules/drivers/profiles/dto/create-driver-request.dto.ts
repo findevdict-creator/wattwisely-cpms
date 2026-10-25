@@ -46,7 +46,8 @@ export class CreateDriverRequestDto {
   @ApiProperty({
     required: false,
     enum: ['inherit', 'pay', 'free'],
-    description: 'Whether the driver’s sessions are paid; free only when you settle with them another way',
+    description:
+      'Whether the driver’s sessions are paid; free only when you settle with them another way',
   })
   @IsOptional()
   @IsIn(['inherit', 'pay', 'free'])

@@ -43,7 +43,8 @@ export class SaveAccessGroupRequestDto {
   @ApiProperty({
     required: false,
     nullable: true,
-    description: 'The hold on a member’s saved card in minor units; null uses your member hold amount',
+    description:
+      'The hold on a member’s saved card in minor units; null uses your member hold amount',
   })
   @IsOptional()
   @IsInt()

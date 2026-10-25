@@ -4,7 +4,8 @@ import { DriverInvitationRecord } from '../../../drivers/accounts/driver-invitat
 /** GET /v1/driver/invitations/{token}: what the invitation page shows before anyone logs in (module 19). */
 export class DriverInvitationPreviewDto {
   @ApiProperty({ example: 'Acme Charging' }) readonly operator_name: string;
-  @ApiProperty({ description: 'The name the operator keeps for the driver' }) readonly driver_name: string;
+  @ApiProperty({ description: 'The name the operator keeps for the driver' })
+  readonly driver_name: string;
   @ApiProperty({ description: 'The address the invitation was sent to; log in with it to accept' })
   readonly email: string;
   @ApiProperty({ nullable: true, type: String }) readonly invited_by: string | null;

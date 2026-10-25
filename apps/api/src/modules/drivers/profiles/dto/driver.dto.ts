@@ -17,10 +17,14 @@ export class DriverDto {
   @ApiProperty({ enum: ['active', 'blocked'] }) readonly status: string;
   @ApiProperty({
     enum: ['inherit', 'pay', 'free'],
-    description: 'Whether this driver’s sessions are paid; inherit asks their groups, then the operator (pay)',
+    description:
+      'Whether this driver’s sessions are paid; inherit asks their groups, then the operator (pay)',
   })
   readonly payment_mode: string;
-  @ApiProperty({ type: DriverAccountLinkDto, description: 'The driver’s own login, or the invitation to one' })
+  @ApiProperty({
+    type: DriverAccountLinkDto,
+    description: 'The driver’s own login, or the invitation to one',
+  })
   readonly account: DriverAccountLinkDto;
   @ApiProperty({ nullable: true, type: String }) readonly blocked_at: string | null;
   @ApiProperty({ nullable: true, type: String }) readonly blocked_by: string | null;

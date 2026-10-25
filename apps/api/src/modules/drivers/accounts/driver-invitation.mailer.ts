@@ -46,7 +46,9 @@ export class DriverInvitationMailer {
       await this.mailSender.send({ to: email.to, ...message });
       return true;
     } catch (error) {
-      this.logger.error(`Driver invitation e-mail to ${email.to} failed: ${(error as Error).message}`);
+      this.logger.error(
+        `Driver invitation e-mail to ${email.to} failed: ${(error as Error).message}`,
+      );
       return false;
     }
   }

@@ -20,9 +20,12 @@
 #   Drivers of Acme Charging (module 13): Dana Driver with card DEMO-CARD-1 (the finished session is hers) in the
 #     "Depot staff" access group that opens the private Depot North; Priya Patel with a lost card and its replacement;
 #     Ben Blocked, blocked with every card refused. A simulator that authorises with DEMO-CARD-1 is accepted
+#   Driver logins (module 19): dana@acme.test (same password) is a driver app login already linked to Dana Driver;
+#     the pool vehicle "Depot pool van" has card DEMO-CARD-5 marked free, so it charges without any login or payment
 #   Custom role of Acme Charging (module 14): "Depot supervisor", held by nobody yet, under Team > Roles and permissions
 #
-# Every user is asked to set up an authenticator app at first login (two-factor is required).
+# Every staff user is asked to set up an authenticator app at first login (two-factor is required for the
+# portal and the admin console); the driver login is not.
 source "$(dirname "$0")/lib/common.sh"
 require_env_file
 
@@ -217,8 +220,18 @@ INSERT INTO drivers (id, tenant_id, name, email, phone, reference, notes, status
   ('01900000-0000-7000-8000-000000007002', '01900000-0000-7000-8000-00000000a001', 'Priya Patel', 'priya@acme.test',
    NULL, 'EMP-0058', '', 'active', NULL, ''),
   ('01900000-0000-7000-8000-000000007003', '01900000-0000-7000-8000-00000000a001', 'Ben Blocked', NULL,
-   NULL, 'EMP-0077', '', 'blocked', now() - interval '2 days', 'Left the company')
+   NULL, 'EMP-0077', '', 'blocked', now() - interval '2 days', 'Left the company'),
+  ('01900000-0000-7000-8000-000000007004', '01900000-0000-7000-8000-00000000a001', 'Depot pool van', NULL,
+   NULL, 'VAN-07', 'The card lives in the van; whoever drives it charges for free', 'active', NULL, '')
 ON CONFLICT DO NOTHING;
+-- Module 19: Dana has her own driver app login. The account row is matched to the Keycloak user by e-mail at her
+-- first login (keycloak_id is filled in then); her driver record is linked to it already, as if she had accepted
+-- an invitation. The pool van's card is free: it charges without a login and without a payment.
+INSERT INTO driver_accounts (id, keycloak_id, email, display_name, phone) VALUES
+  ('01900000-0000-7000-8000-00000000d001', NULL, 'dana@acme.test', 'Dana', '+44 7700 900123')
+ON CONFLICT DO NOTHING;
+UPDATE drivers SET driver_account_id = '01900000-0000-7000-8000-00000000d001', linked_at = now() - interval '1 day'
+  WHERE id = '01900000-0000-7000-8000-000000007001' AND driver_account_id IS NULL;
 INSERT INTO rfid_cards (id, tenant_id, driver_id, id_tag, label, status, last_used_at) VALUES
   ('01900000-0000-7000-8000-000000008001', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007001',
    'DEMO-CARD-1', 'Van key fob', 'active', '2026-03-10 16:30Z'),
@@ -228,6 +241,10 @@ INSERT INTO rfid_cards (id, tenant_id, driver_id, id_tag, label, status, last_us
    'DEMO-CARD-3', 'Replacement', 'active', NULL),
   ('01900000-0000-7000-8000-000000008004', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007003',
    'DEMO-CARD-4', '', 'blocked', NULL)
+ON CONFLICT DO NOTHING;
+INSERT INTO rfid_cards (id, tenant_id, driver_id, id_tag, label, status, payment_mode, last_used_at) VALUES
+  ('01900000-0000-7000-8000-000000008005', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007004',
+   'DEMO-CARD-5', 'Van glovebox', 'active', 'free', NULL)
 ON CONFLICT DO NOTHING;
 INSERT INTO access_groups (id, tenant_id, name, description) VALUES
   ('01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000a001', 'Depot staff', 'May charge at Depot North')
@@ -277,6 +294,7 @@ user_id multi@demo.test Mia Multi >/dev/null
 user_id nobody@demo.test Nora Nobody >/dev/null
 user_id admin@wattwisely.test Ada Admin >/dev/null
 user_id support@wattwisely.test Sam Support >/dev/null
+user_id dana@acme.test Dana Driver >/dev/null
 info "Creating tenants and memberships"
 seed_database
 
@@ -285,6 +303,7 @@ info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_
 info "Volt Hotels is managed by Wattwisely: support@wattwisely.test works in it as Managed operator, multi@demo.test approves its tariff changes"
 info "Acme Charging has the API key 'Demo fleet tool': Authorization: Bearer wwk_demo-fleet-tool-0000000000000000000000000000"
 info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted, DEMO-CARD-4 is blocked"
+info "Driver logins (module 19): dana@acme.test logs in at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/account (no authenticator app) and sees Acme Charging; owner@acme.test invites Priya from her page; the Depot pool van's DEMO-CARD-5 is free"
 info "Invoices (module 15): within an hour the worker drafts last month's invoices; admin@wattwisely.test checks and issues them under Invoices in the console, owner@acme.test and multi@demo.test read theirs under Settings > Invoices"
 info "Roles (module 14): owner@acme.test shapes the Depot supervisor role under Team > Roles and permissions; multi@demo.test sees Volt Hotels' built-in roles only (Starter plan)"
 info "Load management (module 17): Riverside is capped at 30 kW under Sites > Riverside Car Park > Load management; connect the simulator as WW-7KQ4M2XR9T to watch it get its cap"

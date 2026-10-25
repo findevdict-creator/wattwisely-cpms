@@ -1,13 +1,5 @@
 import { sql } from 'drizzle-orm';
-import {
-  foreignKey,
-  index,
-  pgPolicy,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from 'drizzle-orm/pg-core';
+import { foreignKey, index, pgPolicy, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { drivers } from './drivers.table';
 import { RowLevelSecurity } from './row-level-security';
 import { tenants } from './tenants.table';

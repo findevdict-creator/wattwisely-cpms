@@ -46,10 +46,14 @@ export class DriverInvitationsService {
           accountId: account.id,
         });
         const link = await this.links.findByTenant(tx, account.id, invitation.tenantId);
-        return new AcceptedDriverInvitationDto(new DriverOperatorDto(link as NonNullable<typeof link>));
+        return new AcceptedDriverInvitationDto(
+          new DriverOperatorDto(link as NonNullable<typeof link>),
+        );
       });
     } catch (error) {
-      if (DatabaseErrors.violatedUniqueConstraint(error) === DriverInvitationsService.ACCOUNT_INDEX) {
+      if (
+        DatabaseErrors.violatedUniqueConstraint(error) === DriverInvitationsService.ACCOUNT_INDEX
+      ) {
         throw DriverAppErrors.accountAlreadyLinked();
       }
       throw error;

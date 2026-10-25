@@ -55,7 +55,10 @@ export class DriverInvitationsRepository {
   }
 
   /** The invitation of a driver that is still open, if any. */
-  async findOpenByDriver(tx: Transaction, driverId: string): Promise<DriverInvitationRecord | null> {
+  async findOpenByDriver(
+    tx: Transaction,
+    driverId: string,
+  ): Promise<DriverInvitationRecord | null> {
     const rows = await this.select(tx).where(
       and(eq(driverInvitations.driverId, driverId), isNotNull(driverInvitations.tokenHash)),
     );

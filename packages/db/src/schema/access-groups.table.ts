@@ -48,7 +48,10 @@ export const accessGroups = pgTable(
   (table) => [
     unique('access_groups_tenant_id_unique').on(table.tenantId, table.id),
     uniqueIndex('access_groups_name_unique').on(table.tenantId, sql`lower(${table.name})`),
-    check('access_groups_hold_amount_positive', sql`${table.holdAmount} is null or ${table.holdAmount} > 0`),
+    check(
+      'access_groups_hold_amount_positive',
+      sql`${table.holdAmount} is null or ${table.holdAmount} > 0`,
+    ),
     pgPolicy('access_groups_tenant_isolation', {
       to: RowLevelSecurity.APP_ROLE,
       using: RowLevelSecurity.isCurrentTenant(table.tenantId),

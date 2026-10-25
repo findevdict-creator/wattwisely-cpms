@@ -70,6 +70,11 @@ import { QrCodesService } from './qr/qr-codes.service';
     DriverInviteTransaction,
     DriverInvitesService,
   ],
-  exports: [DriversRepository, AccessGroupsRepository, RfidCardsRepository, DriverInvitationsRepository],
+  exports: [
+    DriversRepository,
+    AccessGroupsRepository,
+    RfidCardsRepository,
+    DriverInvitationsRepository,
+  ],
 })
 export class DriversModule {}

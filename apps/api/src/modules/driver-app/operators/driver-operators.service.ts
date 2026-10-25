@@ -26,8 +26,10 @@ export class DriverOperatorsService {
 
   /** The consent screen: everything the operator sees about the driver. */
   profile(auth: RequestAuth, tenantId: string): Promise<DriverOperatorProfileDto> {
-    return this.transaction.run(auth, tenantId, async (tx, link) =>
-      new DriverOperatorProfileDto(await this.profiles.read(tx, link)),
+    return this.transaction.run(
+      auth,
+      tenantId,
+      async (tx, link) => new DriverOperatorProfileDto(await this.profiles.read(tx, link)),
     );
   }
 

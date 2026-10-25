@@ -3,13 +3,7 @@
  * from the admin console, managed as a tenant's Managed operator) or the system.
  */
 export type AuditActorType =
-  | 'user'
-  | 'api_key'
-  | 'support'
-  | 'system'
-  | 'platform'
-  | 'managed'
-  | 'driver';
+  'user' | 'api_key' | 'support' | 'system' | 'platform' | 'managed' | 'driver';
 
 /** One audit log row as the repository returns it. */
 export interface AuditLogRecord {
