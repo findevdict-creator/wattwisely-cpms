@@ -8,12 +8,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { DriverAuthService } from '../../core/auth/driver-auth.service';
 import { BrandService } from '../../core/branding/brand.service';
+import { SavedCardsComponent } from './cards/saved-cards.component';
 import { PaymentModeWords } from './payment-mode-words';
 import { AccountStore } from './account.store';
 
 /**
- * The driver's account (module 19): the name and phone they go by, the operators that know
- * them, and the way out. The page is the platform's: several operators may be listed.
+ * The driver's account (module 19): the name and phone they go by, the cards they pay with,
+ * their charges, the operators that know them, and the way out. The page is the platform's: several operators may be listed.
  */
 @Component({
   selector: 'ww-account',
@@ -25,6 +26,7 @@ import { AccountStore } from './account.store';
     MatProgressSpinnerModule,
     ReactiveFormsModule,
     RouterLink,
+    SavedCardsComponent,
   ],
   providers: [AccountStore],
   templateUrl: './account.component.html',

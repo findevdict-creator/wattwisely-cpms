@@ -10,6 +10,7 @@ import { ApiProblem } from '../../core/api/api-problem';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { MoneyPipe } from '../../shared/money.pipe';
+import { StartSourceWords } from '../../shared/start-source-words';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { StatusLabels } from '../../shared/status-labels';
 import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
@@ -48,6 +49,7 @@ export class SessionComponent implements OnInit {
   protected readonly flagLabel = StatusLabels.reviewFlag;
   protected readonly failureLabel = StatusLabels.failure;
   protected readonly stateLabel = StatusLabels.session;
+  protected readonly startSource = StartSourceWords.of;
 
   ngOnInit(): void {
     void this.start();

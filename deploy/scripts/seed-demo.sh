@@ -21,7 +21,8 @@
 #     "Depot staff" access group that opens the private Depot North; Priya Patel with a lost card and its replacement;
 #     Ben Blocked, blocked with every card refused. A simulator that authorises with DEMO-CARD-1 is accepted
 #   Driver logins (module 19): dana@acme.test (same password) is a driver app login already linked to Dana Driver;
-#     the pool vehicle "Depot pool van" has card DEMO-CARD-5 marked free, so it charges without any login or payment
+#     "Depot staff" is free, so Dana's DEMO-CARD-1 charges free; Priya's DEMO-CARD-3 is refused, because her sessions
+#     are paid and she has no saved card; the pool vehicle "Depot pool van" has card DEMO-CARD-5 marked free
 #   Custom role of Acme Charging (module 14): "Depot supervisor", held by nobody yet, under Team > Roles and permissions
 #
 # Every staff user is asked to set up an authenticator app at first login (two-factor is required for the
@@ -246,8 +247,9 @@ INSERT INTO rfid_cards (id, tenant_id, driver_id, id_tag, label, status, payment
   ('01900000-0000-7000-8000-000000008005', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000007004',
    'DEMO-CARD-5', 'Van glovebox', 'active', 'free', NULL)
 ON CONFLICT DO NOTHING;
-INSERT INTO access_groups (id, tenant_id, name, description) VALUES
-  ('01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000a001', 'Depot staff', 'May charge at Depot North')
+INSERT INTO access_groups (id, tenant_id, name, description, payment_mode) VALUES
+  ('01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000a001', 'Depot staff',
+   'May charge at Depot North, free of charge', 'free')
 ON CONFLICT DO NOTHING;
 INSERT INTO access_group_sites (tenant_id, group_id, site_id) VALUES
   ('01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000c002')
@@ -302,7 +304,7 @@ info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL
 info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_HOST) as admin@wattwisely.test or support@wattwisely.test"
 info "Volt Hotels is managed by Wattwisely: support@wattwisely.test works in it as Managed operator, multi@demo.test approves its tariff changes"
 info "Acme Charging has the API key 'Demo fleet tool': Authorization: Bearer wwk_demo-fleet-tool-0000000000000000000000000000"
-info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted, DEMO-CARD-4 is blocked"
+info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted (free: Depot staff), DEMO-CARD-3 is refused (paid, no saved card), DEMO-CARD-4 is blocked"
 info "Driver logins (module 19): dana@acme.test logs in at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/account (no authenticator app) and sees Acme Charging; owner@acme.test invites Priya from her page; the Depot pool van's DEMO-CARD-5 is free"
 info "Invoices (module 15): within an hour the worker drafts last month's invoices; admin@wattwisely.test checks and issues them under Invoices in the console, owner@acme.test and multi@demo.test read theirs under Settings > Invoices"
 info "Roles (module 14): owner@acme.test shapes the Depot supervisor role under Team > Roles and permissions; multi@demo.test sees Volt Hotels' built-in roles only (Starter plan)"
