@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DriverSummary } from '../driver-record';
+import { DriverAccountLinkDto } from './driver-account-link.dto';
 import { DriverGroupDto } from './driver-group.dto';
 
 /** A driver as GET /v1/drivers lists them (story DRV-01). */
@@ -14,6 +15,13 @@ export class DriverDto {
   readonly reference: string;
   @ApiProperty() readonly notes: string;
   @ApiProperty({ enum: ['active', 'blocked'] }) readonly status: string;
+  @ApiProperty({
+    enum: ['inherit', 'pay', 'free'],
+    description: 'Whether this driver’s sessions are paid; inherit asks their groups, then the operator (pay)',
+  })
+  readonly payment_mode: string;
+  @ApiProperty({ type: DriverAccountLinkDto, description: 'The driver’s own login, or the invitation to one' })
+  readonly account: DriverAccountLinkDto;
   @ApiProperty({ nullable: true, type: String }) readonly blocked_at: string | null;
   @ApiProperty({ nullable: true, type: String }) readonly blocked_by: string | null;
   @ApiProperty() readonly block_reason: string;
@@ -35,6 +43,8 @@ export class DriverDto {
     this.reference = driver.reference;
     this.notes = driver.notes;
     this.status = driver.status;
+    this.payment_mode = driver.paymentMode;
+    this.account = new DriverAccountLinkDto(driver);
     this.blocked_at = driver.blockedAt?.toISOString() ?? null;
     this.blocked_by = driver.blockedByName;
     this.block_reason = driver.blockReason;

@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsEmail,
+  IsIn,
   IsOptional,
   IsString,
   IsUUID,
@@ -42,6 +43,15 @@ export class UpdateDriverRequestDto {
   @IsString()
   @MaxLength(2000)
   readonly notes?: string;
+
+  @ApiProperty({
+    required: false,
+    enum: ['inherit', 'pay', 'free'],
+    description: 'Whether the driver’s sessions are paid; free only when you settle with them another way',
+  })
+  @IsOptional()
+  @IsIn(['inherit', 'pay', 'free'])
+  readonly payment_mode?: 'inherit' | 'pay' | 'free';
 
   @ApiProperty({ required: false, type: [String], description: 'Replaces the driver’s groups' })
   @IsOptional()

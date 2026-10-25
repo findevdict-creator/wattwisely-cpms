@@ -9,6 +9,11 @@ export class RfidCardDto {
   readonly id_tag: string;
   @ApiProperty({ example: 'Blue card' }) readonly label: string;
   @ApiProperty({ enum: ['active', 'blocked', 'lost'] }) readonly status: string;
+  @ApiProperty({
+    enum: ['inherit', 'pay', 'free'],
+    description: 'Whether a session this card starts is paid; inherit asks the driver, then their groups',
+  })
+  readonly payment_mode: string;
   @ApiProperty({ nullable: true, type: String }) readonly expires_at: string | null;
   @ApiProperty({ nullable: true, type: String, description: 'The last time a charger accepted it' })
   readonly last_used_at: string | null;
@@ -21,6 +26,7 @@ export class RfidCardDto {
     this.id_tag = card.idTag;
     this.label = card.label;
     this.status = card.status;
+    this.payment_mode = card.paymentMode;
     this.expires_at = card.expiresAt?.toISOString() ?? null;
     this.last_used_at = card.lastUsedAt?.toISOString() ?? null;
     this.version = card.version;

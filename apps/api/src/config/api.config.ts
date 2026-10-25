@@ -35,10 +35,18 @@ export class ApiConfig {
   @IsUrl({ require_tld: false })
   keycloakJwksUrl!: string;
 
-  /** The audience a token must carry to be accepted by this API. */
+  /** The audience a staff token must carry to be accepted by this API (the portals' tokens). */
   @IsString()
   @IsNotEmpty()
   keycloakAudience!: string;
+
+  /**
+   * The audience a driver's token carries (module 19): the driver app's Keycloak client puts it
+   * there, and only the /v1/driver routes accept it. Never the same word as keycloakAudience.
+   */
+  @IsString()
+  @IsNotEmpty()
+  keycloakDriverAudience!: string;
 
   /** Postgres, as the wattwisely_app role (row-level security always applies to it). */
   @IsUrl({ require_tld: false, protocols: ['postgres', 'postgresql'] })

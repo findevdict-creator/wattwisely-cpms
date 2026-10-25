@@ -225,6 +225,20 @@
       "when": 1792888409016,
       "tag": "0031_ocpp_201",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1792924597422,
+      "tag": "0032_driver_accounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792924635670,
+      "tag": "0033_driver_accounts_grants",
+      "breakpoints": true
     }
   ]
 }

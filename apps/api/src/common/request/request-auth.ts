@@ -1,4 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
+import { DriverAccount } from '../account/driver-account';
 import { StaffAccount } from '../account/staff-account';
 import { ApiKeyPrincipal } from '../api-keys/api-key-principal';
 import { AuthenticatedUser } from '../auth/authenticated-user';
@@ -15,13 +16,16 @@ import { RequestOrigin } from './request-origin';
  *   access   their membership, roles and permissions in the chosen tenant (TenantContextGuard),
  *            or the key's tenant and chosen permissions
  *   platform their Wattwisely staff role, on admin console routes only (TenantContextGuard)
- * `access` is null on routes marked RouteAccess.withoutTenant() or RouteAccess.platform().
+ *   driver   the driver's own account, on /v1/driver routes only (TenantContextGuard, module 19)
+ * `access` is null on routes marked RouteAccess.withoutTenant(), RouteAccess.platform() or
+ * RouteAccess.driver().
  */
 export class RequestAuth {
   readonly account: StaffAccount | null;
   readonly access: TenantAccess | null;
   readonly platform: PlatformAccess | null;
   readonly apiKey: ApiKeyPrincipal | null;
+  readonly driver: DriverAccount | null;
 
   constructor(
     readonly user: AuthenticatedUser | null,
@@ -32,6 +36,7 @@ export class RequestAuth {
     this.access = resolved.access ?? null;
     this.platform = resolved.platform ?? null;
     this.apiKey = resolved.apiKey ?? null;
+    this.driver = resolved.driver ?? null;
   }
 
   /** A request made with an API key (module 16): the key's tenant and permissions are already set. */
@@ -53,6 +58,22 @@ export class RequestAuth {
 
   withPlatform(platform: PlatformAccess): RequestAuth {
     return new RequestAuth(this.user, this.origin, { ...this.resolved(), platform });
+  }
+
+  withDriver(driver: DriverAccount): RequestAuth {
+    return new RequestAuth(this.user, this.origin, { ...this.resolved(), driver });
+  }
+
+  /** The driver's account. TenantContextGuard guarantees it on every route marked RouteAccess.driver(). */
+  requireDriver(): DriverAccount {
+    if (!this.driver) {
+      throw new ProblemException(
+        HttpStatus.FORBIDDEN,
+        'driver_required',
+        'Log in to the driver app for this.',
+      );
+    }
+    return this.driver;
   }
 
   /** The staff role. TenantContextGuard guarantees it on every route marked RouteAccess.platform(). */
@@ -105,6 +126,7 @@ export class RequestAuth {
       access: this.access,
       platform: this.platform,
       apiKey: this.apiKey,
+      driver: this.driver,
     };
   }
 }
@@ -115,4 +137,5 @@ export interface ResolvedAuth {
   access?: TenantAccess | null;
   platform?: PlatformAccess | null;
   apiKey?: ApiKeyPrincipal | null;
+  driver?: DriverAccount | null;
 }

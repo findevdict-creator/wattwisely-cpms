@@ -4,6 +4,8 @@ import {
   accessGroupMembers,
   accessGroups,
   chargingSessions,
+  driverAccounts,
+  driverInvitations,
   drivers,
   rfidCards,
   Transaction,
@@ -11,7 +13,7 @@ import {
 } from '@wattwisely/db';
 import { ListCursor } from '../../../common/paging/list-cursor';
 import { DriverConditions, DriverFilter } from './driver-filter';
-import { DriverGroup, DriverRecord } from './driver-record';
+import { DriverGroup, DriverRecord, OpenInvitation } from './driver-record';
 
 /** Reads and writes drivers. RLS keeps every query inside the current tenant. */
 @Injectable()
@@ -24,6 +26,15 @@ export class DriversRepository {
     reference: drivers.reference,
     notes: drivers.notes,
     status: drivers.status,
+    paymentMode: drivers.paymentMode,
+    driverAccountId: drivers.driverAccountId,
+    accountEmail: driverAccounts.email,
+    linkedAt: drivers.linkedAt,
+    invitation: sql<OpenInvitation | null>`(select json_build_object('email', i.email,
+      'invitedAt', i.created_at, 'expiresAt', i.expires_at) from ${driverInvitations} i
+      where i.driver_id = drivers.id and i.token_hash is not null limit 1)`.mapWith(
+      DriversRepository.toInvitation,
+    ),
     blockedAt: drivers.blockedAt,
     blockedByName: sql<
       string | null
@@ -114,11 +125,41 @@ export class DriversRepository {
     return rows.length === 1;
   }
 
+  /** Sets or clears the driver's own login (module 19); the version moves on, as the page shows the link. */
+  async setAccount(tx: Transaction, id: string, driverAccountId: string | null): Promise<boolean> {
+    const rows = await tx
+      .update(drivers)
+      .set({
+        driverAccountId,
+        linkedAt: driverAccountId ? new Date() : null,
+        version: sql`${drivers.version} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(drivers.id, id))
+      .returning({ id: drivers.id });
+    return rows.length === 1;
+  }
+
+  /** The JSON of the open invitation, with its two dates read as dates. */
+  private static toInvitation(
+    value: { email: string; invitedAt: string; expiresAt: string } | null,
+  ): OpenInvitation | null {
+    if (!value) {
+      return null;
+    }
+    return {
+      email: value.email,
+      invitedAt: new Date(value.invitedAt),
+      expiresAt: new Date(value.expiresAt),
+    };
+  }
+
   private select(tx: Transaction) {
     return tx
       .select(DriversRepository.COLUMNS)
       .from(drivers)
       .leftJoin(userAccounts, eq(userAccounts.id, drivers.blockedBy))
+      .leftJoin(driverAccounts, eq(driverAccounts.id, drivers.driverAccountId))
       .$dynamic();
   }
 }

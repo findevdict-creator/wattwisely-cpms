@@ -15,6 +15,7 @@ import { AccessTokenClaims } from '../common/auth/access-token-claims';
 export class TestTokenIssuer {
   static readonly ISSUER = 'http://auth.test/realms/wattwisely';
   static readonly AUDIENCE = 'wattwisely-api';
+  static readonly DRIVER_AUDIENCE = 'wattwisely-driver';
 
   private privateKey!: CryptoKey;
   private keySet!: JWTVerifyGetKey;
@@ -44,6 +45,24 @@ export class TestTokenIssuer {
   /** A token for a person created with TestData. */
   async signFor(person: { keycloakId: string; email: string }): Promise<string> {
     return this.sign({ sub: person.keycloakId, email: person.email });
+  }
+
+  /** A token from the driver app (module 19): the driver audience, a name, a verified address. */
+  async signForDriver(driver: {
+    keycloakId: string;
+    email: string;
+    name?: string;
+    isEmailVerified?: boolean;
+  }): Promise<string> {
+    return this.sign(
+      {
+        sub: driver.keycloakId,
+        email: driver.email,
+        name: driver.name ?? '',
+        email_verified: driver.isEmailVerified ?? true,
+      },
+      { audience: TestTokenIssuer.DRIVER_AUDIENCE },
+    );
   }
 }
 

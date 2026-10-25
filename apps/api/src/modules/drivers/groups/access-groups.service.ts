@@ -21,8 +21,9 @@ import { AccessGroupDto } from './dto/access-group.dto';
 import { SaveAccessGroupRequestDto } from './dto/save-access-group-request.dto';
 
 /**
- * Access groups (story AST-04): which drivers may charge at which private sites. Changing
- * groups needs drivers:write for the whole company, as drivers are not tied to a site.
+ * Access groups (story AST-04): which drivers may charge at which private sites, and since
+ * module 19 whether their sessions are paid and with what hold. Changing groups needs
+ * drivers:write for the whole company, as drivers are not tied to a site.
  */
 @Injectable()
 export class AccessGroupsService {
@@ -62,6 +63,8 @@ export class AccessGroupsService {
         tenantId: access.tenant.id,
         name: request.name?.trim() || 'New group',
         description: request.description?.trim() ?? '',
+        paymentMode: request.payment_mode,
+        holdAmount: request.hold_amount,
         createdBy: auth.requireAccount().id,
         updatedBy: auth.requireAccount().id,
       });
@@ -84,6 +87,8 @@ export class AccessGroupsService {
       const changes = {
         name: request.name?.trim(),
         description: request.description?.trim(),
+        paymentMode: request.payment_mode,
+        holdAmount: request.hold_amount,
         updatedBy: auth.requireAccount().id,
       };
       if (!(await this.groups.update(tx, id, version, changes))) {
@@ -170,6 +175,8 @@ export class AccessGroupsService {
       record && {
         name: record.name,
         description: record.description,
+        payment_mode: record.paymentMode,
+        hold_amount: record.holdAmount,
         sites: record.sites.map((site) => site.name),
         members: record.members.map((member) => member.name),
       };

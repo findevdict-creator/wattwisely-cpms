@@ -2,10 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
   IsArray,
+  IsIn,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -26,6 +30,26 @@ export class SaveAccessGroupRequestDto {
   @IsString()
   @MaxLength(500)
   readonly description?: string;
+
+  @ApiProperty({
+    required: false,
+    enum: ['inherit', 'pay', 'free'],
+    description: 'Whether the sessions of the group’s drivers are paid (module 19)',
+  })
+  @IsOptional()
+  @IsIn(['inherit', 'pay', 'free'])
+  readonly payment_mode?: 'inherit' | 'pay' | 'free';
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    description: 'The hold on a member’s saved card in minor units; null uses your member hold amount',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100_000_000)
+  readonly hold_amount?: number | null;
 
   @ApiProperty({ required: false, type: [String], description: 'The sites the group opens' })
   @IsOptional()

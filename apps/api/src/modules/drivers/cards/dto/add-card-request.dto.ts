@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { IsDateString, IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 
 /** The characters OCPP 1.6 allows in an idTag (CiString20Type): at most 20 of these. */
 export const ID_TAG_PATTERN = /^[A-Za-z0-9*_=:+|@.-]{1,20}$/;
@@ -25,4 +25,13 @@ export class AddCardRequestDto {
   @IsOptional()
   @IsDateString()
   readonly expires_at?: string | null;
+
+  @ApiProperty({
+    required: false,
+    enum: ['inherit', 'pay', 'free'],
+    description: 'Whether a session this card starts is paid; free only for a card you settle another way',
+  })
+  @IsOptional()
+  @IsIn(['inherit', 'pay', 'free'])
+  readonly payment_mode?: 'inherit' | 'pay' | 'free';
 }
