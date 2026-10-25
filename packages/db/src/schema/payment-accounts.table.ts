@@ -53,8 +53,10 @@ export const paymentAccounts = pgTable(
     country: text('country').notNull(),
     /** The account's settlement currency as Stripe reports it, once known. */
     defaultCurrency: text('default_currency'),
-    /** The card hold taken before a charge, in minor units of the tariff currency (50.00 by default). */
+    /** The hold on a guest's card before a charge, in minor units of the tariff currency (50.00 by default). */
     holdAmount: bigint('hold_amount', { mode: 'number' }).notNull().default(5000),
+    /** The hold on the saved card of one of the tenant's own drivers (module 19), unless their group says otherwise. */
+    memberHoldAmount: bigint('member_hold_amount', { mode: 'number' }).notNull().default(5000),
     connectedBy: uuid('connected_by').references(() => userAccounts.id),
     lastSyncedAt: timestamp('last_synced_at', { withTimezone: true }),
     version: integer('version').notNull().default(1),
@@ -64,6 +66,7 @@ export const paymentAccounts = pgTable(
     unique('payment_accounts_tenant_unique').on(table.tenantId),
     unique('payment_accounts_provider_account_unique').on(table.provider, table.providerAccountId),
     check('payment_accounts_hold_positive', sql`${table.holdAmount} > 0`),
+    check('payment_accounts_member_hold_positive', sql`${table.memberHoldAmount} > 0`),
     pgPolicy('payment_accounts_tenant_isolation', {
       to: RowLevelSecurity.APP_ROLE,
       using: RowLevelSecurity.isCurrentTenant(table.tenantId),

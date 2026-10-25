@@ -239,6 +239,20 @@
       "when": 1792924635670,
       "tag": "0033_driver_accounts_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1792929321100,
+      "tag": "0034_saved_cards",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792929367682,
+      "tag": "0035_saved_cards_grants",
+      "breakpoints": true
     }
   ]
 }

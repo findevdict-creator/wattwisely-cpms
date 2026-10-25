@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { ProblemException } from '../../common/problem/problem.exception';
+import { DriverChargeRefusal, DriverPlaceAccessPolicy } from './places/driver-place-access';
 
 /** The problems the /v1/driver routes answer with (module 19). */
 export class DriverAppErrors {
@@ -50,6 +51,56 @@ export class DriverAppErrors {
       HttpStatus.NOT_FOUND,
       'operator_not_found',
       'You are not linked to this operator.',
+    );
+  }
+
+  static cardNotFound(): ProblemException {
+    return new ProblemException(
+      HttpStatus.NOT_FOUND,
+      'card_not_found',
+      'This saved card does not exist or was removed.',
+    );
+  }
+
+  /** The provider's form did not finish: the setup is not succeeded, or carries no card. */
+  static cardSetupIncomplete(failure: string | null): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'card_setup_incomplete',
+      failure
+        ? `The card could not be saved: ${failure}`
+        : 'The card form has not confirmed a card yet. Finish it, then try again.',
+    );
+  }
+
+  /** The operator has no record of this login: the driver must agree to one before charging here. */
+  static consentRequired(): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'consent_required',
+      'This operator has no record of you yet. Agree to one to charge here.',
+    );
+  }
+
+  /** The unique index drivers_email_unique: the operator already knows this e-mail, unlinked. */
+  static driverRecordExists(): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'driver_record_exists',
+      'This operator already keeps a driver record with your e-mail address. Ask them to invite you, so the two are linked.',
+    );
+  }
+
+  /** The start is refused for the reason the place page showed; the code is that reason. */
+  static cannotCharge(reason: DriverChargeRefusal): ProblemException {
+    return new ProblemException(HttpStatus.CONFLICT, reason, DriverPlaceAccessPolicy.WORDS[reason]);
+  }
+
+  static chargeNotFound(): ProblemException {
+    return new ProblemException(
+      HttpStatus.NOT_FOUND,
+      'charge_not_found',
+      'This charge is not one of yours, or does not exist.',
     );
   }
 }

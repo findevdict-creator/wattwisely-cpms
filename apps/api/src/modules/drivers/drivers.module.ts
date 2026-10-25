@@ -71,6 +71,7 @@ import { QrCodesService } from './qr/qr-codes.service';
     DriverInvitesService,
   ],
   exports: [
+    PlaceDescriber,
     DriversRepository,
     AccessGroupsRepository,
     RfidCardsRepository,

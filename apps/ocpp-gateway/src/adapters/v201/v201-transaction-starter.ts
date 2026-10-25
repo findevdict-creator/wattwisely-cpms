@@ -82,13 +82,24 @@ export class V201TransactionStarter {
     decision: (TagDecision & { commandId: string | null; idTag: string }) | null,
   ): SessionIdentity {
     if (!decision) {
-      return { idTag: '', driverId: null, rfidCardId: null, commandId: null };
+      return {
+        idTag: '',
+        driverId: null,
+        rfidCardId: null,
+        commandId: null,
+        startSource: null,
+        paymentRule: null,
+        isPaid: false,
+      };
     }
     return {
       idTag: decision.idTag,
       driverId: decision.driverId,
       rfidCardId: decision.cardId,
       commandId: decision.commandId,
+      startSource: decision.startSource,
+      paymentRule: decision.paymentRule,
+      isPaid: decision.paymentRule?.outcome === 'pay',
     };
   }
 }

@@ -1,14 +1,10 @@
 import { Transaction } from '@wattwisely/db';
-import {
-  SessionEvent,
-  SessionRow,
-  SessionStore,
-  SessionTransitions,
-} from '@wattwisely/session-engine';
+import { SessionEvent, SessionStore, SessionTransitions } from '@wattwisely/session-engine';
 import { HoldState } from '../gateway/payment-gateway';
 import { PaymentRow, PaymentStatus, PaymentStatuses } from '../store/payment-rows';
 import { PaymentStore } from '../store/payment-store';
 import { CommandQueuer } from './command-queuer';
+import { RemoteSessionStarter } from './remote-session-starter';
 import { SessionAnnouncer } from './session-announcer';
 
 /**
@@ -24,6 +20,7 @@ export class HoldAuthoriser {
   private readonly transitions = new SessionTransitions();
   private readonly commands = new CommandQueuer();
   private readonly announcer = new SessionAnnouncer();
+  private readonly starter = new RemoteSessionStarter();
 
   /** True when the payment or the session changed. */
   async apply(tx: Transaction, payment: PaymentRow, hold: HoldState, now: Date) {
@@ -49,27 +46,15 @@ export class HoldAuthoriser {
       status: 'authorised',
       authorizedAmount: hold.amountCapturable ?? hold.amount,
       authorizedAt: now,
-      cardBrand: hold.card?.brand ?? null,
-      cardLast4: hold.card?.last4 ?? null,
+      // A hold on a saved card (module 19) already knows its card; the provider may not repeat it.
+      cardBrand: hold.card?.brand ?? payment.cardBrand,
+      cardLast4: hold.card?.last4 ?? payment.cardLast4,
     });
     const session = await this.sessions.find(tx, payment.sessionId);
     if (session) {
-      await this.startSession(tx, session, now);
+      await this.starter.start(tx, session, now, 'authorised');
     }
     return true;
-  }
-
-  private async startSession(tx: Transaction, session: SessionRow, now: Date): Promise<void> {
-    const moved = await this.transitions.apply(tx, session, 'authorised', { occurredAt: now });
-    if (!moved?.isChanged) {
-      return;
-    }
-    const commandId = await this.commands.remoteStart(tx, session);
-    await this.sessions.saveCommand(tx, session.id, commandId);
-    await this.announcer.announce(tx, session, {
-      status: moved.status,
-      paymentStatus: 'authorised',
-    });
   }
 
   private async failed(tx: Transaction, payment: PaymentRow, hold: HoldState, now: Date) {

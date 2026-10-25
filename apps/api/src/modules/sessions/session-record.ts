@@ -1,3 +1,4 @@
+import { SessionPaymentRule } from '@wattwisely/db';
 import { SessionState } from '@wattwisely/session-engine';
 
 /** One charging_sessions row with the names of where it happened, as lists and details read it. */
@@ -40,6 +41,9 @@ export interface SessionRecord {
   isPaid: boolean;
   /** Where the card payment stands, when there is one. */
   paymentStatus: string | null;
+  /** How it was started and who pays (module 19); null on sessions from before. */
+  startSource: string | null;
+  paymentRule: SessionPaymentRule | null;
 }
 
 /** The tariff a session was priced with: its name and which version. */

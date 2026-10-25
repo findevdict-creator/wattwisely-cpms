@@ -19,6 +19,8 @@ export const driverAccounts = pgTable(
     /** What the driver calls themselves in the app; operators keep their own name for the driver. */
     displayName: text('display_name').notNull().default(''),
     phone: text('phone'),
+    /** The driver's customer at the payment provider (a Stripe Customer on the platform account), once a card was saved. */
+    paymentCustomerId: text('payment_customer_id'),
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
     ...Timestamps.columns(),
   },

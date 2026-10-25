@@ -1,5 +1,6 @@
 import { CsvTable } from '../csv/csv-table';
 import { MoneyText } from '../csv/money-text';
+import { PaymentRuleText } from './payment-rule-text';
 import { SessionCsvRow } from './session-csv-row';
 
 /**
@@ -25,6 +26,8 @@ export class SessionCsv {
     'gross',
     'review_flags',
     'failure_reason',
+    'start_source',
+    'payment_rule',
   ];
 
   static of(sessions: readonly SessionCsvRow[]): string {
@@ -54,6 +57,8 @@ export class SessionCsv {
       money(session.grossAmount),
       session.reviewFlags.join(' '),
       session.failureReason ?? '',
+      session.startSource ?? '',
+      PaymentRuleText.of(session.paymentRule),
     ];
   }
 }

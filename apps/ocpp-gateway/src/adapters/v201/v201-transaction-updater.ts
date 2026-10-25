@@ -40,6 +40,9 @@ export class V201TransactionUpdater {
       driverId: decision.driverId,
       rfidCardId: decision.cardId,
       commandId: decision.commandId,
+      startSource: decision.startSource,
+      paymentRule: decision.paymentRule,
+      isPaid: decision.paymentRule?.outcome === 'pay',
     });
     return decision.status;
   }

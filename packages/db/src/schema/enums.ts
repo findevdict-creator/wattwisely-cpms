@@ -289,6 +289,22 @@ export const rfidCardStatus = pgEnum('rfid_card_status', ['active', 'blocked', '
 export const driverPaymentMode = pgEnum('driver_payment_mode', ['inherit', 'pay', 'free']);
 
 /**
+ * How a session was started (module 19): with an RFID card at the charger, by a guest paying
+ * on the QR page (or from a chat, module 17), by a driver logged into the app, or by staff
+ * from the portal. Empty on sessions from before module 19 and on unknown tags let through on a bench.
+ */
+export const sessionStartSource = pgEnum('session_start_source', [
+  'rfid_card',
+  'guest_card',
+  'chat',
+  'account',
+  'staff',
+]);
+
+/** A saved card (module 19): usable, or removed by the driver (the row stays for old payments). */
+export const paymentMethodStatus = pgEnum('payment_method_status', ['active', 'removed']);
+
+/**
  * An invoice from Wattwisely to a tenant (module 15): drafted by the worker or staff and
  * still editable, issued with its number and sent, paid, or void (a mistake, replaced by
  * another invoice). Overdue is not a status: an issued invoice is overdue once its due date passed.

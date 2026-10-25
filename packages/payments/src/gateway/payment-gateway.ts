@@ -1,3 +1,11 @@
+import {
+  CardSetup,
+  CardSetupRequest,
+  CardSetupState,
+  CustomerRequest,
+  SavedCardHoldRequest,
+} from './saved-cards';
+
 /** Where a hold stands at the provider, in the platform's own words. */
 export type HoldStatus =
   'requires_confirmation' | 'authorised' | 'captured' | 'cancelled' | 'failed';
@@ -130,4 +138,13 @@ export interface PaymentGateway {
   parseWebhook(rawBody: Buffer, signature: string): ReceivedEvent;
   /** Translates an event stored earlier, for a retry. */
   parseStoredEvent(payload: unknown): ReceivedEvent;
+  /** A driver's customer on the platform account (module 19); returns the provider's id. */
+  createCustomer(request: CustomerRequest): Promise<string>;
+  /** Begins saving a card: the driver's page confirms the setup with the card form. */
+  createCardSetup(request: CardSetupRequest): Promise<CardSetup>;
+  getCardSetup(providerSetupId: string): Promise<CardSetupState>;
+  /** Forgets a saved card at the provider. */
+  detachCard(providerPaymentMethodId: string): Promise<void>;
+  /** A hold on a saved card, confirmed at once; a refusal is a failed HoldState or a card_declined error. */
+  createSavedCardHold(request: SavedCardHoldRequest): Promise<HoldState>;
 }
