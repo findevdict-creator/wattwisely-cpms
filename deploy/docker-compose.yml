@@ -125,7 +125,7 @@ services:
       PORTAL_ADMIN_URL: ${PUBLIC_SCHEME}://${ADMIN_HOST}
     networks: [backend]
 
-  # Chargers connect here over WebSocket (OCPP 1.6J). Caddy terminates TLS and forwards
+  # Chargers connect here over WebSocket (OCPP 1.6J or 2.0.1). Caddy terminates TLS and forwards
   # ws://ocpp-gateway:3100/ocpp/<identity>; the gateway talks to the API through Postgres.
   ocpp-gateway:
     image: ${WATTWISELY_IMAGE_PREFIX}/ocpp-gateway:${WATTWISELY_VERSION}

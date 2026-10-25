@@ -40,12 +40,14 @@ export class GatewayConnectorsRepository {
 
   /**
    * The connector with this number, created on the spot when the charger reports one
-   * nobody added in the portal (the next free letter becomes its label).
+   * nobody added in the portal (the next free letter becomes its label). On OCPP 2.0.1
+   * the number is the EVSE id (module 18), and the row says so in `evse_id`.
    */
   async findOrCreate(
     tx: Transaction,
     charger: { id: string; tenantId: string },
     ocppConnectorId: number,
+    evseId: number | null = null,
   ) {
     const existing = await this.findByNumber(tx, charger.id, ocppConnectorId);
     if (existing) {
@@ -60,6 +62,7 @@ export class GatewayConnectorsRepository {
       tenantId: charger.tenantId,
       chargerId: charger.id,
       ocppConnectorId,
+      evseId,
       label: ConnectorLabel.next(taken.map((item) => item.label)),
     };
     await tx.insert(connectors).values(row);

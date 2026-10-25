@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, TransactionRunner } from '@wattwisely/db';
-import { CommandOutcome } from '../adapters/v16/v16-command.builder';
 import { ChargerEventPublisher } from '../events/charger-event.publisher';
 import { ChargerIdentity } from '../storage/charger-identity';
 import { GatewayCommand, GatewayCommandsRepository } from '../storage/gateway-commands.repository';
+import { CommandOutcome } from './command-outcome';
 
 /** The gateway's view of charger_commands, each step in its own tenant transaction. */
 @Injectable()

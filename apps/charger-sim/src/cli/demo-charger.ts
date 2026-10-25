@@ -1,11 +1,15 @@
-import { ChargerMessages, ConnectRefused, SimulatedCharger } from '@wattwisely/charger-sim';
+import { ConnectRefused, SimulatedCharger } from '@wattwisely/charger-sim';
 import { CommandAnswers } from './command-answers';
 import { ConnectorState } from './connector-state';
 import { SimOptions } from './sim-options';
+import { StationDialect } from './station-dialect';
+import { V16Dialect } from './v16-dialect';
+import { V201Dialect } from './v201-dialect';
 
 /**
  * A charge point you can run against a gateway: it connects, boots, sends heartbeats and
- * status, charges when told to, and reconnects by itself when the socket drops.
+ * status, charges when told to, and reconnects by itself when the socket drops. It speaks
+ * OCPP 1.6J, or 2.0.1 with `--ocpp 2.0.1` (module 18); the dialect holds the difference.
  */
 export class DemoCharger {
   static readonly RECONNECT_DELAY_MS = 5_000;
@@ -52,47 +56,51 @@ export class DemoCharger {
       vendor: this.options.vendor,
       model: this.options.model,
       serial: this.options.serial,
+      protocols: this.options.ocpp === '2.0.1' ? V201Dialect.PROTOCOLS : V16Dialect.PROTOCOLS,
     });
-    const messages = new ChargerMessages(charger);
+    const dialect = this.dialectFor(charger);
     this.charger = charger;
-    this.connectors = this.connectorsFor(messages);
-    new CommandAnswers(this.options, this.connectors, (line) => this.log(line)).install(
-      charger,
+    this.connectors = this.connectorsFor(dialect);
+    const answers = new CommandAnswers(
+      this.options,
+      this.connectors,
+      (line) => this.log(line),
       () => this.reset(charger),
     );
+    dialect.installCommands(charger, answers);
     await charger.connect();
-    this.log(`connected to ${this.options.url}`);
-    await this.boot(messages);
+    this.log(`connected to ${this.options.url} as ${charger.protocol}`);
+    await this.boot(dialect);
     const code = await charger.closed(Number.MAX_SAFE_INTEGER);
     this.clearHeartbeat();
     this.connectors.forEach((connector) => connector.suspend());
     this.log(`socket closed with ${code}`);
   }
 
-  private async boot(messages: ChargerMessages): Promise<void> {
-    const boot = await messages.boot();
+  private async boot(dialect: StationDialect): Promise<void> {
+    const boot = await dialect.boot();
     this.log(`boot ${boot.status}, heartbeat every ${boot.interval} s`);
     if (boot.status !== 'Accepted') {
       return;
     }
-    this.heartbeat = setInterval(() => void this.sendHeartbeat(messages), boot.interval * 1000);
-    await messages.status(0, 'Available');
+    this.heartbeat = setInterval(() => void this.sendHeartbeat(dialect), boot.interval * 1000);
+    await dialect.announceStation();
     for (const connector of this.connectors) {
       await connector.setStatus(connector.status);
     }
-    await this.tapCard(messages);
+    await this.tapCard(dialect);
   }
 
   /** `--tag`: a driver holds their RFID card against connector 1, once (module 13). */
-  private async tapCard(messages: ChargerMessages): Promise<void> {
+  private async tapCard(dialect: StationDialect): Promise<void> {
     const tag = this.options.tag;
     if (!tag || this.hasTappedCard) {
       return;
     }
     this.hasTappedCard = true;
-    const answer = await messages.authorize(tag);
-    this.log(`authorize ${tag}: ${answer.idTagInfo.status}`);
-    if (answer.idTagInfo.status === 'Accepted') {
+    const status = await dialect.authorize(tag);
+    this.log(`authorize ${tag}: ${status}`);
+    if (status === 'Accepted') {
       await this.connectors[0]?.startCharging(
         tag,
         this.options.powerW,
@@ -101,9 +109,9 @@ export class DemoCharger {
     }
   }
 
-  private async sendHeartbeat(messages: ChargerMessages): Promise<void> {
+  private async sendHeartbeat(dialect: StationDialect): Promise<void> {
     try {
-      await messages.heartbeat();
+      await dialect.heartbeat();
     } catch (error) {
       this.log(`heartbeat failed: ${(error as Error).message}`);
     }
@@ -116,10 +124,14 @@ export class DemoCharger {
     await charger.close(1001, 'Resetting');
   }
 
-  private connectorsFor(messages: ChargerMessages): ConnectorState[] {
+  private dialectFor(charger: SimulatedCharger): StationDialect {
+    return this.options.ocpp === '2.0.1' ? new V201Dialect(charger) : new V16Dialect(charger);
+  }
+
+  private connectorsFor(dialect: StationDialect): ConnectorState[] {
     return Array.from(
       { length: this.options.connectors },
-      (_, index) => new ConnectorState(index + 1, messages, (line) => this.log(line)),
+      (_, index) => new ConnectorState(index + 1, dialect, (line) => this.log(line)),
     );
   }
 

@@ -1,0 +1,121 @@
+{
+  "title": "TransactionEventRequest",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "eventType": {
+      "type": "string",
+      "enum": ["Ended", "Started", "Updated"]
+    },
+    "meterValue": {
+      "type": "array",
+      "items": {
+        "$ref": "MeterValue"
+      },
+      "minItems": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "triggerReason": {
+      "type": "string",
+      "enum": [
+        "Authorized",
+        "CablePluggedIn",
+        "ChargingRateChanged",
+        "ChargingStateChanged",
+        "Deauthorized",
+        "EnergyLimitReached",
+        "EVCommunicationLost",
+        "EVConnectTimeout",
+        "MeterValueClock",
+        "MeterValuePeriodic",
+        "TimeLimitReached",
+        "Trigger",
+        "UnlockCommand",
+        "StopAuthorized",
+        "EVDeparted",
+        "EVDetected",
+        "RemoteStop",
+        "RemoteStart",
+        "AbnormalCondition",
+        "SignedDataReceived",
+        "ResetCommand"
+      ]
+    },
+    "seqNo": {
+      "type": "integer"
+    },
+    "offline": {
+      "type": "boolean"
+    },
+    "numberOfPhasesUsed": {
+      "type": "integer"
+    },
+    "cableMaxCurrent": {
+      "type": "integer"
+    },
+    "reservationId": {
+      "type": "integer"
+    },
+    "transactionInfo": {
+      "type": "object",
+      "properties": {
+        "customData": {
+          "type": "object"
+        },
+        "transactionId": {
+          "type": "string",
+          "maxLength": 36
+        },
+        "chargingState": {
+          "type": "string",
+          "enum": ["Charging", "EVConnected", "SuspendedEV", "SuspendedEVSE", "Idle"]
+        },
+        "timeSpentCharging": {
+          "type": "integer"
+        },
+        "stoppedReason": {
+          "type": "string",
+          "enum": [
+            "DeAuthorized",
+            "EmergencyStop",
+            "EnergyLimitReached",
+            "EVDisconnected",
+            "GroundFault",
+            "ImmediateReset",
+            "Local",
+            "LocalOutOfCredit",
+            "MasterPass",
+            "Other",
+            "OvercurrentFault",
+            "PowerLoss",
+            "PowerQuality",
+            "Reboot",
+            "Remote",
+            "SOCLimitReached",
+            "StoppedByEV",
+            "TimeLimitReached",
+            "Timeout"
+          ]
+        },
+        "remoteStartId": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["transactionId"]
+    },
+    "evse": {
+      "$ref": "EVSE"
+    },
+    "idToken": {
+      "$ref": "IdToken"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["eventType", "timestamp", "triggerReason", "seqNo", "transactionInfo"]
+}

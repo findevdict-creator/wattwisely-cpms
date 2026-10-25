@@ -28,9 +28,9 @@ import { HeartbeatWatcher } from './heartbeat-watcher';
     });
   });
 
-  it('refuses the wrong subprotocol with 400', async () => {
+  it('refuses a subprotocol it does not speak with 400', async () => {
     await gateway.data.charger(acme, site, 'WW-PROTO');
-    const charger = gateway.charger('WW-PROTO', { protocols: ['ocpp2.0.1'] });
+    const charger = gateway.charger('WW-PROTO', { protocols: ['ocpp2.1'] });
     await expect(charger.connect()).rejects.toMatchObject({
       status: 400,
       reason: 'unsupported_protocol',

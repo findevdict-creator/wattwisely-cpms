@@ -19,7 +19,18 @@ export interface SessionStart {
   driverId?: string | null;
   rfidCardId?: string | null;
   startedAt: Date;
-  meterStartWh: number;
+  /** Null when the charger's first event carried no reading (2.0.1); set from the first that does. */
+  meterStartWh: number | null;
+  commandId: string | null;
+  /** The transaction id a 2.0.1 charger chose (module 18); left out on 1.6. */
+  ocppTransactionRef?: string | null;
+}
+
+/** Who a 2.0.1 transaction turned out to be for, when the token arrives after the start. */
+export interface SessionIdentity {
+  idTag: string;
+  driverId: string | null;
+  rfidCardId: string | null;
   commandId: string | null;
 }
 
@@ -103,6 +114,45 @@ export class SessionsRepository {
       .where(eq(chargingSessions.id, session.id))
       .returning(SessionColumns.SELECT);
     return rows[0] as SessionRow;
+  }
+
+  /** A 2.0.1 session by the transaction id the charger chose. */
+  async findByTransactionRef(tx: Transaction, chargerId: string, ref: string) {
+    const rows = await tx
+      .select(SessionColumns.SELECT)
+      .from(chargingSessions)
+      .where(
+        and(
+          eq(chargingSessions.chargerId, chargerId),
+          eq(chargingSessions.ocppTransactionRef, ref),
+        ),
+      );
+    return (rows[0] as SessionRow | undefined) ?? null;
+  }
+
+  /** The charger's own transaction id for a session, for RequestStopTransaction; null on 1.6. */
+  async transactionRefOf(tx: Transaction, sessionId: string): Promise<string | null> {
+    const rows = await tx
+      .select({ ref: chargingSessions.ocppTransactionRef })
+      .from(chargingSessions)
+      .where(eq(chargingSessions.id, sessionId));
+    return rows[0]?.ref ?? null;
+  }
+
+  /** A 2.0.1 transaction that started before it was authorised learns its token, driver and card. */
+  async identify(tx: Transaction, sessionId: string, identity: SessionIdentity): Promise<void> {
+    await tx
+      .update(chargingSessions)
+      .set({ ...identity, lastEventAt: new Date() })
+      .where(eq(chargingSessions.id, sessionId));
+  }
+
+  /** The first energy reading of a session that started without one is where its meter starts. */
+  async setMeterStart(tx: Transaction, sessionId: string, meterStartWh: number): Promise<void> {
+    await tx
+      .update(chargingSessions)
+      .set({ meterStartWh, lastEventAt: new Date() })
+      .where(and(eq(chargingSessions.id, sessionId), isNull(chargingSessions.meterStartWh)));
   }
 
   async findByTransactionId(tx: Transaction, chargerId: string, ocppTransactionId: number) {
