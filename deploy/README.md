@@ -89,3 +89,28 @@ Open <http://portal.localhost>. The driver app is at <http://charge.localhost>: 
 - **Keycloak reads `keycloak/realm/wattwisely-realm.json` only when the realm does not exist yet.** Later changes to that file are applied by hand in the admin console, or by a migration in a later module.
 - **OpenBao is sealed after every restart.** `up.sh` unseals it with the key in `.secrets/`. If that file is lost, the secrets in OpenBao are lost too.
 - **MinIO is not used.** MinIO stopped publishing free Docker images in 2025, so file storage uses SeaweedFS, which speaks the same S3 interface.
+
+## Windows
+
+The scripts run in Git Bash (comes with Git for Windows) or in a WSL terminal, with Docker Desktop.
+
+- **Line endings.** `.gitattributes` makes Git check out every file with LF endings, because the shell scripts and configuration files run inside Linux containers. A clone made before that file existed still has CRLF endings. Clone again, or refresh the checkout (this discards uncommitted changes):
+
+  ```sh
+  git rm -r --cached -q . && git reset --hard
+  ```
+
+- **Paths in Git Bash.** Git Bash rewrites arguments that look like Unix paths into Windows paths before they reach `docker`. The scripts guard the container paths they pass (`//opt/...` in `seed-demo.sh`, `MSYS_NO_PATHCONV=1` in `backup.sh` and `restore.sh`). Keep that in mind when you type `docker compose exec` commands by hand.
+
+## Troubleshooting
+
+- **Keycloak never becomes healthy and its log says `password authentication failed for user "keycloak"`.** Keycloak's database user is created by `postgres/init/01-create-keycloak-database.sh`, which Postgres runs only when its volume is first created. If that first start failed (on Windows usually because of CRLF line endings: the Postgres log says `/bin/sh^M: bad interpreter`), the user and database are missing. `up.sh` now creates them on every start, so fix the line endings and run `./scripts/up.sh` again. On a trial machine with nothing to keep you can also start from an empty database: `./scripts/down.sh`, `docker volume rm wattwisely_postgres-data`, `./scripts/up.sh`.
+- **Keycloak is "healthy" but the login page or the admin console never finishes loading.** Requests to `/realms/...` hang, and the Keycloak log shows `ARJUNA012117` transaction timeouts in `SimpleTimestamper`. This happens after the clock of the Docker machine jumps, typically when the WSL2 virtual machine behind Docker Desktop drifts hours ahead after the PC sleeps and then corrects itself. Check the clock against the real UTC time:
+
+  ```sh
+  docker exec wattwisely-postgres-1 date -u
+  ```
+
+  If the clock is wrong, run `wsl --shutdown` in PowerShell, restart Docker Desktop, then `./scripts/up.sh`. If the clock is right and Keycloak still hangs, restart it: `docker restart wattwisely-keycloak-1`.
+
+- **`seed-demo.sh` stops with "Could not sign in to Keycloak".** The message includes Keycloak's answer. Usually Keycloak is not ready yet (`./scripts/health.sh`), or `KEYCLOAK_ADMIN_PASSWORD` in `.env` no longer matches: Keycloak takes the admin password from `.env` only on its first start.
