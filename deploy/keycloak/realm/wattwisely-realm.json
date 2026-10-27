@@ -1,6 +1,8 @@
 {
   "realm": "wattwisely",
   "displayName": "Wattwisely",
+  "loginTheme": "wattwisely",
+  "emailTheme": "wattwisely",
   "enabled": true,
   "organizationsEnabled": true,
   "sslRequired": "${KC_REALM_SSL_REQUIRED}",

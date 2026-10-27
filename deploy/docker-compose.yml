@@ -261,6 +261,8 @@ services:
       SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
     volumes:
       - ./keycloak/realm:/opt/keycloak/data/import:ro
+      # Sign-in pages and e-mails in the platform's look (module 21), named by the realm.
+      - ./keycloak/themes/wattwisely:/opt/keycloak/themes/wattwisely:ro
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }
