@@ -35,12 +35,20 @@ ensure_ocpp_settings() {
   [[ -n "$(env_value ADMIN_HOST)" ]] || set_env_value ADMIN_HOST "admin.$domain"
 }
 
+# Module 12: servers installed earlier have no Grafana password yet. The textfile folder
+# must exist before node-exporter starts, or Docker creates it owned by root.
+ensure_monitoring_settings() {
+  [[ -n "$(env_value GRAFANA_ADMIN_PASSWORD)" ]] || set_env_value GRAFANA_ADMIN_PASSWORD "$(random_secret 32)"
+  mkdir -p "$METRICS_DIR" && chmod 755 "$METRICS_DIR"
+}
+
 # "wss://ocpp.example.com/ocpp" -> "ocpp.example.com"
 host_of() {
   local url="${1#*://}"
   echo "${url%%/*}"
 }
 ensure_ocpp_settings
+ensure_monitoring_settings
 
 if [[ "${1:-}" == "--build" ]]; then
   info "Building images from source"
@@ -61,7 +69,9 @@ run_migrations
 compose up -d --no-build
 
 info "Waiting for services to become healthy"
-for service in postgres valkey keycloak api portal driver admin ocpp-gateway worker; do
+services=(postgres valkey keycloak api portal driver admin ocpp-gateway worker)
+is_profile_on monitoring && services+=(prometheus alertmanager grafana node-exporter)
+for service in "${services[@]}"; do
   wait_for_service "$service"
 done
 openbao_unseal
@@ -70,8 +80,17 @@ ensure_admin_client
 scheme="$(env_value PUBLIC_SCHEME)"
 info "Wattwisely is running"
 echo "  Portal:          $scheme://$(env_value PORTAL_HOST)"
-echo "  API:             $scheme://$(env_value API_HOST)/docs"
+if [[ "$(env_value API_DOCS_ENABLED)" == "true" ]]; then
+  echo "  API:             $scheme://$(env_value API_HOST)/docs"
+else
+  echo "  API:             $scheme://$(env_value API_HOST)  (reference at /docs is off: API_DOCS_ENABLED=true in .env)"
+fi
 echo "  Drivers:         $scheme://$(env_value DRIVER_HOST)  (QR codes on the chargers open this)"
 echo "  Admin console:   $scheme://$(env_value ADMIN_HOST)  (Wattwisely staff; ./scripts/add-platform-admin.sh <email> adds the first)"
 echo "  Chargers:        $(env_value OCPP_URL)/<charger id>"
 echo "  Keycloak admin:  $scheme://$(env_value AUTH_HOST)/admin  (user $(env_value KEYCLOAK_ADMIN_USER))"
+if is_profile_on monitoring; then
+  echo "  Monitoring:      http://localhost:3300 on this server (user admin; ssh -L 3300:localhost:3300 from your laptop)"
+else
+  echo "  Monitoring:      off (add monitoring to COMPOSE_PROFILES in .env)"
+fi

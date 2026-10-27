@@ -22,6 +22,13 @@ export interface DueMail {
   exportId: string | null;
 }
 
+/** A ready export's file, as a scheduled report e-mail attaches it. */
+export interface ExportFileRow {
+  fileName: string;
+  data: Buffer | null;
+  storageKey: string | null;
+}
+
 /** Reads and updates the outbox for the sender. Every query runs inside one tenant. */
 @Injectable()
 export class OutboxRepository {
@@ -103,15 +110,16 @@ export class OutboxRepository {
       .where(eq(sessionSubscriptions.sessionId, sessionId));
   }
 
-  /** The CSV of a scheduled report, gzipped as stored. */
-  async findExportFile(
-    tx: Transaction,
-    exportId: string,
-  ): Promise<{ fileName: string; data: Buffer } | null> {
+  /** Where the gzipped CSV of a scheduled report is: in the row, or in object storage. */
+  async findExportFile(tx: Transaction, exportId: string): Promise<ExportFileRow | null> {
     const [row] = await tx
-      .select({ fileName: reportExports.fileName, data: reportExports.data })
+      .select({
+        fileName: reportExports.fileName,
+        data: reportExports.data,
+        storageKey: reportExports.storageKey,
+      })
       .from(reportExports)
       .where(and(eq(reportExports.id, exportId), eq(reportExports.status, 'ready')));
-    return row?.data ? { fileName: row.fileName, data: row.data } : null;
+    return row && (row.data || row.storageKey) ? row : null;
   }
 }

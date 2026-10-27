@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { and, asc, eq, lt } from 'drizzle-orm';
 import { reportExports, reportSchedules, Transaction, userAccounts } from '@wattwisely/db';
 import { ExportParametersByKind, ReportKind } from '@wattwisely/reports';
+import { StoredExportFile } from '../storage/export-files';
 
 /** A queued export, locked by the transaction that picked it. */
 export interface QueuedExport {
@@ -17,9 +18,10 @@ export interface QueuedExport {
   recipients: string[];
 }
 
-/** The finished file of an export. */
+/** The finished file of an export: its bytes in the row, or its key in object storage. */
 export interface BuiltExport {
-  data: Buffer;
+  file: StoredExportFile;
+  sizeBytes: number;
   rowCount: number;
   isTruncated: boolean;
   expiresAt: Date;
@@ -63,9 +65,10 @@ export class ReportExportsRepository {
       .update(reportExports)
       .set({
         status: 'ready',
-        data: built.data,
+        data: built.file.data,
+        storageKey: built.file.storageKey,
         rowCount: built.rowCount,
-        sizeBytes: built.data.length,
+        sizeBytes: built.sizeBytes,
         error: built.isTruncated ? 'truncated' : null,
         startedAt: now,
         finishedAt: new Date(),
@@ -87,13 +90,16 @@ export class ReportExportsRepository {
       .where(and(eq(reportExports.id, id), eq(reportExports.status, 'queued')));
   }
 
-  /** Old files are dropped; the row stays as a record of the export. */
-  async expire(tx: Transaction, now: Date): Promise<number> {
+  /**
+   * Old files are dropped; the row stays as a record of the export. Returns the object
+   * storage keys of the files to remove once this transaction has committed.
+   */
+  async expire(tx: Transaction, now: Date): Promise<(string | null)[]> {
     const rows = await tx
       .update(reportExports)
       .set({ status: 'expired', data: null, updatedAt: now })
       .where(and(eq(reportExports.status, 'ready'), lt(reportExports.expiresAt, now)))
-      .returning({ id: reportExports.id });
-    return rows.length;
+      .returning({ storageKey: reportExports.storageKey });
+    return rows.map((row) => row.storageKey);
   }
 }

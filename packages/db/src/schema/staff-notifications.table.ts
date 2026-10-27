@@ -34,6 +34,8 @@ export const staffNotifications = pgTable(
       table.membershipId,
       table.createdAt.desc(),
     ),
+    /** The retention job deletes old lines by age (module 12). */
+    index('staff_notifications_created_idx').on(table.tenantId, table.createdAt),
     pgPolicy('staff_notifications_tenant_isolation', {
       to: RowLevelSecurity.APP_ROLE,
       using: RowLevelSecurity.isCurrentTenant(table.tenantId),

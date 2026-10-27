@@ -1,0 +1,35 @@
+# Alertmanager (module 12): e-mails every alert from Prometheus to ALERT_EMAIL_TO, through the
+# platform's SMTP server. start.sh fills in the placeholders from .env when the container starts.
+global:
+  smtp_smarthost: '__SMTP_HOST__:__SMTP_PORT__'
+  smtp_from: '__SMTP_FROM__'
+  smtp_auth_username: '__SMTP_USER__'
+  smtp_auth_password: '__SMTP_PASSWORD__'
+  smtp_require_tls: __SMTP_REQUIRE_TLS__
+
+route:
+  receiver: operations
+  group_by: [alertname, job]
+  group_wait: 30s
+  group_interval: 5m
+  # A problem that is still there is mailed again after 4 hours.
+  repeat_interval: 4h
+  routes:
+    # Reminders about backups need no more than one e-mail a day.
+    - matchers: [alertname =~ "BackupMissing|RestoreDrillOverdue"]
+      receiver: operations
+      repeat_interval: 24h
+
+# While chargers or a whole service are down, the slower symptoms they cause stay quiet.
+inhibit_rules:
+  - source_matchers: [alertname = ServiceDown]
+    target_matchers: [severity = warning]
+    equal: [job]
+
+receivers:
+  - name: operations
+    email_configs:
+      - to: '__ALERT_EMAIL_TO__'
+        send_resolved: true
+        headers:
+          Subject: '[Wattwisely {{ .CommonLabels.severity }}] {{ .GroupLabels.alertname }} ({{ .Status }})'

@@ -13,6 +13,7 @@ import { V16StatusNotificationHandler } from './adapters/v16/v16-status-notifica
 import { V16StopTransactionHandler } from './adapters/v16/v16-stop-transaction.handler';
 import { CommandDispatcher } from './commands/command-dispatcher';
 import { CommandListener } from './commands/command-listener';
+import { CommandSender } from './commands/command-sender';
 import { CommandStore } from './commands/command-store';
 import { IssuedTagRegistry } from './commands/issued-tag.registry';
 import { OfflineCommandQueue } from './commands/offline-command-queue';
@@ -36,6 +37,7 @@ import { RequestChecks } from './connection/request-checks';
 import { UpgradeGuard } from './connection/upgrade-guard';
 import { ChargerEventPublisher } from './events/charger-event.publisher';
 import { MessageLogWriter } from './log/message-log.writer';
+import { GatewayMetrics } from './metrics/gateway-metrics';
 import { ConnectorSessionEffects } from './sessions/connector-session-effects';
 import { SessionOpener } from './sessions/session-opener';
 import { SessionRecorder } from './sessions/session-recorder';
@@ -100,6 +102,7 @@ const HANDLERS = [
     ConnectionLifecycle,
     ConnectionOpener,
     OcppRoute,
+    GatewayMetrics,
     // Messages
     SchemaValidator,
     FrameLogger,
@@ -117,6 +120,7 @@ const HANDLERS = [
     IssuedTagRegistry,
     TagPolicy,
     CommandStore,
+    CommandSender,
     CommandDispatcher,
     OfflineCommandQueue,
     CommandListener,

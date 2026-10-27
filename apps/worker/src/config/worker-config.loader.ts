@@ -1,5 +1,6 @@
 import { plainToInstance } from 'class-transformer';
-import { validateSync } from 'class-validator';
+import { ValidationError, validateSync } from 'class-validator';
+import { RetentionPeriods } from './retention-periods';
 import { WorkerConfig } from './worker.config';
 
 /** The settings that have a default. */
@@ -21,6 +22,14 @@ export class WorkerConfigLoader {
     NOTIFICATION_SEND_INTERVAL_MS: '15000',
     REPORT_EXPORT_INTERVAL_MS: '15000',
     REPORT_SCHEDULE_INTERVAL_MS: '300000',
+    RETENTION_INTERVAL_MS: '3600000',
+    QUEUE_STATS_INTERVAL_MS: '30000',
+    RETENTION_OCPP_MESSAGES_DAYS: '90',
+    RETENTION_OUTBOX_DAYS: '30',
+    RETENTION_BELL_DAYS: '90',
+    RETENTION_DRIVER_EMAIL_DAYS: '30',
+    RETENTION_EXPORTS_DAYS: '90',
+    RETENTION_WEBHOOK_EVENTS_DAYS: '90',
     SMTP_PORT: '587',
   };
 
@@ -37,15 +46,23 @@ export class WorkerConfigLoader {
       webhookRetryIntervalMs: Number(get('PAYMENT_WEBHOOK_RETRY_INTERVAL_MS')),
       managedServiceEndIntervalMs: Number(get('MANAGED_SERVICE_END_INTERVAL_MS')),
       ...this.notificationSettings(get),
+      ...this.operationsSettings(get),
       ...this.mailSettings(environment, get),
       stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
     });
     const errors = validateSync(config);
     if (errors.length > 0) {
-      const details = errors.map((error) => Object.values(error.constraints ?? {}).join(', '));
-      throw new Error(`Invalid worker configuration: ${details.join('; ')}`);
+      throw new Error(`Invalid worker configuration: ${this.messages(errors).join('; ')}`);
     }
     return config;
+  }
+
+  /** Every broken rule, the retention periods' included. */
+  private messages(errors: ValidationError[]): string[] {
+    return errors.flatMap((error) => [
+      ...Object.values(error.constraints ?? {}),
+      ...this.messages(error.children ?? []),
+    ]);
   }
 
   private notificationSettings(get: (key: WorkerSetting) => string): Partial<WorkerConfig> {
@@ -55,6 +72,22 @@ export class WorkerConfigLoader {
       notificationSendIntervalMs: Number(get('NOTIFICATION_SEND_INTERVAL_MS')),
       reportExportIntervalMs: Number(get('REPORT_EXPORT_INTERVAL_MS')),
       reportScheduleIntervalMs: Number(get('REPORT_SCHEDULE_INTERVAL_MS')),
+    };
+  }
+
+  /** Module 12: the retention job, the queue counts for monitoring, and how long data is kept. */
+  private operationsSettings(get: (key: WorkerSetting) => string): Partial<WorkerConfig> {
+    return {
+      retentionIntervalMs: Number(get('RETENTION_INTERVAL_MS')),
+      queueStatsIntervalMs: Number(get('QUEUE_STATS_INTERVAL_MS')),
+      retention: plainToInstance(RetentionPeriods, {
+        ocppMessagesDays: Number(get('RETENTION_OCPP_MESSAGES_DAYS')),
+        outboxDays: Number(get('RETENTION_OUTBOX_DAYS')),
+        bellDays: Number(get('RETENTION_BELL_DAYS')),
+        driverEmailDays: Number(get('RETENTION_DRIVER_EMAIL_DAYS')),
+        exportsDays: Number(get('RETENTION_EXPORTS_DAYS')),
+        webhookEventsDays: Number(get('RETENTION_WEBHOOK_EVENTS_DAYS')),
+      }),
     };
   }
 

@@ -1,0 +1,10 @@
+# Loads the dashboards in /var/lib/grafana/dashboards (deploy/monitoring/grafana/dashboards).
+# Edits made in Grafana are not saved back: change the JSON file and restart Grafana instead.
+apiVersion: 1
+providers:
+  - name: wattwisely
+    folder: Wattwisely
+    type: file
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards

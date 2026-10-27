@@ -19,10 +19,14 @@ Everything runs with Docker Compose on one Linux server. A single server suits a
 | `openbao`        | openbao                | Encrypted platform secrets such as Stripe keys                       | No                                                                        |
 | `object-storage` | seaweedfs              | S3-compatible file storage for logos, invoices, exports              | No                                                                        |
 | `mailpit`        | mailpit                | Catches e-mail in local trials only                                  | Local only                                                                |
+| `prometheus`     | prometheus             | Reads every service's metrics, evaluates the alert rules (module 12) | No: `127.0.0.1:9090` on the server, with the `monitoring` profile         |
+| `alertmanager`   | alertmanager           | E-mails firing alerts to `ALERT_EMAIL_TO`                            | No: `127.0.0.1:9093`, `monitoring` profile                                |
+| `grafana`        | grafana-oss            | Dashboards                                                           | No: `127.0.0.1:3300`, `monitoring` profile                                |
+| `node-exporter`  | node-exporter          | The server's disk, memory and CPU, and the backup scripts' metrics   | No, `monitoring` profile                                                  |
 
 ## Server checklist
 
-1. A Linux server with at least 4 GB RAM and 40 GB disk, Docker Engine and the Compose plugin installed.
+1. A Linux server with at least 4 GB RAM and 40 GB disk, Docker Engine and the Compose plugin installed. Plan about 1 GB more for the monitoring profile.
 2. DNS records `portal.<domain>`, `api.<domain>`, `auth.<domain>`, `charge.<domain>`, `admin.<domain>`, `ocpp.<domain>` and `ocpp-plain.<domain>` pointing at the server.
 3. Ports 80 and 443 open. Nothing else needs to be open.
 4. An SMTP account for e-mails (password resets and team invitations).
@@ -55,12 +59,46 @@ Then create the first platform admin in Keycloak (`https://auth.<domain>/admin`,
 | `logs.sh [service]`   | Follows the logs                                                                                                                                                       |
 | `down.sh`             | Stops everything; data stays                                                                                                                                           |
 | `seed-demo.sh`        | Demo tenants and users, local trials only                                                                                                                              |
+| `restore-drill.sh`    | Restores the newest backup (or the one given) into a throw-away Postgres and checks it, without touching the running platform                                          |
+| `seed-load-test.sh`   | Registers chargers `LOAD-0001`… for a load test in a tenant of their own; `--remove` deletes it again                                                                  |
 
-Run a nightly backup and copy it off the server, for example with cron:
+Run a nightly backup and copy it off the server, and a restore drill once a month, for example with cron:
 
 ```cron
 0 2 * * * cd /opt/wattwisely-cpms/deploy && ./scripts/backup.sh && rsync -a backups/ backup-host:wattwisely/
+30 3 1 * * cd /opt/wattwisely-cpms/deploy && ./scripts/restore-drill.sh
 ```
+
+## Backups
+
+`backup.sh` reads each database dump back once and writes `SHA256SUMS` over every file, so a cut-off dump fails at once instead of on the day it is needed. `restore.sh` checks the sums before it replaces anything.
+
+`restore-drill.sh` proves a backup restores: it starts a throw-away `postgres:16.15-alpine` container with no network, restores both databases, prints the row counts of the main tables, checks the Keycloak realm and the volume archives, and reports how long it took. That time is the one to plan a recovery with. With the monitoring profile, `BackupMissing` warns after 26 hours without a backup and `RestoreDrillOverdue` after 35 days without a drill.
+
+## Monitoring
+
+With `monitoring` in `COMPOSE_PROFILES` (what `install.sh` writes for a real server), `up.sh` also starts Prometheus, Alertmanager, Grafana and node-exporter. Alerts are e-mailed to `ALERT_EMAIL_TO` (or `ACME_EMAIL`) through the SMTP settings in `.env`; [docs/modules/12-hardening-operations.md](../docs/modules/12-hardening-operations.md) lists them. None of the three is reachable from the internet. From your laptop:
+
+```sh
+ssh -L 3300:localhost:3300 -L 9090:localhost:9090 you@server
+```
+
+Then open <http://localhost:3300> (user `admin`, password `GRAFANA_ADMIN_PASSWORD` in `.env`) for the Wattwisely overview dashboard, and <http://localhost:9090/alerts> for what Prometheus is evaluating. `health.sh` also reports how many alerts are firing.
+
+Each service answers `GET /metrics` on the private network only; Caddy answers 404 for it from outside. To change an alert, edit `monitoring/prometheus/alerts.yml`, add a case to `alerts.test.yml` and run `./scripts/up.sh --no-pull` (CI runs the tests with promtool).
+
+## Load test
+
+Against a staging server, never production:
+
+```sh
+./scripts/seed-load-test.sh 1000                     # chargers LOAD-0001 … LOAD-1000
+# in .env: OCPP_RATE_LIMIT_PER_IP=10000, and OCPP_ACCEPT_UNKNOWN_ID_TAGS=true for --sessions; then ./scripts/up.sh --no-pull
+npm run load-test -- --url wss://ocpp.staging.example.com/ocpp --count 1000 --ramp 120 --duration 600 --sessions   # from a checkout on another machine
+./scripts/seed-load-test.sh --remove                 # deletes the tenant and all it recorded
+```
+
+The tool prints answer times by message and fails when a charger cannot connect, the p95 is over 2 seconds or more than 1% of calls fail (`--max-p95`, `--max-errors`). Watch the Grafana dashboard while it runs. Set the two `.env` settings back afterwards.
 
 ## Versions and images
 
@@ -87,6 +125,9 @@ Open <http://portal.localhost>. The driver app is at <http://charge.localhost>: 
 
 - **Keycloak reads `keycloak/realm/wattwisely-realm.json` only when the realm does not exist yet.** Later changes to that file are applied by hand in the admin console, or by a migration in a later module.
 - **OpenBao is sealed after every restart.** `up.sh` unseals it with the key in `.secrets/`. If that file is lost, the secrets in OpenBao are lost too.
+- **The API reference at `/docs` is off on servers** since module 12. Set `API_DOCS_ENABLED=true` in `.env` and run `./scripts/up.sh --no-pull` to publish it.
+- **Rate limits.** The API counts requests per client address and minute (`RATE_LIMIT_*` in `.env`): 1,200 signed-in, 300 public reads, 30 public writes such as starting a charge. A 429 answer carries `Retry-After`.
+- **Old data is deleted.** The worker deletes the OCPP message log after 90 days and sent e-mails, bell notifications, drivers' addresses and processed Stripe events after the periods in `RETENTION_*`. Sessions, payments and the audit log are kept.
 - **MinIO is not used.** MinIO stopped publishing free Docker images in 2025, so file storage uses SeaweedFS, which speaks the same S3 interface.
 
 ## Windows
