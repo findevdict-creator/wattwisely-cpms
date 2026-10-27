@@ -17,6 +17,8 @@ export class AccessGroupsRepository {
     id: accessGroups.id,
     name: accessGroups.name,
     description: accessGroups.description,
+    paymentMode: accessGroups.paymentMode,
+    holdAmount: accessGroups.holdAmount,
     sites: sql<NamedRow[]>`coalesce((select json_agg(json_build_object('id', s.id, 'name', s.name)
       order by lower(s.name)) from ${accessGroupSites} gs join ${sites} s on s.id = gs.site_id
       where gs.group_id = access_groups.id), '[]'::json)`,

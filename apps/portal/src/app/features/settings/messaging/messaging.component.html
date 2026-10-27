@@ -1,0 +1,181 @@
+<header class="title">
+  <h1>WhatsApp charging</h1>
+  <button mat-button (click)="refresh()" data-testid="refresh-chats">
+    <mat-icon>refresh</mat-icon>
+    Refresh
+  </button>
+</header>
+<p class="hint lead">
+  Drivers message your WhatsApp number with the code on a plug, get a link to pay, and are told here
+  when the charge starts and ends. They can stop it from the chat too. The number comes from your
+  WhatsApp Business account at Meta.
+  @if (isLocked()) {
+    <span data-testid="messaging-locked">
+      Messaging-app charging is an add-on. Ask Wattwisely to add it to your plan.
+    </span>
+  }
+</p>
+
+@if (channel(); as channel) {
+  <div class="columns">
+    <form [formGroup]="form().fields" (ngSubmit)="save()" data-testid="channel-form">
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Your number</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Phone number id</mat-label>
+            <input matInput formControlName="phone_number_id" data-testid="phone-number-id" />
+            <mat-hint>From Meta's WhatsApp Manager: API setup, "Phone number ID".</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Number as drivers see it</mat-label>
+            <input matInput formControlName="display_phone_number" data-testid="display-number" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Access token</mat-label>
+            <input matInput type="password" formControlName="access_token" autocomplete="off" />
+            <mat-hint>
+              @if (channel.has_access_token) {
+                A token is stored. Leave empty to keep it.
+              } @else if (channel.is_platform_token_configured) {
+                Optional: Wattwisely's own token is used when your number is in its account.
+              } @else {
+                Needed: a permanent token from your Meta app.
+              }
+            </mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Greeting</mat-label>
+            <textarea
+              matInput
+              formControlName="greeting"
+              rows="2"
+              data-testid="greeting"
+            ></textarea>
+            <mat-hint
+              >The first line a driver gets; empty for "Hi, this is {{ '{' }}company{{
+                '}'
+              }}."</mat-hint
+            >
+          </mat-form-field>
+          <mat-slide-toggle formControlName="is_active" data-testid="channel-active">
+            Answer messages
+          </mat-slide-toggle>
+          @if (canManage()) {
+            <div class="actions">
+              <button
+                mat-flat-button
+                type="submit"
+                [disabled]="!form().isValid() || isSaving()"
+                data-testid="save-channel"
+              >
+                Save
+              </button>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </form>
+
+    <div>
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Connect Meta</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <p class="hint">
+            In your Meta app, under WhatsApp → Configuration, set the webhook callback to this
+            address with the verify token Wattwisely gave you, and subscribe to
+            <code>messages</code>.
+          </p>
+          <div class="secret-row">
+            <code class="webhook" data-testid="webhook-url">{{ channel.webhook_url }}</code>
+            <button mat-button (click)="copyWebhookUrl(channel)" data-testid="copy-webhook-url">
+              <mat-icon>content_copy</mat-icon>
+              Copy
+            </button>
+          </div>
+          @if (channel.version > 0 && canManage()) {
+            <div class="test-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Send a test to</mat-label>
+                <input
+                  matInput
+                  [formControl]="testNumber"
+                  placeholder="+44 7700 900123"
+                  data-testid="test-number"
+                />
+              </mat-form-field>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="sendTest()"
+                [disabled]="testNumber.invalid"
+                data-testid="send-test"
+              >
+                Send test
+              </button>
+            </div>
+          }
+          <p class="hint">
+            On every plug sticker, drivers can open a chat with
+            <code>https://wa.me/&lt;number&gt;?text=charge&nbsp;&lt;code&gt;/&lt;plug&gt;</code>.
+          </p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <h2>Conversations</h2>
+  @if (conversations().length) {
+    <table mat-table [dataSource]="conversations()" class="chats" data-testid="conversations">
+      <ng-container matColumnDef="contact">
+        <th mat-header-cell *matHeaderCellDef>Driver</th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-button (click)="open(row)" class="contact">+{{ row.contact }}</button>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="plug">
+        <th mat-header-cell *matHeaderCellDef>Plug</th>
+        <td mat-cell *matCellDef="let row">{{ plugOf(row) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="charge">
+        <th mat-header-cell *matHeaderCellDef>Charge</th>
+        <td mat-cell *matCellDef="let row">{{ row.session_status || '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="last">
+        <th mat-header-cell *matHeaderCellDef>Last message</th>
+        <td mat-cell *matCellDef="let row">{{ row.updated_at | date: 'medium' }}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: columns"
+        [class.selected]="row.id === selected()?.id"
+      ></tr>
+    </table>
+  } @else {
+    <p class="hint" data-testid="no-conversations">No one has written yet.</p>
+  }
+
+  @if (selected(); as conversation) {
+    <section class="thread" data-testid="thread">
+      <h3>+{{ conversation.contact }}</h3>
+      @for (message of messages(); track message.id) {
+        <div class="bubble" [class.out]="message.direction === 'out'">
+          <p>{{ message.body }}</p>
+          @if (message.buttons.length) {
+            <p class="buttons">{{ message.buttons.join(' · ') }}</p>
+          }
+          <span class="meta">
+            {{ message.created_at | date: 'short' }} · {{ message.status }}
+            @if (message.error) {
+              · {{ message.error }}
+            }
+          </span>
+        </div>
+      }
+    </section>
+  }
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

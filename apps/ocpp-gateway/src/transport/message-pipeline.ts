@@ -53,7 +53,7 @@ export class MessagePipeline {
           ? error
           : new OcppCallError('InternalError', 'The message could not be processed.');
       this.logger.warn(`${frame.action} from ${connection.charger.identity}: ${callError.message}`);
-      connection.send(OcppFrameCodec.encodeError(frame.id, callError));
+      connection.send(OcppFrameCodec.encodeError(frame.id, callError, connection.version));
       this.metrics.call(frame.action, callError.code, (performance.now() - startedAt) / 1000);
       this.frames.error(connection, frame.id, frame.action, callError);
     }
@@ -64,7 +64,7 @@ export class MessagePipeline {
     this.logger.warn(`Bad frame from ${connection.charger.identity}: ${error.description}`);
     const id = OcppFrameCodec.idOf(text);
     if (id) {
-      connection.send(OcppFrameCodec.encodeError(id, error));
+      connection.send(OcppFrameCodec.encodeError(id, error, connection.version));
       this.frames.error(connection, id, '', error);
     }
   }

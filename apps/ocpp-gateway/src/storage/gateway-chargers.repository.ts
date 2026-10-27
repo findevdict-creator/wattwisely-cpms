@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { BootFingerprint, chargers, Transaction } from '@wattwisely/db';
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { ChargerIdentity } from './charger-identity';
 
 /** What a BootNotification updates on the charger row. */
@@ -14,6 +15,8 @@ export interface BootUpdate {
   imsi: string | null;
   meterType: string | null;
   meterSerial: string | null;
+  /** The version the connection that booted speaks; a charger upgraded in the field moves with it. */
+  ocppVersion: OcppVersion;
   registrationStatus: 'accepted' | 'pending' | 'rejected';
   heartbeatIntervalS: number;
   /** Stored only on the first accepted boot of a no-password charger. */
@@ -61,7 +64,7 @@ export class GatewayChargersRepository {
     await tx
       .update(chargers)
       .set({
-        ocppVersion: '1.6',
+        ocppVersion: boot.ocppVersion,
         vendor: sql`coalesce(${chargers.vendor}, ${boot.vendor})`,
         model: sql`coalesce(${chargers.model}, ${boot.model})`,
         chargePointSerial: boot.chargePointSerial,

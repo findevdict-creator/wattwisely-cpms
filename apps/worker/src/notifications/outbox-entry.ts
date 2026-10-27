@@ -27,6 +27,7 @@ export type OutboxKind =
   | 'session_charging_finished'
   | 'session_idle_fee_soon'
   | 'session_receipt'
+  | 'session_hold_refused'
   | 'alert_opened'
   | 'export_ready'
   | 'scheduled_report';
@@ -39,6 +40,7 @@ export class OutboxKinds {
     'session_charging_finished',
     'session_idle_fee_soon',
     'session_receipt',
+    'session_hold_refused',
   ]);
 
   static isDriverMail(kind: string): boolean {

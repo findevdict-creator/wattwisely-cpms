@@ -28,9 +28,9 @@ import { HeartbeatWatcher } from './heartbeat-watcher';
     });
   });
 
-  it('refuses the wrong subprotocol with 400', async () => {
+  it('refuses a subprotocol it does not speak with 400', async () => {
     await gateway.data.charger(acme, site, 'WW-PROTO');
-    const charger = gateway.charger('WW-PROTO', { protocols: ['ocpp2.0.1'] });
+    const charger = gateway.charger('WW-PROTO', { protocols: ['ocpp2.1'] });
     await expect(charger.connect()).rejects.toMatchObject({
       status: 400,
       reason: 'unsupported_protocol',
@@ -94,11 +94,19 @@ import { HeartbeatWatcher } from './heartbeat-watcher';
     await genuine.connect();
     expect((await new ChargerMessages(genuine).boot()).status).toBe('Accepted');
     await genuine.close();
+    await gateway.eventually(
+      'select 1 from chargers where id = $1 and not exists (select 1 from charger_connections where charger_id = $1)',
+      [chargerId],
+    );
 
     const impostor = gateway.charger('WW-OPEN', { vendor: 'EVBox', model: 'Elvi', serial: 'SN-2' });
     await impostor.connect();
     expect((await new ChargerMessages(impostor).boot()).status).toBe('Rejected');
     expect(await impostor.closed()).toBe(1008);
+    await gateway.eventually(
+      'select 1 from chargers where id = $1 and not exists (select 1 from charger_connections where charger_id = $1)',
+      [chargerId],
+    );
 
     const stored = await gateway.row('select boot_fingerprint from chargers where id = $1', [
       chargerId,
@@ -129,11 +137,15 @@ import { HeartbeatWatcher } from './heartbeat-watcher';
   });
 
   it('lets an accepted charger that lost its network carry on without booting again', async () => {
-    await gateway.data.charger(acme, site, 'WW-FLAKY');
+    const chargerId = await gateway.data.charger(acme, site, 'WW-FLAKY');
     const before = gateway.charger('WW-FLAKY');
     await before.connect();
     await new ChargerMessages(before).boot();
     await before.close();
+    await gateway.eventually(
+      'select 1 from chargers where id = $1 and not exists (select 1 from charger_connections where charger_id = $1)',
+      [chargerId],
+    );
 
     const after = gateway.charger('WW-FLAKY');
     await after.connect();

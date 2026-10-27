@@ -14,7 +14,7 @@ export class SessionAnnouncer {
   async announce(
     tx: Transaction,
     session: SessionRow,
-    change: { status: SessionState; paymentStatus: PaymentStatus },
+    change: { status: SessionState; paymentStatus: PaymentStatus | null },
   ): Promise<void> {
     const data = SessionEventData.of(session, {
       status: change.status,

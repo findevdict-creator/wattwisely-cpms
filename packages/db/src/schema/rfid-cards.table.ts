@@ -12,7 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { drivers } from './drivers.table';
-import { rfidCardStatus } from './enums';
+import { driverPaymentMode, rfidCardStatus } from './enums';
 import { RowLevelSecurity } from './row-level-security';
 import { Timestamps } from './timestamps';
 import { userAccounts } from './user-accounts.table';
@@ -34,6 +34,8 @@ export const rfidCards = pgTable(
     /** What the driver calls it, e.g. "Blue card" or the number printed on it. */
     label: text('label').notNull().default(''),
     status: rfidCardStatus('status').notNull().default('active'),
+    /** Whether a session this card starts is paid (module 19): inherit asks the driver, then their groups. */
+    paymentMode: driverPaymentMode('payment_mode').notNull().default('inherit'),
     /** After this moment the charger answers Expired; empty means no end date. */
     expiresAt: timestamp('expires_at', { withTimezone: true }),
     /** The last time a charger accepted the card. */

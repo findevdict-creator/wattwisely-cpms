@@ -1,5 +1,11 @@
 export type CommandAction =
-  'remote_start' | 'remote_stop' | 'reset' | 'unlock' | 'change_availability';
+  | 'remote_start'
+  | 'remote_stop'
+  | 'reset'
+  | 'unlock'
+  | 'change_availability'
+  | 'set_charging_profile'
+  | 'clear_charging_profile';
 export type CommandStatus =
   'queued' | 'sent' | 'accepted' | 'rejected' | 'timed_out' | 'expired' | 'failed';
 

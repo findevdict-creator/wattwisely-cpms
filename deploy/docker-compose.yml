@@ -59,11 +59,13 @@ services:
     environment:
       PORT: 3000
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PUBLIC_SCHEME}://${ADMIN_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}},${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}}
+      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PUBLIC_SCHEME}://${ADMIN_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}},${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}},${DRIVER_DEV_URL:-${PUBLIC_SCHEME}://${DRIVER_HOST}}
       # The issuer is the public address written into tokens; the keys are fetched over the private network.
       KEYCLOAK_ISSUER_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}/realms/wattwisely
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/wattwisely/protocol/openid-connect/certs
       KEYCLOAK_AUDIENCE: wattwisely-api
+      # Tokens from the driver app (module 19) carry this audience instead; they only open /v1/driver/*.
+      KEYCLOAK_DRIVER_AUDIENCE: wattwisely-driver
       # Row-level security applies to this role; up.sh creates it and runs the migrations first.
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
       # The API's own public address (module 8): tenant logos in e-mails and on driver pages are linked from here.
@@ -97,6 +99,13 @@ services:
       RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-1200}
       RATE_LIMIT_PUBLIC_PER_MINUTE: ${RATE_LIMIT_PUBLIC_PER_MINUTE:-300}
       RATE_LIMIT_PUBLIC_WRITE_PER_MINUTE: ${RATE_LIMIT_PUBLIC_WRITE_PER_MINUTE:-30}
+      # Module 16: requests per API key and minute. Webhook endpoints must be public addresses.
+      RATE_LIMIT_API_KEY_PER_MINUTE: ${RATE_LIMIT_API_KEY_PER_MINUTE:-600}
+      WEBHOOK_ALLOW_PRIVATE_URLS: 'false'
+      # Module 17: the WhatsApp Business app behind the messaging add-on.
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN:-}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
       # The interactive API reference at /docs. Off unless asked for.
       API_DOCS_ENABLED: ${API_DOCS_ENABLED:-false}
     networks: [backend]
@@ -118,7 +127,7 @@ services:
       PORTAL_ADMIN_URL: ${PUBLIC_SCHEME}://${ADMIN_HOST}
     networks: [backend]
 
-  # Chargers connect here over WebSocket (OCPP 1.6J). Caddy terminates TLS and forwards
+  # Chargers connect here over WebSocket (OCPP 1.6J or 2.0.1). Caddy terminates TLS and forwards
   # ws://ocpp-gateway:3100/ocpp/<identity>; the gateway talks to the API through Postgres.
   ocpp-gateway:
     image: ${WATTWISELY_IMAGE_PREFIX}/ocpp-gateway:${WATTWISELY_VERSION}
@@ -176,6 +185,15 @@ services:
       RETENTION_DRIVER_EMAIL_DAYS: ${RETENTION_DRIVER_EMAIL_DAYS:-30}
       RETENTION_EXPORTS_DAYS: ${RETENTION_EXPORTS_DAYS:-90}
       RETENTION_WEBHOOK_EVENTS_DAYS: ${RETENTION_WEBHOOK_EVENTS_DAYS:-90}
+      RETENTION_WEBHOOK_DELIVERIES_DAYS: ${RETENTION_WEBHOOK_DELIVERIES_DAYS:-30}
+      # Module 16: webhook scan and delivery cadence; endpoints must be public addresses.
+      WEBHOOK_INTERVAL_MS: ${WEBHOOK_INTERVAL_MS:-15000}
+      WEBHOOK_ALLOW_PRIVATE_URLS: 'false'
+      # Module 17: load management rounds and chat sending; chat links point at the driver app.
+      LOAD_MANAGEMENT_INTERVAL_MS: ${LOAD_MANAGEMENT_INTERVAL_MS:-10000}
+      MESSAGING_INTERVAL_MS: ${MESSAGING_INTERVAL_MS:-10000}
+      DRIVER_URL: ${PUBLIC_SCHEME}://${DRIVER_HOST}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }
@@ -190,6 +208,10 @@ services:
     <<: [*restart, *logging]
     environment:
       DRIVER_API_URL: ${PUBLIC_SCHEME}://${API_HOST}
+      # Drivers may log in (module 19) with their own Keycloak client, which skips the mandatory authenticator app.
+      DRIVER_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
+      DRIVER_KEYCLOAK_REALM: wattwisely
+      DRIVER_KEYCLOAK_CLIENT_ID: wattwisely-driver
     networks: [backend]
 
   # The admin console (module 9): Wattwisely staff manage tenants, plans, add-ons and each
@@ -227,6 +249,8 @@ services:
       PORTAL_DEV_URL: ${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}}
       ADMIN_URL: ${PUBLIC_SCHEME}://${ADMIN_HOST}
       ADMIN_DEV_URL: ${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}}
+      DRIVER_URL: ${PUBLIC_SCHEME}://${DRIVER_HOST}
+      DRIVER_DEV_URL: ${DRIVER_DEV_URL:-${PUBLIC_SCHEME}://${DRIVER_HOST}}
       KC_REALM_SSL_REQUIRED: external
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}

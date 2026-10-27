@@ -1,0 +1,34 @@
+{
+  "title": "IdTokenType",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "additionalInfo": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "idToken": {
+      "type": "string",
+      "maxLength": 36
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Central",
+        "eMAID",
+        "ISO14443",
+        "ISO15693",
+        "KeyCode",
+        "Local",
+        "MacAddress",
+        "NoAuthorization"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["idToken", "type"]
+}

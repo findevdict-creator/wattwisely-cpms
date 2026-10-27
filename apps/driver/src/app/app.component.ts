@@ -1,11 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { DriverAuthService } from './core/auth/driver-auth.service';
 import { BrandService } from './core/branding/brand.service';
 
 /**
- * The root of the driver app: a bar in the operator's colours with its logo or name and
- * the way home, the page below it, and the platform's line at the foot (module 8).
+ * The root of the driver app: a bar in the operator's colours with its logo or name, the way
+ * home and the way to one's account (module 19), the page below it, and the platform's line
+ * at the foot (module 8).
  */
 @Component({
   selector: 'ww-root',
@@ -19,6 +21,15 @@ import { BrandService } from './core/branding/brand.service';
           <mat-icon>bolt</mat-icon>
           <span>{{ brandService.brand().name }}</span>
         }
+      </a>
+      <a
+        routerLink="/account"
+        class="account"
+        aria-label="Your account"
+        data-testid="account"
+        [class.signed-in]="auth.isLoggedIn()"
+      >
+        <mat-icon>account_circle</mat-icon>
       </a>
     </header>
     <main>
@@ -37,6 +48,15 @@ import { BrandService } from './core/branding/brand.service';
       padding: 0 16px;
       background: var(--mat-sys-primary);
       color: var(--mat-sys-on-primary);
+    }
+    .account {
+      margin-left: auto;
+      display: inline-flex;
+      color: inherit;
+      opacity: 0.8;
+    }
+    .account.signed-in {
+      opacity: 1;
     }
     .brand {
       display: inline-flex;
@@ -75,4 +95,5 @@ import { BrandService } from './core/branding/brand.service';
 })
 export class AppComponent {
   protected readonly brandService = inject(BrandService);
+  protected readonly auth = inject(DriverAuthService);
 }

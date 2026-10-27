@@ -5,7 +5,9 @@ import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { DriverMailModule } from './driver-mail/driver-mail.module';
 import { HealthController } from './health/health.controller';
+import { LoadManagementModule } from './load-management/load-management.module';
 import { MailModule } from './mail/mail.module';
+import { MessagingJobsModule } from './messaging/messaging-jobs.module';
 import { ManagedJobsModule } from './managed/managed-jobs.module';
 import { WorkerMetricsModule } from './metrics/worker-metrics.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -14,11 +16,13 @@ import { PaymentJobsModule } from './payments/payment-jobs.module';
 import { ReportsModule } from './reports/reports.module';
 import { SessionJobsModule } from './sessions/session-jobs.module';
 import { FileStorageModule } from './storage/file-storage.module';
+import { WebhookJobsModule } from './webhooks/webhook-jobs.module';
 
 /**
  * Wires the worker together: settings, the database, e-mail, object storage, metrics, the
  * session, payment, managed service, billing (module 15), alert, notification and report jobs, the retention and
- * queue count jobs (module 12), and health checks.
+ * queue count jobs (module 12), the webhook jobs (module 16), the load management and messaging
+ * add-ons' jobs (module 17), and health checks.
  */
 @Module({
   imports: [
@@ -36,6 +40,9 @@ import { FileStorageModule } from './storage/file-storage.module';
     DriverMailModule,
     ReportsModule,
     OperationsModule,
+    WebhookJobsModule,
+    LoadManagementModule,
+    MessagingJobsModule,
   ],
   controllers: [HealthController],
 })

@@ -1,4 +1,4 @@
-import { SampledValue } from '@wattwisely/db';
+import { MeterValue } from '../meter-reader';
 
 /** The OCPP 1.6 request payloads the handlers read, after schema validation. */
 export interface BootNotificationRequest {
@@ -33,11 +33,6 @@ export interface StartTransactionRequest {
   meterStart: number;
   reservationId?: number;
   timestamp: string;
-}
-
-export interface MeterValue {
-  timestamp: string;
-  sampledValue: SampledValue[];
 }
 
 export interface StopTransactionRequest {

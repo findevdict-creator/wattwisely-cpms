@@ -13,14 +13,15 @@ import {
   RefundState,
 } from '../gateway/payment-gateway';
 import { PaymentGatewayError } from '../gateway/payment-gateway.error';
-
-/** What a fake webhook body looks like: the provider's event id and type, and which object it is about. */
-export interface FakeWebhook {
-  id: string;
-  type: string;
-  account: string | null;
-  object_id: string;
-}
+import {
+  CardSetup,
+  CardSetupRequest,
+  CardSetupState,
+  CustomerRequest,
+  SavedCardHoldRequest,
+} from '../gateway/saved-cards';
+import { FakeSavedCards } from './fake-saved-cards';
+import { FakeWebhook, FakeWebhooks } from './fake-webhooks';
 
 /**
  * A payment provider in memory for tests: holds, accounts and refunds live in maps, and
@@ -36,6 +37,8 @@ export class FakePaymentGateway implements PaymentGateway {
   readonly accounts = new Map<string, AccountState>();
   readonly refunds = new Map<string, RefundState>();
   readonly calls: string[] = [];
+  /** Customers, card setups and saved cards (module 19). */
+  readonly savedCards = new FakeSavedCards();
   /** When set, every provider call fails with this error (an outage). */
   outage: PaymentGatewayError | null = null;
   private counter = 0;
@@ -121,6 +124,33 @@ export class FakePaymentGateway implements PaymentGateway {
     return refund;
   }
 
+  async createCustomer(request: CustomerRequest): Promise<string> {
+    this.check('createCustomer');
+    return this.savedCards.createCustomer(request);
+  }
+
+  async createCardSetup(request: CardSetupRequest): Promise<CardSetup> {
+    this.check('createCardSetup');
+    return this.savedCards.createSetup(request);
+  }
+
+  async getCardSetup(providerSetupId: string): Promise<CardSetupState> {
+    this.check('getCardSetup');
+    return this.savedCards.getSetup(providerSetupId);
+  }
+
+  async detachCard(providerPaymentMethodId: string): Promise<void> {
+    this.check('detachCard');
+    this.savedCards.detach(providerPaymentMethodId);
+  }
+
+  async createSavedCardHold(request: SavedCardHoldRequest): Promise<HoldState> {
+    this.check(`createSavedCardHold:${request.amount}:${request.idempotencyKey}`);
+    const hold = this.savedCards.hold(request, ++this.counter);
+    this.holds.set(hold.providerPaymentId, hold);
+    return hold;
+  }
+
   parseWebhook(rawBody: Buffer, signature: string): ReceivedEvent {
     if (signature !== FakePaymentGateway.SIGNATURE) {
       throw PaymentGatewayError.invalidSignature('not the fake signature');
@@ -129,26 +159,7 @@ export class FakePaymentGateway implements PaymentGateway {
   }
 
   parseStoredEvent(payload: unknown): ReceivedEvent {
-    const body = payload as FakeWebhook;
-    const base = { id: body.id, type: body.type, accountId: body.account, createdAt: new Date() };
-    if (body.type.startsWith('payment_intent.')) {
-      return {
-        ...base,
-        payload,
-        event: { kind: 'hold_changed', hold: this.holdOf(body.object_id) },
-      };
-    }
-    if (body.type.startsWith('refund.')) {
-      const refund = this.refunds.get(body.object_id);
-      return refund
-        ? { ...base, payload, event: { kind: 'refund_changed', refund } }
-        : { ...base, payload, event: { kind: 'ignored' } };
-    }
-    if (body.type === 'account.updated') {
-      const account = this.accountOf(body.object_id);
-      return { ...base, payload, event: { kind: 'account_changed', account } };
-    }
-    return { ...base, payload, event: { kind: 'ignored' } };
+    return new FakeWebhooks(this.holds, this.refunds, this.accounts).parse(payload as FakeWebhook);
   }
 
   /** The driver's card confirmed the hold. */
