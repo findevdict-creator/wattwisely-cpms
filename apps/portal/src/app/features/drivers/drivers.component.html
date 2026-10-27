@@ -1,0 +1,98 @@
+<header class="title">
+  <h1>Drivers</h1>
+  <div class="actions">
+    <a mat-stroked-button routerLink="/drivers/groups" data-testid="access-groups">
+      <mat-icon>groups</mat-icon>
+      Access groups
+    </a>
+    @if (permissions.canChange('drivers:write')) {
+      <button mat-flat-button (click)="add()" data-testid="add-driver">
+        <mat-icon>person_add</mat-icon>
+        Add driver
+      </button>
+    }
+  </div>
+</header>
+
+<div class="filters">
+  <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-label>Search by name, e-mail or reference</mat-label>
+    <input matInput #query (keyup.enter)="search(query.value)" data-testid="drivers-search" />
+  </mat-form-field>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Status</mat-label>
+    <mat-select value="" (valueChange)="filterBy('status', $event)">
+      <mat-option value="">Any</mat-option>
+      <mat-option value="active">Active</mat-option>
+      <mat-option value="blocked">Blocked</mat-option>
+    </mat-select>
+  </mat-form-field>
+  @if (groups().length > 0) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Access group</mat-label>
+      <mat-select value="" (valueChange)="filterBy('group_id', $event)">
+        <mat-option value="">Any</mat-option>
+        @for (group of groups(); track group.id) {
+          <mat-option [value]="group.id">{{ group.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+</div>
+
+<table mat-table [dataSource]="store.drivers()" class="drivers" data-testid="drivers">
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>Driver</th>
+    <td mat-cell *matCellDef="let driver">
+      <a [routerLink]="['/drivers', driver.id]" class="name">{{ driver.name }}</a>
+      @if (driver.email) {
+        <div class="hint">{{ driver.email }}</div>
+      }
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="reference">
+    <th mat-header-cell *matHeaderCellDef>Reference</th>
+    <td mat-cell *matCellDef="let driver">{{ driver.reference || '—' }}</td>
+  </ng-container>
+  <ng-container matColumnDef="cards">
+    <th mat-header-cell *matHeaderCellDef>Cards</th>
+    <td mat-cell *matCellDef="let driver">
+      {{ driver.active_card_count }}
+      @if (driver.card_count > driver.active_card_count) {
+        <span class="hint">of {{ driver.card_count }}</span>
+      }
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="groups">
+    <th mat-header-cell *matHeaderCellDef>Access groups</th>
+    <td mat-cell *matCellDef="let driver">{{ groupNames(driver) || '—' }}</td>
+  </ng-container>
+  <ng-container matColumnDef="last_session">
+    <th mat-header-cell *matHeaderCellDef>Last charge</th>
+    <td mat-cell *matCellDef="let driver">
+      {{ (driver.last_session_at | date: 'mediumDate') || 'Never' }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let driver">
+      <ww-status-chip kind="driver" [status]="driver.status" />
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+@if (!store.isLoading() && store.drivers().length === 0) {
+  <p class="empty" data-testid="no-drivers">
+    @if (store.filter().q || store.filter().status || store.filter().group_id) {
+      No driver matches these filters.
+    } @else {
+      No drivers yet. Add a driver, then register their RFID card so chargers accept it.
+    }
+  </p>
+}
+@if (store.nextCursor()) {
+  <button mat-stroked-button class="more" (click)="store.loadMore()">Show more drivers</button>
+}

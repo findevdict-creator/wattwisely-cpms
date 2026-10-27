@@ -5,10 +5,12 @@ export class SimOptions {
   static readonly USAGE = [
     'Usage: npm run sim -- --identity <id> [--url ws://localhost:3100/ocpp] [--password <pw>]',
     '                      [--connectors 2] [--power 7400] [--vendor Wattwisely] [--model Simulator]',
-    '                      [--serial <serial>] [--meter 10]',
+    '                      [--serial <serial>] [--meter 10] [--tag <idTag>]',
     '',
     'Simulates an OCPP 1.6J charge point: boots, sends heartbeats and connector status, and',
     'answers RemoteStart/RemoteStop/Reset/UnlockConnector/ChangeAvailability from the platform.',
+    'With --tag it holds that RFID card against connector 1 once booted: Authorize, then a',
+    'charge when the platform accepts the card.',
   ].join('\n');
 
   url = 'ws://localhost:3100/ocpp';
@@ -22,6 +24,8 @@ export class SimOptions {
   serial: string | undefined;
   /** Seconds between MeterValues while charging. */
   meterIntervalS = 10;
+  /** An RFID tag to present at connector 1 after booting. */
+  tag: string | undefined;
 
   static readonly FLAGS = {
     url: { type: 'string' },
@@ -33,6 +37,7 @@ export class SimOptions {
     model: { type: 'string' },
     serial: { type: 'string' },
     meter: { type: 'string' },
+    tag: { type: 'string' },
     help: { type: 'boolean', short: 'h' },
   } as const;
 
@@ -52,6 +57,7 @@ export class SimOptions {
     options.model = values.model ?? options.model;
     options.serial = values.serial;
     options.meterIntervalS = Number(values.meter ?? options.meterIntervalS);
+    options.tag = values.tag;
     return options;
   }
 }

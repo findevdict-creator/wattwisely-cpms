@@ -41,3 +41,6 @@ export * from './notifications.table';
 export * from './session-subscriptions.table';
 export * from './report-exports.table';
 export * from './report-schedules.table';
+export * from './drivers.table';
+export * from './rfid-cards.table';
+export * from './access-groups.table';

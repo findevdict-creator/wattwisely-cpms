@@ -6,7 +6,7 @@ import { GatewayChargersRepository } from '../../storage/gateway-chargers.reposi
 import { ActionHandler, HandlerResult } from '../action-handler';
 import { AuthorizeRequest } from './v16-messages';
 
-/** Authorize: the charger asks whether an idTag may charge. Answered at once from the tag policy. */
+/** Authorize: the charger asks whether an idTag may charge. Answered from the tag policy, inside the charger's tenant. */
 @Injectable()
 export class V16AuthorizeHandler implements ActionHandler {
   readonly action = 'Authorize';
@@ -19,9 +19,14 @@ export class V16AuthorizeHandler implements ActionHandler {
 
   async handle(connection: ChargerConnection, payload: unknown): Promise<HandlerResult> {
     const { idTag } = payload as AuthorizeRequest;
-    await this.transactionRunner.run(DatabaseSession.forTenant(connection.charger.tenantId), (tx) =>
-      this.chargers.touch(tx, connection.charger.id),
+    const charger = connection.charger;
+    const { status } = await this.transactionRunner.run(
+      DatabaseSession.forTenant(charger.tenantId),
+      async (tx) => {
+        await this.chargers.touch(tx, charger.id);
+        return this.tags.decide(tx, charger.id, idTag);
+      },
     );
-    return { reply: { idTagInfo: { status: this.tags.decide(connection.charger.id, idTag) } } };
+    return { reply: { idTagInfo: { status } } };
   }
 }

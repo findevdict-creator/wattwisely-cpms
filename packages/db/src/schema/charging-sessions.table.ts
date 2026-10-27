@@ -51,6 +51,9 @@ export const chargingSessions = pgTable(
     ocppTransactionId: integer('ocpp_transaction_id'),
     /** The idTag that started it: an RFID card or a token the platform issued for a remote start. */
     idTag: text('id_tag').notNull(),
+    /** The driver and the card behind the idTag, when the tag was a registered card (module 13). */
+    driverId: uuid('driver_id'),
+    rfidCardId: uuid('rfid_card_id'),
     status: chargingSessionStatus('status').notNull().default('charging'),
     /** The site's IANA time zone when the session started; band times are read in it. */
     timeZone: text('time_zone').notNull(),
@@ -105,6 +108,8 @@ export const chargingSessions = pgTable(
     index('charging_sessions_connector_idx').on(table.tenantId, table.connectorId, table.status),
     index('charging_sessions_started_idx').on(table.tenantId, table.startedAt),
     index('charging_sessions_site_idx').on(table.tenantId, table.siteId, table.startedAt),
+    // A driver's charging history, newest first.
+    index('charging_sessions_driver_idx').on(table.tenantId, table.driverId, table.startedAt),
     // The worker's jobs look only at sessions that are still open.
     index('charging_sessions_open_idx')
       .on(table.tenantId, table.status, table.lastEventAt)

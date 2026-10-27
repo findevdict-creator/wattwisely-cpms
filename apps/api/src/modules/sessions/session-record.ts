@@ -14,6 +14,9 @@ export interface SessionRecord {
   /** Empty while a paid session waits for the charger to start the transaction. */
   ocppTransactionId: number | null;
   idTag: string;
+  /** The driver behind the tag, when it was a registered RFID card (module 13). */
+  driverId: string | null;
+  driverName: string | null;
   timeZone: string;
   startedAt: Date;
   endedAt: Date | null;

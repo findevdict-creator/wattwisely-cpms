@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SessionTransitions, TariffVersionStore } from '@wattwisely/session-engine';
+import { CardAccessRepository } from './access/card-access.repository';
 import { ActionHandler } from './adapters/action-handler';
 import { V16Adapter } from './adapters/v16/v16-adapter';
 import { V16AuthorizeHandler } from './adapters/v16/v16-authorize.handler';
@@ -116,7 +117,8 @@ const HANDLERS = [
       inject: HANDLERS,
     },
     V16Adapter,
-    // Commands
+    // Who may charge
+    CardAccessRepository,
     IssuedTagRegistry,
     TagPolicy,
     CommandStore,

@@ -4,6 +4,7 @@ import {
   chargers,
   chargingSessions,
   connectors,
+  drivers,
   meterValues,
   payments,
   sessionLineItems,
@@ -39,6 +40,8 @@ export class SessionsRepository {
     ocppConnectorId: connectors.ocppConnectorId,
     ocppTransactionId: chargingSessions.ocppTransactionId,
     idTag: chargingSessions.idTag,
+    driverId: chargingSessions.driverId,
+    driverName: drivers.name,
     timeZone: chargingSessions.timeZone,
     startedAt: chargingSessions.startedAt,
     endedAt: chargingSessions.endedAt,
@@ -143,6 +146,7 @@ export class SessionsRepository {
       .innerJoin(sites, eq(sites.id, chargingSessions.siteId))
       .innerJoin(chargers, eq(chargers.id, chargingSessions.chargerId))
       .innerJoin(connectors, eq(connectors.id, chargingSessions.connectorId))
+      .leftJoin(drivers, eq(drivers.id, chargingSessions.driverId))
       .$dynamic();
   }
 }

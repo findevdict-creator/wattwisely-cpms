@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ group ? 'Edit access group' : 'New access group' }}</h2>
+<mat-dialog-content>
+  <p class="hint">
+    Drivers in the group may charge at the private sites it names. Public sites admit every active
+    card without a group.
+  </p>
+  <form [formGroup]="form.fields" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" maxlength="100" data-testid="group-name" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Description (optional)</mat-label>
+      <input matInput formControlName="description" maxlength="500" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Sites it opens</mat-label>
+      <mat-select formControlName="siteIds" multiple data-testid="group-sites">
+        @for (site of sites(); track site.id) {
+          <mat-option [value]="site.id">{{ site.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Drivers</mat-label>
+      <mat-select formControlName="driverIds" multiple data-testid="group-drivers">
+        @for (driver of drivers(); track driver.id) {
+          <mat-option [value]="driver.id">{{ driver.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>A driver can also be put in groups from their own page</mat-hint>
+    </mat-form-field>
+  </form>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null">Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-group">
+    {{ group ? 'Save' : 'Create group' }}
+  </button>
+</mat-dialog-actions>

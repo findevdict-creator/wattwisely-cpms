@@ -46,7 +46,7 @@ export class ModuleCatalog {
       'sessions:export',
       'sessions:close_stuck',
     ]),
-    ModuleCatalog.core('drivers', 'Drivers', 'Driver profiles and groups', [
+    ModuleCatalog.core('drivers', 'Drivers', 'Driver profiles, RFID cards and access groups', [
       'drivers:read',
       'drivers:read_personal',
       'drivers:write',
