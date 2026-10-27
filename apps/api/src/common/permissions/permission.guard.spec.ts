@@ -21,6 +21,7 @@ describe('PermissionGuard', () => {
     new PermissionGuard({
       isPublic: () => false,
       isWithoutTenant: () => false,
+      isDriver: () => false,
       requiredPermission: () => route.permission,
       requiredPlatformPermission: () => route.platform,
     } as unknown as RouteAccessReader);

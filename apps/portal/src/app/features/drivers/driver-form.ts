@@ -1,5 +1,5 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Driver, DriverInput } from '../../core/api/models/driver';
+import { Driver, DriverInput, DriverPaymentMode } from '../../core/api/models/driver';
 
 /** The driver dialog's fields, and how they turn into the API's body (story DRV-01). */
 export class DriverForm {
@@ -16,6 +16,7 @@ export class DriverForm {
     reference: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(100)] }),
     notes: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(2000)] }),
     groupIds: new FormControl<string[]>([], { nonNullable: true }),
+    paymentMode: new FormControl<DriverPaymentMode>('inherit', { nonNullable: true }),
   });
 
   static from(driver: Driver): DriverForm {
@@ -27,6 +28,7 @@ export class DriverForm {
       reference: driver.reference,
       notes: driver.notes,
       groupIds: driver.groups.map((group) => group.id),
+      paymentMode: driver.payment_mode,
     });
     return form;
   }
@@ -45,6 +47,7 @@ export class DriverForm {
       reference: value.reference.trim(),
       notes: value.notes.trim(),
       group_ids: value.groupIds,
+      payment_mode: value.paymentMode,
     };
   }
 }

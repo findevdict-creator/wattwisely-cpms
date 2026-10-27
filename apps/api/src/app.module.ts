@@ -12,6 +12,7 @@ import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { BrandingModule } from './modules/branding/branding.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
+import { DriverAppModule } from './modules/driver-app/driver-app.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
@@ -58,6 +59,7 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     SessionsModule,
     PaymentsModule,
     DriversModule,
+    DriverAppModule,
     PlansModule,
     SubscriptionModule,
     ManagedModule,

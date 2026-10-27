@@ -15,6 +15,11 @@ export class RouteAccessReader {
     return this.read<boolean>(RouteAccess.WITHOUT_TENANT_KEY, context) === true;
   }
 
+  /** A /v1/driver route (module 19): a driver's token, and no tenant. */
+  isDriver(context: ExecutionContext): boolean {
+    return this.read<boolean>(RouteAccess.DRIVER_KEY, context) === true;
+  }
+
   /** The platform permission an admin console route needs, or undefined on tenant routes. */
   requiredPlatformPermission(context: ExecutionContext): string | undefined {
     return this.read<string>(RouteAccess.PLATFORM_KEY, context);

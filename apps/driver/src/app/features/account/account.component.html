@@ -1,0 +1,86 @@
+<header class="where">
+  <h1>Your account</h1>
+  @if (store.me(); as me) {
+    <p class="hint" data-testid="account-email">{{ me.email }}</p>
+  }
+</header>
+
+@if (store.me(); as me) {
+  <section class="panel">
+    <h2>About you</h2>
+    <form class="profile" (ngSubmit)="save()">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput [formControl]="form.controls.display_name" data-testid="display-name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Phone (optional)</mat-label>
+        <input matInput [formControl]="form.controls.phone" inputmode="tel" data-testid="phone" />
+      </mat-form-field>
+      <div class="actions">
+        <button
+          mat-flat-button
+          type="submit"
+          [disabled]="form.invalid || form.pristine || store.isSaving()"
+          data-testid="save-profile"
+        >
+          Save
+        </button>
+        @if (store.isSaved()) {
+          <span class="hint" role="status">Saved.</span>
+        }
+      </div>
+    </form>
+  </section>
+
+  <h2>Your operators</h2>
+  @if (store.operators().length > 0) {
+    <ul class="operators">
+      @for (operator of store.operators(); track operator.tenant_id) {
+        <li>
+          <a class="panel operator" [routerLink]="['/account/operators', operator.tenant_id]">
+            <div>
+              <div class="name">{{ operator.operator_name }}</div>
+              <div class="hint">
+                Knows you as {{ operator.driver_name }}
+                @if (operator.reference) {
+                  · {{ operator.reference }}
+                }
+              </div>
+              <div class="hint">{{ paymentWords(operator.payment_mode) }}</div>
+            </div>
+            @if (operator.status === 'blocked') {
+              <span class="blocked" data-testid="blocked">Blocked</span>
+            } @else {
+              <mat-icon>chevron_right</mat-icon>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  } @else {
+    <section class="panel">
+      <p class="hint" data-testid="no-operators">
+        No operator is linked to your account yet. An operator that keeps you as one of its drivers
+        can invite you by e-mail; the link in that e-mail brings you here.
+      </p>
+    </section>
+  }
+
+  <p class="signout">
+    <button mat-stroked-button (click)="auth.logout()" data-testid="logout">
+      <mat-icon>logout</mat-icon>
+      Log out
+    </button>
+  </p>
+} @else if (store.error()) {
+  <section class="panel">
+    <p class="error" role="alert">{{ store.error() }}</p>
+    <button mat-stroked-button (click)="auth.logout()">Log out</button>
+  </section>
+} @else {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+}
+@if (store.me() && store.error()) {
+  <p class="error" role="alert">{{ store.error() }}</p>
+}

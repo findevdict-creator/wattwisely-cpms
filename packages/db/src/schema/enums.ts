@@ -9,7 +9,8 @@ export const membershipStatus = pgEnum('membership_status', ['invited', 'active'
 /**
  * Who did something recorded in the audit log. platform: Wattwisely staff acting from the
  * admin console (module 9); support: staff inside a tenant under time-limited support access;
- * managed: Wattwisely staff working inside a managed tenant as its Managed operator (module 10).
+ * managed: Wattwisely staff working inside a managed tenant as its Managed operator (module 10);
+ * driver: a driver acting from the driver app on their own link to the tenant (module 19).
  */
 export const auditActorType = pgEnum('audit_actor_type', [
   'user',
@@ -18,6 +19,7 @@ export const auditActorType = pgEnum('audit_actor_type', [
   'system',
   'platform',
   'managed',
+  'driver',
 ]);
 
 /** public: any driver or guest may charge. private: only the tenant's own drivers (story AST-04). */
@@ -277,6 +279,14 @@ export const driverStatus = pgEnum('driver_status', ['active', 'blocked']);
  * A blocked or lost card answers Blocked at the charger; an expired one answers Expired.
  */
 export const rfidCardStatus = pgEnum('rfid_card_status', ['active', 'blocked', 'lost']);
+
+/**
+ * Whether a session started by a card, a driver or a driver group is paid (module 19).
+ * inherit: ask the next level (card, driver, groups, then the tenant, which always says pay);
+ * pay: a hold on the holder's saved card before the charge; free: no payment, the operator
+ * settles with the driver another way. Nothing is free unless an admin marked it so.
+ */
+export const driverPaymentMode = pgEnum('driver_payment_mode', ['inherit', 'pay', 'free']);
 
 /**
  * An invoice from Wattwisely to a tenant (module 15): drafted by the worker or staff and

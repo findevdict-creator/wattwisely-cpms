@@ -7,6 +7,7 @@ import { RateLimits } from './rate-limits';
 export class ApiConfigLoader {
   static readonly DEFAULT_PORT = 3000;
   static readonly DEFAULT_AUDIENCE = 'wattwisely-api';
+  static readonly DEFAULT_DRIVER_AUDIENCE = 'wattwisely-driver';
   static readonly DEFAULT_SMTP_PORT = 587;
 
   load(environment: NodeJS.ProcessEnv): ApiConfig {
@@ -36,6 +37,8 @@ export class ApiConfigLoader {
       keycloakJwksUrl:
         environment['KEYCLOAK_JWKS_URL'] ?? `${issuerUrl}/protocol/openid-connect/certs`,
       keycloakAudience: environment['KEYCLOAK_AUDIENCE'] ?? ApiConfigLoader.DEFAULT_AUDIENCE,
+      keycloakDriverAudience:
+        environment['KEYCLOAK_DRIVER_AUDIENCE'] ?? ApiConfigLoader.DEFAULT_DRIVER_AUDIENCE,
     };
   }
 

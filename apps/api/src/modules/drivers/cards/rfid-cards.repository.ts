@@ -12,6 +12,7 @@ export class RfidCardsRepository {
     idTag: rfidCards.idTag,
     label: rfidCards.label,
     status: rfidCards.status,
+    paymentMode: rfidCards.paymentMode,
     expiresAt: rfidCards.expiresAt,
     lastUsedAt: rfidCards.lastUsedAt,
     version: rfidCards.version,

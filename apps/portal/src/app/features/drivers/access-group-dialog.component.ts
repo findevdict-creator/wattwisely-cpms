@@ -10,10 +10,15 @@ import { AccessGroupsApiService } from '../../core/api/access-groups-api.service
 import { ApiProblem } from '../../core/api/api-problem';
 import { DriversApiService } from '../../core/api/drivers-api.service';
 import { AccessGroup, DriverPage, NamedRow } from '../../core/api/models/driver';
+import { PaymentsApiService } from '../../core/api/payments-api.service';
 import { SitesApiService } from '../../core/api/sites-api.service';
+import { PermissionsService } from '../../core/permissions/permissions.service';
 import { AccessGroupForm } from './access-group-form';
 
-/** Add an access group, or change one (story AST-04). Closes with the saved group. */
+/**
+ * Add an access group, or change one (story AST-04), with what its members pay (module 19).
+ * Closes with the saved group. The hold is typed in the currency of the payment account.
+ */
 @Component({
   selector: 'ww-access-group-dialog',
   imports: [
@@ -39,6 +44,8 @@ import { AccessGroupForm } from './access-group-form';
 export class AccessGroupDialogComponent implements OnInit {
   /** How many drivers the picker shows at most: pages of the drivers list, oldest page first. */
   static readonly MAX_DRIVER_PAGES = 10;
+  /** Until the payment account names one, or when the person may not read it. */
+  static readonly FALLBACK_CURRENCY = 'GBP';
 
   protected readonly group = inject<AccessGroup | null>(MAT_DIALOG_DATA);
   private readonly dialogRef =
@@ -46,15 +53,30 @@ export class AccessGroupDialogComponent implements OnInit {
   private readonly groupsApi = inject(AccessGroupsApiService);
   private readonly sitesApi = inject(SitesApiService);
   private readonly driversApi = inject(DriversApiService);
+  private readonly paymentsApi = inject(PaymentsApiService);
+  private readonly permissions = inject(PermissionsService);
 
-  protected readonly form = this.group ? AccessGroupForm.from(this.group) : new AccessGroupForm();
+  protected form = new AccessGroupForm(AccessGroupDialogComponent.FALLBACK_CURRENCY);
   protected readonly sites = signal<NamedRow[]>([]);
   protected readonly drivers = signal<NamedRow[]>([]);
   protected readonly error = signal('');
   protected readonly isSaving = signal(false);
 
   ngOnInit(): void {
+    void this.loadForm();
     void this.loadChoices();
+  }
+
+  /** The form in the right currency: the payment account's, when there is one to read. */
+  private async loadForm(): Promise<void> {
+    let currency = AccessGroupDialogComponent.FALLBACK_CURRENCY;
+    if (this.permissions.can('payments:read')) {
+      const account = await firstValueFrom(this.paymentsApi.account()).catch(() => null);
+      currency = account?.default_currency || currency;
+    }
+    this.form = this.group
+      ? AccessGroupForm.from(this.group, currency)
+      : new AccessGroupForm(currency);
   }
 
   protected async save(): Promise<void> {

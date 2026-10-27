@@ -45,6 +45,71 @@
     "starttls": "${SMTP_STARTTLS}",
     "ssl": "false"
   },
+  "browserFlow": "staff browser",
+  "authenticationFlows": [
+    {
+      "id": "7d1a4c3e-0b2f-4e8a-9c6d-5f1e2a3b4c01",
+      "alias": "staff browser",
+      "description": "Portal and admin console logins (module 19): password, then an authenticator app, always.",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        { "authenticator": "auth-cookie", "authenticatorFlow": false, "requirement": "ALTERNATIVE", "priority": 10, "userSetupAllowed": false },
+        { "authenticator": "identity-provider-redirector", "authenticatorFlow": false, "requirement": "ALTERNATIVE", "priority": 20, "userSetupAllowed": false },
+        { "flowAlias": "staff browser - forms", "authenticatorFlow": true, "requirement": "ALTERNATIVE", "priority": 30, "userSetupAllowed": false }
+      ]
+    },
+    {
+      "id": "7d1a4c3e-0b2f-4e8a-9c6d-5f1e2a3b4c02",
+      "alias": "staff browser - forms",
+      "description": "Username and password, then OTP. A user without an authenticator app is asked to set one up.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        { "authenticator": "auth-username-password-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false },
+        { "authenticator": "auth-otp-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false }
+      ]
+    },
+    {
+      "id": "7d1a4c3e-0b2f-4e8a-9c6d-5f1e2a3b4c03",
+      "alias": "driver browser",
+      "description": "Driver app logins (module 19): password; an authenticator app only when the driver has set one up.",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        { "authenticator": "auth-cookie", "authenticatorFlow": false, "requirement": "ALTERNATIVE", "priority": 10, "userSetupAllowed": false },
+        { "authenticator": "identity-provider-redirector", "authenticatorFlow": false, "requirement": "ALTERNATIVE", "priority": 20, "userSetupAllowed": false },
+        { "flowAlias": "driver browser - forms", "authenticatorFlow": true, "requirement": "ALTERNATIVE", "priority": 30, "userSetupAllowed": false }
+      ]
+    },
+    {
+      "id": "7d1a4c3e-0b2f-4e8a-9c6d-5f1e2a3b4c04",
+      "alias": "driver browser - forms",
+      "description": "Username and password, then the optional second factor.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        { "authenticator": "auth-username-password-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false },
+        { "flowAlias": "driver browser - optional 2FA", "authenticatorFlow": true, "requirement": "CONDITIONAL", "priority": 20, "userSetupAllowed": false }
+      ]
+    },
+    {
+      "id": "7d1a4c3e-0b2f-4e8a-9c6d-5f1e2a3b4c05",
+      "alias": "driver browser - optional 2FA",
+      "description": "Asks for the OTP code only when the driver has an authenticator app configured.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        { "authenticator": "conditional-user-configured", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false },
+        { "authenticator": "auth-otp-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false }
+      ]
+    }
+  ],
   "roles": {
     "realm": [
       {
@@ -59,7 +124,7 @@
       "name": "Configure OTP",
       "providerId": "CONFIGURE_TOTP",
       "enabled": true,
-      "defaultAction": true,
+      "defaultAction": false,
       "priority": 10,
       "config": {}
     },
@@ -186,6 +251,42 @@
           "protocolMapper": "oidc-audience-mapper",
           "config": {
             "included.client.audience": "wattwisely-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "wattwisely-driver",
+      "name": "Wattwisely driver app",
+      "description": "The Angular driver app (module 19). Public client with PKCE; logs in through the driver browser flow, without a mandatory authenticator app. Its tokens carry this client as their audience, so the API tells drivers from staff.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "rootUrl": "${DRIVER_URL}",
+      "baseUrl": "/",
+      "redirectUris": ["${DRIVER_URL}/*", "${DRIVER_DEV_URL}/*"],
+      "webOrigins": ["${DRIVER_URL}", "${DRIVER_DEV_URL}"],
+      "authenticationFlowBindingOverrides": {
+        "browser": "7d1a4c3e-0b2f-4e8a-9c6d-5f1e2a3b4c03"
+      },
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${DRIVER_URL}/*##${DRIVER_DEV_URL}/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "wattwisely-driver audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "wattwisely-driver",
             "access.token.claim": "true",
             "id.token.claim": "false",
             "introspection.token.claim": "true"
