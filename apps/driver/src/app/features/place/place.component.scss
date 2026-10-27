@@ -1,82 +1,37 @@
-.where {
-  margin-bottom: 12px;
-
-  h1 {
-    margin: 0;
-    font-size: 24px;
-  }
-
-  p {
-    margin: 2px 0 0;
-  }
+.plug {
+  flex-direction: row;
+  gap: 14px;
+  align-items: center;
 }
 
-.plug {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.plug-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  font: 700 20px/1 var(--ww-font);
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.ww-two > .plug-name {
+  font: 600 17px/24px var(--ww-font);
+}
+
+.pay {
   gap: 12px;
 }
 
-.label {
-  font-size: 12px;
+.login {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
   color: var(--mat-sys-on-surface-variant);
 }
 
-.title {
-  font-size: 20px;
-  font-weight: 500;
-}
-
-// The plug's state in theme.json's status colors, as the mobile app shows them.
-.availability {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  background: var(--ww-status-unavailable-background);
-  color: var(--ww-status-unavailable-text);
-
-  &.available {
-    background: var(--ww-status-available-background);
-    color: var(--ww-status-available-text);
-  }
-
-  &.busy {
-    background: var(--ww-status-in-use-background);
-    color: var(--ww-status-in-use-text);
-  }
-
-  &.offline {
-    background: var(--ww-status-offline-background);
-    color: var(--ww-status-offline-text);
-  }
-
-  &.faulted,
-  &.out_of_service {
-    background: var(--ww-status-faulted-background);
-    color: var(--ww-status-faulted-text);
-  }
-}
-
-h2 {
-  margin: 0 0 8px;
-  font-size: 16px;
-}
-
-.pay p {
-  margin: 0 0 12px;
-}
-
-.start {
-  width: 100%;
-  height: 52px;
-  font-size: 16px;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 48px;
+.foot {
+  text-align: center;
 }

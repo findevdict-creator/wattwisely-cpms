@@ -1,53 +1,59 @@
 @let tariff = this.tariff();
-@if (currentBand(); as band) {
-  <div class="now" data-testid="price-now">
-    <span class="label">Now</span>
-    <span class="price">{{ tariff.currency }} {{ price(band.energy_price_per_kwh) }} / kWh</span>
-    @if (isCharged(band.time_price_per_hour)) {
-      <span class="extra">+ {{ price(band.time_price_per_hour) }} / hour</span>
-    }
-    <span class="hint">{{ band.name }}, {{ when(band) }}</span>
-  </div>
-}
-<ul class="bands">
-  @for (band of otherBands(); track band.name) {
-    <li>
-      <span>{{ band.name }}, {{ when(band) }}</span>
-      <span class="number">
-        {{ price(band.energy_price_per_kwh) }} / kWh
+<ul class="prices">
+  @for (band of tariff.bands; track band.name) {
+    @let isNow = band.name === tariff.current_band;
+    <li class="ww-list-item" [attr.data-testid]="isNow ? 'price-now' : null">
+      <span class="ww-two ww-grow">
+        <b>
+          {{ band.name }}
+          @if (isNow) {
+            <span class="ww-chip live now">Now</span>
+          }
+        </b>
+        <span>{{ when(band) }}</span>
+      </span>
+      <span class="price">
+        <b>{{ band.energy_price_per_kwh | unitPrice: tariff.currency }} per kWh</b>
         @if (isCharged(band.time_price_per_hour)) {
-          + {{ price(band.time_price_per_hour) }} / h
+          <span>+ {{ band.time_price_per_hour | unitPrice: tariff.currency }} per hour</span>
         }
       </span>
     </li>
   }
-</ul>
-<ul class="rules">
   @if (tariff.start_fee > 0) {
-    <li>Start fee {{ tariff.start_fee | money: tariff.currency }}</li>
+    <li class="ww-list-item">
+      <span class="ww-grow">Start fee</span>
+      <b>{{ tariff.start_fee | money: tariff.currency }}</b>
+    </li>
   }
   @if (idleFeePerMinute(); as idle) {
     @if (isCharged(idle)) {
-      <li>
-        Idle fee {{ price(idle) }} / min after {{ tariff.idle_grace_minutes }} min once charging has
-        finished
-        @if (tariff.idle_fee_cap !== null) {
-          (at most {{ tariff.idle_fee_cap | money: tariff.currency }})
-        }
+      <li class="ww-list-item">
+        <span class="ww-two ww-grow">
+          <span class="fee">Idle fee</span>
+          <span>{{ idleTerms() }}</span>
+        </span>
+        <b class="price">{{ idle | unitPrice: tariff.currency }} per min</b>
       </li>
     }
   }
   @if (tariff.minimum_price !== null) {
-    <li>Minimum {{ tariff.minimum_price | money: tariff.currency }}</li>
+    <li class="ww-list-item">
+      <span class="ww-grow">Minimum price</span>
+      <b>{{ tariff.minimum_price | money: tariff.currency }}</b>
+    </li>
   }
   @if (tariff.maximum_price !== null) {
-    <li>Maximum {{ tariff.maximum_price | money: tariff.currency }}</li>
+    <li class="ww-list-item">
+      <span class="ww-grow">Maximum price</span>
+      <b>{{ tariff.maximum_price | money: tariff.currency }}</b>
+    </li>
   }
-  <li>
-    @if (tariff.is_tax_included) {
-      Prices include {{ tariff.tax_rate }}% tax
-    } @else {
-      Plus {{ tariff.tax_rate }}% tax
-    }
-  </li>
 </ul>
+<p class="caption">
+  @if (tariff.is_tax_included) {
+    Prices include {{ taxRate() }}% tax.
+  } @else {
+    Prices are before {{ taxRate() }}% tax.
+  }
+</p>

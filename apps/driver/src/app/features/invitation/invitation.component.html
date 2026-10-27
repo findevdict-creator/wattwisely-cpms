@@ -1,82 +1,110 @@
 @if (store.invitation(); as invitation) {
   <section class="panel invitation">
-    <mat-icon class="big" svgIcon="mail" />
+    <span class="invite-mark"><mat-icon svgIcon="mail-open" /></span>
     <h1>{{ invitation.operator_name }} invites you</h1>
     <p>
       @if (invitation.invited_by) {
         {{ invitation.invited_by }} at
       }
       {{ invitation.operator_name }} keeps you as one of its drivers, as
-      <strong>{{ invitation.driver_name }}</strong
+      <b>{{ invitation.driver_name }}</b
       >. Link that record to your own login to see your cards and charges with them in this app.
     </p>
-    <p class="hint" data-testid="sent-to">
+    <ul class="gains">
+      <li class="ww-list-item">
+        <mat-icon svgIcon="badge-check" />
+        <span>Your charges at {{ invitation.operator_name }} show in your account</span>
+      </li>
+      <li class="ww-list-item">
+        <mat-icon svgIcon="badge-check" />
+        <span
+          >What {{ invitation.operator_name }} agreed with you, such as free charging, applies when
+          you scan</span
+        >
+      </li>
+      <li class="ww-list-item">
+        <mat-icon svgIcon="badge-check" />
+        <span>You can leave at any time</span>
+      </li>
+    </ul>
+    <p class="caption" data-testid="sent-to">
       Sent to {{ invitation.email }} · valid until {{ invitation.expires_at | date: 'medium' }}
     </p>
 
     @if (store.isDeclined()) {
-      <p role="status" data-testid="declined">You declined the invitation. Nothing is linked.</p>
-      <a mat-stroked-button routerLink="/">Home</a>
+      <p class="notice neutral" role="status" data-testid="declined">
+        You declined the invitation. Nothing is linked.
+      </p>
+      <a mat-stroked-button class="ww-large" routerLink="/">Home</a>
     } @else if (invitation.is_expired) {
-      <p class="error" role="alert" data-testid="expired">
+      <p class="notice danger" role="alert" data-testid="expired">
         This invitation has expired. Ask {{ invitation.operator_name }} to send a new one.
       </p>
     } @else if (!isLoggedIn()) {
       <p class="hint">Use the address the invitation was sent to.</p>
-      <div class="actions">
-        <button mat-flat-button (click)="signUp()" data-testid="sign-up">Create an account</button>
-        <button mat-stroked-button (click)="logIn()" data-testid="log-in">
-          I already have one
-        </button>
-      </div>
+      <button mat-flat-button class="ww-large" (click)="signUp()" data-testid="sign-up">
+        Create an account
+      </button>
+      <button mat-stroked-button class="ww-large" (click)="logIn()" data-testid="log-in">
+        I already have one
+      </button>
     } @else if (otherLogin()) {
-      <p class="error" role="alert" data-testid="other-login">
+      <p class="notice danger" role="alert" data-testid="other-login">
         You are logged in as {{ otherLogin() }}, but the invitation was sent to
         {{ invitation.email }}. Log out, then log in with that address.
       </p>
-      <button mat-stroked-button (click)="auth.logout()">Log out</button>
+      <button mat-stroked-button class="ww-large" (click)="auth.logout()">Log out</button>
     } @else {
-      <div class="actions">
-        <button
-          mat-flat-button
-          (click)="accept()"
-          [disabled]="store.isAnswering()"
-          data-testid="accept"
-        >
-          @if (store.isAnswering()) {
-            <mat-spinner diameter="20" />
-          } @else {
-            <mat-icon svgIcon="link" />
-          }
-          Accept
-        </button>
-        <button
-          mat-button
-          (click)="decline()"
-          [disabled]="store.isAnswering()"
-          data-testid="decline"
-        >
-          Decline
-        </button>
-      </div>
+      <button
+        mat-flat-button
+        class="ww-large"
+        (click)="accept()"
+        [disabled]="store.isAnswering()"
+        data-testid="accept"
+      >
+        @if (store.isAnswering()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon svgIcon="link" />
+        }
+        Accept
+      </button>
+      <button
+        mat-button
+        class="ww-large"
+        (click)="decline()"
+        [disabled]="store.isAnswering()"
+        data-testid="decline"
+      >
+        Decline
+      </button>
     }
     @if (store.error()) {
-      <p class="error" role="alert">{{ store.error() }}</p>
+      <p class="notice danger" role="alert">{{ store.error() }}</p>
     }
   </section>
+  @if (isLoggedIn() && !otherLogin()) {
+    <p class="notice neutral has-icon">
+      <mat-icon svgIcon="user-round" />
+      <span>
+        Logged in as {{ auth.email() }}. Not you?
+        <button type="button" class="text-link" (click)="auth.logout()">Log out</button>
+      </span>
+    </p>
+  }
 } @else if (store.isNotFound()) {
   <section class="panel invitation">
-    <mat-icon class="big" svgIcon="unlink" />
+    <span class="invite-mark"><mat-icon svgIcon="unlink" /></span>
     <h1>This link no longer works</h1>
     <p class="hint" data-testid="not-found">
       The invitation was accepted, declined or cancelled, or a newer one was sent. Open the newest
       e-mail from the operator, or ask them to invite you again.
     </p>
-    <a mat-stroked-button routerLink="/">Home</a>
+    <a mat-stroked-button class="ww-large" routerLink="/">Home</a>
   </section>
 } @else if (store.error()) {
   <section class="panel">
-    <p class="error" role="alert">{{ store.error() }}</p>
+    <p class="notice danger" role="alert">{{ store.error() }}</p>
   </section>
 } @else {
   <div class="loading"><mat-spinner diameter="32" /></div>

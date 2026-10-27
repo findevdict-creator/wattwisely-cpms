@@ -1,11 +1,16 @@
 import { Component, computed, input } from '@angular/core';
 import { PublicTariff, TariffBand } from '../../core/api/models/place';
+import { Money } from '../../shared/money';
 import { MoneyPipe } from '../../shared/money.pipe';
+import { UnitPricePipe } from '../../shared/unit-price.pipe';
 
-/** The prices at a plug, the way a price sign would show them: now, then the rest. */
+/**
+ * The prices at a plug, the way a price sign would show them: each band, with the one in force
+ * marked, then the fees and the tax.
+ */
 @Component({
   selector: 'ww-tariff-summary',
-  imports: [MoneyPipe],
+  imports: [MoneyPipe, UnitPricePipe],
   templateUrl: './tariff-summary.component.html',
   styleUrl: './tariff-summary.component.scss',
 })
@@ -25,19 +30,20 @@ export class TariffSummaryComponent {
   protected readonly currentBand = computed(
     () => this.tariff().bands.find((band) => band.name === this.tariff().current_band) ?? null,
   );
-  protected readonly otherBands = computed(() =>
-    this.tariff().bands.filter((band) => band !== this.currentBand()),
-  );
   protected readonly idleFeePerMinute = computed(
     () => this.currentBand()?.idle_fee_per_minute ?? this.tariff().bands[0]?.idle_fee_per_minute,
   );
+  /** "23" from "23.00", "13.5" from "13.50". */
+  protected readonly taxRate = computed(() => String(Number(this.tariff().tax_rate)));
 
-  /** "0.40" from "0.4000": prices are shown with the currency's usual decimals, trailing zeros dropped past two. */
-  protected price(decimal: string): string {
-    const [whole, fraction = ''] = decimal.split('.');
-    const trimmed = fraction.replace(/0+$/, '');
-    return `${whole}.${trimmed.padEnd(2, '0')}`;
-  }
+  /** "After 15 min once charging has finished, at most €15.00". */
+  protected readonly idleTerms = computed(() => {
+    const tariff = this.tariff();
+    const after = `After ${tariff.idle_grace_minutes} min once charging has finished`;
+    return tariff.idle_fee_cap === null
+      ? after
+      : `${after}, at most ${Money.format(tariff.idle_fee_cap, tariff.currency)}`;
+  });
 
   protected isCharged(decimal: string): boolean {
     return Number(decimal) > 0;

@@ -1,21 +1,27 @@
-<section class="panel" data-testid="charge-updates">
-  <h2>E-mail updates</h2>
+<section class="panel updates" data-testid="charge-updates" aria-labelledby="updates-title">
+  <h2 id="updates-title">E-mail updates</h2>
   @if (saved(); as saved) {
     @if (saved.is_undeliverable) {
-      <p class="error" role="alert" data-testid="undeliverable">
+      <p class="notice danger" role="alert" data-testid="undeliverable">
         We could not deliver to {{ saved.email }}. Check the address and save it again.
       </p>
     } @else if (!isEditing()) {
       <p data-testid="updates-on">
-        We will e-mail {{ saved.email }}
+        We will e-mail <b>{{ saved.email }}</b>
         @if (saved.started || saved.nearly_full || saved.finished || saved.idle_warning) {
           updates and
         }
         the receipt.
       </p>
       <div class="actions">
-        <button mat-button (click)="edit()" data-testid="edit-updates">Change</button>
-        <button mat-button (click)="stop()" [disabled]="isBusy()" data-testid="stop-updates">
+        <button mat-stroked-button (click)="edit()" data-testid="edit-updates">Change</button>
+        <button
+          mat-button
+          class="ww-danger"
+          (click)="stop()"
+          [disabled]="isBusy()"
+          data-testid="stop-updates"
+        >
           Stop e-mails
         </button>
       </div>
@@ -45,14 +51,20 @@
         <mat-checkbox formControlName="finished">When charging finishes</mat-checkbox>
         <mat-checkbox formControlName="idle_warning">Before an idle fee starts</mat-checkbox>
       </div>
-      <p class="hint">The receipt is always sent.</p>
-      <button mat-flat-button type="submit" [disabled]="isBusy()" data-testid="save-updates">
+      <p class="caption">The receipt is always sent.</p>
+      <button
+        mat-stroked-button
+        class="ww-large"
+        type="submit"
+        [disabled]="isBusy()"
+        data-testid="save-updates"
+      >
         Send me e-mails
       </button>
     </form>
   }
 
   @if (error()) {
-    <p class="error" role="alert">{{ error() }}</p>
+    <p class="notice danger" role="alert">{{ error() }}</p>
   }
 </section>

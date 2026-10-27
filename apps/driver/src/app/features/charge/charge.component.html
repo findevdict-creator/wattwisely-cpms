@@ -1,8 +1,12 @@
 @if (store.charge(); as charge) {
   <header class="where">
     <h1>{{ charge.site_name }} · Plug {{ charge.connector_label }}</h1>
-    <p class="hint">{{ charge.branding.name }} · {{ charge.charger_identity }}</p>
+    <p>{{ charge.branding.name }} · {{ charge.charger_identity }}</p>
   </header>
+
+  @if (isStepsShown()) {
+    <ww-charge-steps [phase]="phase()" />
+  }
 
   @switch (phase()) {
     @case ('card') {
@@ -23,15 +27,15 @@
     }
     @case ('charging') {
       <section class="panel centre" data-testid="phase-charging">
-        <div class="hint">{{ statusLabel() }}</div>
+        <span class="ww-chip {{ chip().tone }}">{{ chip().label }}</span>
         <div class="figure" data-testid="cost-so-far">
           {{ charge.amount | money: charge.currency }}
         </div>
-        <div class="hint">so far</div>
+        <span class="hint">so far</span>
         <dl class="facts">
           <div>
             <dt>Energy</dt>
-            <dd>{{ charge.energy_wh / 1000 | number: '1.0-2' }} kWh</dd>
+            <dd>{{ charge.energy_wh / 1000 | number: '1.1-2' }} kWh</dd>
           </div>
           <div>
             <dt>Time</dt>
@@ -43,13 +47,13 @@
           </div>
         </dl>
         @if (charge.is_stop_requested) {
-          <p class="hint" data-testid="stop-requested">
+          <p class="notice neutral wide" data-testid="stop-requested">
             Stopping… the charger has been asked to stop.
           </p>
         } @else if (charge.can_stop) {
           <button
             mat-stroked-button
-            class="stop"
+            class="ww-large ww-danger wide stop"
             (click)="stop()"
             [disabled]="store.isBusy()"
             data-testid="stop"
@@ -57,6 +61,7 @@
             <mat-icon svgIcon="circle-stop" />
             Stop charging
           </button>
+          <span class="caption">You can also stop from the car, or unplug.</span>
         }
       </section>
     }
@@ -68,64 +73,24 @@
           You can unplug your car. The final price is worked out once the car is unplugged; it
           appears here within a minute.
         </p>
-        <p class="hint">{{ charge.energy_wh / 1000 | number: '1.0-2' }} kWh delivered</p>
+        <p class="hint">{{ charge.energy_wh / 1000 | number: '1.1-2' }} kWh delivered</p>
       </section>
     }
     @case ('done') {
-      <section class="panel centre" data-testid="phase-done">
-        <mat-icon class="big" svgIcon="circle-check" />
-        <div class="figure" data-testid="final-price">
-          {{ charge.receipt?.gross ?? charge.amount | money: charge.currency }}
-        </div>
-        <div class="hint">
-          {{ paymentLabel() }}
-          @if (charge.card_brand) {
-            · {{ charge.card_brand }} •••• {{ charge.card_last4 }}
-          }
-        </div>
-        <p class="hint">
-          {{ charge.started_at | zonedTime: charge.time_zone : true }}
-          @if (charge.ended_at) {
-            to {{ charge.ended_at | zonedTime: charge.time_zone }}
-          }
-          · {{ charge.energy_wh / 1000 | number: '1.0-2' }} kWh
-        </p>
-      </section>
-      @if (charge.receipt; as receipt) {
-        <section class="panel receipt" data-testid="receipt-panel">
-          <header class="issuer">
-            @if (charge.branding.logo_url; as logoUrl) {
-              <img class="logo" [src]="logoUrl" [alt]="charge.branding.name" />
-            }
-            <div>
-              <h2>Receipt</h2>
-              <div class="hint">
-                {{ charge.branding.name }} · {{ charge.site_name }}, plug
-                {{ charge.connector_label }}
-              </div>
-            </div>
-          </header>
-          <ww-charge-receipt
-            [receipt]="receipt"
-            [currency]="charge.currency"
-            [timeZone]="charge.time_zone"
-          />
-          <ww-support-contact
-            [brand]="charge.branding"
-            lead="Questions about this charge? Contact"
-          />
-          <p class="hint powered-by">
-            Charging by {{ charge.operator_name }} · Powered by {{ charge.branding.platform_name }}
-          </p>
-        </section>
-      }
+      <ww-charge-done [charge]="charge" />
     }
     @case ('failed') {
       <section class="panel centre" data-testid="phase-failed">
-        <mat-icon class="big sad" svgIcon="circle-alert" />
+        <span class="mark danger"><mat-icon svgIcon="circle-alert" /></span>
         <h2>{{ statusLabel() }}</h2>
         <p>{{ failureLabel() }}</p>
-        <a mat-stroked-button [routerLink]="['/c', charge.charger_identity, '1']">Try again</a>
+        <a
+          mat-stroked-button
+          class="ww-large wide"
+          [routerLink]="['/c', charge.charger_identity, '1']"
+        >
+          Try again
+        </a>
         <ww-support-contact [brand]="charge.branding" lead="Need help? Contact" />
       </section>
     }
@@ -134,11 +99,11 @@
     <ww-charge-updates [key]="key()" />
   }
   @if (store.error()) {
-    <p class="error" role="alert">{{ store.error() }}</p>
+    <p class="notice danger" role="alert">{{ store.error() }}</p>
   }
 } @else if (store.error()) {
   <section class="panel">
-    <p class="error" role="alert">{{ store.error() }}</p>
+    <p class="notice danger" role="alert">{{ store.error() }}</p>
     <a mat-stroked-button routerLink="/">Home</a>
   </section>
 } @else {

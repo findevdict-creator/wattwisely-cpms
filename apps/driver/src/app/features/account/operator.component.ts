@@ -5,12 +5,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { BrandService } from '../../core/branding/brand.service';
+import { ChipTone } from '../../shared/charge-chips';
+import { Initials } from '../../shared/initials';
 import { OperatorStore } from './operator.store';
 import { PaymentModeWords } from './payment-mode-words';
 
 /**
  * One operator the driver is linked with (module 19, story DRV-05): what it holds about
- * them, whether their charges there are paid, and the way to leave it.
+ * them, whether their charges there are paid, and the way to leave it. Right after the
+ * invitation is accepted, the page says the link is made.
  */
 @Component({
   selector: 'ww-operator',
@@ -21,11 +24,17 @@ import { PaymentModeWords } from './payment-mode-words';
 })
 export class OperatorComponent implements OnInit {
   readonly tenantId = input.required<string>();
+  /** `?linked=1`: the driver has just accepted the invitation. */
+  readonly linked = input<string>();
 
   protected readonly store = inject(OperatorStore);
   private readonly router = inject(Router);
 
   protected readonly isLeaveAsked = signal(false);
+  protected readonly isJustLinked = computed(() => this.linked() === '1');
+  protected readonly initials = computed(() =>
+    Initials.of(this.store.profile()?.operator_name ?? ''),
+  );
   protected readonly paymentWords = computed(() => {
     const profile = this.store.profile();
     return profile ? PaymentModeWords.long(profile.payment_mode, profile.operator_name) : '';
@@ -41,6 +50,10 @@ export class OperatorComponent implements OnInit {
 
   protected cardStatus(status: string): string {
     return PaymentModeWords.cardStatus(status);
+  }
+
+  protected cardTone(status: string): ChipTone {
+    return status === 'active' ? 'live' : 'danger';
   }
 
   protected async leave(): Promise<void> {

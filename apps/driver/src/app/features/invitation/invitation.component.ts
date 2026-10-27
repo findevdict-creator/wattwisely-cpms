@@ -54,7 +54,9 @@ export class InvitationComponent implements OnInit {
   protected async accept(): Promise<void> {
     const operator = await this.store.accept(this.token());
     if (operator) {
-      await this.router.navigate(['/account/operators', operator.tenant_id]);
+      await this.router.navigate(['/account/operators', operator.tenant_id], {
+        queryParams: { linked: 1 },
+      });
     }
   }
 

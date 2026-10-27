@@ -17,6 +17,21 @@ export class Money {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(major);
   }
 
+  /**
+   * A unit price as the API writes it ("0.4000" per kWh) with the currency's sign: "€0.40", or
+   * "€0.125" when the price needs more than the currency's usual decimals.
+   */
+  static unitPrice(decimal: string, currency: string): string {
+    const fraction = (decimal.split('.')[1] ?? '').replace(/0+$/, '');
+    const digits = Math.max(Money.decimals(currency), fraction.length);
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(Number(decimal));
+  }
+
   /** 880 as "8.80", for an input field. */
   static toText(amount: number | null, currency: string): string {
     return amount === null

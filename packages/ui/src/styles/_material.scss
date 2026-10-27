@@ -176,3 +176,27 @@ html {
     )
   );
 }
+
+// Large buttons, 48px high, for the one step a phone page is about, such as Pay and charge.
+.ww-large {
+  @include mat.button-overrides(
+    (
+      filled-container-height: 48px,
+      outlined-container-height: 48px,
+      text-container-height: 48px,
+      tonal-container-height: 48px,
+      filled-container-shape: var(--ww-radius-lg),
+      outlined-container-shape: var(--ww-radius-lg),
+      text-container-shape: var(--ww-radius-lg),
+      tonal-container-shape: var(--ww-radius-lg),
+      filled-label-text-size: 15px,
+      outlined-label-text-size: 15px,
+      text-label-text-size: 15px,
+      tonal-label-text-size: 15px,
+      filled-horizontal-padding: 20px,
+      outlined-horizontal-padding: 20px,
+      text-horizontal-padding: 20px,
+      tonal-horizontal-padding: 20px,
+    )
+  );
+}

@@ -1,38 +1,43 @@
 <ul class="lines" data-testid="receipt">
   @for (line of receipt().lines; track $index) {
-    <li>
-      <div>
-        <div>{{ labelOf(line) }}</div>
-        <div class="hint">
-          @switch (line.unit) {
-            @case ('wh') {
-              {{ line.quantity / 1000 | number: '1.0-3' }} kWh
-              @if (line.unit_price) {
-                at {{ line.unit_price }}
+    <li class="ww-list-item">
+      <span class="ww-two ww-grow">
+        <span class="kind">{{ labelOf(line) }}</span>
+        <span>
+          @if (line.kind === 'idle' && line.gross === 0) {
+            Unplugged in time
+          } @else {
+            @switch (line.unit) {
+              @case ('wh') {
+                {{ line.quantity / 1000 | number: '1.1-3' }} kWh
+                @if (line.unit_price) {
+                  at {{ line.unit_price | unitPrice: currency() }}
+                }
+              }
+              @case ('min') {
+                {{ line.quantity | number: '1.0-0' }} min
+                @if (line.unit_price) {
+                  at {{ line.unit_price | unitPrice: currency() }}
+                }
               }
             }
-            @case ('min') {
-              {{ line.quantity | number: '1.0-0' }} min
-              @if (line.unit_price) {
-                at {{ line.unit_price }}
-              }
+            @if (line.from && line.to) {
+              · {{ line.from | zonedTime: timeZone() }} to {{ line.to | zonedTime: timeZone() }}
             }
           }
-          @if (line.from && line.to) {
-            · {{ line.from | zonedTime: timeZone() }} to {{ line.to | zonedTime: timeZone() }}
-          }
-        </div>
-      </div>
-      <div class="number">{{ line.gross | money: currency() }}</div>
+        </span>
+      </span>
+      <b class="number">{{ line.gross | money: currency() }}</b>
     </li>
   } @empty {
-    <li class="hint">Nothing to pay for this charge.</li>
+    <li class="ww-list-item hint">Nothing to pay for this charge.</li>
   }
 </ul>
-<div class="totals">
-  <div class="hint">Of which tax: {{ receipt().tax | money: currency() }}</div>
-  <div class="total">
-    <span>Total</span>
-    <span data-testid="receipt-total">{{ receipt().gross | money: currency() }}</span>
-  </div>
+<div class="tax">
+  <span class="ww-grow">Of which tax</span>
+  <span>{{ receipt().tax | money: currency() }}</span>
+</div>
+<div class="total">
+  <span class="ww-grow">Total</span>
+  <span data-testid="receipt-total">{{ receipt().gross | money: currency() }}</span>
 </div>

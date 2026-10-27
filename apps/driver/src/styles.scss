@@ -3,19 +3,163 @@
 // the theme's tokens.
 @use 'wattwisely';
 
-// A white card, the building block of every page.
+// Every page is one column of cards, a phone wide.
+ww-root main > :not(router-outlet) {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// A white card, the building block of every page; .centre for a figure and the words around it.
 .panel {
-  background: var(--mat-sys-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
   border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--ww-radius-lg);
-  padding: 16px;
-  margin-bottom: 12px;
+  background: var(--mat-sys-surface);
+
+  h2 {
+    margin: 0;
+    font: 600 17px/24px var(--ww-font);
+  }
+
+  p {
+    margin: 0;
+  }
+
+  &.centre {
+    align-items: center;
+    gap: 4px;
+    padding: 24px 16px;
+    text-align: center;
+  }
+}
+
+// The page's name, and the line under it.
+.where {
+  h1 {
+    margin: 0;
+    font: 600 22px/28px var(--ww-font);
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--mat-sys-on-surface-variant);
+  }
 }
 
 // A big number: the cost so far, the final price.
 .figure {
-  font-size: 40px;
+  margin-top: 8px;
+  font: 700 44px/52px var(--ww-font);
+  letter-spacing: -0.02em;
+}
+
+// Small print under a button or at the foot of a card.
+.caption {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// The way back to the page above.
+.back {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+
+  .mat-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// A button that reads as a link inside a sentence, such as "Log in to use your saved card".
+.text-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
   font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
+  color: var(--ww-link);
+  cursor: pointer;
+}
+
+// A card that is a link to another page: an icon, the words, and a chevron.
+a.panel.row {
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--mat-sys-outline);
+  }
+}
+
+// An operator as a square of initials on dark, where it has no logo.
+.op-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font: 700 15px/1 var(--ww-font);
+  background: var(--ww-ink);
+  color: var(--ww-white);
+
+  &.l {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  &.off {
+    background: var(--mat-sys-outline);
+  }
+}
+
+// A large round or square icon at the top of a card, such as the tick on a receipt.
+.mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-primary);
+
+  .mat-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  &.danger {
+    background: var(--ww-danger-soft);
+    color: var(--ww-danger-text);
+  }
+}
+
+.wide {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
 }

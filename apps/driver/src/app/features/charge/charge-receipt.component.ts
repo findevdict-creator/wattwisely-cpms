@@ -2,12 +2,13 @@ import { DecimalPipe } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { ChargeReceipt, ReceiptLine } from '../../core/api/models/charge';
 import { MoneyPipe } from '../../shared/money.pipe';
+import { UnitPricePipe } from '../../shared/unit-price.pipe';
 import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
 
-/** The receipt, one line per item, sized for a phone. */
+/** The receipt, one line per item with its quantity and price, then the tax and the total. */
 @Component({
   selector: 'ww-charge-receipt',
-  imports: [DecimalPipe, MoneyPipe, ZonedTimePipe],
+  imports: [DecimalPipe, MoneyPipe, UnitPricePipe, ZonedTimePipe],
   templateUrl: './charge-receipt.component.html',
   styleUrl: './charge-receipt.component.scss',
 })
