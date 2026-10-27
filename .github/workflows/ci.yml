@@ -35,7 +35,7 @@ jobs:
       TEST_S3_ACCESS_KEY: test
       TEST_S3_SECRET_KEY: test-secret
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # The same SeaweedFS as deploy/docker-compose.yml. Not a service container: those take
       # no command line, and SeaweedFS needs one to switch S3 on.
       - name: Start object storage
@@ -45,7 +45,7 @@ jobs:
           JSON
           docker run -d --name object-storage -p 8333:8333 -v "$RUNNER_TEMP/s3.json:/etc/s3.json:ro" \
             chrislusf/seaweedfs:4.48 server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/s3.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -66,7 +66,7 @@ jobs:
     name: Deploy folder
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check shell scripts
         run: shellcheck --external-sources --source-path=SCRIPTDIR deploy/scripts/*.sh deploy/scripts/lib/*.sh deploy/postgres/init/*.sh deploy/monitoring/alertmanager/*.sh apps/portal/docker/*.sh apps/admin/docker/*.sh
       - name: Check the Compose file
