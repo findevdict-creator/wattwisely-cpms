@@ -1,17 +1,16 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { ManagedOperator } from '../../core/api/models/managed-service';
+import { AccountManager, ManagedOperator } from '../../core/api/models/managed-service';
 import { Tenant } from '../../core/api/models/tenant';
 import { StaffContextService } from '../../core/staff/staff-context.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog.component';
+import { Initials } from '../../shared/initials';
 import { PromptDialogComponent } from '../../shared/prompt-dialog.component';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { StatusChipComponent } from '../../shared/status-chip.component';
@@ -28,9 +27,7 @@ import { ManagedServiceStore } from './managed-service.store';
   imports: [
     DatePipe,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
-    MatListModule,
     MatMenuModule,
     MoneyPipe,
     RouterLink,
@@ -45,6 +42,7 @@ export class TenantManagedServiceComponent implements OnInit {
   protected readonly store = inject(ManagedServiceStore);
   protected readonly staff = inject(StaffContextService);
   private readonly dialog = inject(MatDialog);
+  protected readonly initials = Initials;
 
   protected readonly canManage = computed(
     () => this.staff.can('tenants:manage_service') && this.tenant().status !== 'cancelled',
@@ -59,6 +57,10 @@ export class TenantManagedServiceComponent implements OnInit {
 
   ngOnInit(): void {
     void this.store.load(this.tenant().id);
+  }
+
+  protected initialsOf(manager: AccountManager | null): string {
+    return manager ? Initials.of(manager.name || manager.email) : '–';
   }
 
   protected async offer(): Promise<void> {
@@ -143,7 +145,7 @@ export class TenantManagedServiceComponent implements OnInit {
   }
 
   private async confirm(data: ConfirmDialogData): Promise<boolean> {
-    const dialog = this.dialog.open(ConfirmDialogComponent, { data });
+    const dialog = this.dialog.open(ConfirmDialogComponent, { data, width: '440px' });
     return (await firstValueFrom(dialog.afterClosed())) === true;
   }
 }

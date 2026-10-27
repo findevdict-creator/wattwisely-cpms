@@ -28,37 +28,45 @@ export interface ModuleDialogData {
     <h2 mat-dialog-title>
       {{ data.isEnabled ? 'Switch on' : 'Switch off' }} {{ data.module.name }}
     </h2>
-    <mat-dialog-content class="content" [formGroup]="form">
+    <mat-dialog-content>
       @if (data.isEnabled) {
-        <mat-form-field appearance="outline">
-          <mat-label>Why</mat-label>
-          <mat-select formControlName="source" data-testid="module-source">
-            @if (data.module.kind === 'addon') {
-              <mat-option value="addon">Bought as an add-on</mat-option>
-            }
-            <mat-option value="trial">Trial until a date</mat-option>
-            <mat-option value="override">Included by Wattwisely</mat-option>
-          </mat-select>
-        </mat-form-field>
-        @if (form.controls.source.value === 'trial') {
-          <mat-form-field appearance="outline">
-            <mat-label>Trial ends</mat-label>
-            <input matInput type="date" formControlName="ends_at" data-testid="module-ends" />
-          </mat-form-field>
-        }
+        <p class="ww-lead">
+          The tenant's team can use it within a minute. Say why, so the invoice and the audit log
+          tell the same story.
+        </p>
       } @else {
-        <p>
+        <div class="notice warn">
           The tenant's team loses access to this module within a minute, even if their plan includes
           it. "Follow the plan again" undoes this.
-        </p>
+        </div>
       }
-      <mat-form-field appearance="outline">
-        <mat-label>Note for the audit log</mat-label>
-        <input matInput formControlName="note" data-testid="module-note" />
-      </mat-form-field>
-      @if (error()) {
-        <p class="error" role="alert">{{ error() }}</p>
-      }
+      <form class="ww-form" [formGroup]="form" (ngSubmit)="save()">
+        @if (data.isEnabled) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Why</mat-label>
+            <mat-select formControlName="source" data-testid="module-source">
+              @if (data.module.kind === 'addon') {
+                <mat-option value="addon">Bought as an add-on</mat-option>
+              }
+              <mat-option value="trial">Trial until a date</mat-option>
+              <mat-option value="override">Included by Wattwisely</mat-option>
+            </mat-select>
+          </mat-form-field>
+          @if (form.controls.source.value === 'trial') {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Trial ends</mat-label>
+              <input matInput type="date" formControlName="ends_at" data-testid="module-ends" />
+            </mat-form-field>
+          }
+        }
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Note for the audit log</mat-label>
+          <input matInput formControlName="note" data-testid="module-note" />
+        </mat-form-field>
+        @if (error()) {
+          <div class="notice danger" role="alert">{{ error() }}</div>
+        }
+      </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -66,13 +74,6 @@ export interface ModuleDialogData {
         {{ data.isEnabled ? 'Switch on' : 'Switch off' }}
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      padding-top: 8px;
-    }
   `,
 })
 export class ModuleDialogComponent {

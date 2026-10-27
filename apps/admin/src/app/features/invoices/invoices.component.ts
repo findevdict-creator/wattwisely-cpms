@@ -1,29 +1,29 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { InvoiceFilter, InvoicesApiService } from '../../core/api/invoices-api.service';
 import { InvoiceListStatus, InvoiceSummary } from '../../core/api/models/invoice';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { StatusChipComponent } from '../../shared/status-chip.component';
+import { InvoiceMonths } from './invoice-months';
 
 /** Invoices (module 15): every tenant's invoices, newest month first, narrowed by state or month. */
 @Component({
   selector: 'ww-invoices',
   imports: [
     DatePipe,
+    EmptyStateComponent,
     MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatSelectModule,
     MatTableModule,
     MoneyPipe,
+    PageHeaderComponent,
     RouterLink,
     StatusChipComponent,
   ],
@@ -34,11 +34,14 @@ export class InvoicesComponent implements OnInit {
   private readonly invoicesApi = inject(InvoicesApiService);
   private readonly route = inject(ActivatedRoute);
 
-  protected readonly columns = ['invoice', 'tenant', 'status', 'total', 'due'];
+  protected readonly columns = ['invoice', 'tenant', 'due', 'total', 'status'];
   protected readonly statuses: InvoiceListStatus[] = ['draft', 'issued', 'overdue', 'paid', 'void'];
+  protected readonly labels = StatusChipComponent.LABELS;
+  protected readonly months = InvoiceMonths.past();
   protected readonly invoices = signal<InvoiceSummary[]>([]);
   protected readonly nextCursor = signal<string | null>(null);
   protected readonly error = signal('');
+  protected readonly isLoaded = signal(false);
   protected readonly filter = signal<InvoiceFilter>({});
 
   ngOnInit(): void {
@@ -63,6 +66,8 @@ export class InvoicesComponent implements OnInit {
       this.nextCursor.set(page.next_cursor);
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
+    } finally {
+      this.isLoaded.set(true);
     }
   }
 

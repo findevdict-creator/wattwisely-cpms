@@ -37,7 +37,7 @@ export class TenantModulesComponent {
   protected readonly staff = inject(StaffContextService);
   private readonly store = inject(TenantStore);
   private readonly dialog = inject(MatDialog);
-  protected readonly columns = ['module', 'state', 'source', 'actions'];
+  protected readonly columns = ['module', 'source', 'price', 'state', 'actions'];
 
   protected describeSource(module: TenantModule): string {
     if (!module.is_enabled) {

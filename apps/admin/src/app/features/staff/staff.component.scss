@@ -1,28 +1,44 @@
-.members {
-  max-width: 960px;
-  margin-bottom: 32px;
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.name {
-  font-weight: 500;
+ww-page-header {
+  margin-bottom: 0;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.person {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.nowrap {
+  white-space: nowrap;
 }
 
 .actions {
+  width: 48px;
   text-align: right;
 }
 
-.roles {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 6px 16px;
-  max-width: 960px;
-}
-
-.roles dt {
-  font-weight: 500;
-}
-
-.roles dd {
-  margin: 0;
+.role {
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 18px;
   color: var(--mat-sys-on-surface-variant);
+
+  .ww-chip {
+    flex: none;
+  }
+}
+
+.ww-card-body {
+  gap: 0;
+  padding-top: 4px;
 }

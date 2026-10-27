@@ -1,39 +1,29 @@
 :host {
-  display: flex;
-  flex-direction: column;
+  display: block;
   height: 100%;
 }
 
-// The same white bar as the portal; the "Staff console" chip says which app this is.
-.top-bar {
-  gap: 12px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
+.frame {
+  height: 100%;
 }
 
-.brand {
-  font-weight: 600;
+.side {
+  width: 248px;
+  border-right: 1px solid var(--mat-sys-outline-variant);
 }
 
-.role {
-  text-transform: capitalize;
+.main {
+  display: flex;
+  flex-direction: column;
 }
 
-.spacer {
+.content {
   flex: 1;
+  padding: 28px 32px 32px;
 }
 
-.body {
-  flex: 1;
-}
-
-.side-menu {
-  width: 220px;
-}
-
-.page {
-  padding: 24px;
-}
-
-.active {
-  background: var(--mat-sys-secondary-container);
+@media (max-width: 959px) {
+  .content {
+    padding: 20px 16px 24px;
+  }
 }

@@ -227,6 +227,7 @@ services:
       ADMIN_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
       ADMIN_KEYCLOAK_REALM: wattwisely
       ADMIN_KEYCLOAK_CLIENT_ID: wattwisely-admin
+      ADMIN_PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
     networks: [backend]
 
   # ---------- Login: Keycloak ----------

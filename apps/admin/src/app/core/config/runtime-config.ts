@@ -4,6 +4,9 @@
  * runs on any server; nothing environment-specific is compiled in.
  */
 export class RuntimeConfig {
+  /** The tenant portal, linked from the top bar; no link when empty. */
+  portalUrl = '';
+
   constructor(
     readonly apiUrl: string,
     readonly keycloakUrl: string,

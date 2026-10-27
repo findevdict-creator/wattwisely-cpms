@@ -1,17 +1,27 @@
-.plans,
-.addons {
-  max-width: 1100px;
-  margin-bottom: 32px;
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.name {
-  font-weight: 500;
+ww-page-header {
+  margin-bottom: 0;
 }
 
-.count {
-  text-align: right;
+.scroll {
+  overflow-x: auto;
+}
+
+.ww-two > .plain {
+  font-weight: 400;
+}
+
+th,
+.nowrap {
+  white-space: nowrap;
 }
 
 .actions {
+  width: 48px;
   text-align: right;
 }

@@ -3,13 +3,17 @@ import { LogoComponent } from '../logo/logo.component';
 
 /**
  * A page outside the app's frame, in the look of the sign-in pages: the logo, one card with a
- * title, and a line under the card (`wwAuthFoot`). Used before a workspace is open.
+ * title, and a line under the card (`wwAuthFoot`). Used before a workspace is open. Something
+ * beside the logo, such as the admin console's "Staff console" chip, goes in with `wwAuthBrand`.
  */
 @Component({
   selector: 'ww-auth-page',
   imports: [LogoComponent],
   template: `
-    <ww-logo />
+    <div class="brand">
+      <ww-logo />
+      <ng-content select="[wwAuthBrand]" />
+    </div>
     <section class="card" [style.width]="width()" aria-labelledby="ww-auth-title">
       <div class="titles">
         <h1 id="ww-auth-title">{{ heading() }}</h1>
@@ -32,6 +36,11 @@ import { LogoComponent } from '../logo/logo.component';
       min-height: 100%;
       padding: 48px 24px;
       background: var(--mat-sys-background);
+    }
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
     .card {
       display: flex;

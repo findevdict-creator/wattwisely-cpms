@@ -1,112 +1,152 @@
-<div class="title">
-  <h1>Plans</h1>
+<ww-page-header
+  heading="Plans"
+  subtitle="What tenants pay Wattwisely. A price change applies from the next invoice."
+>
   @if (staff.can('plans:write')) {
     <button mat-flat-button (click)="editPlan(null)" data-testid="new-plan">
       <mat-icon svgIcon="plus" />
       New plan
     </button>
   }
-</div>
+</ww-page-header>
 
-<table mat-table [dataSource]="plans()" class="plans" data-testid="plans">
-  <ng-container matColumnDef="plan">
-    <th mat-header-cell *matHeaderCellDef>Plan</th>
-    <td mat-cell *matCellDef="let plan">
-      <div class="name">
-        {{ plan.name }}
-        @if (!plan.is_active) {
-          <span class="sub">(not sold)</span>
-        }
-      </div>
-      <div class="sub">{{ plan.code }} · {{ plan.description }}</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="fees">
-    <th mat-header-cell *matHeaderCellDef>Monthly fees</th>
-    <td mat-cell *matCellDef="let plan">
-      {{ plan.platform_fee | money: plan.currency }} platform
-      <div class="sub">
-        {{ plan.ac_connector_fee | money: plan.currency }} per AC,
-        {{ plan.dc_connector_fee | money: plan.currency }} per DC connector
-      </div>
-      <div class="sub">{{ plan.revenue_share_bps / 100 }}% of charging revenue</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="limits">
-    <th mat-header-cell *matHeaderCellDef>Limits</th>
-    <td mat-cell *matCellDef="let plan">
-      {{ plan.connector_limit ?? 'Unlimited' }} connectors
-      <div class="sub">{{ plan.user_limit ?? 'Unlimited' }} users</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="modules">
-    <th mat-header-cell *matHeaderCellDef>Beyond the core</th>
-    <td mat-cell *matCellDef="let plan">{{ moduleNames(plan) }}</td>
-  </ng-container>
-  <ng-container matColumnDef="tenants">
-    <th mat-header-cell *matHeaderCellDef class="count">Tenants</th>
-    <td mat-cell *matCellDef="let plan" class="count">{{ plan.tenant_count }}</td>
-  </ng-container>
-  <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let plan" class="actions">
-      @if (staff.can('plans:write')) {
-        <button
-          mat-icon-button
-          (click)="editPlan(plan)"
-          aria-label="Edit plan"
-          [attr.data-testid]="'edit-plan-' + plan.code"
-        >
-          <mat-icon svgIcon="pencil" />
-        </button>
-      }
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="planColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: planColumns"></tr>
-</table>
+<section class="ww-card" aria-labelledby="plans-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="plans-title">Plans</h2>
+      <p>Monthly fees, the revenue share and what each plan includes beyond the core</p>
+    </div>
+  </div>
+  <div class="scroll">
+    <table mat-table [dataSource]="plans()" data-testid="plans">
+      <ng-container matColumnDef="plan">
+        <th mat-header-cell *matHeaderCellDef>Plan</th>
+        <td mat-cell *matCellDef="let plan">
+          <span class="ww-two">
+            <b>{{ plan.name }}</b>
+            <span class="mono">{{ plan.code }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="platform">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Platform fee</th>
+        <td mat-cell *matCellDef="let plan" class="ww-num">
+          {{ plan.platform_fee | money: plan.currency }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="ac">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Per AC</th>
+        <td mat-cell *matCellDef="let plan" class="ww-num">
+          {{ plan.ac_connector_fee | money: plan.currency }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="dc">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Per DC</th>
+        <td mat-cell *matCellDef="let plan" class="ww-num">
+          {{ plan.dc_connector_fee | money: plan.currency }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="share">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Revenue share</th>
+        <td mat-cell *matCellDef="let plan" class="ww-num">{{ plan.revenue_share_bps / 100 }}%</td>
+      </ng-container>
+      <ng-container matColumnDef="limits">
+        <th mat-header-cell *matHeaderCellDef>Limits</th>
+        <td mat-cell *matCellDef="let plan">
+          <span class="ww-two">
+            <b class="plain">{{ limitsOf(plan) }}</b>
+            <span>{{ moduleNames(plan) }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="tenants">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Tenants</th>
+        <td mat-cell *matCellDef="let plan" class="ww-num">{{ plan.tenant_count }}</td>
+      </ng-container>
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef>State</th>
+        <td mat-cell *matCellDef="let plan">
+          <span class="ww-chip" [class.ok]="plan.is_active">
+            {{ plan.is_active ? 'On sale' : 'Not sold' }}
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef><span class="cdk-visually-hidden">Edit</span></th>
+        <td mat-cell *matCellDef="let plan" class="actions">
+          @if (staff.can('plans:write')) {
+            <button
+              mat-icon-button
+              (click)="editPlan(plan)"
+              [attr.aria-label]="'Edit ' + plan.name"
+              [attr.data-testid]="'edit-plan-' + plan.code"
+            >
+              <mat-icon svgIcon="pencil" />
+            </button>
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="planColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: planColumns"></tr>
+    </table>
+  </div>
+</section>
 
-<h2>Add-ons</h2>
-<p class="hint">
-  Sold on top of any plan. Changing a price here does not change what existing tenants pay.
-</p>
-<table mat-table [dataSource]="addons()" class="addons" data-testid="addons">
-  <ng-container matColumnDef="addon">
-    <th mat-header-cell *matHeaderCellDef>Add-on</th>
-    <td mat-cell *matCellDef="let addon">
-      <div class="name">{{ addon.name }}</div>
-      <div class="sub">{{ addon.description }}</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="price">
-    <th mat-header-cell *matHeaderCellDef>Price</th>
-    <td mat-cell *matCellDef="let addon">
-      {{ addon.price | money: addon.currency }} {{ unitOf(addon) }}
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="state">
-    <th mat-header-cell *matHeaderCellDef>Sold</th>
-    <td mat-cell *matCellDef="let addon">{{ addon.is_active ? 'Yes' : 'No' }}</td>
-  </ng-container>
-  <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let addon" class="actions">
-      @if (staff.can('plans:write')) {
-        <button
-          mat-icon-button
-          (click)="editAddon(addon)"
-          aria-label="Edit add-on"
-          [attr.data-testid]="'edit-addon-' + addon.key"
-        >
-          <mat-icon svgIcon="pencil" />
-        </button>
-      }
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="addonColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: addonColumns"></tr>
-</table>
+<section class="ww-card" aria-labelledby="addons-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="addons-title">Add-ons</h2>
+      <p>
+        Modules sold on top of any plan. A new price here does not change what existing tenants pay.
+      </p>
+    </div>
+  </div>
+  <div class="scroll">
+    <table mat-table [dataSource]="addons()" data-testid="addons">
+      <ng-container matColumnDef="addon">
+        <th mat-header-cell *matHeaderCellDef>Add-on</th>
+        <td mat-cell *matCellDef="let addon">
+          <span class="ww-two">
+            <b>{{ addon.name }}</b>
+            <span>{{ addon.description }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let addon" class="nowrap">
+          {{ addon.price | money: addon.currency }} {{ unitOf(addon) }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef>State</th>
+        <td mat-cell *matCellDef="let addon">
+          <span class="ww-chip" [class.ok]="addon.is_active">
+            {{ addon.is_active ? 'On sale' : 'Not sold' }}
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef><span class="cdk-visually-hidden">Edit</span></th>
+        <td mat-cell *matCellDef="let addon" class="actions">
+          @if (staff.can('plans:write')) {
+            <button
+              mat-icon-button
+              (click)="editAddon(addon)"
+              [attr.aria-label]="'Edit ' + addon.name"
+              [attr.data-testid]="'edit-addon-' + addon.key"
+            >
+              <mat-icon svgIcon="pencil" />
+            </button>
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="addonColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: addonColumns"></tr>
+    </table>
+  </div>
+</section>
 
 @if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
+  <div class="notice danger" role="alert">{{ error() }}</div>
 }

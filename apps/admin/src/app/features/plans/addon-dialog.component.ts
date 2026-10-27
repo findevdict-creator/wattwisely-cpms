@@ -26,24 +26,32 @@ import { Money } from '../../shared/money';
   ],
   template: `
     <h2 mat-dialog-title>{{ addon.name }}</h2>
-    <mat-dialog-content class="content" [formGroup]="form">
-      <p class="hint">{{ addon.description }}</p>
-      <mat-form-field appearance="outline">
-        <mat-label>Price per month ({{ addon.currency }})</mat-label>
-        <input matInput formControlName="price" data-testid="addon-price" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Counted</mat-label>
-        <mat-select formControlName="pricing_unit">
-          <mat-option value="per_connector">Per connector</mat-option>
-          <mat-option value="per_site">Per site</mat-option>
-          <mat-option value="per_tenant">Per tenant</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-slide-toggle formControlName="is_active">Sold to tenants</mat-slide-toggle>
-      @if (error()) {
-        <p class="error" role="alert">{{ error() }}</p>
-      }
+    <mat-dialog-content>
+      <p class="ww-lead">
+        {{ addon.description }}. A new price applies to tenants who buy it from now on; what
+        existing tenants pay does not change.
+      </p>
+      <form class="ww-form two" [formGroup]="form" (ngSubmit)="save()">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Price per month</mat-label>
+          <input matInput formControlName="price" data-testid="addon-price" />
+          <span matTextSuffix>{{ addon.currency }}</span>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Counted</mat-label>
+          <mat-select formControlName="pricing_unit">
+            <mat-option value="per_connector">Per connector</mat-option>
+            <mat-option value="per_site">Per site</mat-option>
+            <mat-option value="per_tenant">Per tenant</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-slide-toggle class="wide" formControlName="is_active"
+          >Sold to tenants</mat-slide-toggle
+        >
+        @if (error()) {
+          <div class="notice danger wide" role="alert">{{ error() }}</div>
+        }
+      </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -51,14 +59,6 @@ import { Money } from '../../shared/money';
         Save
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding-top: 8px;
-    }
   `,
 })
 export class AddonDialogComponent {

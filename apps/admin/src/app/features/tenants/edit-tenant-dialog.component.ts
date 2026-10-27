@@ -23,25 +23,29 @@ import { TenantsApiService } from '../../core/api/tenants-api.service';
   ],
   template: `
     <h2 mat-dialog-title>Edit {{ tenant.name }}</h2>
-    <mat-dialog-content class="content" [formGroup]="form">
-      <mat-form-field appearance="outline">
-        <mat-label>Company name</mat-label>
-        <input matInput formControlName="name" data-testid="tenant-name" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Country</mat-label>
-        <input matInput formControlName="region" placeholder="DE" maxlength="2" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Payments</mat-label>
-        <mat-select formControlName="payment_mode">
-          <mat-option value="direct">Direct (their own Stripe account)</mat-option>
-          <mat-option value="managed">Managed by Wattwisely</mat-option>
-        </mat-select>
-      </mat-form-field>
-      @if (error()) {
-        <p class="error" role="alert">{{ error() }}</p>
-      }
+    <mat-dialog-content>
+      <p class="ww-lead">The short name stays as it is: it is in links and invoice numbers.</p>
+      <form class="ww-form" [formGroup]="form" (ngSubmit)="save()">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Company name</mat-label>
+          <input matInput formControlName="name" data-testid="tenant-name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Country</mat-label>
+          <input matInput formControlName="region" placeholder="DE" maxlength="2" />
+          <mat-hint>Two letters, such as IE or DE</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Payments</mat-label>
+          <mat-select formControlName="payment_mode">
+            <mat-option value="direct">Direct, their own Stripe account</mat-option>
+            <mat-option value="managed">Managed by Wattwisely</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (error()) {
+          <div class="notice danger" role="alert">{{ error() }}</div>
+        }
+      </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -49,13 +53,6 @@ import { TenantsApiService } from '../../core/api/tenants-api.service';
         Save
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      padding-top: 8px;
-    }
   `,
 })
 export class EditTenantDialogComponent {

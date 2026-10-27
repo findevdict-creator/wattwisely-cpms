@@ -1,31 +1,20 @@
-dl {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 6px 16px;
-  margin: 0;
+.person {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 40px;
 }
 
-dt {
-  color: var(--mat-sys-on-surface-variant);
-}
-
-dd {
-  margin: 0;
-}
-
-h3 {
-  margin: 16px 0 0;
-}
-
-.sub,
 .empty {
+  margin: 0;
   color: var(--mat-sys-on-surface-variant);
 }
 
 .notes {
+  font-weight: 400;
   white-space: pre-wrap;
 }
 
-.error {
-  color: var(--mat-sys-error);
+.ww-card-foot {
+  gap: 8px;
 }
