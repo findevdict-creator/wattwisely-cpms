@@ -9,8 +9,8 @@
       } @else if (access.card; as card) {
         <p data-testid="hold">
           We hold
-          <strong>{{ access.payment.hold_amount | money: place().tariff?.currency }}</strong> on
-          your {{ card.brand }} ending {{ card.last4 }} and take only what you use.
+          <b>{{ access.payment.hold_amount | money: place().tariff?.currency }}</b> on your
+          {{ card.brand | titlecase }} ending {{ card.last4 }} and take only what you use.
         </p>
       }
       @if (access.needs_consent) {
@@ -25,7 +25,7 @@
       }
       <button
         mat-flat-button
-        class="start"
+        class="ww-large"
         (click)="start()"
         [disabled]="store.isStarting() || (access.needs_consent && !isConsentGiven())"
         data-testid="account-charge"
@@ -40,18 +40,14 @@
     } @else {
       <p class="hint" data-testid="refused">{{ access.reason_words }}</p>
       @if (access.reason === 'no_payment_method') {
-        <a mat-stroked-button routerLink="/account">Add a card</a>
+        <a mat-stroked-button routerLink="/account">
+          <mat-icon svgIcon="plus" />
+          Add a card
+        </a>
       }
     }
     @if (store.error()) {
-      <p class="error" role="alert">{{ store.error() }}</p>
+      <p class="notice danger" role="alert">{{ store.error() }}</p>
     }
   </section>
-} @else if (!store.isLoggedIn()) {
-  <p class="hint login">
-    Have an account?
-    <button mat-button (click)="store.login()" data-testid="login">
-      Log in to use your saved card
-    </button>
-  </p>
 }

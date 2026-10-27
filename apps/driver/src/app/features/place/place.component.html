@@ -1,25 +1,24 @@
 @if (store.place(); as place) {
   <header class="where">
     <h1>{{ place.site_name }}</h1>
-    <p class="hint">
-      {{ place.branding.name }} · {{ place.address.line1 }}, {{ place.address.city }}
-    </p>
+    <p>{{ place.branding.name }} · {{ place.address.line1 }}, {{ place.address.city }}</p>
   </header>
 
-  <section class="panel plug">
-    <div>
-      <div class="label">Charger {{ place.charger_identity }}</div>
-      <div class="title">Plug {{ place.connector_label }}</div>
-      <div class="hint">{{ plugDescription() }}</div>
-    </div>
-    <div class="availability {{ place.availability }}" data-testid="availability">
-      {{ availabilityLabel() }}
-    </div>
+  <section class="panel plug" aria-label="Plug">
+    <span class="plug-mark">{{ place.connector_label }}</span>
+    <span class="ww-two ww-grow">
+      <span class="mono">{{ place.charger_identity }}</span>
+      <b class="plug-name">Plug {{ place.connector_label }}</b>
+      <span>{{ plugDescription() }}</span>
+    </span>
+    <span class="ww-chip {{ availability().tone }}" data-testid="availability">
+      {{ availability().label }}
+    </span>
   </section>
 
   @if (place.tariff; as tariff) {
-    <section class="panel">
-      <h2>Prices</h2>
+    <section class="panel" aria-labelledby="prices">
+      <h2 id="prices">Prices</h2>
       <ww-tariff-summary [tariff]="tariff" />
     </section>
   }
@@ -28,16 +27,16 @@
     <ww-account-start [place]="place" />
   }
 
-  <section class="panel pay">
+  <section class="panel pay" aria-label="Pay by card">
     @if (canStart()) {
       <p>
         We hold
-        <strong>{{ place.hold_amount | money: place.tariff?.currency }}</strong> on your card and
-        take only what you use. The charge stops by itself before it reaches the hold.
+        <b>{{ place.hold_amount | money: place.tariff?.currency }}</b> on your card and take only
+        what you use. The charge stops by itself before it reaches the hold.
       </p>
       <button
         mat-flat-button
-        class="start"
+        class="ww-large"
         (click)="start()"
         [disabled]="store.isStarting()"
         data-testid="pay-and-charge"
@@ -54,7 +53,6 @@
         This charger does not take card payments yet. Ask {{ place.branding.name }} how to charge
         here.
       </p>
-      <ww-support-contact [brand]="place.branding" lead="Contact" />
     } @else {
       <p class="hint" data-testid="not-available">
         @switch (place.availability) {
@@ -70,17 +68,24 @@
           }
         }
       </p>
-      @if (place.availability !== 'busy') {
-        <ww-support-contact [brand]="place.branding" lead="Contact" />
-      }
     }
     @if (store.error()) {
-      <p class="error" role="alert">{{ store.error() }}</p>
+      <p class="notice danger" role="alert">{{ store.error() }}</p>
     }
   </section>
+
+  @if (place.availability === 'available' && !auth.isLoggedIn()) {
+    <p class="login">
+      Have an account?
+      <button type="button" class="text-link" (click)="auth.login()" data-testid="login">
+        Log in to use your saved card
+      </button>
+    </p>
+  }
+  <ww-support-contact class="foot" [brand]="place.branding" lead="Questions?" />
 } @else if (store.error()) {
   <section class="panel">
-    <p class="error" role="alert">{{ store.error() }}</p>
+    <p class="notice danger" role="alert">{{ store.error() }}</p>
   </section>
 } @else {
   <div class="loading"><mat-spinner diameter="32" /></div>

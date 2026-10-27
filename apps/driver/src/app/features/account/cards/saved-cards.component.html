@@ -1,29 +1,30 @@
-<section class="panel">
-  <h2>Your cards</h2>
+<section class="panel cards" aria-labelledby="cards-title">
+  <h2 id="cards-title">Your cards</h2>
   @if (!store.isProviderEnabled()) {
     <p class="hint" data-testid="cards-off">Card payments are not switched on here.</p>
   } @else {
-    <p class="hint">
-      When an operator charges for your sessions, the hold is taken from your default card. Cards
-      are kept by our payment provider; we only see the last four digits.
+    <p class="caption">
+      Holds are taken from your default card, at any operator that charges for your sessions. Our
+      payment provider keeps the card; we only see the last four digits.
     </p>
     @if (store.cards().length > 0) {
-      <ul class="cards">
+      <ul class="list">
         @for (card of store.cards(); track card.id) {
-          <li data-testid="saved-card">
+          <li class="ww-list-item" data-testid="saved-card">
             <mat-icon svgIcon="credit-card" />
-            <div class="card">
-              <div class="name">{{ card.brand | titlecase }} ending {{ card.last4 }}</div>
-              <div class="hint">
+            <span class="ww-two ww-grow">
+              <b>{{ card.brand | titlecase }} ending {{ card.last4 }}</b>
+              <span>
                 Expires {{ expiry(card.exp_month, card.exp_year) }}
                 @if (card.is_default) {
-                  · <strong>Default</strong>
+                  · Default
                 }
-              </div>
-            </div>
+              </span>
+            </span>
             @if (!card.is_default) {
               <button
                 mat-button
+                class="ww-small"
                 (click)="store.makeDefault(card)"
                 [disabled]="store.isBusy()"
                 data-testid="make-default"
@@ -35,7 +36,7 @@
               mat-icon-button
               (click)="store.remove(card)"
               [disabled]="store.isBusy()"
-              aria-label="Remove card"
+              [attr.aria-label]="'Remove ' + (card.brand | titlecase) + ' ending ' + card.last4"
               data-testid="remove-card"
             >
               <mat-icon svgIcon="trash-2" />
@@ -61,6 +62,6 @@
     }
   }
   @if (store.error()) {
-    <p class="error" role="alert">{{ store.error() }}</p>
+    <p class="notice danger" role="alert">{{ store.error() }}</p>
   }
 </section>

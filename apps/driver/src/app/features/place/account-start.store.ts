@@ -18,14 +18,6 @@ export class AccountStartStore {
   readonly isStarting = signal(false);
   readonly error = signal('');
 
-  isLoggedIn(): boolean {
-    return this.auth.isLoggedIn();
-  }
-
-  login(): void {
-    this.auth.login();
-  }
-
   /** Nothing to load without a login; a failure leaves the anonymous page as it is. */
   async load(identity: string, connector: string): Promise<void> {
     if (!this.auth.isLoggedIn()) {
