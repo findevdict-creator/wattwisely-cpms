@@ -12,7 +12,7 @@ Every branch is named `NN-module/<slug>`:
 - Work that belongs to no single module (docs, CI, tooling, dependency updates) uses `00-module/<slug>`: `00-module/branch-naming-convention`.
 - An annotated tag `module-NN` marks the commit that completed each module. After a fix lands on a module branch, merge it forward into every module branch above it and move the tag: `git tag -f -a module-NN <branch> -m "..." && git push -f origin refs/tags/module-NN`.
 
-The CI check `.github/workflows/branch-name.yml` fails a pull request whose head branch does not match `NN-module/<slug>`.
+The CI check `.github/workflows/branch-name.yml` fails a pull request whose head branch does not match `NN-module/<slug>`. Dependabot's own `dependabot/...` branches are exempt.
 
 ## Pull requests
 
