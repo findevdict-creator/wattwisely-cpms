@@ -33,6 +33,14 @@
     </form>
   </section>
 
+  <ww-saved-cards />
+
+  <a class="panel link" routerLink="/account/charges" data-testid="my-charges">
+    <mat-icon>ev_station</mat-icon>
+    <span>Your charges</span>
+    <mat-icon>chevron_right</mat-icon>
+  </a>
+
   <h2>Your operators</h2>
   @if (store.operators().length > 0) {
     <ul class="operators">

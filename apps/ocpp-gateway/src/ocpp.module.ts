@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SessionTransitions, TariffVersionStore } from '@wattwisely/session-engine';
 import { CardAccessRepository } from './access/card-access.repository';
+import { PaymentAccess } from './access/payment-access';
 import { ActionHandler } from './adapters/action-handler';
 import { AdapterRegistry } from './adapters/adapter-registry';
 import { BootRecorder } from './adapters/boot-recorder';
@@ -161,6 +162,7 @@ const V201_HANDLER_CLASSES = [
     CommandTranslators,
     // Who may charge
     CardAccessRepository,
+    PaymentAccess,
     IssuedTagRegistry,
     TagPolicy,
     CommandStore,

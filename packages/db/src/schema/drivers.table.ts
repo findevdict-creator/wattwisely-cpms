@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   index,
   integer,
   pgPolicy,
@@ -47,6 +48,12 @@ export const drivers = pgTable(
     /** The driver's own login, once they accepted an invitation; null for a record without one. */
     driverAccountId: uuid('driver_account_id').references(() => driverAccounts.id),
     linkedAt: timestamp('linked_at', { withTimezone: true }),
+    /**
+     * True for a record the platform made when a driver with a login first charged at one of the
+     * operator's public chargers, with their consent (module 19): no invitation, no groups, and
+     * the operator's guest hold rather than its member hold.
+     */
+    isGuest: boolean('is_guest').notNull().default(false),
     blockedAt: timestamp('blocked_at', { withTimezone: true }),
     blockedBy: uuid('blocked_by').references(() => userAccounts.id),
     blockReason: text('block_reason').notNull().default(''),

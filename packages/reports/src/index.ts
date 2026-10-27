@@ -2,6 +2,7 @@ export * from './csv/csv-table';
 export * from './csv/money-text';
 export * from './sessions/session-csv-row';
 export * from './sessions/session-csv';
+export * from './sessions/payment-rule-text';
 export * from './sessions/session-export-filter';
 export * from './sessions/session-export.query';
 export * from './usage/usage-request';

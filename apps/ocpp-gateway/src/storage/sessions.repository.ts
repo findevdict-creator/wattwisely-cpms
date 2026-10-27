@@ -8,38 +8,9 @@ import {
   SessionState,
   SessionStates,
 } from '@wattwisely/session-engine';
+import { SessionIdentity, SessionStart, SessionStop } from './session-start';
 
-/** What StartTransaction records. */
-export interface SessionStart {
-  tenantId: string;
-  chargerId: string;
-  connectorId: string;
-  idTag: string;
-  /** The driver and card behind the tag, when it was a registered RFID card (module 13). */
-  driverId?: string | null;
-  rfidCardId?: string | null;
-  startedAt: Date;
-  /** Null when the charger's first event carried no reading (2.0.1); set from the first that does. */
-  meterStartWh: number | null;
-  commandId: string | null;
-  /** The transaction id a 2.0.1 charger chose (module 18); left out on 1.6. */
-  ocppTransactionRef?: string | null;
-}
-
-/** Who a 2.0.1 transaction turned out to be for, when the token arrives after the start. */
-export interface SessionIdentity {
-  idTag: string;
-  driverId: string | null;
-  rfidCardId: string | null;
-  commandId: string | null;
-}
-
-/** What StopTransaction records. */
-export interface SessionStop {
-  endedAt: Date;
-  meterStopWh: number;
-  stopReason: string | null;
-}
+export { SessionIdentity, SessionStart, SessionStop } from './session-start';
 
 /** The gateway's reads and writes on charging_sessions. State changes go through SessionTransitions. */
 @Injectable()

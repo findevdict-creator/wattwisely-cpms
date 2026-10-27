@@ -54,6 +54,11 @@ export class WorkerConfig implements SmtpSettings {
   @Min(100)
   startTimeoutIntervalMs!: number;
 
+  /** How often running card starts without a hold get one from the driver's saved card (module 19). */
+  @IsInt()
+  @Min(100)
+  savedCardHoldIntervalMs!: number;
+
   /** How often stored webhook events that could not be handled are tried again. */
   @IsInt()
   @Min(100)

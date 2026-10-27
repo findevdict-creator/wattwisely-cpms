@@ -84,6 +84,9 @@
       } @else {
         <span class="hint">{{ session.is_paid ? 'Card' : 'RFID or free' }}</span>
       }
+      @if (session.payment_rule; as rule) {
+        <div class="hint" data-testid="payment-rule">{{ rule.words }}</div>
+      }
     </td>
   </ng-container>
   <ng-container matColumnDef="flags">

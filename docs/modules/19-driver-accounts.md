@@ -2,7 +2,7 @@
 
 Until module 18 a driver was a record the operator kept (module 13): a name, some cards, and nothing the driver could log in to. A session was paid either by the card on the QR page (module 6) or not at all, when it was started with an RFID card. This module gives a driver **a login of their own** for the driver app, **linked by an e-mailed invitation** to the record an operator keeps of them, and gives every driver, RFID card and access group a **payment mode** that says who pays for a session: the driver, always, unless an operator has marked the card, the driver or one of their groups **free**. Nothing is free by default, and no session is left unpaid: the platform earns its fee on paid sessions, so paying is the rule and free is a choice an operator makes on purpose.
 
-This is **part 1**: the accounts, the invitations, the driver app's account pages and the payment modes themselves. **Part 2** (the next pull request) brings what the modes decide: a saved card on the driver's account, the hold on a session started with a card, the charger refusing a card whose holder has no way to pay, and the driver's sessions and places in the app.
+This is **part 1**: the accounts, the invitations, the driver app's account pages and the payment modes themselves. **Part 2** ([19-driver-accounts-part-2.md](19-driver-accounts-part-2.md)) brings what the modes decide: a saved card on the driver's account, the hold on a session started with a card, the charger refusing a card whose holder has no way to pay, and the driver's sessions and places in the app.
 
 Stories covered: Olivia opens Dana's page and presses "Invite to the app"; Dana gets an e-mail, taps the link, creates a login with that address (no authenticator app is asked of her) and accepts; both see the link at once, Olivia on Dana's page, Dana under "Your operators"; Dana reads what Acme Charging holds about her, her cards and groups, and can leave; Olivia can unlink her again, or resend and cancel an invitation that was never accepted; the depot's pool van has a card marked free, so whoever drives it charges without a login and without paying; Theo the technician sees that Dana is linked but not her address; Tess from the portal cannot call the driver app's routes with her token, and Dana cannot call the portal's with hers.
 
@@ -144,7 +144,7 @@ Apply the migrations as always. The API reads `KEYCLOAK_DRIVER_AUDIENCE` (defaul
 The demo data gives Dana a login, `dana@acme.test` (password `Wattwisely-demo-1`), already linked to her record: open `http://charge.localhost/account`, log in (no authenticator app is asked), and Acme Charging is listed; open it to see her cards and groups, or leave. On Priya's page in the portal, `owner@acme.test` presses "Invite to the app"; the e-mail lands in Mailpit, and its link leads to the invitation page. The pool van's card `DEMO-CARD-5` is free:
 
 ```sh
-npm run sim -- --url ws://ocpp.localhost/ocpp --identity WW-7KQ4M2XR9T --tag DEMO-CARD-5   # Accepted, and free of charge once part 2 applies the modes
+npm run sim -- --url ws://ocpp.localhost/ocpp --identity WW-7KQ4M2XR9T --tag DEMO-CARD-5   # Accepted, and free of charge (part 2 applies the modes)
 ```
 
 ## Tests
@@ -161,7 +161,7 @@ The database-backed specs need `TEST_DATABASE_URL`, as before.
 
 ## Not in this part
 
-- Part 2 of this module: the saved card on the driver's account (a platform Stripe customer), the hold on a session started with an RFID card and its release, the charger refusing a card whose holder cannot pay, `charging_sessions.start_source` and the rule applied, the driver's sessions, receipts and places in the app, Settings > Payments for the operator, and the rate limits of the driver routes.
+- Part 2 of this module, in [19-driver-accounts-part-2.md](19-driver-accounts-part-2.md): the saved card on the driver's account (a platform Stripe customer), the hold on a session started with an RFID card and its release, the charger refusing a card whose holder cannot pay, `charging_sessions.start_source` and the rule applied, the driver's sessions, receipts and places in the app, Settings > Payments for the operator, and the rate limits of the driver routes.
 - Cards a driver orders or blocks themselves, and a virtual card (a token the app presents instead of an RFID card).
 - A staff member's and a driver's login being the same Keycloak user is allowed, but the portal and the driver app are separate sessions; nothing shows one's role in the other.
 - Deleting a driver account (the data retention policy), and merging two accounts with different addresses.

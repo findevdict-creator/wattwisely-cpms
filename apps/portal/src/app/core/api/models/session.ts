@@ -40,6 +40,20 @@ export interface Session {
   /** The driver pays by card (module 6). */
   is_paid: boolean;
   payment_status: string | null;
+  /** How the session was started (module 19); null on sessions from before. */
+  start_source: SessionStartSource | null;
+  /** Who pays and which level decided it (module 19); null on sessions from before. */
+  payment_rule: SessionPaymentRule | null;
+}
+
+export type SessionStartSource = 'rfid_card' | 'guest_card' | 'chat' | 'account' | 'staff';
+
+export interface SessionPaymentRule {
+  outcome: 'pay' | 'free';
+  decided_by: 'card' | 'driver' | 'group' | 'operator' | 'staff' | 'guest';
+  label: string | null;
+  /** "Free: group Depot staff". */
+  words: string;
 }
 
 /** One step of a session's timeline. */

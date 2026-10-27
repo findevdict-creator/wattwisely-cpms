@@ -14,8 +14,9 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { ChargingSessionReferences } from './charging-session-references';
-import { chargingSessionStatus } from './enums';
+import { chargingSessionStatus, sessionStartSource } from './enums';
 import { RowLevelSecurity } from './row-level-security';
+import { SessionPaymentRule } from './session-payment-rule';
 import { Timestamps } from './timestamps';
 
 /**
@@ -85,8 +86,15 @@ export const chargingSessions = pgTable(
     failureReason: text('failure_reason'),
     /** The id of the remote start command that began it, when there was one. */
     commandId: uuid('command_id'),
-    /** True when a card hold was taken before the start (module 6): the payment row is found by session_id. */
+    /**
+     * True when the session is paid (module 6, 19): a card hold before the start, or a hold on
+     * the holder's saved card once the charger started. The payment row is found by session_id.
+     */
     isPaid: boolean('is_paid').notNull().default(false),
+    /** How it was started (module 19); empty on older sessions and on unknown tags accepted on a bench. */
+    startSource: sessionStartSource('start_source'),
+    /** The payment rule in force when it started (module 19), and which level decided it. */
+    paymentRule: jsonb('payment_rule').$type<SessionPaymentRule>(),
     /** The tariff version in force when it started; null when the site had no tariff. */
     tariffVersionId: uuid('tariff_version_id'),
     currency: text('currency'),

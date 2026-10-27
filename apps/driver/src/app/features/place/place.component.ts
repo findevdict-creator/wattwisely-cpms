@@ -7,6 +7,7 @@ import { BrandService } from '../../core/branding/brand.service';
 import { ChargeWords } from '../../shared/charge-words';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { SupportContactComponent } from '../../shared/support-contact.component';
+import { AccountStartComponent } from './account-start.component';
 import { PlaceStore } from './place.store';
 import { TariffSummaryComponent } from './tariff-summary.component';
 
@@ -14,11 +15,13 @@ import { TariffSummaryComponent } from './tariff-summary.component';
  * What the QR code on a plug opens: who runs the charger, where it is, whether the plug
  * is free, the prices, and the one button that starts a paid charge (module 6's public
  * charge). The hold is named before the driver pays, as the design asks. The page wears
- * the operator's brand as soon as the plug is known (module 8).
+ * the operator's brand as soon as the plug is known (module 8). A logged-in driver also
+ * sees their own way to charge here (module 19): free, or with their saved card.
  */
 @Component({
   selector: 'ww-place',
   imports: [
+    AccountStartComponent,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
