@@ -17,4 +17,5 @@ COPY apps/portal/docker/40-write-runtime-config.sh /docker-entrypoint.d/40-write
 COPY --from=build /workspace/dist/apps/portal/browser /usr/share/nginx/html
 RUN chmod +x /docker-entrypoint.d/40-write-runtime-config.sh
 EXPOSE 8080
-HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -q -O /dev/null http://localhost:8080/healthz || exit 1
+# 127.0.0.1, not localhost: busybox wget tries ::1 first and nginx listens on IPv4 only.
+HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1

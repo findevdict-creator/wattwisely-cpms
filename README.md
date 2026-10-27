@@ -29,33 +29,35 @@ This one repository holds every part of the platform, managed with [Nx](https://
 
 ## How the work is organised
 
-Each feature is built as a **module** on its own branch, named `N-name`, with a pull request to review:
+Each feature is built as a **module** on its own branch, named `NN-module/<slug>` (two-digit module number, then the slug of its document in `docs/modules/`), with a pull request to review. The naming rules are in [CLAUDE.md](CLAUDE.md).
 
-| Branch                     | Module                                                                                                                            |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `1-auth-keycloak`          | Repo skeleton, deployment, login with Keycloak, tenant selection                                                                  |
-| `2-roles-permissions`      | Tenants in Postgres with row-level security, roles and permissions, team invitations, audit log                                   |
-| `3-sites-chargers`         | Sites, chargers and connectors; site-scoped permissions in use                                                                    |
-| `4-ocpp-gateway`           | The OCPP 1.6J gateway: charger connections, live status, commands, a charger simulator                                            |
-| `5-sessions-pricing`       | Charging sessions, tariffs and the pricing engine, the worker app                                                                 |
-| `6-stripe-payments`        | Card payments through Stripe Connect: onboarding, holds, capture, refunds, webhooks                                               |
-| `7-drivers-qr-page`        | The driver's QR charge page: the driver web app, public place and stop endpoints, QR codes                                        |
-| `8-tenant-branding`        | Tenant branding: name, logo, colours and support contact on the driver's pages and e-mails                                        |
-| `9-admin-portal-plans`     | The admin console for Wattwisely staff: tenants, plans and add-ons, module switches, staff roles                                  |
-| `10-managed-tenants`       | Managed service tier: Owner acceptance, Managed operators, tariff approval, service report                                        |
-| `11-notifications-reports` | Charger alerts and routing, the portal bell and quiet hours, driver e-mails, usage reports, background exports, scheduled reports |
-| `12-hardening-operations`  | Metrics and monitoring, rate limits, exports in object storage, data retention, backup checks and restore drill, load test        |
-| `13-drivers-access`        | Drivers, RFID cards and access groups: who may charge with a card and where, the gateway's tag policy, sessions by driver         |
-| `14-custom-roles`          | Custom roles and the permission matrix: roles a tenant shapes itself, within its plan and its own access                          |
-| `15-…`                     | Next module, started from `main`                                                                                                  |
+| Branch                            | Module                                                                                                                            |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `01-module/auth-keycloak`         | Repo skeleton, deployment, login with Keycloak, tenant selection                                                                  |
+| `02-module/roles-permissions`     | Tenants in Postgres with row-level security, roles and permissions, team invitations, audit log                                   |
+| `03-module/sites-chargers`        | Sites, chargers and connectors; site-scoped permissions in use                                                                    |
+| `04-module/ocpp-gateway`          | The OCPP 1.6J gateway: charger connections, live status, commands, a charger simulator                                            |
+| `05-module/sessions-pricing`      | Charging sessions, tariffs and the pricing engine, the worker app                                                                 |
+| `06-module/stripe-payments`       | Card payments through Stripe Connect: onboarding, holds, capture, refunds, webhooks                                               |
+| `07-module/drivers-qr-page`       | The driver's QR charge page: the driver web app, public place and stop endpoints, QR codes                                        |
+| `08-module/tenant-branding`       | Tenant branding: name, logo, colours and support contact on the driver's pages and e-mails                                        |
+| `09-module/admin-portal-plans`    | The admin console for Wattwisely staff: tenants, plans and add-ons, module switches, staff roles                                  |
+| `10-module/managed-tenants`       | Managed service tier: Owner acceptance, Managed operators, tariff approval, service report                                        |
+| `11-module/notifications-reports` | Charger alerts and routing, the portal bell and quiet hours, driver e-mails, usage reports, background exports, scheduled reports |
+| `12-module/hardening-operations`  | Metrics and monitoring, rate limits, exports in object storage, data retention, backup checks and restore drill, load test        |
+| `13-module/drivers`               | Drivers, RFID cards and access groups: who may charge with a card and where, the gateway's tag policy, sessions by driver         |
+| `14-module/custom-roles`          | Custom roles and the permission matrix: roles a tenant shapes itself, within its plan and its own access                          |
+| `NN-module/…`                     | Next module, started from `main`                                                                                                  |
 
 Once a pull request is approved it is merged into `main`. A later change to an area goes on a fresh branch from `main`.
 
 Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file. Then [docs/modules/2-roles-permissions.md](docs/modules/2-roles-permissions.md): roles, permissions and the team. Then [docs/modules/3-sites-chargers.md](docs/modules/3-sites-chargers.md): sites, chargers and connectors. Then [docs/modules/4-ocpp-gateway.md](docs/modules/4-ocpp-gateway.md): how chargers connect and are commanded. Then [docs/modules/5-sessions-pricing.md](docs/modules/5-sessions-pricing.md): charging sessions, tariffs and how a session gets its price. Then [docs/modules/6-stripe-payments.md](docs/modules/6-stripe-payments.md): how a driver pays by card through the operator's own Stripe account. Then [docs/modules/7-drivers-qr-page.md](docs/modules/7-drivers-qr-page.md): the page a driver's phone opens after scanning a plug's QR code. Then [docs/modules/8-tenant-branding.md](docs/modules/8-tenant-branding.md): how an operator's name, logo and colours reach the driver's pages, receipts and e-mails. Then [docs/modules/9-admin-portal-plans.md](docs/modules/9-admin-portal-plans.md): how Wattwisely staff run the platform, and how a plan decides what a tenant can do. Then [docs/modules/10-managed-tenants.md](docs/modules/10-managed-tenants.md): how Wattwisely runs a tenant's charging for it, with the Owner's consent and approval. Then [docs/modules/11-notifications-reports.md](docs/modules/11-notifications-reports.md): charger alerts and who hears about them, the e-mails drivers get, and the usage reports and exports. Then [docs/modules/12-hardening-operations.md](docs/modules/12-hardening-operations.md): how the platform is watched, limited, cleaned up, backed up and load tested. Then [docs/modules/13-drivers.md](docs/modules/13-drivers.md): who may charge with an RFID card, and at which sites. Then [docs/modules/14-custom-roles.md](docs/modules/14-custom-roles.md): the permission matrix, and the roles a tenant shapes itself.
 
+To review and test the modules step by step, including the ones still in open pull requests, use [docs/review-and-testing-manual.md](docs/review-and-testing-manual.md): where each module's code is, how to run the platform locally, and a numbered manual test per module with the result to expect.
+
 ## Try it on your machine
 
-You need Docker. This starts the whole platform with demo users:
+You need Docker (Docker Desktop on macOS or Windows, with at least 4 GB of memory for Docker), and for the charger simulator Node.js 22.12+ with npm 11. This starts the whole platform with demo users:
 
 ```sh
 cd deploy
@@ -64,31 +66,59 @@ cd deploy
 ./scripts/seed-demo.sh            # demo tenants, users, sites, chargers, a tariff, a session, a brand, plans and staff
 ```
 
-Open <http://portal.localhost> and log in as `multi@demo.test` with password `Wattwisely-demo-1`. Keycloak asks you to set up an authenticator app (two-factor login is required), then shows the portal. See [deploy/README.md](deploy/README.md) for servers, updates and backups.
+The first `up.sh --build` takes several minutes. On Windows run the scripts from WSL 2 or Git Bash. If it stops with "Ports are not available" for port 5432, a Postgres already runs on your machine: stop it, or set `POSTGRES_DEV_PORT=5433` in `deploy/.env` and run `up.sh` again.
+
+| Address                       | What                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| <http://portal.localhost>     | Tenant portal                                                                             |
+| <http://charge.localhost>     | Driver app, for example <http://charge.localhost/c/WW-7KQ4M2XR9T/1>                       |
+| <http://api.localhost/docs>   | API reference (Swagger)                                                                   |
+| <http://auth.localhost/admin> | Keycloak admin console: user `admin`, password `KEYCLOAK_ADMIN_PASSWORD` in `deploy/.env` |
+| <http://localhost:8025>       | Mailpit: every e-mail the platform sends                                                  |
+
+Demo users, all with password `Wattwisely-demo-1`: `owner@acme.test` (Owner of Acme Charging), `tech@acme.test` (Technician, one site), `multi@demo.test` (two tenants) and `nobody@demo.test` (no tenant). Keycloak asks each user to set up an authenticator app at first login (two-factor login is required): scan the code with Google Authenticator, Microsoft Authenticator or 1Password.
+
+Connect a simulated charger as the demo charger `WW-7KQ4M2XR9T` (from the repository root; the demo chargers need no password). Its page in the portal then shows it online, with a "Start charging" button on each connector:
+
+```sh
+npm ci
+npm run sim -- --url ws://ocpp.localhost/ocpp --identity WW-7KQ4M2XR9T
+```
+
+Browsers find `*.localhost` by themselves, but Node.js on macOS, Windows and many Linux machines does not. If the simulator (or `npm start` below) fails with `ENOTFOUND`, add this line to `/etc/hosts` (Windows: `C:\Windows\System32\drivers\etc\hosts`):
+
+```text
+127.0.0.1 portal.localhost api.localhost auth.localhost charge.localhost ocpp.localhost ocpp-plain.localhost
+```
+
+Card payments are off until you add Stripe test keys (`sk_test_…`, `pk_test_…` from <https://dashboard.stripe.com/test/apikeys>) to `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` in `deploy/.env` and run `./scripts/up.sh --build` again; see [module 6](docs/modules/6-stripe-payments.md). Stop everything with `./scripts/down.sh`; the data stays. See [deploy/README.md](deploy/README.md) for servers, updates and backups.
 
 ## Develop
 
-Requirements: Node.js 22 (see `.nvmrc`) and npm 11 (`npm install -g npm@11`).
+Requirements: Node.js 22.12 or later (see `.nvmrc`) and npm 11 (`npm install -g npm@11`). npm 10 refuses the lock file.
 
 ```sh
-npm install
+npm ci
 npm test          # unit and API flow tests (API database tests need TEST_DATABASE_URL, see module 2)
 npm run lint      # coding standards (fails on any rule break)
 npm run build
 ```
 
-To change code with live reload, keep the Docker stack above running for Keycloak, then:
+To change code with live reload, keep the Docker stack above running for Postgres, Keycloak and Mailpit, add the hosts line above, then:
 
 ```sh
 cp apps/api/.env.example apps/api/.env
 cp apps/ocpp-gateway/.env.example apps/ocpp-gateway/.env
 cp apps/worker/.env.example apps/worker/.env
+# Put DB_APP_PASSWORD from deploy/.env in place of CHANGE_ME in all three files:
+sed -i.bak "s/CHANGE_ME/$(grep '^DB_APP_PASSWORD=' deploy/.env | cut -d= -f2)/" apps/{api,ocpp-gateway,worker}/.env && rm apps/*/.env.bak
+# If you set POSTGRES_DEV_PORT in deploy/.env, change 5432 in the three DATABASE_URLs to that port too.
 npm start         # API on http://localhost:3000, portal on http://localhost:4200, driver app on http://localhost:4300, admin console on http://localhost:4400, OCPP gateway on ws://localhost:3100/ocpp, worker on :3200
-npm run sim -- --identity <charger id from the portal> [--password …]   # a simulated charger against the gateway
+npm run sim -- --identity WW-7KQ4M2XR9T   # a simulated charger against the local gateway (ws://localhost:3100/ocpp)
 npm run load-test -- --count 100 --duration 60   # 100 simulated chargers; register them first with deploy/scripts/seed-load-test.sh
 ```
 
-The portal reads its settings from `apps/portal/public/config.json` in development, the driver app from `apps/driver/public/config.json`, the admin console from `apps/admin/public/config.json`.
+The portal reads its settings from `apps/portal/public/config.json` in development, the driver app from `apps/driver/public/config.json`, the admin console from `apps/admin/public/config.json`. Log in at <http://localhost:4200> with the demo users above.
 
 ## Coding standards
 
