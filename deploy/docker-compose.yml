@@ -241,13 +241,15 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
     healthcheck:
-      # The image has no curl, so the check talks HTTP over bash's /dev/tcp.
+      # The image has no curl, so the check talks HTTP over bash's /dev/tcp. It looks at the
+      # status line (200 ready, 503 not ready), not the body: a DOWN answer still lists some
+      # sub-checks as "UP".
       test:
         - CMD-SHELL
         - >-
           exec 3<>/dev/tcp/127.0.0.1/9000 &&
           printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
-          grep -q '"UP"' <&3
+          grep -q '^HTTP/1\.1 200 ' <&3
       interval: 15s
       timeout: 5s
       retries: 20
@@ -393,14 +395,15 @@ services:
       - '127.0.0.1:1025:1025'
     networks: [backend]
 
-  # Lets "npm start" on this machine reach Postgres at 127.0.0.1:5432.
+  # Lets "npm start" on this machine reach Postgres at 127.0.0.1:5432
+  # (POSTGRES_DEV_PORT picks another port when a local Postgres already uses 5432).
   postgres-dev-port:
     image: alpine/socat:1.8.1.1
     profiles: [dev]
     <<: [*restart, *logging]
     command: ['TCP-LISTEN:5432,fork,reuseaddr', 'TCP:postgres:5432']
     ports:
-      - '127.0.0.1:5432:5432'
+      - '127.0.0.1:${POSTGRES_DEV_PORT:-5432}:5432'
     networks: [backend]
 
 networks:
