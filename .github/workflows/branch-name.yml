@@ -1,5 +1,5 @@
 # Fails a pull request whose head branch is not named NN-module/<slug>.
-# The rules are in CLAUDE.md. Review snapshots (review/module-NN) never open pull requests, so they are not checked.
+# The rules are in CLAUDE.md. Tags (module-NN) mark module boundaries and are not branches.
 name: Branch name
 
 on:

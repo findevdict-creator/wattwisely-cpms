@@ -10,7 +10,7 @@ Every branch is named `NN-module/<slug>`:
 - `<slug>` is the kebab-case name of the module's document in `docs/modules/`, without the number and the `.md`. Module 3's document is `3-sites-chargers.md`, so its branch is `03-module/sites-chargers`.
 - A fix or follow-up to a module that already shipped keeps that module's prefix: `05-module/fix-tariff-gap`, `01-module/fix-local-trial`.
 - Work that belongs to no single module (docs, CI, tooling, dependency updates) uses `00-module/<slug>`: `00-module/branch-naming-convention`.
-- `review/module-NN` is a read-only snapshot of a module's tip, moved by hand after a review. Never commit to it.
+- An annotated tag `module-NN` marks the commit that completed each module. After a fix lands on a module branch, merge it forward into every module branch above it and move the tag: `git tag -f -a module-NN <branch> -m "..." && git push -f origin refs/tags/module-NN`.
 
 The CI check `.github/workflows/branch-name.yml` fails a pull request whose head branch does not match `NN-module/<slug>`.
 
