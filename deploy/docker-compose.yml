@@ -398,7 +398,7 @@ services:
   # Disk, memory and CPU of the server itself, for the "disk almost full" alert, and what
   # backup.sh and restore-drill.sh last did (monitoring/textfile), for the backup alerts.
   node-exporter:
-    image: prom/node-exporter:v1.9.1
+    image: prom/node-exporter:v1.12.1
     profiles: [monitoring]
     <<: [*restart, *logging]
     command: ['--path.rootfs=/host', '--collector.textfile.directory=/textfile']
