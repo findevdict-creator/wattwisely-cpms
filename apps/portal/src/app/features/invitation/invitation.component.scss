@@ -1,14 +1,22 @@
-.page {
+:host {
+  display: block;
+}
+
+ww-auth-page {
+  min-height: 100vh;
+}
+
+.body {
   display: flex;
-  justify-content: center;
-  padding: 64px 16px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.card {
+.hint {
+  margin: 0;
+}
+
+.wide {
   width: 100%;
-  max-width: 520px;
-}
-
-.actions {
-  gap: 8px;
+  height: 48px;
 }

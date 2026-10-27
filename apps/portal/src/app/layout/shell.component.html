@@ -1,230 +1,37 @@
-<mat-toolbar class="top-bar">
-  <span class="brand">Wattwisely</span>
-  <ww-tenant-switcher />
-  @if (permissions.isManaged()) {
-    <a routerLink="/settings/managed-service" class="managed-badge" data-testid="managed-badge">
-      <mat-icon svgIcon="headset" />
-      Managed by Wattwisely
-    </a>
-  }
-  <span class="spacer"></span>
-  <ww-notification-bell />
-  @if (tenantContext.me(); as me) {
-    <button mat-button [matMenuTriggerFor]="userMenu" data-testid="user-menu">
-      <mat-icon svgIcon="circle-user-round" />
-      {{ me.name || me.email }}
-    </button>
-    <mat-menu #userMenu="matMenu">
-      <div class="user-details" mat-menu-item disabled>{{ me.email }}</div>
-      @if (me.is_platform_staff && adminUrl) {
-        <a mat-menu-item [href]="adminUrl" data-testid="admin-console">
-          <mat-icon svgIcon="shield" />
-          Admin console
-        </a>
-      }
-      <button mat-menu-item (click)="openQuietHours()" data-testid="quiet-hours">
-        <mat-icon svgIcon="moon" />
-        Quiet hours
-      </button>
-      <button mat-menu-item (click)="logout()" data-testid="logout">
-        <mat-icon svgIcon="log-out" />
-        Log out
-      </button>
-    </mat-menu>
-  }
-</mat-toolbar>
-
-<mat-sidenav-container class="body">
-  <mat-sidenav mode="side" opened class="side-menu">
-    <mat-nav-list>
-      <a
-        mat-list-item
-        routerLink="/"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        <mat-icon matListItemIcon svgIcon="house" />
-        <span matListItemTitle>Home</span>
-      </a>
-      @if (permissions.can('alerts:read')) {
-        <a mat-list-item routerLink="/alerts" routerLinkActive="active" data-testid="nav-alerts">
-          <mat-icon matListItemIcon svgIcon="bell-ring" />
-          <span matListItemTitle>
-            Alerts
-            @if (alertBadge.open() > 0) {
-              <span class="count" data-testid="alerts-count">{{ alertBadge.open() }}</span>
-            }
-          </span>
-        </a>
-      }
-      @if (permissions.can('sites:read')) {
-        <a mat-list-item routerLink="/sites" routerLinkActive="active" data-testid="nav-sites">
-          <mat-icon matListItemIcon svgIcon="map-pin" />
-          <span matListItemTitle>Sites</span>
-        </a>
-      }
-      @if (permissions.can('chargers:read')) {
-        <a
-          mat-list-item
-          routerLink="/chargers"
-          routerLinkActive="active"
-          data-testid="nav-chargers"
-        >
-          <mat-icon matListItemIcon svgIcon="ev-charger" />
-          <span matListItemTitle>Chargers</span>
-        </a>
-      }
-      @if (permissions.can('sessions:read')) {
-        <a
-          mat-list-item
-          routerLink="/sessions"
-          routerLinkActive="active"
-          data-testid="nav-sessions"
-        >
-          <mat-icon matListItemIcon svgIcon="receipt-text" />
-          <span matListItemTitle>Sessions</span>
-        </a>
-      }
-      @if (permissions.can('drivers:read')) {
-        <a mat-list-item routerLink="/drivers" routerLinkActive="active" data-testid="nav-drivers">
-          <mat-icon matListItemIcon svgIcon="id-card" />
-          <span matListItemTitle>Drivers</span>
-        </a>
-      }
-      @if (permissions.can('reports:read')) {
-        <a mat-list-item routerLink="/reports" routerLinkActive="active" data-testid="nav-reports">
-          <mat-icon matListItemIcon svgIcon="chart-column" />
-          <span matListItemTitle>Reports</span>
-        </a>
-      }
-      @if (permissions.can('tariffs:read')) {
-        <a mat-list-item routerLink="/tariffs" routerLinkActive="active" data-testid="nav-tariffs">
-          <mat-icon matListItemIcon svgIcon="tag" />
-          <span matListItemTitle>Tariffs</span>
-        </a>
-      }
-      @if (permissions.can('payments:read') || permissions.can('settings:payments')) {
-        <a
-          mat-list-item
-          routerLink="/payments"
-          routerLinkActive="active"
-          data-testid="nav-payments"
-        >
-          <mat-icon matListItemIcon svgIcon="credit-card" />
-          <span matListItemTitle>Payments</span>
-        </a>
-      }
-      @if (permissions.can('settings:read')) {
-        <a
-          mat-list-item
-          routerLink="/settings/branding"
-          routerLinkActive="active"
-          data-testid="nav-branding"
-        >
-          <mat-icon matListItemIcon svgIcon="palette" />
-          <span matListItemTitle>Branding</span>
-        </a>
-        <a
-          mat-list-item
-          routerLink="/settings/alert-routing"
-          routerLinkActive="active"
-          data-testid="nav-alert-routing"
-        >
-          <mat-icon matListItemIcon svgIcon="split" />
-          <span matListItemTitle>Alert routing</span>
-        </a>
-        <a
-          mat-list-item
-          routerLink="/settings/plan"
-          routerLinkActive="active"
-          data-testid="nav-plan"
-        >
-          <mat-icon matListItemIcon svgIcon="gem" />
-          <span matListItemTitle>Plan</span>
-        </a>
-        @if (permissions.managedService()) {
-          <a
-            mat-list-item
-            routerLink="/settings/managed-service"
-            routerLinkActive="active"
-            data-testid="nav-managed-service"
-          >
-            <mat-icon matListItemIcon svgIcon="headset" />
-            <span matListItemTitle>Managed service</span>
-          </a>
-        }
-      }
-      @if (permissions.can('invoices:read')) {
-        <a
-          mat-list-item
-          routerLink="/settings/invoices"
-          routerLinkActive="active"
-          data-testid="nav-invoices"
-        >
-          <mat-icon matListItemIcon svgIcon="receipt-text" />
-          <span matListItemTitle>Invoices</span>
-        </a>
-      }
-      @if (permissions.can('api_keys:manage')) {
-        <a
-          mat-list-item
-          routerLink="/settings/api-keys"
-          routerLinkActive="active"
-          data-testid="nav-api-keys"
-        >
-          <mat-icon matListItemIcon svgIcon="key-round" />
-          <span matListItemTitle>API keys</span>
-        </a>
-        <a
-          mat-list-item
-          routerLink="/settings/webhooks"
-          routerLinkActive="active"
-          data-testid="nav-webhooks"
-        >
-          <mat-icon matListItemIcon svgIcon="webhook" />
-          <span matListItemTitle>Webhooks</span>
-        </a>
-      }
-      @if (permissions.can('messaging:manage')) {
-        <a
-          mat-list-item
-          routerLink="/settings/messaging"
-          routerLinkActive="active"
-          data-testid="nav-messaging"
-        >
-          <mat-icon matListItemIcon svgIcon="message-circle" />
-          <span matListItemTitle>WhatsApp charging</span>
-        </a>
-      }
-      @if (permissions.can('team:read')) {
-        <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
-          <mat-icon matListItemIcon svgIcon="users" />
-          <span matListItemTitle>Team</span>
-        </a>
-      }
-      @if (permissions.can('audit:read')) {
-        <a mat-list-item routerLink="/audit-log" routerLinkActive="active">
-          <mat-icon matListItemIcon svgIcon="history" />
-          <span matListItemTitle>Audit log</span>
-        </a>
-      }
-    </mat-nav-list>
+<mat-sidenav-container class="frame">
+  <mat-sidenav
+    #drawer
+    class="side"
+    [mode]="isNarrow() ? 'over' : 'side'"
+    [opened]="!isNarrow()"
+    [fixedInViewport]="isNarrow()"
+  >
+    <ww-side-menu [url]="url()" (navigated)="closeIfNarrow()" />
   </mat-sidenav>
-  <mat-sidenav-content class="page">
-    @if (permissions.isReadOnly()) {
-      <div class="read-only" role="status" data-testid="read-only-banner">
-        This company's account is suspended. You can look at everything but change nothing.
-      </div>
-    }
-    @if (
-      permissions.managedService()?.status === 'pending_acceptance' &&
-      permissions.can('managed_service:manage')
-    ) {
-      <div class="offer" role="status" data-testid="managed-offer-banner">
-        Wattwisely has offered to run your charging for you. Nothing changes until you accept.
-        <a routerLink="/settings/managed-service">Read the offer</a>
-      </div>
-    }
-    <router-outlet />
+  <mat-sidenav-content class="main">
+    <ww-top-bar [where]="where()" [isNarrow]="isNarrow()" (menuOpened)="drawer.open()" />
+    <main class="content">
+      @if (permissions.isReadOnly()) {
+        <div class="notice danger has-icon" role="status" data-testid="read-only-banner">
+          <mat-icon svgIcon="lock" />
+          <span>
+            This company's account is suspended. You can look at everything but change nothing.
+          </span>
+        </div>
+      }
+      @if (
+        permissions.managedService()?.status === 'pending_acceptance' &&
+        permissions.can('managed_service:manage')
+      ) {
+        <div class="notice info has-icon" role="status" data-testid="managed-offer-banner">
+          <mat-icon svgIcon="headset" />
+          <span>
+            Wattwisely has offered to run your charging for you. Nothing changes until you accept.
+            <a routerLink="/settings/managed-service">Read the offer</a>
+          </span>
+        </div>
+      }
+      <router-outlet />
+    </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

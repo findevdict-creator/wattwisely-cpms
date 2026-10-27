@@ -75,4 +75,17 @@ pre,
     background: var(--ww-surface);
     color: var(--ww-text2);
   }
+
+  // With an icon in front of the words.
+  &.has-icon {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+
+    > .mat-icon {
+      flex: none;
+      width: 18px;
+      height: 18px;
+    }
+  }
 }

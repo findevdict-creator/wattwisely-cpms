@@ -3,6 +3,7 @@ import { AuthGuard } from './core/auth/auth.guard';
 import { UserLoadedGuard } from './core/tenant/user-loaded.guard';
 import { WorkspaceGuard } from './core/tenant/workspace.guard';
 import { PermissionGuard } from './core/permissions/permission.guard';
+import { AlertComponent } from './features/alerts/alert.component';
 import { AlertsComponent } from './features/alerts/alerts.component';
 import { AuditLogComponent } from './features/audit-log/audit-log.component';
 import { ChargerComponent } from './features/chargers/charger.component';
@@ -56,7 +57,7 @@ export const APP_ROUTES: Routes = [
           },
           {
             path: 'alerts/:id',
-            component: AlertsComponent,
+            component: AlertComponent,
             canActivate: [PermissionGuard],
             data: { permission: 'alerts:read' },
           },

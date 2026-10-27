@@ -1,59 +1,57 @@
-<main class="page">
-  <mat-card appearance="outlined" class="card" data-testid="invitation">
+<ww-auth-page [heading]="heading()" [subtitle]="subtitle()" width="440px">
+  <div class="body" data-testid="invitation">
     @if (problem(); as problem) {
-      <mat-card-header>
-        <mat-card-title>This invitation cannot be used</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <p role="alert">
-          {{
-            problem.status === 404
-              ? 'The link is no longer valid. Ask for a new invitation.'
-              : problem.detail
-          }}
-        </p>
-      </mat-card-content>
+      <div class="notice danger" role="alert">
+        {{
+          problem.status === 404
+            ? 'The link is no longer valid. Ask for a new invitation.'
+            : problem.detail
+        }}
+      </div>
       @if (problem.code === 'invitation_for_someone_else') {
-        <mat-card-actions>
-          <button mat-stroked-button (click)="authService.logout()">Log out</button>
-        </mat-card-actions>
+        <button mat-stroked-button class="wide" (click)="authService.logout()">Log out</button>
       }
     } @else if (invitation(); as invitation) {
-      <mat-card-header>
-        <mat-card-title>Join {{ invitation.tenant_name }} on Wattwisely</mat-card-title>
-        <mat-card-subtitle>
-          {{ invitation.invited_by || 'Someone' }} invited {{ invitation.email }} as
-          {{ invitation.roles.join(', ') }}
-        </mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        @if (invitation.is_expired) {
-          <p role="alert">
-            This invitation expired on {{ invitation.expires_at | date: 'medium' }}.
-          </p>
+      <dl class="ww-kv">
+        <div>
+          <dt>Invited by</dt>
+          <dd>{{ invitation.invited_by || 'Someone at ' + invitation.tenant_name }}</dd>
+        </div>
+        <div>
+          <dt>Your role</dt>
+          <dd>{{ invitation.roles.join(', ') }}</dd>
+        </div>
+      </dl>
+      @if (invitation.is_expired) {
+        <div class="notice danger" role="alert">
+          This invitation expired on {{ invitation.expires_at | date: 'medium' }}. Ask for a new
+          one.
+        </div>
+      } @else {
+        <p class="hint">
+          The invitation is valid until {{ invitation.expires_at | date: 'medium' }}.
+        </p>
+        @if (authService.isLoggedIn()) {
+          <button
+            mat-flat-button
+            class="wide"
+            (click)="accept()"
+            [disabled]="isWorking()"
+            data-testid="accept"
+          >
+            Accept and open {{ invitation.tenant_name }}
+          </button>
         } @else {
-          <p>The invitation is valid until {{ invitation.expires_at | date: 'medium' }}.</p>
+          <button mat-flat-button class="wide" (click)="login(invitation, false)">
+            Log in to accept
+          </button>
+          <button mat-stroked-button class="wide" (click)="login(invitation, true)">
+            Create an account
+          </button>
         }
-      </mat-card-content>
-      @if (!invitation.is_expired) {
-        <mat-card-actions class="actions">
-          @if (authService.isLoggedIn()) {
-            <button
-              mat-flat-button
-              (click)="accept()"
-              [disabled]="isWorking()"
-              data-testid="accept"
-            >
-              Accept and open {{ invitation.tenant_name }}
-            </button>
-          } @else {
-            <button mat-flat-button (click)="login(invitation, false)">Log in to accept</button>
-            <button mat-stroked-button (click)="login(invitation, true)">Create an account</button>
-          }
-        </mat-card-actions>
       }
     } @else {
-      <mat-card-content>Loading the invitation…</mat-card-content>
+      <p class="hint">Loading the invitation…</p>
     }
-  </mat-card>
-</main>
+  </div>
+</ww-auth-page>

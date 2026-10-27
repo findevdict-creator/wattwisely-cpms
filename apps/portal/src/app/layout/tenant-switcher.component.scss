@@ -1,9 +1,62 @@
 .switcher {
-  width: 200px;
-  font-size: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px 8px 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+
+  b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  > mat-icon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    color: var(--mat-sys-on-surface-variant);
+  }
 }
 
-.tenant-name {
-  font-size: 14px;
-  color: var(--mat-sys-on-surface-variant);
+button.switcher {
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--mat-sys-outline);
+  }
+}
+
+.ww-avatar {
+  color: var(--ww-white);
+}
+
+::ng-deep .mat-mdc-menu-panel.ww-workspace-menu {
+  min-width: 248px;
+
+  .mat-mdc-menu-item-text {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ww-avatar {
+    color: var(--ww-white);
+  }
+
+  .name {
+    flex: 1;
+  }
+
+  .current {
+    display: flex;
+    color: var(--mat-sys-primary);
+  }
 }

@@ -125,6 +125,8 @@ services:
       PORTAL_KEYCLOAK_CLIENT_ID: wattwisely-portal
       # Wattwisely staff get a link to the admin console (module 9) in the portal's user menu.
       PORTAL_ADMIN_URL: ${PUBLIC_SCHEME}://${ADMIN_HOST}
+      # The top bar's help button leads here (module 22); no button when it is empty.
+      PORTAL_HELP_URL: ${PORTAL_HELP_URL:-}
     networks: [backend]
 
   # Chargers connect here over WebSocket (OCPP 1.6J or 2.0.1). Caddy terminates TLS and forwards

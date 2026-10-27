@@ -156,3 +156,23 @@ html {
 .mat-icon svg {
   stroke-width: 1.75;
 }
+
+// Small buttons, 32px high, for actions inside cards and table rows.
+.ww-small {
+  @include mat.button-overrides(
+    (
+      filled-container-height: 32px,
+      outlined-container-height: 32px,
+      text-container-height: 32px,
+      tonal-container-height: 32px,
+      filled-label-text-size: 13px,
+      outlined-label-text-size: 13px,
+      text-label-text-size: 13px,
+      tonal-label-text-size: 13px,
+      filled-horizontal-padding: 12px,
+      outlined-horizontal-padding: 12px,
+      text-horizontal-padding: 10px,
+      tonal-horizontal-padding: 12px,
+    )
+  );
+}

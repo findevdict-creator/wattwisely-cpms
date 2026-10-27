@@ -133,6 +133,7 @@ Open <http://portal.localhost>. The driver app is at <http://charge.localhost>: 
 
 - **OpenBao is sealed after every restart.** `up.sh` unseals it with the key in `.secrets/`. If that file is lost, the secrets in OpenBao are lost too.
 - **The API reference at `/docs` is off on servers** since module 12. Set `API_DOCS_ENABLED=true` in `.env` and run `./scripts/up.sh --no-pull` to publish it.
+- **The portal's help button** (module 22) leads to `PORTAL_HELP_URL` in `.env`, such as your help centre, and is hidden while it is empty. Run `./scripts/up.sh --no-pull` after setting it.
 - **Rate limits.** The API counts requests per client address and minute (`RATE_LIMIT_*` in `.env`): 1,200 signed-in, 300 public reads, 30 public writes such as starting a charge. A 429 answer carries `Retry-After`.
 - **Old data is deleted.** The worker deletes the OCPP message log after 90 days and sent e-mails, bell notifications, drivers' addresses and processed Stripe events after the periods in `RETENTION_*`. Sessions, payments and the audit log are kept.
 - **MinIO is not used.** MinIO stopped publishing free Docker images in 2025, so file storage uses SeaweedFS, which speaks the same S3 interface.

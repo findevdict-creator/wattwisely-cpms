@@ -1,0 +1,29 @@
+<div class="head">
+  <a class="logo" routerLink="/" aria-label="Wattwisely, home" (click)="navigated.emit()">
+    <ww-logo />
+  </a>
+  <ww-tenant-switcher />
+</div>
+<nav class="nav-list" aria-label="Main">
+  @for (group of groups(); track group.heading) {
+    @if (group.heading) {
+      <span class="ww-overline group">{{ group.heading }}</span>
+    }
+    @for (item of group.items; track item.testId) {
+      <a
+        class="nav"
+        [class.on]="isActive(item)"
+        [routerLink]="item.link"
+        [attr.aria-current]="isActive(item) ? 'page' : null"
+        [attr.data-testid]="item.testId"
+        (click)="navigated.emit()"
+      >
+        <mat-icon [svgIcon]="item.icon" />
+        <span class="label">{{ item.label }}</span>
+        @if (item.testId === 'nav-alerts' && alertBadge.open() > 0) {
+          <span class="count" data-testid="alerts-count">{{ alertBadge.open() }}</span>
+        }
+      </a>
+    }
+  }
+</nav>

@@ -1,0 +1,68 @@
+@if (isNarrow()) {
+  <button mat-icon-button (click)="menuOpened.emit()" aria-label="Open the menu" data-testid="menu">
+    <mat-icon svgIcon="menu" />
+  </button>
+}
+<nav class="crumb" aria-label="Where you are" data-testid="where">
+  @if (where().section) {
+    <span class="section">{{ where().section }}</span>
+    <mat-icon class="section" svgIcon="chevron-right" />
+  }
+  <b>{{ where().page }}</b>
+</nav>
+@if (permissions.isManaged()) {
+  <a
+    routerLink="/settings/managed-service"
+    class="ww-chip info managed"
+    data-testid="managed-badge"
+  >
+    <mat-icon svgIcon="headset" />
+    Managed by Wattwisely
+  </a>
+}
+<ww-notification-bell />
+@if (helpUrl) {
+  <a
+    mat-icon-button
+    [href]="helpUrl"
+    target="_blank"
+    rel="noopener"
+    aria-label="Help and support"
+    data-testid="help"
+  >
+    <mat-icon svgIcon="circle-help" />
+  </a>
+}
+@if (tenantContext.me(); as me) {
+  <button
+    type="button"
+    class="account"
+    [matMenuTriggerFor]="userMenu"
+    [attr.aria-label]="'Your account, ' + (me.name || me.email)"
+    data-testid="user-menu"
+  >
+    <span class="ww-avatar">{{ initials.of(me.name || me.email) }}</span>
+    <mat-icon svgIcon="chevron-down" />
+  </button>
+  <mat-menu #userMenu="matMenu" xPosition="before" class="ww-account-menu">
+    <div class="who">
+      <b>{{ me.name || me.email }}</b>
+      <span data-testid="me-email">{{ me.email }}</span>
+    </div>
+    <mat-divider />
+    @if (me.is_platform_staff && adminUrl) {
+      <a mat-menu-item [href]="adminUrl" data-testid="admin-console">
+        <mat-icon svgIcon="shield" />
+        Admin console
+      </a>
+    }
+    <button mat-menu-item (click)="openQuietHours()" data-testid="quiet-hours">
+      <mat-icon svgIcon="moon" />
+      Quiet hours
+    </button>
+    <button mat-menu-item (click)="logout()" data-testid="logout">
+      <mat-icon svgIcon="log-out" />
+      Log out
+    </button>
+  </mat-menu>
+}
