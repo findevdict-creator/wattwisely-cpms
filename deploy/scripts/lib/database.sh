@@ -29,6 +29,20 @@ GRANT CONNECT ON DATABASE wattwisely TO wattwisely_app;
 SQL
 }
 
+# Keycloak's own role and database. The Postgres init script creates them only when the volume
+# is first made; if that first start failed (for example a checkout with Windows line endings,
+# where the init script could not run), this creates them now. It also keeps the password in
+# step with KEYCLOAK_DB_PASSWORD in .env. Safe to run every time.
+ensure_keycloak_database() {
+  info "Keycloak database"
+  compose exec -T postgres psql -X -q -v ON_ERROR_STOP=1 -U wattwisely -d wattwisely \
+    -v keycloak_password="$(env_value KEYCLOAK_DB_PASSWORD)" >/dev/null <<'SQL'
+SELECT 'CREATE ROLE keycloak' WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'keycloak') \gexec
+ALTER ROLE keycloak WITH LOGIN PASSWORD :'keycloak_password';
+SELECT 'CREATE DATABASE keycloak OWNER keycloak' WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'keycloak') \gexec
+SQL
+}
+
 # Applies new migrations with the image that is about to start, before the API serves requests.
 run_migrations() {
   info "Database migrations"
