@@ -1,3 +1,5 @@
+import { SessionPaymentRule } from '@wattwisely/db';
+
 /** What one row of the sessions CSV needs from a session. */
 export interface SessionCsvRow {
   id: string;
@@ -16,4 +18,7 @@ export interface SessionCsvRow {
   grossAmount: number | null;
   reviewFlags: string[];
   failureReason: string | null;
+  /** How it was started and who pays (module 19); null on older sessions. */
+  startSource: string | null;
+  paymentRule: SessionPaymentRule | null;
 }

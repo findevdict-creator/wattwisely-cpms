@@ -39,12 +39,14 @@ export class PaymentsApiService {
     return this.http.post<PaymentAccount>(this.url('payment-account/refresh'), {});
   }
 
-  updateHold(account: PaymentAccount, holdAmount: number): Observable<PaymentAccount> {
-    return this.http.patch<PaymentAccount>(
-      this.url('payment-account'),
-      { hold_amount: holdAmount },
-      { headers: { 'If-Match': String(account.version) } },
-    );
+  /** Both holds in minor units: the guest hold, and the member hold for the company's own drivers. */
+  updateHold(
+    account: PaymentAccount,
+    holds: { hold_amount: number; member_hold_amount: number },
+  ): Observable<PaymentAccount> {
+    return this.http.patch<PaymentAccount>(this.url('payment-account'), holds, {
+      headers: { 'If-Match': String(account.version) },
+    });
   }
 
   list(filter: PaymentFilter, cursor: string | null = null): Observable<PaymentPage> {

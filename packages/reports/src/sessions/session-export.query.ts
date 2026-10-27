@@ -22,6 +22,8 @@ export class SessionExportQuery {
     grossAmount: chargingSessions.grossAmount,
     reviewFlags: chargingSessions.reviewFlags,
     failureReason: chargingSessions.failureReason,
+    startSource: chargingSessions.startSource,
+    paymentRule: chargingSessions.paymentRule,
   };
 
   static rows(

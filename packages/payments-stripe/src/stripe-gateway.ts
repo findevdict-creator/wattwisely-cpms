@@ -5,6 +5,10 @@ import {
   AccountState,
   CancelRequest,
   CaptureRequest,
+  CardSetup,
+  CardSetupRequest,
+  CardSetupState,
+  CustomerRequest,
   HoldCreated,
   HoldRequest,
   HoldState,
@@ -13,8 +17,11 @@ import {
   ReceivedEvent,
   RefundRequest,
   RefundState,
+  SavedCardHoldRequest,
 } from '@wattwisely/payments';
+import { StripeAccounts } from './stripe-accounts';
 import { StripeMapper } from './stripe-mapper';
+import { StripeSavedCards } from './stripe-saved-cards';
 
 /** The keys the gateway needs. The webhook secret may be empty while webhooks are not set up. */
 export interface StripeKeys {
@@ -37,53 +44,33 @@ export class StripeGateway implements PaymentGateway {
   readonly provider = 'stripe';
   readonly isEnabled = true;
   private readonly stripe: Stripe;
+  private readonly accounts: StripeAccounts;
+  private readonly savedCards: StripeSavedCards;
 
   constructor(private readonly keys: StripeKeys) {
     this.stripe = new Stripe(keys.secretKey, { typescript: true });
+    this.accounts = new StripeAccounts(this.stripe);
+    this.savedCards = new StripeSavedCards(this.stripe);
   }
 
   publishableKey(): string | null {
     return this.keys.publishableKey || null;
   }
 
-  async createAccount(request: AccountRequest): Promise<AccountState> {
-    const account = await this.call(() =>
-      this.stripe.accounts.create(
-        {
-          type: 'express',
-          country: request.country,
-          email: request.email ?? undefined,
-          business_profile: { name: request.tenantName },
-          capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
-          metadata: { tenantId: request.tenantId },
-        },
-        { idempotencyKey: request.idempotencyKey },
-      ),
-    );
-    return StripeMapper.account(account);
+  createAccount(request: AccountRequest): Promise<AccountState> {
+    return this.call(() => this.accounts.create(request));
   }
 
-  async getAccount(providerAccountId: string): Promise<AccountState> {
-    return StripeMapper.account(
-      await this.call(() => this.stripe.accounts.retrieve(providerAccountId)),
-    );
+  getAccount(providerAccountId: string): Promise<AccountState> {
+    return this.call(() => this.accounts.get(providerAccountId));
   }
 
-  async createOnboardingLink(request: AccountLinkRequest): Promise<string> {
-    const link = await this.call(() =>
-      this.stripe.accountLinks.create({
-        account: request.providerAccountId,
-        refresh_url: request.refreshUrl,
-        return_url: request.returnUrl,
-        type: 'account_onboarding',
-      }),
-    );
-    return link.url;
+  createOnboardingLink(request: AccountLinkRequest): Promise<string> {
+    return this.call(() => this.accounts.onboardingLink(request));
   }
 
-  async createDashboardLink(providerAccountId: string): Promise<string> {
-    const link = await this.call(() => this.stripe.accounts.createLoginLink(providerAccountId));
-    return link.url;
+  createDashboardLink(providerAccountId: string): Promise<string> {
+    return this.call(() => this.accounts.dashboardLink(providerAccountId));
   }
 
   async createHold(request: HoldRequest): Promise<HoldCreated> {
@@ -146,6 +133,26 @@ export class StripeGateway implements PaymentGateway {
       ),
     );
     return StripeMapper.refund(refund);
+  }
+
+  createCustomer(request: CustomerRequest): Promise<string> {
+    return this.call(() => this.savedCards.createCustomer(request));
+  }
+
+  createCardSetup(request: CardSetupRequest): Promise<CardSetup> {
+    return this.call(() => this.savedCards.createSetup(request));
+  }
+
+  getCardSetup(providerSetupId: string): Promise<CardSetupState> {
+    return this.call(() => this.savedCards.getSetup(providerSetupId));
+  }
+
+  detachCard(providerPaymentMethodId: string): Promise<void> {
+    return this.call(() => this.savedCards.detach(providerPaymentMethodId));
+  }
+
+  createSavedCardHold(request: SavedCardHoldRequest): Promise<HoldState> {
+    return this.call(() => this.savedCards.hold(request));
   }
 
   parseWebhook(rawBody: Buffer, signature: string): ReceivedEvent {

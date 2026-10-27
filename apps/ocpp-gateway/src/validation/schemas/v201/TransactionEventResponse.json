@@ -1,0 +1,23 @@
+{
+  "title": "TransactionEventResponse",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "totalCost": {
+      "type": "number"
+    },
+    "chargingPriority": {
+      "type": "integer"
+    },
+    "idTokenInfo": {
+      "$ref": "IdTokenInfo"
+    },
+    "updatedPersonalMessage": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "required": []
+}

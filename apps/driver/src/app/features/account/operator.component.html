@@ -1,0 +1,96 @@
+<p class="back">
+  <a routerLink="/account" data-testid="back"><mat-icon>arrow_back</mat-icon> Your account</a>
+</p>
+
+@if (store.profile(); as profile) {
+  <header class="where">
+    <h1>{{ profile.operator_name }}</h1>
+    <p class="hint">
+      Knows you as {{ profile.driver_name }}
+      @if (profile.reference) {
+        · {{ profile.reference }}
+      }
+      @if (profile.linked_at) {
+        · linked {{ profile.linked_at | date: 'mediumDate' }}
+      }
+    </p>
+  </header>
+
+  @if (profile.status === 'blocked') {
+    <section class="panel blocked" data-testid="blocked">
+      <mat-icon>block</mat-icon>
+      <p>
+        {{ profile.operator_name }} has blocked you: its chargers refuse your cards and your login.
+      </p>
+    </section>
+  }
+
+  <section class="panel">
+    <h2>Paying</h2>
+    <p data-testid="payment">{{ paymentWords() }}</p>
+  </section>
+
+  <section class="panel">
+    <h2>What {{ profile.operator_name }} holds about you</h2>
+    <dl>
+      <dt>Name</dt>
+      <dd>{{ profile.driver_name }}</dd>
+      <dt>E-mail</dt>
+      <dd>{{ profile.email || '—' }}</dd>
+      <dt>Phone</dt>
+      <dd>{{ profile.phone || '—' }}</dd>
+      <dt>Groups</dt>
+      <dd>{{ profile.groups.length ? profile.groups.join(', ') : '—' }}</dd>
+      <dt>Cards</dt>
+      <dd>
+        @if (profile.cards.length === 0) {
+          —
+        }
+        @for (card of profile.cards; track card.id_tag) {
+          <div>
+            {{ card.label || card.id_tag }}
+            <span class="hint"
+              >{{ card.label ? card.id_tag + ' · ' : '' }}{{ cardStatus(card.status) }}</span
+            >
+          </div>
+        }
+      </dd>
+    </dl>
+    <p class="hint">This is the operator's record, kept by the operator. To change it, ask them.</p>
+  </section>
+
+  <section class="panel leave">
+    @if (isLeaveAsked()) {
+      <p>
+        {{ profile.operator_name }} keeps its record of you, but your login no longer opens it, and
+        nothing you charge there is shown here. The operator can invite you again.
+      </p>
+      <div class="actions">
+        <button
+          mat-flat-button
+          class="danger"
+          (click)="leave()"
+          [disabled]="store.isLeaving()"
+          data-testid="confirm-leave"
+        >
+          Leave {{ profile.operator_name }}
+        </button>
+        <button mat-button (click)="isLeaveAsked.set(false)">Keep</button>
+      </div>
+    } @else {
+      <button mat-stroked-button (click)="isLeaveAsked.set(true)" data-testid="leave">
+        <mat-icon>link_off</mat-icon>
+        Leave this operator
+      </button>
+    }
+    @if (store.error()) {
+      <p class="error" role="alert">{{ store.error() }}</p>
+    }
+  </section>
+} @else if (store.error()) {
+  <section class="panel">
+    <p class="error" role="alert">{{ store.error() }}</p>
+  </section>
+} @else {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+}

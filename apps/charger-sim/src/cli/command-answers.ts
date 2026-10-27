@@ -1,8 +1,16 @@
-import { SimulatedCharger } from '@wattwisely/charger-sim';
 import { ConnectorState } from './connector-state';
 import { SimOptions } from './sim-options';
 
-/** How the demo charger answers the platform's commands: accept, then act a moment later like a real one. */
+/** A command's answer: the status word both versions use (Accepted, Rejected, …). */
+export interface CommandAnswer {
+  status: string;
+}
+
+/**
+ * How the demo charger answers the platform's commands, whatever the OCPP version they
+ * arrived in: accept, then act a moment later like a real one. The dialect turns each
+ * version's actions and payloads into these calls.
+ */
 export class CommandAnswers {
   static readonly ACT_AFTER_MS = 500;
 
@@ -10,40 +18,23 @@ export class CommandAnswers {
     private readonly options: SimOptions,
     private readonly connectors: ConnectorState[],
     private readonly log: (line: string) => void,
+    private readonly onReset: () => Promise<void>,
   ) {}
 
-  install(charger: SimulatedCharger, onReset: () => Promise<void>): void {
-    charger.on('RemoteStartTransaction', (payload) =>
-      this.remoteStart(payload as { connectorId?: number; idTag: string }),
-    );
-    charger.on('RemoteStopTransaction', (payload) =>
-      this.remoteStop(payload as { transactionId: number }),
-    );
-    charger.on('UnlockConnector', () => ({ status: 'Unlocked' }));
-    charger.on('ChangeAvailability', (payload) =>
-      this.changeAvailability(payload as { connectorId: number; type: string }),
-    );
-    charger.on('Reset', (payload) => {
-      this.log(`reset (${(payload as { type: string }).type}) accepted`);
-      setTimeout(() => void onReset(), CommandAnswers.ACT_AFTER_MS);
-      return { status: 'Accepted' };
-    });
-  }
-
-  private remoteStart(payload: { connectorId?: number; idTag: string }): { status: string } {
-    const connector = this.find(payload.connectorId ?? 1);
+  remoteStart(connectorId: number, idTag: string): CommandAnswer {
+    const connector = this.find(connectorId);
     if (!connector || connector.isCharging || connector.status === 'Unavailable') {
       return { status: 'Rejected' };
     }
     this.later(() =>
-      connector.startCharging(payload.idTag, this.options.powerW, this.options.meterIntervalS),
+      connector.startCharging(idTag, this.options.powerW, this.options.meterIntervalS),
     );
     return { status: 'Accepted' };
   }
 
-  private remoteStop(payload: { transactionId: number }): { status: string } {
+  remoteStop(transactionId: string): CommandAnswer {
     const connector = this.connectors.find(
-      (candidate) => candidate.transactionId === payload.transactionId,
+      (candidate) => candidate.transactionId === transactionId,
     );
     if (!connector) {
       return { status: 'Rejected' };
@@ -52,17 +43,35 @@ export class CommandAnswers {
     return { status: 'Accepted' };
   }
 
-  private changeAvailability(payload: { connectorId: number; type: string }): { status: string } {
-    const targets = payload.connectorId === 0 ? this.connectors : [this.find(payload.connectorId)];
+  /** Connector 0 (1.6) or no EVSE (2.0.1) means the whole station. */
+  changeAvailability(connectorId: number, isOperative: boolean): CommandAnswer {
+    const targets = connectorId === 0 ? this.connectors : [this.find(connectorId)];
     if (targets.some((connector) => !connector)) {
       return { status: 'Rejected' };
     }
-    const status = payload.type === 'Inoperative' ? 'Unavailable' : 'Available';
+    const status = isOperative ? 'Available' : 'Unavailable';
     this.later(async () => {
       for (const connector of targets as ConnectorState[]) {
         await connector.setStatus(status);
       }
     });
+    return { status: 'Accepted' };
+  }
+
+  /** A real charger would hold the cap; the demo one only reports it. */
+  setChargingProfile(limitW: number | undefined): CommandAnswer {
+    this.log(`power cap set to ${limitW ?? '?'} W`);
+    return { status: 'Accepted' };
+  }
+
+  clearChargingProfile(): CommandAnswer {
+    this.log('power cap removed');
+    return { status: 'Accepted' };
+  }
+
+  reset(type: string): CommandAnswer {
+    this.log(`reset (${type}) accepted`);
+    setTimeout(() => void this.onReset(), CommandAnswers.ACT_AFTER_MS);
     return { status: 'Accepted' };
   }
 

@@ -31,9 +31,10 @@ export class ExpiringCache<V> {
     this.deleteWhere((key) => key.endsWith(suffix));
   }
 
-  private deleteWhere(matches: (key: string) => boolean): void {
-    for (const key of this.entries.keys()) {
-      if (matches(key)) {
+  /** Drops every entry the predicate picks, by key or by what it holds. */
+  deleteWhere(matches: (key: string, value: V) => boolean): void {
+    for (const [key, entry] of this.entries) {
+      if (matches(key, entry.value)) {
         this.entries.delete(key);
       }
     }

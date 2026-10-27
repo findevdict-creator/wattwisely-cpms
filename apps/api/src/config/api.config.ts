@@ -35,10 +35,18 @@ export class ApiConfig {
   @IsUrl({ require_tld: false })
   keycloakJwksUrl!: string;
 
-  /** The audience a token must carry to be accepted by this API. */
+  /** The audience a staff token must carry to be accepted by this API (the portals' tokens). */
   @IsString()
   @IsNotEmpty()
   keycloakAudience!: string;
+
+  /**
+   * The audience a driver's token carries (module 19): the driver app's Keycloak client puts it
+   * there, and only the /v1/driver routes accept it. Never the same word as keycloakAudience.
+   */
+  @IsString()
+  @IsNotEmpty()
+  keycloakDriverAudience!: string;
 
   /** Postgres, as the wattwisely_app role (row-level security always applies to it). */
   @IsUrl({ require_tld: false, protocols: ['postgres', 'postgresql'] })
@@ -98,6 +106,25 @@ export class ApiConfig {
   /** Module 12: the OpenAPI pages at /docs (API_DOCS_ENABLED). Off on a production server. */
   @IsBoolean()
   isApiDocsEnabled!: boolean;
+
+  /**
+   * Module 16: whether a webhook endpoint may point at a private or local address
+   * (WEBHOOK_ALLOW_PRIVATE_URLS). Off on a server: the worker would post into the network.
+   */
+  @IsBoolean()
+  isWebhookPrivateUrlAllowed!: boolean;
+
+  /** Module 17: the app secret Meta signs webhook deliveries with (WHATSAPP_APP_SECRET). Empty refuses them all. */
+  @IsString()
+  whatsappAppSecret!: string;
+
+  /** Module 17: the token Meta echoes when the webhook is subscribed (WHATSAPP_VERIFY_TOKEN). */
+  @IsString()
+  whatsappVerifyToken!: string;
+
+  /** Module 17: the platform's WhatsApp Business token; empty means every channel brings its own. */
+  @IsString()
+  whatsappAccessToken!: string;
 
   /** Module 12: requests per client address and minute (RATE_LIMIT_*). */
   @ValidateNested()

@@ -161,4 +161,45 @@ describe('StripeGateway webhooks', () => {
       'STRIPE_WEBHOOK_SECRET',
     );
   });
+
+  it('reads a card setup and the card it saved', () => {
+    const method = {
+      id: 'pm_1',
+      card: { brand: 'visa', last4: '4242', exp_month: 12, exp_year: 2030 },
+    } as unknown as Stripe.PaymentMethod;
+    expect(
+      StripeMapper.setup({
+        id: 'seti_1',
+        status: 'succeeded',
+        payment_method: method,
+        last_setup_error: null,
+      } as unknown as Stripe.SetupIntent),
+    ).toEqual({
+      providerSetupId: 'seti_1',
+      status: 'succeeded',
+      card: {
+        providerPaymentMethodId: 'pm_1',
+        brand: 'visa',
+        last4: '4242',
+        expMonth: 12,
+        expYear: 2030,
+      },
+      failureMessage: null,
+    });
+    expect(
+      StripeMapper.setup({
+        id: 'seti_2',
+        status: 'requires_payment_method',
+        payment_method: 'pm_2',
+        last_setup_error: { message: 'Card declined.' },
+      } as unknown as Stripe.SetupIntent),
+    ).toMatchObject({ status: 'pending', card: null, failureMessage: 'Card declined.' });
+    expect(
+      StripeMapper.setup({ id: 'seti_3', status: 'canceled' } as unknown as Stripe.SetupIntent)
+        .status,
+    ).toBe('failed');
+    expect(
+      StripeMapper.savedCard({ id: 'pm_3', card: null } as unknown as Stripe.PaymentMethod),
+    ).toBeNull();
+  });
 });

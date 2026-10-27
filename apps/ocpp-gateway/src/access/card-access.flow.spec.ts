@@ -2,7 +2,11 @@ import { ChargerMessages, SimulatedCharger } from '@wattwisely/charger-sim';
 import { TestDatabase, TestDrivers } from '@wattwisely/db/testing';
 import { TestGateway } from '../testing/test-gateway';
 
-/** Module 13: which RFID cards a charger accepts, and the driver a session is linked to. */
+/**
+ * Module 13: which RFID cards a charger accepts, and the driver a session is linked to. Dana's
+ * sessions are free (module 19), so only the access rules decide here; what a paid card needs
+ * is card-payment.flow.spec.ts.
+ */
 (TestDatabase.isConfigured() ? describe : describe.skip)('RFID card access', () => {
   const gateway = new TestGateway();
   let acme: string;
@@ -26,6 +30,7 @@ import { TestGateway } from '../testing/test-gateway';
     publicChargerId = await gateway.data.charger(acme, riverside, 'WW-PUBLIC');
     privateChargerId = await gateway.data.charger(acme, depot, 'WW-PRIVATE');
     dana = await drivers.driver(acme, 'Dana Driver');
+    await gateway.data.sql("update drivers set payment_mode = 'free' where id = $1", [dana]);
     danaCard = await drivers.card(acme, dana, 'DANA-0001');
     const blocked = await drivers.driver(acme, 'Bob Blocked', { status: 'blocked' });
     await drivers.card(acme, blocked, 'BOB-0001');
@@ -85,10 +90,18 @@ import { TestGateway } from '../testing/test-gateway';
 
     expect(started.idTagInfo.status).toBe('Accepted');
     const session = await gateway.eventually(
-      'select driver_id, rfid_card_id, status from charging_sessions where charger_id = $1 and ocpp_transaction_id = $2',
+      `select driver_id, rfid_card_id, status, is_paid, start_source, payment_rule
+       from charging_sessions where charger_id = $1 and ocpp_transaction_id = $2`,
       [publicChargerId, started.transactionId],
     );
-    expect(session).toEqual({ driver_id: dana, rfid_card_id: danaCard, status: 'charging' });
+    expect(session).toEqual({
+      driver_id: dana,
+      rfid_card_id: danaCard,
+      status: 'charging',
+      is_paid: false,
+      start_source: 'rfid_card',
+      payment_rule: { outcome: 'free', decided_by: 'driver', label: null },
+    });
   });
 
   it('follows a charger whose visibility overrides its site', async () => {

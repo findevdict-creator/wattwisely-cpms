@@ -4,10 +4,14 @@
 set -eu
 
 : "${DRIVER_API_URL:?DRIVER_API_URL is required}"
+: "${DRIVER_KEYCLOAK_URL:?DRIVER_KEYCLOAK_URL is required}"
 
 cat > /usr/share/nginx/html/config.json <<JSON
 {
-  "apiUrl": "${DRIVER_API_URL}"
+  "apiUrl": "${DRIVER_API_URL}",
+  "keycloakUrl": "${DRIVER_KEYCLOAK_URL}",
+  "keycloakRealm": "${DRIVER_KEYCLOAK_REALM:-wattwisely}",
+  "keycloakClientId": "${DRIVER_KEYCLOAK_CLIENT_ID:-wattwisely-driver}"
 }
 JSON
 echo "driver: wrote config.json for API ${DRIVER_API_URL}"

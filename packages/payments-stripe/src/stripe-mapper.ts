@@ -1,11 +1,13 @@
 import Stripe from 'stripe';
 import {
   AccountState,
+  CardSetupState,
   HoldState,
   HoldStatus,
   PaymentEvent,
   ReceivedEvent,
   RefundState,
+  SavedCard,
 } from '@wattwisely/payments';
 
 /** Translates Stripe's objects and events into the platform's own words. */
@@ -59,6 +61,39 @@ export class StripeMapper {
       default:
         return 'requires_confirmation';
     }
+  }
+
+  /** A card setup (module 19): the saved card once the driver confirmed it, with the expanded payment method. */
+  static setup(setup: Stripe.SetupIntent): CardSetupState {
+    const method = typeof setup.payment_method === 'object' ? setup.payment_method : null;
+    const card = setup.status === 'succeeded' && method ? StripeMapper.savedCard(method) : null;
+    return {
+      providerSetupId: setup.id,
+      status: StripeMapper.setupStatus(setup.status),
+      card,
+      failureMessage: setup.last_setup_error?.message ?? null,
+    };
+  }
+
+  static savedCard(method: Stripe.PaymentMethod): SavedCard | null {
+    const card = method.card;
+    if (!card) {
+      return null;
+    }
+    return {
+      providerPaymentMethodId: method.id,
+      brand: card.brand,
+      last4: card.last4,
+      expMonth: card.exp_month,
+      expYear: card.exp_year,
+    };
+  }
+
+  private static setupStatus(status: Stripe.SetupIntent.Status): CardSetupState['status'] {
+    if (status === 'succeeded') {
+      return 'succeeded';
+    }
+    return status === 'canceled' ? 'failed' : 'pending';
   }
 
   static account(account: Stripe.Account): AccountState {

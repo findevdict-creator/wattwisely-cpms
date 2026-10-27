@@ -1,0 +1,14 @@
+{
+  "name": "load-management",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/load-management/src",
+  "projectType": "library",
+  "tags": ["scope:load-management", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "title": "BootNotificationRequest",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "chargingStation": {
+      "type": "object",
+      "properties": {
+        "customData": {
+          "type": "object"
+        },
+        "serialNumber": {
+          "type": "string",
+          "maxLength": 25
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "vendorName": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "firmwareVersion": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "modem": {
+          "type": "object",
+          "properties": {
+            "customData": {
+              "type": "object"
+            },
+            "iccid": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "imsi": {
+              "type": "string",
+              "maxLength": 20
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "required": ["model", "vendorName"]
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "ApplicationReset",
+        "FirmwareUpdate",
+        "LocalReset",
+        "PowerUp",
+        "RemoteReset",
+        "ScheduledReset",
+        "Triggered",
+        "Unknown",
+        "Watchdog"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["chargingStation", "reason"]
+}

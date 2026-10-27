@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { ChargerIdentity } from '../storage/charger-identity';
 import { CallReply } from '../transport/call-reply';
 import { CallErrorFrame, CallResultFrame } from '../transport/ocpp-frame';
@@ -12,6 +13,8 @@ export class ChargerConnection {
   readonly charger: ChargerIdentity;
   readonly connectionId: string;
   readonly remoteIp: string;
+  /** Fixed for the life of the socket: which adapter reads its messages and writes its commands. */
+  readonly version: OcppVersion;
   readonly openedAt = Date.now();
   /** When the charger last sent anything; the heartbeat watcher closes silent sockets. */
   lastSeenAt = Date.now();
@@ -30,6 +33,7 @@ export class ChargerConnection {
     this.charger = accepted.charger;
     this.connectionId = accepted.connectionId;
     this.remoteIp = accepted.remoteIp;
+    this.version = accepted.version;
     this.isBooted = accepted.charger.registrationStatus === 'accepted';
     this.heartbeatIntervalS = accepted.charger.heartbeatIntervalS ?? heartbeatIntervalS;
   }

@@ -17,11 +17,15 @@ export class PublicApiService {
     return this.http.get<Place>(this.url(`public/places/${identity}/${ocppConnectorId}`));
   }
 
-  /** Opens the session and the card hold; the answer carries what the card form needs. */
-  start(chargerIdentity: string, ocppConnectorId: number): Observable<Charge> {
+  /**
+   * Opens the session and the card hold; the answer carries what the card form needs.
+   * `chatRef` ties the charge to the chat it was asked for in (module 17).
+   */
+  start(chargerIdentity: string, ocppConnectorId: number, chatRef?: string): Observable<Charge> {
     return this.http.post<Charge>(this.url('public/charges'), {
       charger_identity: chargerIdentity,
       ocpp_connector_id: ocppConnectorId,
+      ...(chatRef ? { chat_ref: chatRef } : {}),
     });
   }
 

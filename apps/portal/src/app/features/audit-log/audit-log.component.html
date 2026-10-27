@@ -37,6 +37,10 @@
       {{ entry.actor_label }}
       @if (entry.actor_type === 'managed') {
         <mat-chip class="wattwisely" data-testid="actor-wattwisely">Wattwisely</mat-chip>
+      } @else if (entry.actor_type === 'api_key') {
+        <mat-chip data-testid="actor-api-key">API key</mat-chip>
+      } @else if (entry.actor_type === 'driver') {
+        <mat-chip data-testid="actor-driver">Driver</mat-chip>
       }
     </td>
   </ng-container>
