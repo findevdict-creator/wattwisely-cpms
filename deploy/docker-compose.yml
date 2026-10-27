@@ -387,7 +387,7 @@ services:
   # ---------- Development only (COMPOSE_PROFILES=dev) ----------
   # Catches every e-mail so nothing reaches real inboxes. Web UI on http://localhost:8025.
   mailpit:
-    image: axllent/mailpit:v1.31.6
+    image: axllent/mailpit:v1.32.0
     profiles: [dev]
     <<: [*restart, *logging]
     ports:
