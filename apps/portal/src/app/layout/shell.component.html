@@ -3,7 +3,7 @@
   <ww-tenant-switcher />
   @if (permissions.isManaged()) {
     <a routerLink="/settings/managed-service" class="managed-badge" data-testid="managed-badge">
-      <mat-icon>support_agent</mat-icon>
+      <mat-icon svgIcon="headset" />
       Managed by Wattwisely
     </a>
   }
@@ -11,23 +11,23 @@
   <ww-notification-bell />
   @if (tenantContext.me(); as me) {
     <button mat-button [matMenuTriggerFor]="userMenu" data-testid="user-menu">
-      <mat-icon>account_circle</mat-icon>
+      <mat-icon svgIcon="circle-user-round" />
       {{ me.name || me.email }}
     </button>
     <mat-menu #userMenu="matMenu">
       <div class="user-details" mat-menu-item disabled>{{ me.email }}</div>
       @if (me.is_platform_staff && adminUrl) {
         <a mat-menu-item [href]="adminUrl" data-testid="admin-console">
-          <mat-icon>admin_panel_settings</mat-icon>
+          <mat-icon svgIcon="shield" />
           Admin console
         </a>
       }
       <button mat-menu-item (click)="openQuietHours()" data-testid="quiet-hours">
-        <mat-icon>bedtime</mat-icon>
+        <mat-icon svgIcon="moon" />
         Quiet hours
       </button>
       <button mat-menu-item (click)="logout()" data-testid="logout">
-        <mat-icon>logout</mat-icon>
+        <mat-icon svgIcon="log-out" />
         Log out
       </button>
     </mat-menu>
@@ -43,12 +43,12 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
       >
-        <mat-icon matListItemIcon>home</mat-icon>
+        <mat-icon matListItemIcon svgIcon="house" />
         <span matListItemTitle>Home</span>
       </a>
       @if (permissions.can('alerts:read')) {
         <a mat-list-item routerLink="/alerts" routerLinkActive="active" data-testid="nav-alerts">
-          <mat-icon matListItemIcon>notification_important</mat-icon>
+          <mat-icon matListItemIcon svgIcon="bell-ring" />
           <span matListItemTitle>
             Alerts
             @if (alertBadge.open() > 0) {
@@ -59,7 +59,7 @@
       }
       @if (permissions.can('sites:read')) {
         <a mat-list-item routerLink="/sites" routerLinkActive="active" data-testid="nav-sites">
-          <mat-icon matListItemIcon>location_on</mat-icon>
+          <mat-icon matListItemIcon svgIcon="map-pin" />
           <span matListItemTitle>Sites</span>
         </a>
       }
@@ -70,7 +70,7 @@
           routerLinkActive="active"
           data-testid="nav-chargers"
         >
-          <mat-icon matListItemIcon>ev_station</mat-icon>
+          <mat-icon matListItemIcon svgIcon="ev-charger" />
           <span matListItemTitle>Chargers</span>
         </a>
       }
@@ -81,25 +81,25 @@
           routerLinkActive="active"
           data-testid="nav-sessions"
         >
-          <mat-icon matListItemIcon>receipt_long</mat-icon>
+          <mat-icon matListItemIcon svgIcon="receipt-text" />
           <span matListItemTitle>Sessions</span>
         </a>
       }
       @if (permissions.can('drivers:read')) {
         <a mat-list-item routerLink="/drivers" routerLinkActive="active" data-testid="nav-drivers">
-          <mat-icon matListItemIcon>badge</mat-icon>
+          <mat-icon matListItemIcon svgIcon="id-card" />
           <span matListItemTitle>Drivers</span>
         </a>
       }
       @if (permissions.can('reports:read')) {
         <a mat-list-item routerLink="/reports" routerLinkActive="active" data-testid="nav-reports">
-          <mat-icon matListItemIcon>bar_chart</mat-icon>
+          <mat-icon matListItemIcon svgIcon="chart-column" />
           <span matListItemTitle>Reports</span>
         </a>
       }
       @if (permissions.can('tariffs:read')) {
         <a mat-list-item routerLink="/tariffs" routerLinkActive="active" data-testid="nav-tariffs">
-          <mat-icon matListItemIcon>sell</mat-icon>
+          <mat-icon matListItemIcon svgIcon="tag" />
           <span matListItemTitle>Tariffs</span>
         </a>
       }
@@ -110,7 +110,7 @@
           routerLinkActive="active"
           data-testid="nav-payments"
         >
-          <mat-icon matListItemIcon>credit_card</mat-icon>
+          <mat-icon matListItemIcon svgIcon="credit-card" />
           <span matListItemTitle>Payments</span>
         </a>
       }
@@ -121,7 +121,7 @@
           routerLinkActive="active"
           data-testid="nav-branding"
         >
-          <mat-icon matListItemIcon>palette</mat-icon>
+          <mat-icon matListItemIcon svgIcon="palette" />
           <span matListItemTitle>Branding</span>
         </a>
         <a
@@ -130,7 +130,7 @@
           routerLinkActive="active"
           data-testid="nav-alert-routing"
         >
-          <mat-icon matListItemIcon>alt_route</mat-icon>
+          <mat-icon matListItemIcon svgIcon="split" />
           <span matListItemTitle>Alert routing</span>
         </a>
         <a
@@ -139,7 +139,7 @@
           routerLinkActive="active"
           data-testid="nav-plan"
         >
-          <mat-icon matListItemIcon>workspace_premium</mat-icon>
+          <mat-icon matListItemIcon svgIcon="gem" />
           <span matListItemTitle>Plan</span>
         </a>
         @if (permissions.managedService()) {
@@ -149,7 +149,7 @@
             routerLinkActive="active"
             data-testid="nav-managed-service"
           >
-            <mat-icon matListItemIcon>support_agent</mat-icon>
+            <mat-icon matListItemIcon svgIcon="headset" />
             <span matListItemTitle>Managed service</span>
           </a>
         }
@@ -161,7 +161,7 @@
           routerLinkActive="active"
           data-testid="nav-invoices"
         >
-          <mat-icon matListItemIcon>receipt_long</mat-icon>
+          <mat-icon matListItemIcon svgIcon="receipt-text" />
           <span matListItemTitle>Invoices</span>
         </a>
       }
@@ -172,7 +172,7 @@
           routerLinkActive="active"
           data-testid="nav-api-keys"
         >
-          <mat-icon matListItemIcon>key</mat-icon>
+          <mat-icon matListItemIcon svgIcon="key-round" />
           <span matListItemTitle>API keys</span>
         </a>
         <a
@@ -181,7 +181,7 @@
           routerLinkActive="active"
           data-testid="nav-webhooks"
         >
-          <mat-icon matListItemIcon>webhook</mat-icon>
+          <mat-icon matListItemIcon svgIcon="webhook" />
           <span matListItemTitle>Webhooks</span>
         </a>
       }
@@ -192,19 +192,19 @@
           routerLinkActive="active"
           data-testid="nav-messaging"
         >
-          <mat-icon matListItemIcon>chat</mat-icon>
+          <mat-icon matListItemIcon svgIcon="message-circle" />
           <span matListItemTitle>WhatsApp charging</span>
         </a>
       }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
-          <mat-icon matListItemIcon>group</mat-icon>
+          <mat-icon matListItemIcon svgIcon="users" />
           <span matListItemTitle>Team</span>
         </a>
       }
       @if (permissions.can('audit:read')) {
         <a mat-list-item routerLink="/audit-log" routerLinkActive="active">
-          <mat-icon matListItemIcon>history</mat-icon>
+          <mat-icon matListItemIcon svgIcon="history" />
           <span matListItemTitle>Audit log</span>
         </a>
       }

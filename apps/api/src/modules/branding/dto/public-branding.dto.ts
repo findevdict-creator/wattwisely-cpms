@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TenantBrand } from '@wattwisely/mail';
+import { PlatformColours } from '@wattwisely/theme';
 
 /**
  * A tenant's brand as the driver's pages paint it: the name, the colours, where the logo
@@ -15,13 +16,16 @@ export class PublicBrandingDto {
   })
   readonly logo_url: string | null;
 
-  @ApiProperty({ example: '#1b5e20', description: 'Top bar and buttons' })
+  @ApiProperty({ example: PlatformColours.PRIMARY, description: 'Top bar and buttons' })
   readonly primary_color: string;
 
-  @ApiProperty({ example: '#ffffff', description: 'Text that reads on the primary colour' })
+  @ApiProperty({
+    example: PlatformColours.ON_PRIMARY,
+    description: 'Text that reads on the primary colour',
+  })
   readonly on_primary_color: string;
 
-  @ApiProperty({ example: '#43a047', description: 'Highlights and links' })
+  @ApiProperty({ example: PlatformColours.ACCENT, description: 'Highlights and links' })
   readonly accent_color: string;
 
   @ApiProperty({ nullable: true, example: 'help@acme.example' })

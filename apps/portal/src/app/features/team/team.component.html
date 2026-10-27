@@ -2,12 +2,12 @@
   <h1>Team</h1>
   <div class="title-actions">
     <a mat-stroked-button routerLink="/team/roles" data-testid="roles">
-      <mat-icon>verified_user</mat-icon>
+      <mat-icon svgIcon="shield-check" />
       Roles and permissions
     </a>
     @if (permissions.canChange('team:manage')) {
       <button mat-flat-button (click)="invite()" data-testid="invite">
-        <mat-icon>person_add</mat-icon>
+        <mat-icon svgIcon="user-plus" />
         Invite
       </button>
     }
@@ -15,7 +15,7 @@
 </header>
 
 <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-  <mat-icon matPrefix>search</mat-icon>
+  <mat-icon matPrefix svgIcon="search" />
   <mat-label>Search by name or e-mail</mat-label>
   <input matInput #query (keyup.enter)="search(query.value)" data-testid="team-search" />
 </mat-form-field>
@@ -63,7 +63,7 @@
     <td mat-cell *matCellDef="let member" class="actions">
       @if (permissions.canChange('team:manage') && !member.is_managed_operator) {
         <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
-          <mat-icon>more_vert</mat-icon>
+          <mat-icon svgIcon="ellipsis-vertical" />
         </button>
         <mat-menu #menu="matMenu">
           <button mat-menu-item (click)="editRoles(member)">Change roles</button>

@@ -1,4 +1,4 @@
-<a routerLink="/tenants" class="back"><mat-icon>arrow_back</mat-icon> All tenants</a>
+<a routerLink="/tenants" class="back"><mat-icon svgIcon="arrow-left" /> All tenants</a>
 
 @if (store.tenant(); as tenant) {
   <div class="title">
@@ -18,28 +18,28 @@
     </div>
     @if (staff.can('tenants:write') && tenant.status !== 'cancelled') {
       <button mat-stroked-button [matMenuTriggerFor]="actions" data-testid="tenant-actions">
-        Actions <mat-icon>expand_more</mat-icon>
+        Actions <mat-icon svgIcon="chevron-down" />
       </button>
       <mat-menu #actions="matMenu">
         <button mat-menu-item (click)="edit()">
-          <mat-icon>edit</mat-icon>
+          <mat-icon svgIcon="pencil" />
           Edit details
         </button>
         @if (staff.can('tenants:suspend') && tenant.status !== 'suspended') {
           <button mat-menu-item (click)="suspend()" data-testid="suspend-tenant">
-            <mat-icon>pause_circle</mat-icon>
+            <mat-icon svgIcon="circle-pause" />
             Suspend
           </button>
         }
         @if (staff.can('tenants:suspend') && tenant.status === 'suspended') {
           <button mat-menu-item (click)="reactivate()" data-testid="reactivate-tenant">
-            <mat-icon>play_circle</mat-icon>
+            <mat-icon svgIcon="circle-play" />
             Reactivate
           </button>
         }
         @if (staff.can('tenants:delete') && tenant.status === 'suspended') {
           <button mat-menu-item (click)="delete()" data-testid="delete-tenant">
-            <mat-icon>delete_forever</mat-icon>
+            <mat-icon svgIcon="trash" />
             Delete
           </button>
         }

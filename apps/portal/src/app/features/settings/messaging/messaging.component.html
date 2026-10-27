@@ -1,7 +1,7 @@
 <header class="title">
   <h1>WhatsApp charging</h1>
   <button mat-button (click)="refresh()" data-testid="refresh-chats">
-    <mat-icon>refresh</mat-icon>
+    <mat-icon svgIcon="refresh-cw" />
     Refresh
   </button>
 </header>
@@ -89,7 +89,7 @@
           <div class="secret-row">
             <code class="webhook" data-testid="webhook-url">{{ channel.webhook_url }}</code>
             <button mat-button (click)="copyWebhookUrl(channel)" data-testid="copy-webhook-url">
-              <mat-icon>content_copy</mat-icon>
+              <mat-icon svgIcon="copy" />
               Copy
             </button>
           </div>

@@ -1,7 +1,7 @@
 @if (site(); as site) {
   <header class="title">
     <div>
-      <a routerLink="/sites" class="back"><mat-icon>arrow_back</mat-icon> Sites</a>
+      <a routerLink="/sites" class="back"><mat-icon svgIcon="arrow-left" /> Sites</a>
       <h1>
         {{ site.name }}
         <ww-status-chip kind="site" [status]="site.status" />
@@ -10,13 +10,13 @@
     <div class="actions">
       @if (permissions.canChange('chargers:write')) {
         <button mat-flat-button (click)="registerCharger()" data-testid="register-charger">
-          <mat-icon>add</mat-icon>
+          <mat-icon svgIcon="plus" />
           Register charger
         </button>
       }
       @if (permissions.canChange('sites:write') || permissions.canChange('sites:delete')) {
         <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Site actions">
-          <mat-icon>more_vert</mat-icon>
+          <mat-icon svgIcon="ellipsis-vertical" />
         </button>
         <mat-menu #menu="matMenu">
           @if (permissions.canChange('sites:write')) {

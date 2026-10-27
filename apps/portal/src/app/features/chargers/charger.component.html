@@ -1,7 +1,7 @@
 @if (store.charger(); as charger) {
   <header class="title">
     <div>
-      <a routerLink="/chargers" class="back"><mat-icon>arrow_back</mat-icon> Chargers</a>
+      <a routerLink="/chargers" class="back"><mat-icon svgIcon="arrow-left" /> Chargers</a>
       <h1>
         {{ charger.ocpp_identity }}
         <ww-status-chip [status]="charger.status" />
@@ -22,7 +22,7 @@
         aria-label="Charger actions"
         data-testid="charger-actions"
       >
-        <mat-icon>more_vert</mat-icon>
+        <mat-icon svgIcon="ellipsis-vertical" />
       </button>
       <mat-menu #menu="matMenu">
         @if (permissions.canChange('chargers:command') && charger.is_online) {
@@ -126,12 +126,12 @@
     <h2>Connectors</h2>
     <div class="actions">
       <button mat-stroked-button (click)="showQrCodes()" data-testid="qr-codes">
-        <mat-icon>qr_code_2</mat-icon>
+        <mat-icon svgIcon="qr-code" />
         QR codes
       </button>
       @if (permissions.canChange('chargers:write')) {
         <button mat-stroked-button (click)="editConnector(null)" data-testid="add-connector">
-          <mat-icon>add</mat-icon>
+          <mat-icon svgIcon="plus" />
           Add connector
         </button>
       }

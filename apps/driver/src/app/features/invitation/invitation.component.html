@@ -1,6 +1,6 @@
 @if (store.invitation(); as invitation) {
   <section class="panel invitation">
-    <mat-icon class="big">mail</mat-icon>
+    <mat-icon class="big" svgIcon="mail" />
     <h1>{{ invitation.operator_name }} invites you</h1>
     <p>
       @if (invitation.invited_by) {
@@ -46,7 +46,7 @@
           @if (store.isAnswering()) {
             <mat-spinner diameter="20" />
           } @else {
-            <mat-icon>link</mat-icon>
+            <mat-icon svgIcon="link" />
           }
           Accept
         </button>
@@ -66,7 +66,7 @@
   </section>
 } @else if (store.isNotFound()) {
   <section class="panel invitation">
-    <mat-icon class="big">link_off</mat-icon>
+    <mat-icon class="big" svgIcon="unlink" />
     <h1>This link no longer works</h1>
     <p class="hint" data-testid="not-found">
       The invitation was accepted, declined or cancelled, or a newer one was sent. Open the newest

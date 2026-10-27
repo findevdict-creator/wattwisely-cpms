@@ -2,7 +2,7 @@
   <h1>Tenants</h1>
   @if (staff.can('tenants:write')) {
     <button mat-flat-button (click)="create()" data-testid="new-tenant">
-      <mat-icon>add</mat-icon>
+      <mat-icon svgIcon="plus" />
       New tenant
     </button>
   }

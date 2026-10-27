@@ -1,4 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
+import { PlatformColours } from '@wattwisely/theme';
 import { ProblemException } from '../../common/problem/problem.exception';
 import { LogoPolicy } from './logo-policy';
 
@@ -8,7 +9,7 @@ export class BrandingErrors {
     return new ProblemException(
       HttpStatus.BAD_REQUEST,
       'validation_failed',
-      `${field}: use six hex digits, e.g. #1b5e20`,
+      `${field}: use six hex digits, e.g. ${PlatformColours.PRIMARY}`,
     );
   }
 

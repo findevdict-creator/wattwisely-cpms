@@ -11,9 +11,9 @@
     <th mat-header-cell *matHeaderCellDef>State</th>
     <td mat-cell *matCellDef="let module" [attr.data-module]="module.key">
       @if (module.is_enabled) {
-        <span class="on"><mat-icon inline>check_circle</mat-icon> On</span>
+        <span class="on"><mat-icon inline svgIcon="circle-check" /> On</span>
       } @else {
-        <span class="off"><mat-icon inline>lock</mat-icon> Locked</span>
+        <span class="off"><mat-icon inline svgIcon="lock" /> Locked</span>
       }
     </td>
   </ng-container>
@@ -41,17 +41,17 @@
           aria-label="Change module"
           [attr.data-testid]="'module-menu-' + module.key"
         >
-          <mat-icon>more_vert</mat-icon>
+          <mat-icon svgIcon="ellipsis-vertical" />
         </button>
         <mat-menu #menu="matMenu">
           @if (!module.is_enabled) {
             <button mat-menu-item (click)="change(module, true)" data-testid="enable-module">
-              <mat-icon>toggle_on</mat-icon>
+              <mat-icon svgIcon="toggle-right" />
               Switch on
             </button>
           } @else {
             <button mat-menu-item (click)="change(module, false)" data-testid="disable-module">
-              <mat-icon>toggle_off</mat-icon>
+              <mat-icon svgIcon="toggle-left" />
               Switch off
             </button>
           }
@@ -59,7 +59,7 @@
             module.source === 'addon' || module.source === 'trial' || module.source === 'override'
           ) {
             <button mat-menu-item (click)="reset(module)" data-testid="reset-module">
-              <mat-icon>undo</mat-icon>
+              <mat-icon svgIcon="undo-2" />
               Follow the plan again
             </button>
           }

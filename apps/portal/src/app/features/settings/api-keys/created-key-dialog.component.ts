@@ -24,7 +24,7 @@ import { CreatedApiKey } from '../../../core/api/models/api-key';
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-stroked-button (click)="copy()" data-testid="copy-token">
-        <mat-icon>content_copy</mat-icon>
+        <mat-icon svgIcon="copy" />
         {{ isCopied() ? 'Copied' : 'Copy key' }}
       </button>
       <button mat-flat-button [mat-dialog-close]="true">Done</button>

@@ -12,7 +12,7 @@
       <p class="hint">{{ action()?.hint }}</p>
       @if (account.requirements_due.length > 0) {
         <div class="requirements" role="status" data-testid="requirements">
-          <mat-icon>info</mat-icon>
+          <mat-icon svgIcon="info" />
           <span>
             Stripe still needs:
             @for (item of account.requirements_due; track item; let last = $last) {

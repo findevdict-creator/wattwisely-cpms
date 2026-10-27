@@ -1,4 +1,5 @@
 import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
+import { PlatformColours } from '@wattwisely/theme';
 import { CardForm, CardFormOptions, CardFormResult } from './card-form';
 
 /**
@@ -21,7 +22,7 @@ export class StripeCardForm implements CardForm {
     }
     this.elements = this.stripe.elements({
       clientSecret: this.options.clientSecret,
-      appearance: { theme: 'stripe', variables: { colorPrimary: '#1b5e20' } },
+      appearance: { theme: 'stripe', variables: { colorPrimary: PlatformColours.PRIMARY } },
     });
     this.elements.create('payment', { layout: 'tabs' }).mount(host);
   }

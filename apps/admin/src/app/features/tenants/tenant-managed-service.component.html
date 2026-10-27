@@ -58,7 +58,7 @@
                     aria-label="Remove"
                     data-testid="remove-operator"
                   >
-                    <mat-icon>person_remove</mat-icon>
+                    <mat-icon svgIcon="user-minus" />
                   </button>
                 }
               </mat-list-item>
@@ -105,16 +105,16 @@
         }
         @if (isLive()) {
           <button mat-icon-button [matMenuTriggerFor]="more" aria-label="More">
-            <mat-icon>more_vert</mat-icon>
+            <mat-icon svgIcon="ellipsis-vertical" />
           </button>
           <mat-menu #more="matMenu">
             <button mat-menu-item (click)="edit()" data-testid="edit-managed-service">
-              <mat-icon>edit</mat-icon>
+              <mat-icon svgIcon="pencil" />
               Change the terms
             </button>
             @if (s && s.status === 'active') {
               <button mat-menu-item (click)="giveNotice()" data-testid="managed-notice">
-                <mat-icon>event_busy</mat-icon>
+                <mat-icon svgIcon="calendar-x" />
                 Give notice
               </button>
             }

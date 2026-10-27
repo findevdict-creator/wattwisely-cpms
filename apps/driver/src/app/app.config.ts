@@ -6,6 +6,7 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { UiProviders } from '@wattwisely/ui';
 import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { APP_ROUTES } from './app.routes';
 import { DriverApiInterceptor } from './core/auth/driver-api.interceptor';
@@ -24,6 +25,7 @@ export class AppConfigFactory {
         provideRouter(APP_ROUTES, withComponentInputBinding()),
         provideHttpClient(withInterceptorsFromDi()),
         provideOAuthClient(),
+        ...UiProviders.all(),
         { provide: RuntimeConfig, useValue: runtimeConfig },
         { provide: HTTP_INTERCEPTORS, useClass: DriverApiInterceptor, multi: true },
         // Finish a pending Keycloak login before the first page is shown.

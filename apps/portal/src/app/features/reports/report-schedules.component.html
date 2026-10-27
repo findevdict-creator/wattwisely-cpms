@@ -2,7 +2,7 @@
   <h2>Scheduled reports</h2>
   @if (permissions.canChange('reports:schedule')) {
     <button mat-stroked-button (click)="edit(null)" data-testid="new-schedule">
-      <mat-icon>schedule_send</mat-icon>
+      <mat-icon svgIcon="calendar-clock" />
       Schedule a report
     </button>
   }
@@ -44,10 +44,10 @@
       <td mat-cell *matCellDef="let schedule">
         @if (permissions.canChange('reports:schedule')) {
           <button mat-icon-button (click)="edit(schedule)" aria-label="Edit">
-            <mat-icon>edit</mat-icon>
+            <mat-icon svgIcon="pencil" />
           </button>
           <button mat-icon-button (click)="remove(schedule)" aria-label="Delete">
-            <mat-icon>delete</mat-icon>
+            <mat-icon svgIcon="trash-2" />
           </button>
         }
       </td>

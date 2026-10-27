@@ -71,7 +71,7 @@
   <ul class="modules" data-testid="modules">
     @for (module of s.modules; track module.key) {
       <li [class.locked]="!module.is_enabled" [attr.data-module]="module.key">
-        <mat-icon>{{ module.is_enabled ? 'check_circle' : 'lock' }}</mat-icon>
+        <mat-icon [svgIcon]="module.is_enabled ? 'circle-check' : 'lock'" />
         <div>
           <div class="name">{{ module.name }}</div>
           <div class="hint">{{ module.description }}</div>

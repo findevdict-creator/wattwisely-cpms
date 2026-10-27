@@ -23,35 +23,13 @@ export type StatusKind =
   | 'webhook'
   | 'delivery';
 
-/** A coloured dot and a word for a site, charger, connector, command, session, payment or refund status. */
+/**
+ * A status as a soft pill in the shared chip style (packages/ui): green when all is well, a dot
+ * while charging, blue while waiting, amber when it needs a look, red when it failed.
+ */
 @Component({
   selector: 'ww-status-chip',
-  template: `<span class="chip {{ tone() }}" [attr.data-status]="status()"
-    ><span class="dot"></span>{{ label() }}</span
-  >`,
-  styles: `
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--mat-sys-outline);
-    }
-    .good .dot {
-      background: #2e7d32;
-    }
-    .busy .dot {
-      background: #1565c0;
-    }
-    .bad .dot {
-      background: var(--mat-sys-error);
-    }
-  `,
+  template: `<span class="ww-chip {{ tone() }}" [attr.data-status]="status()">{{ label() }}</span>`,
 })
 export class StatusChipComponent {
   readonly status = input.required<string>();

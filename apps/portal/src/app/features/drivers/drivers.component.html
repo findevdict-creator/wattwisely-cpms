@@ -2,12 +2,12 @@
   <h1>Drivers</h1>
   <div class="actions">
     <a mat-stroked-button routerLink="/drivers/groups" data-testid="access-groups">
-      <mat-icon>groups</mat-icon>
+      <mat-icon svgIcon="users-round" />
       Access groups
     </a>
     @if (permissions.canChange('drivers:write')) {
       <button mat-flat-button (click)="add()" data-testid="add-driver">
-        <mat-icon>person_add</mat-icon>
+        <mat-icon svgIcon="user-plus" />
         Add driver
       </button>
     }
@@ -16,7 +16,7 @@
 
 <div class="filters">
   <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
+    <mat-icon matPrefix svgIcon="search" />
     <mat-label>Search by name, e-mail or reference</mat-label>
     <input matInput #query (keyup.enter)="search(query.value)" data-testid="drivers-search" />
   </mat-form-field>

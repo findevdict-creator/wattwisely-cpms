@@ -1,7 +1,7 @@
 @if (driver(); as driver) {
   <header class="title">
     <div>
-      <a routerLink="/drivers" class="back"><mat-icon>arrow_back</mat-icon> Drivers</a>
+      <a routerLink="/drivers" class="back"><mat-icon svgIcon="arrow-left" /> Drivers</a>
       <h1>
         {{ driver.name }}
         <ww-status-chip kind="driver" [status]="driver.status" />
@@ -10,7 +10,7 @@
     <div class="actions">
       @if (permissions.canChange('drivers:write')) {
         <button mat-flat-button (click)="addCard()" data-testid="add-card">
-          <mat-icon>add_card</mat-icon>
+          <mat-icon svgIcon="credit-card" />
           Register card
         </button>
       }
@@ -20,7 +20,7 @@
         permissions.canChange('drivers:delete')
       ) {
         <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Driver actions">
-          <mat-icon>more_vert</mat-icon>
+          <mat-icon svgIcon="ellipsis-vertical" />
         </button>
         <mat-menu #menu="matMenu">
           @if (permissions.canChange('drivers:write')) {
@@ -164,7 +164,7 @@
               aria-label="Who pays with this card"
               data-testid="card-payment-menu"
             >
-              <mat-icon>payments</mat-icon>
+              <mat-icon svgIcon="banknote" />
             </button>
             <mat-menu #paying="matMenu">
               @for (mode of paymentModes; track mode) {

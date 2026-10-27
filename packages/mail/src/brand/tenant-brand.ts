@@ -1,3 +1,4 @@
+import { PlatformColours } from '@wattwisely/theme';
 import { BrandColour } from './brand-colour';
 
 /** The saved settings a brand is built from (the tenant_branding row without the logo's bytes). */
@@ -29,8 +30,8 @@ export interface TenantBrandView {
  */
 export class TenantBrand implements TenantBrandView {
   static readonly PLATFORM_NAME = 'Wattwisely';
-  static readonly DEFAULT_PRIMARY = '#1b5e20';
-  static readonly DEFAULT_ACCENT = '#43a047';
+  static readonly DEFAULT_PRIMARY = PlatformColours.PRIMARY;
+  static readonly DEFAULT_ACCENT = PlatformColours.ACCENT;
   static readonly NO_SETTINGS: BrandSettings = {
     displayName: null,
     primaryColor: null,
@@ -80,7 +81,7 @@ export class TenantBrand implements TenantBrandView {
 
   /** The text colour that reads on the primary colour. */
   get onPrimaryColor(): string {
-    return BrandColour.textOn(this.primaryColor);
+    return BrandColour.onPrimary(this.primaryColor);
   }
 
   get hasSupportContact(): boolean {

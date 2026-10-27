@@ -1,4 +1,4 @@
-<a routerLink="/invoices" class="back"><mat-icon>arrow_back</mat-icon> All invoices</a>
+<a routerLink="/invoices" class="back"><mat-icon svgIcon="arrow-left" /> All invoices</a>
 
 @if (store.invoice(); as invoice) {
   <div class="title">
@@ -25,31 +25,31 @@
     </div>
     @if (canWrite() && (isDraft() || invoice.status === 'issued')) {
       <button mat-stroked-button [matMenuTriggerFor]="actions" data-testid="invoice-actions">
-        Actions <mat-icon>expand_more</mat-icon>
+        Actions <mat-icon svgIcon="chevron-down" />
       </button>
       <mat-menu #actions="matMenu">
         @if (isDraft()) {
           <button mat-menu-item (click)="issue()" data-testid="issue-invoice">
-            <mat-icon>send</mat-icon>
+            <mat-icon svgIcon="send" />
             Issue and send
           </button>
           <button mat-menu-item (click)="addLine()" data-testid="add-line">
-            <mat-icon>add</mat-icon>
+            <mat-icon svgIcon="plus" />
             Add a line
           </button>
           <button mat-menu-item (click)="regenerate()" data-testid="regenerate-invoice">
-            <mat-icon>refresh</mat-icon>
+            <mat-icon svgIcon="refresh-cw" />
             Work the fee lines out again
           </button>
         }
         @if (invoice.status === 'issued') {
           <button mat-menu-item (click)="pay()" data-testid="pay-invoice">
-            <mat-icon>paid</mat-icon>
+            <mat-icon svgIcon="hand-coins" />
             Mark paid
           </button>
         }
         <button mat-menu-item (click)="voidInvoice()" data-testid="void-invoice">
-          <mat-icon>block</mat-icon>
+          <mat-icon svgIcon="ban" />
           Void
         </button>
       </mat-menu>
@@ -134,7 +134,7 @@
             aria-label="Remove line"
             data-testid="remove-line"
           >
-            <mat-icon>close</mat-icon>
+            <mat-icon svgIcon="x" />
           </button>
         }
       </td>

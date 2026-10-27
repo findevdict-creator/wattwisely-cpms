@@ -1,11 +1,11 @@
 <header class="title">
   <div>
-    <a routerLink="/drivers" class="back"><mat-icon>arrow_back</mat-icon> Drivers</a>
+    <a routerLink="/drivers" class="back"><mat-icon svgIcon="arrow-left" /> Drivers</a>
     <h1>Access groups</h1>
   </div>
   @if (permissions.canChange('drivers:write')) {
     <button mat-flat-button (click)="edit(null)" data-testid="add-group">
-      <mat-icon>add</mat-icon>
+      <mat-icon svgIcon="plus" />
       New group
     </button>
   }

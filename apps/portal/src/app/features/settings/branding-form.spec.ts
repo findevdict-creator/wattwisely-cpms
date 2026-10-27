@@ -16,8 +16,8 @@ describe('BrandingForm', () => {
       name: 'Acme Go',
       logo_url: null,
       primary_color: '#fff176',
-      on_primary_color: '#1b1b1b',
-      accent_color: '#43a047',
+      on_primary_color: '#0f172a',
+      accent_color: '#0f172a',
       support_email: 'help@acme.test',
       support_phone: null,
       support_url: null,
@@ -68,7 +68,17 @@ describe('BrandingForm', () => {
       name: 'Acme Charging',
       primary_color: '#102030',
       on_primary_color: '#ffffff',
-      accent_color: '#43a047',
+      accent_color: '#0f172a',
+    });
+  });
+
+  it('keeps white text on the platform green when the colour is cleared', () => {
+    const form = BrandingForm.from(saved);
+    form.fields.patchValue({ primaryColor: '' });
+
+    expect(form.preview(saved.preview, 'Acme Charging')).toMatchObject({
+      primary_color: '#16a34a',
+      on_primary_color: '#ffffff',
     });
   });
 });

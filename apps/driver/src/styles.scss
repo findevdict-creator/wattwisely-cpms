@@ -1,54 +1,21 @@
-@use '@angular/material' as mat;
-
-// One Material theme for the driver app, green for charging, until a place or a charge is
-// loaded: then BrandService sets the operator's colours as variables on <html> (module 8),
-// which override the theme's tokens below.
-html {
-  color-scheme: light;
-  @include mat.theme(
-    (
-      color: mat.$green-palette,
-      typography: Roboto,
-      density: 0,
-    )
-  );
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background: var(--mat-sys-surface-container-low);
-  color: var(--mat-sys-on-surface);
-}
-
-// Messages shown when something went wrong.
-.error {
-  color: var(--mat-sys-error);
-}
-
-.hint {
-  font-size: 13px;
-  color: var(--mat-sys-on-surface-variant);
-}
+// The shared Wattwisely look, green for charging, until a place or a charge is loaded: then
+// BrandService sets the operator's colors as variables on <html> (module 8), which override
+// the theme's tokens.
+@use 'wattwisely';
 
 // A white card, the building block of every page.
 .panel {
   background: var(--mat-sys-surface);
-  border-radius: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-lg);
   padding: 16px;
   margin-bottom: 12px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
 }
 
 // A big number: the cost so far, the final price.
 .figure {
   font-size: 40px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.5px;
 }

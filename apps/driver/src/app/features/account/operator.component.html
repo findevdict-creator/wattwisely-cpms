@@ -1,5 +1,5 @@
 <p class="back">
-  <a routerLink="/account" data-testid="back"><mat-icon>arrow_back</mat-icon> Your account</a>
+  <a routerLink="/account" data-testid="back"><mat-icon svgIcon="arrow-left" /> Your account</a>
 </p>
 
 @if (store.profile(); as profile) {
@@ -18,7 +18,7 @@
 
   @if (profile.status === 'blocked') {
     <section class="panel blocked" data-testid="blocked">
-      <mat-icon>block</mat-icon>
+      <mat-icon svgIcon="ban" />
       <p>
         {{ profile.operator_name }} has blocked you: its chargers refuse your cards and your login.
       </p>
@@ -79,7 +79,7 @@
       </div>
     } @else {
       <button mat-stroked-button (click)="isLeaveAsked.set(true)" data-testid="leave">
-        <mat-icon>link_off</mat-icon>
+        <mat-icon svgIcon="unlink" />
         Leave this operator
       </button>
     }

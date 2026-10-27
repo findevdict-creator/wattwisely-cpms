@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString, IsUrl, Matches, MaxLength } from 'class-validator';
+import { PlatformColours } from '@wattwisely/theme';
 
 /**
  * Body of PATCH /v1/branding: only the fields sent change; null (or an empty string) puts
@@ -12,16 +13,20 @@ export class UpdateBrandingRequestDto {
   @MaxLength(60)
   readonly display_name?: string | null;
 
-  @ApiProperty({ required: false, nullable: true, example: '#1b5e20' })
+  @ApiProperty({ required: false, nullable: true, example: PlatformColours.PRIMARY })
   @IsOptional()
   @IsString()
-  @Matches(/^#?[0-9a-fA-F]{6}$/, { message: 'primary_color must be six hex digits, e.g. #1b5e20' })
+  @Matches(/^#?[0-9a-fA-F]{6}$/, {
+    message: `primary_color must be six hex digits, e.g. ${PlatformColours.PRIMARY}`,
+  })
   readonly primary_color?: string | null;
 
-  @ApiProperty({ required: false, nullable: true, example: '#43a047' })
+  @ApiProperty({ required: false, nullable: true, example: PlatformColours.ACCENT })
   @IsOptional()
   @IsString()
-  @Matches(/^#?[0-9a-fA-F]{6}$/, { message: 'accent_color must be six hex digits, e.g. #43a047' })
+  @Matches(/^#?[0-9a-fA-F]{6}$/, {
+    message: `accent_color must be six hex digits, e.g. ${PlatformColours.ACCENT}`,
+  })
   readonly accent_color?: string | null;
 
   @ApiProperty({ required: false, nullable: true, example: 'help@acme.example' })

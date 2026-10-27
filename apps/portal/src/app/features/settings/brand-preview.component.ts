@@ -16,7 +16,7 @@ import { PublicBranding } from '../../core/api/models/branding';
         @if (brand().logo_url; as logoUrl) {
           <img class="logo" [src]="logoUrl" [alt]="brand().name" />
         } @else {
-          <mat-icon>bolt</mat-icon>
+          <mat-icon svgIcon="zap" />
           <span>{{ brand().name }}</span>
         }
       </div>
@@ -55,10 +55,10 @@ import { PublicBranding } from '../../core/api/models/branding';
   styles: `
     .phone {
       width: 260px;
-      border: 8px solid #222;
+      border: 8px solid var(--ww-ink);
       border-radius: 28px;
       overflow: hidden;
-      background: #f4f6f4;
+      background: var(--ww-background);
       font-size: 12px;
     }
     .bar {
@@ -83,15 +83,15 @@ import { PublicBranding } from '../../core/api/models/branding';
       font-weight: 500;
     }
     .hint {
-      color: #5f6368;
+      color: var(--ww-text2);
       font-size: 11px;
     }
     .card {
-      background: #fff;
+      background: var(--ww-white);
       border-radius: 12px;
       padding: 10px;
       margin: 8px 0;
-      box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+      border: 1px solid var(--ww-line);
     }
     .plug {
       display: flex;

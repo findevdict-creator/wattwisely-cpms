@@ -2,7 +2,7 @@
   <h1>Sites</h1>
   @if (permissions.canChange('sites:write')) {
     <button mat-flat-button (click)="add()" data-testid="add-site">
-      <mat-icon>add_location_alt</mat-icon>
+      <mat-icon svgIcon="map-pin-plus" />
       Add site
     </button>
   }
@@ -10,7 +10,7 @@
 
 <div class="filters">
   <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
+    <mat-icon matPrefix svgIcon="search" />
     <mat-label>Search by name or address</mat-label>
     <input matInput #query (keyup.enter)="search(query.value)" data-testid="sites-search" />
   </mat-form-field>

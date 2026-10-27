@@ -2,7 +2,7 @@
   <h1>Chargers</h1>
   @if (permissions.canChange('chargers:write')) {
     <button mat-flat-button (click)="register()" data-testid="register-charger">
-      <mat-icon>add</mat-icon>
+      <mat-icon svgIcon="plus" />
       Register charger
     </button>
   }
@@ -10,7 +10,7 @@
 
 <div class="filters">
   <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
+    <mat-icon matPrefix svgIcon="search" />
     <mat-label>Search by ID, serial or site</mat-label>
     <input matInput #query (keyup.enter)="search(query.value)" data-testid="chargers-search" />
   </mat-form-field>

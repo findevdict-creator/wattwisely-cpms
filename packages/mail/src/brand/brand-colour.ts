@@ -1,11 +1,13 @@
+import { PlatformColours } from '@wattwisely/theme';
+
 /**
  * A brand colour as "#rrggbb" and the text colour that reads on it. Colours arrive from
  * the portal's colour picker; drivers' pages paint buttons and the top bar with them.
  */
 export class BrandColour {
   static readonly PATTERN = /^#?([0-9a-f]{6})$/i;
-  static readonly LIGHT_TEXT = '#ffffff';
-  static readonly DARK_TEXT = '#1b1b1b';
+  static readonly LIGHT_TEXT = PlatformColours.WHITE;
+  static readonly DARK_TEXT = PlatformColours.INK;
 
   /** "#1B5E20" or "1b5e20" as "#1b5e20"; null for anything that is not six hex digits. */
   static normalise(text: string): string | null {
@@ -15,6 +17,16 @@ export class BrandColour {
 
   static isValid(text: string): boolean {
     return BrandColour.normalise(text) !== null;
+  }
+
+  /**
+   * The text on a brand's primary colour: white on the platform's own green, as theme.json
+   * says, and otherwise whichever of white and ink contrasts more with the colour.
+   */
+  static onPrimary(hex: string): string {
+    return BrandColour.normalise(hex) === PlatformColours.PRIMARY
+      ? PlatformColours.ON_PRIMARY
+      : BrandColour.textOn(hex);
   }
 
   /** White on dark colours, near-black on light ones: whichever contrasts more (WCAG 2). */

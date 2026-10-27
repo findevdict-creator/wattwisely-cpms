@@ -1,7 +1,7 @@
 @if (store.session(); as session) {
   <header class="title">
     <div>
-      <a routerLink="/sessions" class="back"><mat-icon>arrow_back</mat-icon> Sessions</a>
+      <a routerLink="/sessions" class="back"><mat-icon svgIcon="arrow-left" /> Sessions</a>
       <h1>
         {{ session.site_name }} · {{ session.charger_identity }} · {{ session.connector_label }}
         <ww-status-chip kind="session" [status]="session.status" />
@@ -19,7 +19,7 @@
 
   @if (session.review_flags.length > 0) {
     <div class="flags" role="status" data-testid="review-flags">
-      <mat-icon>flag</mat-icon>
+      <mat-icon svgIcon="flag" />
       Check before charging the driver:
       @for (flag of session.review_flags; track flag; let last = $last) {
         {{ flagLabel(flag) }}{{ last ? '.' : ',' }}

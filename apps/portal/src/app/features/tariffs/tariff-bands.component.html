@@ -32,7 +32,7 @@
         <td>
           @if (isEditable() && bands().length > 1) {
             <button mat-icon-button type="button" (click)="remove(index)" aria-label="Remove band">
-              <mat-icon>delete</mat-icon>
+              <mat-icon svgIcon="trash-2" />
             </button>
           }
         </td>
@@ -46,7 +46,7 @@
 </p>
 @if (isEditable()) {
   <button mat-stroked-button type="button" (click)="add()" data-testid="add-band">
-    <mat-icon>add</mat-icon>
+    <mat-icon svgIcon="plus" />
     Add band
   </button>
 }

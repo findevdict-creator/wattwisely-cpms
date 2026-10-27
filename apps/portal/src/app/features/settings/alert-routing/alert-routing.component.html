@@ -53,7 +53,7 @@
       >
       @if (permissions.canChange('settings:write')) {
         <button mat-icon-button (click)="remove(index)" aria-label="Remove rule">
-          <mat-icon>delete</mat-icon>
+          <mat-icon svgIcon="trash-2" />
         </button>
       }
     </div>
@@ -65,7 +65,7 @@
 @if (permissions.canChange('settings:write')) {
   <div class="actions">
     <button mat-stroked-button (click)="add()" data-testid="add-rule">
-      <mat-icon>add</mat-icon>
+      <mat-icon svgIcon="plus" />
       Add rule
     </button>
     <button

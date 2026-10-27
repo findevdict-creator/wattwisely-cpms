@@ -1,11 +1,11 @@
 <header class="title">
   <div>
-    <a routerLink="/team" class="back"><mat-icon>arrow_back</mat-icon> Team</a>
+    <a routerLink="/team" class="back"><mat-icon svgIcon="arrow-left" /> Team</a>
     <h1>Roles and permissions</h1>
   </div>
   @if (canManage()) {
     <button mat-flat-button (click)="edit(null)" data-testid="add-role">
-      <mat-icon>add</mat-icon>
+      <mat-icon svgIcon="plus" />
       New role
     </button>
   }
@@ -39,7 +39,7 @@
               @if (!role.is_system && canManage()) {
                 <span class="role-actions">
                   <button mat-icon-button aria-label="Edit role" (click)="edit(role)">
-                    <mat-icon>edit</mat-icon>
+                    <mat-icon svgIcon="pencil" />
                   </button>
                   <button
                     mat-icon-button
@@ -48,7 +48,7 @@
                     [matTooltip]="role.member_count > 0 ? 'Held by ' + members(role) : ''"
                     (click)="remove(role)"
                   >
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon svgIcon="trash-2" />
                   </button>
                 </span>
               }
@@ -66,9 +66,8 @@
                   class="lock"
                   inline
                   matTooltip="Not in your plan: these permissions do nothing until Wattwisely adds the module"
-                >
-                  lock
-                </mat-icon>
+                  svgIcon="lock"
+                />
               }
             </th>
           </tr>
@@ -81,7 +80,7 @@
               @for (role of roles(); track role.id) {
                 <td [class.held]="holds(role, permission.key)">
                   @if (holds(role, permission.key)) {
-                    <mat-icon inline>check</mat-icon>
+                    <mat-icon inline svgIcon="check" />
                   }
                 </td>
               }

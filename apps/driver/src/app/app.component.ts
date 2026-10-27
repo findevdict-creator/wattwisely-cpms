@@ -18,7 +18,7 @@ import { BrandService } from './core/branding/brand.service';
         @if (brandService.brand().logo_url; as logoUrl) {
           <img class="logo" [src]="logoUrl" [alt]="brandService.brand().name" />
         } @else {
-          <mat-icon>bolt</mat-icon>
+          <mat-icon svgIcon="zap" />
           <span>{{ brandService.brand().name }}</span>
         }
       </a>
@@ -29,14 +29,14 @@ import { BrandService } from './core/branding/brand.service';
         data-testid="account"
         [class.signed-in]="auth.isLoggedIn()"
       >
-        <mat-icon>account_circle</mat-icon>
+        <mat-icon svgIcon="circle-user-round" />
       </a>
     </header>
     <main>
       <router-outlet />
     </main>
     <footer class="powered-by" data-testid="powered-by">
-      <mat-icon>bolt</mat-icon>
+      <mat-icon svgIcon="zap" />
       Powered by {{ brandService.brand().platform_name }}
     </footer>
   `,

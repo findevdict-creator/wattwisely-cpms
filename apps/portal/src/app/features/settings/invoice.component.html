@@ -1,5 +1,5 @@
 <a routerLink="/settings/invoices" class="back no-print">
-  <mat-icon>arrow_back</mat-icon> All invoices
+  <mat-icon svgIcon="arrow-left" /> All invoices
 </a>
 
 @if (invoice(); as invoice) {
@@ -14,7 +14,7 @@
         </div>
       </div>
       <button mat-stroked-button class="no-print" (click)="print()" data-testid="print-invoice">
-        <mat-icon>print</mat-icon>
+        <mat-icon svgIcon="printer" />
         Print or save as PDF
       </button>
     </header>

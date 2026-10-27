@@ -1,11 +1,11 @@
 <p class="back">
-  <a routerLink="/account"><mat-icon>arrow_back</mat-icon> Your account</a>
+  <a routerLink="/account"><mat-icon svgIcon="arrow-left" /> Your account</a>
 </p>
 <header class="where">
   <h1>Your charges</h1>
   @if (store.charges().length > 0) {
     <button mat-stroked-button (click)="store.download()" data-testid="download-csv">
-      <mat-icon>download</mat-icon>
+      <mat-icon svgIcon="download" />
       CSV
     </button>
   }

@@ -118,7 +118,7 @@
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let payment">
         @if (payment.review_flags.length > 0) {
-          <mat-icon class="flag" [matTooltip]="flagsOf(payment.review_flags)">flag</mat-icon>
+          <mat-icon class="flag" [matTooltip]="flagsOf(payment.review_flags)" svgIcon="flag" />
         }
       </td>
     </ng-container>

@@ -36,9 +36,9 @@
   <ww-saved-cards />
 
   <a class="panel link" routerLink="/account/charges" data-testid="my-charges">
-    <mat-icon>ev_station</mat-icon>
+    <mat-icon svgIcon="ev-charger" />
     <span>Your charges</span>
-    <mat-icon>chevron_right</mat-icon>
+    <mat-icon svgIcon="chevron-right" />
   </a>
 
   <h2>Your operators</h2>
@@ -60,7 +60,7 @@
             @if (operator.status === 'blocked') {
               <span class="blocked" data-testid="blocked">Blocked</span>
             } @else {
-              <mat-icon>chevron_right</mat-icon>
+              <mat-icon svgIcon="chevron-right" />
             }
           </a>
         </li>
@@ -77,7 +77,7 @@
 
   <p class="signout">
     <button mat-stroked-button (click)="auth.logout()" data-testid="logout">
-      <mat-icon>logout</mat-icon>
+      <mat-icon svgIcon="log-out" />
       Log out
     </button>
   </p>

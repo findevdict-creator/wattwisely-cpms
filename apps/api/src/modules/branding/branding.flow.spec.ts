@@ -36,9 +36,9 @@ import { LogoPolicy } from './logo-policy';
       preview: {
         name: 'acme charging',
         logo_url: null,
-        primary_color: '#1b5e20',
+        primary_color: '#16a34a',
         on_primary_color: '#ffffff',
-        accent_color: '#43a047',
+        accent_color: '#0f172a',
         support_email: null,
         support_phone: null,
         support_url: null,
@@ -66,7 +66,7 @@ import { LogoPolicy } from './logo-policy';
       primary_color: '#fff176',
       accent_color: null,
       support_email: 'help@acme.test',
-      preview: { name: 'Acme Go', primary_color: '#fff176', on_primary_color: '#1b1b1b' },
+      preview: { name: 'Acme Go', primary_color: '#fff176', on_primary_color: '#0f172a' },
       version: 2,
     });
     version = saved.json().version;

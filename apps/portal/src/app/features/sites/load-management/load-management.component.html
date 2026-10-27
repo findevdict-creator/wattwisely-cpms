@@ -1,11 +1,11 @@
 <a [routerLink]="['/sites', id()]" class="back">
-  <mat-icon inline>arrow_back</mat-icon>
+  <mat-icon inline svgIcon="arrow-left" />
   Back to the site
 </a>
 <header class="title">
   <h1>Load management</h1>
   <button mat-button (click)="refresh()" data-testid="refresh-load">
-    <mat-icon>refresh</mat-icon>
+    <mat-icon svgIcon="refresh-cw" />
     Refresh
   </button>
 </header>

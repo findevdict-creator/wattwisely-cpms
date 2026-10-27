@@ -3,7 +3,7 @@
     <span class="label">OCPP address</span>
     <code data-testid="setup-url">{{ setup().ocpp_url }}</code>
     <button mat-icon-button (click)="copy('Address', setup().ocpp_url)" aria-label="Copy address">
-      <mat-icon>content_copy</mat-icon>
+      <mat-icon svgIcon="copy" />
     </button>
   </div>
   @if (setup().ocpp_plain_url; as plainUrl) {
@@ -11,7 +11,7 @@
       <span class="label">Without TLS</span>
       <code>{{ plainUrl }}</code>
       <button mat-icon-button (click)="copy('Address', plainUrl)" aria-label="Copy plain address">
-        <mat-icon>content_copy</mat-icon>
+        <mat-icon svgIcon="copy" />
       </button>
     </div>
   }
@@ -19,7 +19,7 @@
     <span class="label">Charger ID</span>
     <code data-testid="setup-identity">{{ setup().identity }}</code>
     <button mat-icon-button (click)="copy('Charger ID', setup().identity)" aria-label="Copy ID">
-      <mat-icon>content_copy</mat-icon>
+      <mat-icon svgIcon="copy" />
     </button>
   </div>
   @if (setup().password; as password) {
@@ -27,7 +27,7 @@
       <span class="label">Password</span>
       <code data-testid="setup-password">{{ password }}</code>
       <button mat-icon-button (click)="copy('Password', password)" aria-label="Copy password">
-        <mat-icon>content_copy</mat-icon>
+        <mat-icon svgIcon="copy" />
       </button>
     </div>
     <p class="hint warning">

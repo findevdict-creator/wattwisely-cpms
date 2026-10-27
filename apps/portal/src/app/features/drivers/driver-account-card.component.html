@@ -4,7 +4,7 @@
     @switch (driver().account.status) {
       @case ('linked') {
         <p class="state" data-testid="account-linked">
-          <mat-icon>verified_user</mat-icon>
+          <mat-icon svgIcon="shield-check" />
           Linked to the driver's own login
         </p>
         <dl>
@@ -26,7 +26,7 @@
         @if (permissions.canChange('drivers:invite')) {
           <div class="actions">
             <button mat-stroked-button (click)="unlink()" data-testid="unlink">
-              <mat-icon>link_off</mat-icon>
+              <mat-icon svgIcon="unlink" />
               Unlink login
             </button>
           </div>
@@ -38,9 +38,7 @@
           [class.expired]="driver().account.is_invitation_expired"
           data-testid="account-invited"
         >
-          <mat-icon>{{
-            driver().account.is_invitation_expired ? 'schedule' : 'mark_email_unread'
-          }}</mat-icon>
+          <mat-icon [svgIcon]="driver().account.is_invitation_expired ? 'clock' : 'mail-warning'" />
           {{
             driver().account.is_invitation_expired
               ? 'Invitation expired'
@@ -64,7 +62,7 @@
         @if (permissions.canChange('drivers:invite')) {
           <div class="actions">
             <button mat-stroked-button (click)="resend()" data-testid="resend-invite">
-              <mat-icon>forward_to_inbox</mat-icon>
+              <mat-icon svgIcon="forward" />
               Resend
             </button>
             <button mat-button (click)="cancel()" data-testid="cancel-invite">
@@ -81,7 +79,7 @@
         @if (permissions.canChange('drivers:invite')) {
           <div class="actions">
             <button mat-flat-button (click)="invite()" data-testid="invite">
-              <mat-icon>send</mat-icon>
+              <mat-icon svgIcon="send" />
               Invite to the app
             </button>
           </div>

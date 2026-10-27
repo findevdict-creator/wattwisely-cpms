@@ -25,7 +25,7 @@
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Close</button>
   <button mat-flat-button (click)="print()" [disabled]="!codes()?.length" data-testid="print-qr">
-    <mat-icon>print</mat-icon>
+    <mat-icon svgIcon="printer" />
     Print
   </button>
 </mat-dialog-actions>

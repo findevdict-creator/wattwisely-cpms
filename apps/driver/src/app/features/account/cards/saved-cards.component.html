@@ -11,7 +11,7 @@
       <ul class="cards">
         @for (card of store.cards(); track card.id) {
           <li data-testid="saved-card">
-            <mat-icon>credit_card</mat-icon>
+            <mat-icon svgIcon="credit-card" />
             <div class="card">
               <div class="name">{{ card.brand | titlecase }} ending {{ card.last4 }}</div>
               <div class="hint">
@@ -38,7 +38,7 @@
               aria-label="Remove card"
               data-testid="remove-card"
             >
-              <mat-icon>delete</mat-icon>
+              <mat-icon svgIcon="trash-2" />
             </button>
           </li>
         }
@@ -55,7 +55,7 @@
         [disabled]="store.isBusy()"
         data-testid="add-card"
       >
-        <mat-icon>add</mat-icon>
+        <mat-icon svgIcon="plus" />
         Add a card
       </button>
     }

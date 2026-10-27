@@ -42,7 +42,7 @@
     }
     @if (canCommand() || permissions.canChange('chargers:write')) {
       <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Connector actions">
-        <mat-icon>more_vert</mat-icon>
+        <mat-icon svgIcon="ellipsis-vertical" />
       </button>
       <mat-menu #menu="matMenu">
         @if (canCommand()) {

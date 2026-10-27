@@ -6,8 +6,8 @@ describe('TenantBrand', () => {
 
     expect(brand).toMatchObject({
       name: 'Acme Charging',
-      primaryColor: '#1b5e20',
-      accentColor: '#43a047',
+      primaryColor: '#16a34a',
+      accentColor: '#0f172a',
       logoUrl: null,
       supportEmail: null,
     });
@@ -33,11 +33,11 @@ describe('TenantBrand', () => {
     expect(brand).toMatchObject({
       name: 'Acme Go',
       primaryColor: '#fff176',
-      accentColor: '#43a047',
+      accentColor: '#0f172a',
       logoUrl: 'http://api.test/v1/public/branding/acme/logo?v=abc',
       supportEmail: 'help@acme.test',
     });
-    expect(brand.onPrimaryColor).toBe('#1b1b1b');
+    expect(brand.onPrimaryColor).toBe('#0f172a');
     expect(brand.hasSupportContact).toBe(true);
   });
 

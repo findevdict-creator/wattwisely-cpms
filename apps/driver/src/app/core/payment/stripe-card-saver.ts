@@ -1,4 +1,5 @@
 import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
+import { PlatformColours } from '@wattwisely/theme';
 import { CardForm, CardFormResult } from './card-form';
 
 /** What the saving form needs: the platform's key and the setup the API opened. */
@@ -26,7 +27,7 @@ export class StripeCardSaver implements CardForm {
     }
     this.elements = this.stripe.elements({
       clientSecret: this.options.clientSecret,
-      appearance: { theme: 'stripe', variables: { colorPrimary: '#1b5e20' } },
+      appearance: { theme: 'stripe', variables: { colorPrimary: PlatformColours.PRIMARY } },
     });
     this.elements.create('payment', { layout: 'tabs' }).mount(host);
   }

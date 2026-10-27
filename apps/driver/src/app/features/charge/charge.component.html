@@ -54,7 +54,7 @@
             [disabled]="store.isBusy()"
             data-testid="stop"
           >
-            <mat-icon>stop_circle</mat-icon>
+            <mat-icon svgIcon="circle-stop" />
             Stop charging
           </button>
         }
@@ -73,7 +73,7 @@
     }
     @case ('done') {
       <section class="panel centre" data-testid="phase-done">
-        <mat-icon class="big">check_circle</mat-icon>
+        <mat-icon class="big" svgIcon="circle-check" />
         <div class="figure" data-testid="final-price">
           {{ charge.receipt?.gross ?? charge.amount | money: charge.currency }}
         </div>
@@ -122,7 +122,7 @@
     }
     @case ('failed') {
       <section class="panel centre" data-testid="phase-failed">
-        <mat-icon class="big sad">error_outline</mat-icon>
+        <mat-icon class="big sad" svgIcon="circle-alert" />
         <h2>{{ statusLabel() }}</h2>
         <p>{{ failureLabel() }}</p>
         <a mat-stroked-button [routerLink]="['/c', charge.charger_identity, '1']">Try again</a>

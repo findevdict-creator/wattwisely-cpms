@@ -1,5 +1,5 @@
 <a routerLink="/settings/webhooks" class="back">
-  <mat-icon inline>arrow_back</mat-icon>
+  <mat-icon inline svgIcon="arrow-left" />
   All webhooks
 </a>
 @if (endpoint(); as endpoint) {
@@ -28,7 +28,7 @@
         {{ isSecretShown() ? 'Hide' : 'Reveal' }}
       </button>
       <button mat-button (click)="copySecret(endpoint)" data-testid="copy-secret">
-        <mat-icon>content_copy</mat-icon>
+        <mat-icon svgIcon="copy" />
         Copy
       </button>
     </div>
@@ -65,7 +65,7 @@
     <header class="title">
       <h2>Recent deliveries</h2>
       <button mat-button (click)="refresh()" data-testid="refresh-deliveries">
-        <mat-icon>refresh</mat-icon>
+        <mat-icon svgIcon="refresh-cw" />
         Refresh
       </button>
     </header>

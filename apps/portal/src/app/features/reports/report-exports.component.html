@@ -1,7 +1,7 @@
 <header class="title">
   <h2>Exports</h2>
   <button mat-button (click)="load()" aria-label="Refresh exports">
-    <mat-icon>refresh</mat-icon>
+    <mat-icon svgIcon="refresh-cw" />
     Refresh
   </button>
 </header>
@@ -52,7 +52,7 @@
       <td mat-cell *matCellDef="let item">
         @if (item.status === 'ready') {
           <button mat-stroked-button (click)="download(item)" data-testid="download-export">
-            <mat-icon>download</mat-icon>
+            <mat-icon svgIcon="download" />
             Download
           </button>
         }

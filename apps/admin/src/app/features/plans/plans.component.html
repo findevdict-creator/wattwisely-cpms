@@ -2,7 +2,7 @@
   <h1>Plans</h1>
   @if (staff.can('plans:write')) {
     <button mat-flat-button (click)="editPlan(null)" data-testid="new-plan">
-      <mat-icon>add</mat-icon>
+      <mat-icon svgIcon="plus" />
       New plan
     </button>
   }
@@ -57,7 +57,7 @@
           aria-label="Edit plan"
           [attr.data-testid]="'edit-plan-' + plan.code"
         >
-          <mat-icon>edit</mat-icon>
+          <mat-icon svgIcon="pencil" />
         </button>
       }
     </td>
@@ -98,7 +98,7 @@
           aria-label="Edit add-on"
           [attr.data-testid]="'edit-addon-' + addon.key"
         >
-          <mat-icon>edit</mat-icon>
+          <mat-icon svgIcon="pencil" />
         </button>
       }
     </td>

@@ -28,29 +28,35 @@
   font-weight: 500;
 }
 
+// The plug's state in theme.json's status colors, as the mobile app shows them.
 .availability {
   padding: 6px 12px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
-  background: var(--mat-sys-surface-container-highest);
+  background: var(--ww-status-unavailable-background);
+  color: var(--ww-status-unavailable-text);
 
   &.available {
-    background: #e8f5e9;
-    color: #1b5e20;
+    background: var(--ww-status-available-background);
+    color: var(--ww-status-available-text);
   }
 
   &.busy {
-    background: #e3f2fd;
-    color: #0d47a1;
+    background: var(--ww-status-in-use-background);
+    color: var(--ww-status-in-use-text);
   }
 
-  &.offline,
+  &.offline {
+    background: var(--ww-status-offline-background);
+    color: var(--ww-status-offline-text);
+  }
+
   &.faulted,
   &.out_of_service {
-    background: #fdecea;
-    color: #b71c1c;
+    background: var(--ww-status-faulted-background);
+    color: var(--ww-status-faulted-text);
   }
 }
 
