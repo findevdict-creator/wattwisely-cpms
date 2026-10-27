@@ -275,7 +275,7 @@ services:
       retries: 10
 
   valkey:
-    image: valkey/valkey:8.1.10-alpine
+    image: valkey/valkey:9.1.2-alpine
     <<: [*restart, *logging]
     command: ['valkey-server', '--requirepass', '${VALKEY_PASSWORD}', '--appendonly', 'yes']
     volumes:
