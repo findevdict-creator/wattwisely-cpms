@@ -1,0 +1,21 @@
+# Keep LF line endings on every checkout, Windows included. The shell scripts, the Caddyfile,
+# the nginx configs and the Postgres init script run inside Linux containers, where CRLF
+# breaks them ("/bin/sh^M: bad interpreter").
+* text=auto eol=lf
+
+# Binary files: never touch their bytes.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.bundle binary
