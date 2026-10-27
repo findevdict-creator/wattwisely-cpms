@@ -33,3 +33,11 @@ body {
   font-size: 13px;
   color: var(--mat-sys-on-surface-variant);
 }
+
+// A note that something is happening in the background, e.g. a large export.
+.notice {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}

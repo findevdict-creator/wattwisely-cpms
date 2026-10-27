@@ -9,15 +9,18 @@ import { AssetsModule } from './modules/assets/assets.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { BrandingModule } from './modules/branding/branding.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { ManagedModule } from './modules/managed/managed.module';
 import { MeModule } from './modules/me/me.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PlansModule } from './modules/plans/plans.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { TariffsModule } from './modules/tariffs/tariffs.module';
@@ -50,6 +53,9 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     PlansModule,
     SubscriptionModule,
     ManagedModule,
+    AlertsModule,
+    NotificationsModule,
+    ReportsModule,
     AdminModule,
   ],
 })

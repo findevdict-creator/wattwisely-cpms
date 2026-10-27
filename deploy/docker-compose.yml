@@ -124,7 +124,8 @@ services:
       api: { condition: service_healthy }
 
   # Background jobs for charging sessions: final prices once the car leaves, the running
-  # cost every 30 seconds, and closing sessions whose charger went silent for a day.
+  # cost every 30 seconds, and closing sessions whose charger went silent for a day. Since
+  # module 11 also charger alerts, every e-mail the platform sends, and report exports.
   # No inbound traffic; it talks to the others through Postgres.
   worker:
     image: ${WATTWISELY_IMAGE_PREFIX}/worker:${WATTWISELY_VERSION}
@@ -136,6 +137,17 @@ services:
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
       # The same Stripe key as the API: the worker captures and releases card holds.
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      # Module 11: the worker sends alert e-mails, driver updates and receipts, and finished
+      # exports and scheduled reports, through the same SMTP server as the API.
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+      # Tenant logos in e-mails come from the API; alert and export e-mails link to the portal.
+      API_URL: ${PUBLIC_SCHEME}://${API_HOST}
+      PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }

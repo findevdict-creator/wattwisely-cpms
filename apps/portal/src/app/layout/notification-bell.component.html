@@ -1,0 +1,41 @@
+<button
+  mat-icon-button
+  [matMenuTriggerFor]="inbox"
+  (menuOpened)="refresh()"
+  aria-label="Notifications"
+  data-testid="bell"
+>
+  <mat-icon
+    [matBadge]="unread()"
+    [matBadgeHidden]="unread() === 0"
+    matBadgeColor="warn"
+    matBadgeSize="small"
+    aria-hidden="false"
+    >notifications</mat-icon
+  >
+</button>
+<mat-menu #inbox="matMenu" class="inbox-menu" xPosition="before">
+  <div class="header">
+    <span>Notifications</span>
+    @if (unread() > 0) {
+      <button
+        mat-button
+        (click)="markAllRead(); $event.stopPropagation()"
+        data-testid="mark-all-read"
+      >
+        Mark all read
+      </button>
+    }
+  </div>
+  @for (item of items(); track item.id) {
+    <button mat-menu-item class="item" [class.unread]="!item.read_at" (click)="open(item)">
+      <div class="title">{{ item.title }}</div>
+      @if (item.body) {
+        <div class="body">{{ item.body }}</div>
+      }
+      <div class="time">{{ item.created_at | date: 'short' }}</div>
+    </button>
+  } @empty {
+    <div class="empty" data-testid="inbox-empty">Nothing new.</div>
+  }
+</mat-menu>

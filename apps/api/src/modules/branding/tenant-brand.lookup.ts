@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, Transaction, TransactionRunner } from '@wattwisely/db';
+import { TenantBrand } from '@wattwisely/mail';
 import { BrandingRepository } from './branding.repository';
 import { LogoUrlBuilder } from './logo-url.builder';
-import { TenantBrand } from './tenant-brand';
 
 /**
  * The brand of a tenant, for everything that shows one: the driver's pages, e-mails and

@@ -73,3 +73,13 @@
     font-weight: 500;
   }
 }
+
+.count {
+  margin-left: 8px;
+  padding: 0 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mat-sys-on-error);
+  background: var(--mat-sys-error);
+}

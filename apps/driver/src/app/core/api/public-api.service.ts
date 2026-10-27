@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RuntimeConfig } from '../config/runtime-config';
 import { Charge } from './models/charge';
+import { ChargeNotifications, ChargeNotificationsRequest } from './models/charge-notifications';
 import { Place } from './models/place';
 
 /** Calls the public endpoints a driver's page uses: no login, the charge key is the proof. */
@@ -35,6 +36,25 @@ export class PublicApiService {
 
   stop(key: string): Observable<Charge> {
     return this.http.post<Charge>(this.url(`public/charges/${key}/stop`), {});
+  }
+
+  notifications(key: string): Observable<ChargeNotifications> {
+    return this.http.get<ChargeNotifications>(this.url(`public/charges/${key}/notifications`));
+  }
+
+  saveNotifications(
+    key: string,
+    request: ChargeNotificationsRequest,
+  ): Observable<ChargeNotifications> {
+    return this.http.put<ChargeNotifications>(
+      this.url(`public/charges/${key}/notifications`),
+      request,
+    );
+  }
+
+  /** Stops every e-mail about this charge, the receipt too. */
+  stopNotifications(key: string): Observable<void> {
+    return this.http.delete<void>(this.url(`public/charges/${key}/notifications`));
   }
 
   private url(path: string): string {

@@ -15,6 +15,8 @@
 #   Tariff of Acme Charging: Standard (off-peak 0.30, peak 0.40 per kWh from 17:00), on both sites
 #   One finished session at Riverside: the worker prices it within a minute (8.80, the design's example)
 #   Branding of Acme Charging: blue and orange, a logo, help@acme.test (drivers and e-mails see it)
+#   Alerts (module 11): the worker opens them within a minute (a faulted plug, two chargers no longer connected);
+#     Acme Charging has a weekly usage report e-mailed to owner@acme.test every Monday
 #
 # Every user is asked to set up an authenticator app at first login (two-factor is required).
 source "$(dirname "$0")/lib/common.sh"
@@ -202,6 +204,13 @@ INSERT INTO managed_operators (id, tenant_id, managed_service_id, user_account_i
 SELECT gen_random_uuid(), operator.tenant_id, '01900000-0000-7000-8000-00000000a101', operator.user_account_id,
   operator.id, ad.id
 FROM operator JOIN user_accounts ad ON lower(ad.email) = 'admin@wattwisely.test';
+-- Module 11: Acme Charging (Growth, so Advanced reports) e-mails a usage report to its Owner every Monday.
+-- The faulted plug B on the ABB charger, and the two chargers that reported in but are not connected, raise alerts by themselves.
+INSERT INTO report_schedules (id, tenant_id, name, frequency, group_by, recipients, time_zone, next_run_at)
+VALUES ('01900000-0000-7000-8000-000000006001', '01900000-0000-7000-8000-00000000a001', 'Weekly usage',
+  'weekly', 'site', '["owner@acme.test"]', 'Europe/London',
+  (date_trunc('week', now() AT TIME ZONE 'Europe/London') + interval '7 days') AT TIME ZONE 'Europe/London')
+ON CONFLICT DO NOTHING;
 SQL
 }
 

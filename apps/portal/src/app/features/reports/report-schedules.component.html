@@ -1,0 +1,62 @@
+<header class="title">
+  <h2>Scheduled reports</h2>
+  @if (permissions.canChange('reports:schedule')) {
+    <button mat-stroked-button (click)="edit(null)" data-testid="new-schedule">
+      <mat-icon>schedule_send</mat-icon>
+      Schedule a report
+    </button>
+  }
+</header>
+
+@if (schedules().length === 0) {
+  <p class="hint" data-testid="no-schedules">
+    Send a usage report by e-mail every Monday or on the 1st of each month.
+  </p>
+} @else {
+  <table mat-table [dataSource]="schedules()" class="schedules" data-testid="schedules">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Report</th>
+      <td mat-cell *matCellDef="let schedule">
+        {{ schedule.name }}
+        <div class="hint">
+          {{ schedule.frequency === 'weekly' ? 'Weekly' : 'Monthly' }},
+          {{ schedule.group_by === 'site' ? 'per site' : 'per charger' }},
+          {{ schedule.site_name ?? 'every site' }}
+        </div>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="recipients">
+      <th mat-header-cell *matHeaderCellDef>Sent to</th>
+      <td mat-cell *matCellDef="let schedule">{{ schedule.recipients.join(', ') }}</td>
+    </ng-container>
+    <ng-container matColumnDef="next_run">
+      <th mat-header-cell *matHeaderCellDef>Next</th>
+      <td mat-cell *matCellDef="let schedule">
+        @if (schedule.is_active) {
+          {{ schedule.next_run_at | date: 'medium' }}
+        } @else {
+          Paused
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let schedule">
+        @if (permissions.canChange('reports:schedule')) {
+          <button mat-icon-button (click)="edit(schedule)" aria-label="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="remove(schedule)" aria-label="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+}
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

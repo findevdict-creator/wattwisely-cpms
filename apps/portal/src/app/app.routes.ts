@@ -3,6 +3,7 @@ import { AuthGuard } from './core/auth/auth.guard';
 import { UserLoadedGuard } from './core/tenant/user-loaded.guard';
 import { WorkspaceGuard } from './core/tenant/workspace.guard';
 import { PermissionGuard } from './core/permissions/permission.guard';
+import { AlertsComponent } from './features/alerts/alerts.component';
 import { AuditLogComponent } from './features/audit-log/audit-log.component';
 import { ChargerComponent } from './features/chargers/charger.component';
 import { ChargersComponent } from './features/chargers/chargers.component';
@@ -10,6 +11,8 @@ import { HomeComponent } from './features/home/home.component';
 import { InvitationComponent } from './features/invitation/invitation.component';
 import { NoWorkspaceComponent } from './features/no-workspace/no-workspace.component';
 import { PaymentsComponent } from './features/payments/payments.component';
+import { ReportsComponent } from './features/reports/reports.component';
+import { AlertRoutingComponent } from './features/settings/alert-routing/alert-routing.component';
 import { BrandingComponent } from './features/settings/branding.component';
 import { ManagedServiceComponent } from './features/settings/managed-service.component';
 import { PlanComponent } from './features/settings/plan.component';
@@ -44,6 +47,24 @@ export const APP_ROUTES: Routes = [
         component: ShellComponent,
         children: [
           { path: '', component: HomeComponent },
+          {
+            path: 'alerts',
+            component: AlertsComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'alerts:read' },
+          },
+          {
+            path: 'alerts/:id',
+            component: AlertsComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'alerts:read' },
+          },
+          {
+            path: 'reports',
+            component: ReportsComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: ['reports:read', 'sessions:export', 'audit:read'] },
+          },
           {
             path: 'sites',
             component: SitesComponent,
@@ -119,6 +140,12 @@ export const APP_ROUTES: Routes = [
           {
             path: 'settings/branding',
             component: BrandingComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'settings:read' },
+          },
+          {
+            path: 'settings/alert-routing',
+            component: AlertRoutingComponent,
             canActivate: [PermissionGuard],
             data: { permission: 'settings:read' },
           },

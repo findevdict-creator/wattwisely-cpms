@@ -1,4 +1,16 @@
-<h1>Audit log</h1>
+<header class="title">
+  <h1>Audit log</h1>
+  <button mat-stroked-button (click)="export()" data-testid="export-audit-log">
+    <mat-icon>download</mat-icon>
+    Export CSV
+  </button>
+</header>
+
+@if (notice()) {
+  <p class="notice" role="status" data-testid="export-notice">
+    {{ notice() }} <a routerLink="/reports">Go to Reports</a>
+  </p>
+}
 
 @if (permissions.managedService()) {
   <mat-button-toggle-group

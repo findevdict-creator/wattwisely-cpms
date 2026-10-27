@@ -8,6 +8,12 @@
   }
 </header>
 
+@if (store.notice()) {
+  <p class="notice" role="status" data-testid="export-notice">
+    {{ store.notice() }} <a routerLink="/reports">Go to Reports</a>
+  </p>
+}
+
 <div class="filters">
   @if (sites().length > 0) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
