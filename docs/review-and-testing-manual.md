@@ -10,34 +10,34 @@ It builds on the documents that already exist and does not repeat them:
 
 ## 1. Where the code is
 
-Each module was built on its own branch with a pull request. Modules 1 to 8 are merged on `main`. Modules 9 to 19 are open pull requests, **stacked**: each PR's base is the branch of the module before it, so each branch contains everything beneath it. There is also a `review/module-N` branch for every module from 1 to 18, a copy of that module's tip, so the diff between two consecutive review branches is exactly one module.
+Each module was built on its own branch with a pull request. Branches are named `NN-module/<slug>` (two-digit module number, then the slug of the module document), see [CLAUDE.md](../CLAUDE.md). Modules 1 to 8 are merged on `main`. Modules 9 to 19 are open pull requests (#28 to #39, which replaced #11 to #23 when the branches were renamed), **stacked**: each PR's base is the branch of the module before it, so each branch contains everything beneath it. Each module branch is built on the branch of the module before it and holds modules 1 to N, so the diff between two consecutive module branches is exactly one module. An annotated tag `module-NN` marks the commit that completed each module (`git tag -l 'module-*' -n1`).
 
-| Module     | Name                                           | Where it is                                                                                                          | Review branch      | Walkthrough                                                                                                                                                             |
-| ---------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1          | Login with Keycloak, repo skeleton, deployment | `main` (branch `1-auth-keycloak`, PR #1)                                                                             | `review/module-1`  | [1-auth-keycloak.md](modules/1-auth-keycloak.md)                                                                                                                        |
-| 2          | Roles, permissions, team, audit log            | `main` (branch `2-roles-permissions`, PR #2)                                                                         | `review/module-2`  | [2-roles-permissions.md](modules/2-roles-permissions.md)                                                                                                                |
-| 3          | Sites, chargers, connectors                    | `main` (branch `3-sites-chargers`, PR #4)                                                                            | `review/module-3`  | [3-sites-chargers.md](modules/3-sites-chargers.md)                                                                                                                      |
-| 4          | OCPP 1.6J gateway and simulator                | `main` (branch `4-ocpp-gateway`, PR #5)                                                                              | `review/module-4`  | [4-ocpp-gateway.md](modules/4-ocpp-gateway.md)                                                                                                                          |
-| 5          | Sessions, tariffs, pricing engine, worker      | `main` (branch `5-sessions-pricing`, PR #6)                                                                          | `review/module-5`  | [5-sessions-pricing.md](modules/5-sessions-pricing.md)                                                                                                                  |
-| 6          | Card payments through Stripe Connect           | `main` (branch `6-stripe-payments`, PR #7)                                                                           | `review/module-6`  | [6-stripe-payments.md](modules/6-stripe-payments.md)                                                                                                                    |
-| 7          | Driver QR charge page and driver app           | `main` (branch `7-drivers-qr-page`, PR #8)                                                                           | `review/module-7`  | [7-drivers-qr-page.md](modules/7-drivers-qr-page.md)                                                                                                                    |
-| 8          | Tenant branding                                | `main` (branch `8-tenant-branding`, PR #10)                                                                          | `review/module-8`  | [8-tenant-branding.md](modules/8-tenant-branding.md)                                                                                                                    |
-| 9          | Admin console, plans and add-ons               | [PR #11](https://github.com/findevdict-creator/wattwisely-cpms/pull/11), branch `9-admin-portal-plans`               | `review/module-9`  | [9-admin-portal-plans.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-9/docs/modules/9-admin-portal-plans.md)                              |
-| 10         | Managed tenants                                | [PR #12](https://github.com/findevdict-creator/wattwisely-cpms/pull/12)                                              | `review/module-10` | [10-managed-tenants.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-10/docs/modules/10-managed-tenants.md)                                 |
-| 11         | Notifications and reports                      | [PR #14](https://github.com/findevdict-creator/wattwisely-cpms/pull/14)                                              | `review/module-11` | [11-notifications-reports.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-11/docs/modules/11-notifications-reports.md)                     |
-| 12         | Hardening and operations                       | [PR #15](https://github.com/findevdict-creator/wattwisely-cpms/pull/15)                                              | `review/module-12` | [12-hardening-operations.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-12/docs/modules/12-hardening-operations.md)                       |
-| 13         | Drivers, RFID cards, access groups             | [PR #16](https://github.com/findevdict-creator/wattwisely-cpms/pull/16)                                              | `review/module-13` | [13-drivers.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-13/docs/modules/13-drivers.md)                                                 |
-| 14         | Custom roles and the permission matrix         | [PR #17](https://github.com/findevdict-creator/wattwisely-cpms/pull/17)                                              | `review/module-14` | [14-custom-roles.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-14/docs/modules/14-custom-roles.md)                                       |
-| 15         | Invoicing of plan and managed-service fees     | [PR #18](https://github.com/findevdict-creator/wattwisely-cpms/pull/18)                                              | `review/module-15` | [15-invoicing.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-15/docs/modules/15-invoicing.md)                                             |
-| 16         | API keys and webhooks                          | [PR #19](https://github.com/findevdict-creator/wattwisely-cpms/pull/19)                                              | `review/module-16` | [16-api-keys-webhooks.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-16/docs/modules/16-api-keys-webhooks.md)                             |
-| 17         | Load management and WhatsApp charging          | [PR #20](https://github.com/findevdict-creator/wattwisely-cpms/pull/20)                                              | `review/module-17` | [17-load-management-messaging.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-17/docs/modules/17-load-management-messaging.md)             |
-| 18         | OCPP 2.0.1 adapter                             | [PR #21](https://github.com/findevdict-creator/wattwisely-cpms/pull/21)                                              | `review/module-18` | [18-ocpp-201.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-18/docs/modules/18-ocpp-201.md)                                               |
-| 19, part 1 | Driver accounts, invitations, payment modes    | [PR #22](https://github.com/findevdict-creator/wattwisely-cpms/pull/22), branch `claude/project-thread-9d72a9`       | none yet           | [19-driver-accounts.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/claude/project-thread-9d72a9/docs/modules/19-driver-accounts.md)                     |
-| 19, part 2 | Saved cards, RFID holds, charging from the app | [PR #23](https://github.com/findevdict-creator/wattwisely-cpms/pull/23), branch `claude/project-thread-9d72a9-part2` | none yet           | [19-driver-accounts-part-2.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/claude/project-thread-9d72a9-part2/docs/modules/19-driver-accounts-part-2.md) |
+| Module     | Name                                           | Where it is                                                                                                        | Module branch                         | Walkthrough                                                                                                                                                                    |
+| ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1          | Login with Keycloak, repo skeleton, deployment | `main` (branch `01-module/auth-keycloak`, PR #1)                                                                   | `01-module/auth-keycloak`             | [1-auth-keycloak.md](modules/1-auth-keycloak.md)                                                                                                                               |
+| 2          | Roles, permissions, team, audit log            | `main` (branch `02-module/roles-permissions`, PR #2)                                                               | `02-module/roles-permissions`         | [2-roles-permissions.md](modules/2-roles-permissions.md)                                                                                                                       |
+| 3          | Sites, chargers, connectors                    | `main` (branch `03-module/sites-chargers`, PR #4)                                                                  | `03-module/sites-chargers`            | [3-sites-chargers.md](modules/3-sites-chargers.md)                                                                                                                             |
+| 4          | OCPP 1.6J gateway and simulator                | `main` (branch `04-module/ocpp-gateway`, PR #5)                                                                    | `04-module/ocpp-gateway`              | [4-ocpp-gateway.md](modules/4-ocpp-gateway.md)                                                                                                                                 |
+| 5          | Sessions, tariffs, pricing engine, worker      | `main` (branch `05-module/sessions-pricing`, PR #6)                                                                | `05-module/sessions-pricing`          | [5-sessions-pricing.md](modules/5-sessions-pricing.md)                                                                                                                         |
+| 6          | Card payments through Stripe Connect           | `main` (branch `06-module/stripe-payments`, PR #7)                                                                 | `06-module/stripe-payments`           | [6-stripe-payments.md](modules/6-stripe-payments.md)                                                                                                                           |
+| 7          | Driver QR charge page and driver app           | `main` (branch `07-module/drivers-qr-page`, PR #8)                                                                 | `07-module/drivers-qr-page`           | [7-drivers-qr-page.md](modules/7-drivers-qr-page.md)                                                                                                                           |
+| 8          | Tenant branding                                | `main` (branch `08-module/tenant-branding`, PR #10)                                                                | `08-module/tenant-branding`           | [8-tenant-branding.md](modules/8-tenant-branding.md)                                                                                                                           |
+| 9          | Admin console, plans and add-ons               | [PR #28](https://github.com/findevdict-creator/wattwisely-cpms/pull/28), branch `09-module/admin-portal-plans`     | `09-module/admin-portal-plans`        | [9-admin-portal-plans.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/09-module/admin-portal-plans/docs/modules/9-admin-portal-plans.md)                        |
+| 10         | Managed tenants                                | [PR #29](https://github.com/findevdict-creator/wattwisely-cpms/pull/29)                                            | `10-module/managed-tenants`           | [10-managed-tenants.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/10-module/managed-tenants/docs/modules/10-managed-tenants.md)                               |
+| 11         | Notifications and reports                      | [PR #30](https://github.com/findevdict-creator/wattwisely-cpms/pull/30)                                            | `11-module/notifications-reports`     | [11-notifications-reports.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/11-module/notifications-reports/docs/modules/11-notifications-reports.md)             |
+| 12         | Hardening and operations                       | [PR #31](https://github.com/findevdict-creator/wattwisely-cpms/pull/31)                                            | `12-module/hardening-operations`      | [12-hardening-operations.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/12-module/hardening-operations/docs/modules/12-hardening-operations.md)                |
+| 13         | Drivers, RFID cards, access groups             | [PR #32](https://github.com/findevdict-creator/wattwisely-cpms/pull/32)                                            | `13-module/drivers`                   | [13-drivers.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/13-module/drivers/docs/modules/13-drivers.md)                                                       |
+| 14         | Custom roles and the permission matrix         | [PR #33](https://github.com/findevdict-creator/wattwisely-cpms/pull/33)                                            | `14-module/custom-roles`              | [14-custom-roles.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/14-module/custom-roles/docs/modules/14-custom-roles.md)                                        |
+| 15         | Invoicing of plan and managed-service fees     | [PR #34](https://github.com/findevdict-creator/wattwisely-cpms/pull/34)                                            | `15-module/invoicing`                 | [15-invoicing.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/15-module/invoicing/docs/modules/15-invoicing.md)                                                 |
+| 16         | API keys and webhooks                          | [PR #35](https://github.com/findevdict-creator/wattwisely-cpms/pull/35)                                            | `16-module/api-keys-webhooks`         | [16-api-keys-webhooks.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/16-module/api-keys-webhooks/docs/modules/16-api-keys-webhooks.md)                         |
+| 17         | Load management and WhatsApp charging          | [PR #36](https://github.com/findevdict-creator/wattwisely-cpms/pull/36)                                            | `17-module/load-management-messaging` | [17-load-management-messaging.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/17-module/load-management-messaging/docs/modules/17-load-management-messaging.md) |
+| 18         | OCPP 2.0.1 adapter                             | [PR #37](https://github.com/findevdict-creator/wattwisely-cpms/pull/37)                                            | `18-module/ocpp-201`                  | [18-ocpp-201.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/18-module/ocpp-201/docs/modules/18-ocpp-201.md)                                                    |
+| 19, part 1 | Driver accounts, invitations, payment modes    | [PR #38](https://github.com/findevdict-creator/wattwisely-cpms/pull/38), branch `19-module/driver-accounts-part-1` | `19-module/driver-accounts-part-1`    | [19-driver-accounts.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/19-module/driver-accounts-part-1/docs/modules/19-driver-accounts.md)                        |
+| 19, part 2 | Saved cards, RFID holds, charging from the app | [PR #39](https://github.com/findevdict-creator/wattwisely-cpms/pull/39), branch `19-module/driver-accounts-part-2` | `19-module/driver-accounts-part-2`    | [19-driver-accounts-part-2.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/19-module/driver-accounts-part-2/docs/modules/19-driver-accounts-part-2.md)          |
 
-Not a module: [PR #13](https://github.com/findevdict-creator/wattwisely-cpms/pull/13) (branch `claude/project-thread-50ejbb`, base `main`) fixes the local trial: the simulator dropping its own connection, a configurable local Postgres port (`POSTGRES_DEV_PORT`), LF line endings on Windows checkouts (`.gitattributes`), and a clearer README. **None of these fixes is in the module 9 to 19 branches**, which started from `main` before PR #13 was opened. PR #13 merges into the top of the stack without conflicts, so merge it first, or merge its branch into your checkout locally (see section 2).
+Not a module: [PR #40](https://github.com/findevdict-creator/wattwisely-cpms/pull/40) (branch `01-module/fix-local-trial`, base `main`) fixes the local trial: the simulator dropping its own connection, a configurable local Postgres port (`POSTGRES_DEV_PORT`), the runtime packages the API and worker containers need, and a clearer README. It replaces PR #13, rebased on `main` (LF line endings on Windows checkouts came to `main` with PR #26). **None of these fixes is in the module 9 to 19 branches**, which started from `main` earlier. Merge it first, or merge its branch into your checkout locally (see section 2).
 
-Merge order: #13, then #11, #12, #14, #15, #16, #17, #18, #19, #20, #21, #22, #23. When a PR merges into `main`, GitHub retargets the next PR in the stack to `main` by itself.
+Merge order: #40, then #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39. When a PR merges into `main`, GitHub retargets the next PR in the stack to `main` by itself.
 
 ## 2. Run the platform locally
 
@@ -48,8 +48,8 @@ The platform runs with Docker Compose; the charger simulator and the tests run w
 - Docker Desktop (macOS or Windows) or Docker Engine with the Compose plugin, with at least 4 GB of memory for Docker. Add about 1 GB for the monitoring profile (module 12).
 - Node.js 22.12 or later and npm 11 (`npm install -g npm@11`). npm 10 refuses the lock file.
 - An authenticator app on your phone (Google Authenticator, Microsoft Authenticator, 1Password): staff login requires two-factor.
-- On Windows: run the shell scripts from Git Bash or WSL 2, and make sure Git does not convert line endings. PR #13 adds a `.gitattributes` for that; until it is merged, run `git config core.autocrlf false` before cloning, or after cloning run `git rm -rq --cached . && git reset -q --hard` (this discards local edits).
-- A free port 5432, or `POSTGRES_DEV_PORT=5433` in `deploy/.env` (PR #13) if a PostgreSQL already runs on your machine.
+- On Windows: run the shell scripts from Git Bash or WSL 2, and make sure Git does not convert line endings. `main` has a `.gitattributes` for that since PR #26; on an older checkout, run `git config core.autocrlf false` before cloning, or after cloning run `git rm -rq --cached . && git reset -q --hard` (this discards local edits).
+- A free port 5432, or `POSTGRES_DEV_PORT=5433` in `deploy/.env` (PR #40) if a PostgreSQL already runs on your machine.
 
 ### 2.2 Choose the branch
 
@@ -57,15 +57,15 @@ Each branch holds everything beneath it, so the top of the stack runs every modu
 
 | To test                         | Check out                                                                                                                                             |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Modules 1 to 8 only, as merged  | `main` with PR #13 merged in (on `main` alone the API and worker containers crash on start and the simulator drops its connection; PR #13 fixes both) |
-| Modules 1 to N (N from 9 to 18) | `review/module-N`                                                                                                                                     |
-| Everything, modules 1 to 19     | `claude/project-thread-9d72a9-part2` (PR #23's branch)                                                                                                |
+| Modules 1 to 8 only, as merged  | `main` with PR #40 merged in (on `main` alone the API and worker containers crash on start and the simulator drops its connection; PR #40 fixes both) |
+| Modules 1 to N (N from 9 to 18) | the `NN-module/<slug>` branch of module N, for example `12-module/hardening-operations`                                                               |
+| Everything, modules 1 to 19     | `19-module/driver-accounts-part-2` (PR #39's branch)                                                                                                  |
 
 ```sh
 git clone https://github.com/findevdict-creator/wattwisely-cpms.git && cd wattwisely-cpms
 git fetch origin
-git checkout claude/project-thread-9d72a9-part2            # or review/module-N
-git merge --no-edit origin/claude/project-thread-50ejbb    # PR #13's local-trial fixes; skip once PR #13 is merged. Keep this merge local, do not push it
+git checkout 19-module/driver-accounts-part-2            # or the NN-module/<slug> branch of the last module you want
+git merge --no-edit origin/01-module/fix-local-trial    # PR #40's local-trial fixes; skip once PR #40 is merged. Keep this merge local, do not push it
 ```
 
 Database migrations only move forward. Going from a higher module to a lower one needs a fresh database: `cd deploy && docker compose down -v` deletes all trial data, then start again as below.
@@ -164,18 +164,18 @@ npm start     # API :3000, portal :4200, driver app :4300, admin console :4400, 
 ## 3. How to review a module
 
 1. **Read the walkthrough first.** Every module document opens with the stories it covers and a "What changed since the module before" table, then "Read the code in this order", with one row per file and what it does. Follow that order; the module sections below give the short version.
-2. **Diff one module at a time.** The review branches make this a two-ended diff. Leave out the lock file and the migration snapshots, which are generated:
+2. **Diff one module at a time.** Each module branch holds modules 1 to N, so two consecutive module branches make a two-ended diff. Leave out the lock file and the migration snapshots, which are generated:
 
    ```sh
    git fetch origin
-   git diff origin/review/module-8 origin/review/module-9 -- . ':!package-lock.json' ':!packages/db/migrations/meta'
+   git diff origin/08-module/tenant-branding origin/09-module/admin-portal-plans -- . ':!package-lock.json' ':!packages/db/migrations/meta'
    ```
 
-   For module 19 the two ends are `origin/review/module-18`, `origin/claude/project-thread-9d72a9` (part 1) and `origin/claude/project-thread-9d72a9-part2` (part 2). On GitHub, the "Files changed" tab of each PR shows the same diff.
+   For module 19 the two ends are `origin/18-module/ocpp-201`, `origin/19-module/driver-accounts-part-1` (part 1) and `origin/19-module/driver-accounts-part-2` (part 2). On GitHub, the "Files changed" tab of each PR shows the same diff.
 
 3. **Check the rules the code base enforces.** ESLint fails the build on any of them: classes only (no loose functions outside `main.ts`), one class per file, files of at most 200 lines, methods of at most 30 lines, 4 parameters, nesting depth 3, `controller → service → repository` in the API and `component → service → API` in the frontends, `snake_case` only in `*.dto.ts`.
 4. **Check the things every module must have.** A migration pair (`NNNN_<name>.sql` for tables and policies, `NNNN_<name>_grants.sql` for what `wattwisely_app` may do), row-level security on every table with a `tenant_id`, `@RouteAccess` on every route, `If-Match` on every change to an existing row, an audit entry for every change, and a flow spec against Postgres for the API.
-5. **Run the automated tests** (section 4), then the manual test script of the module. Report what you find on the module's PR; fixes go on the module's development branch, and the review branch is moved to the new tip afterwards.
+5. **Run the automated tests** (section 4), then the manual test script of the module. Report what you find on the module's PR; fixes go on the module's branch and PR, are merged forward into every module branch above it, and the `module-NN` tag is moved to the new tip.
 
 ## 4. Running the automated tests
 
@@ -205,7 +205,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 1: login with Keycloak
 
-**Where:** `main`; `review/module-1`; [docs/modules/1-auth-keycloak.md](modules/1-auth-keycloak.md). Runs on every branch.
+**Where:** `main`; `01-module/auth-keycloak`; [docs/modules/1-auth-keycloak.md](modules/1-auth-keycloak.md). Runs on every branch.
 
 **What it adds.** Who is calling, and in which tenant: the portal logs in through Keycloak (code flow with PKCE, two-factor required for staff), the API checks every request's token and picks the tenant from the caller's own memberships, never from the URL. Also the repository skeleton (Nx, ESLint rules), the Docker Compose deployment and the Keycloak realm.
 
@@ -236,7 +236,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 2: roles, permissions, team and audit log
 
-**Where:** `main`; `review/module-2`; [docs/modules/2-roles-permissions.md](modules/2-roles-permissions.md).
+**Where:** `main`; `02-module/roles-permissions`; [docs/modules/2-roles-permissions.md](modules/2-roles-permissions.md).
 
 **What it adds.** What a caller may do. Tenants and memberships move into Postgres (`tenants`, `user_accounts`, `tenant_memberships`, `roles`, `role_permissions`, `membership_roles`, `audit_log`) with row-level security, so a query in tenant A cannot see tenant B even without a `WHERE`. Five built-in roles (Owner, Operations, Finance, Technician, Read-only). Every route names the permission it needs. Owners invite and remove team members by e-mail; removal takes effect within 60 seconds; a tenant always keeps an Owner. Every change is written to an append-only audit log.
 
@@ -268,7 +268,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 3: sites, chargers and connectors
 
-**Where:** `main`; `review/module-3`; [docs/modules/3-sites-chargers.md](modules/3-sites-chargers.md).
+**Where:** `main`; `03-module/sites-chargers`; [docs/modules/3-sites-chargers.md](modules/3-sites-chargers.md).
 
 **What it adds.** Sites (address, map pin, time zone, opening hours, public or private), chargers (an OCPP identity unique platform-wide, a password or boot-fingerprint security, a setup card shown once) and connectors (plug type, AC or DC, power). Site-scoped permissions in use: a Technician on one site sees only that site. Every change sends `If-Match` with the version it saw; a stale version answers 409.
 
@@ -298,7 +298,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 4: the OCPP 1.6J gateway
 
-**Where:** `main`; `review/module-4`; [docs/modules/4-ocpp-gateway.md](modules/4-ocpp-gateway.md). Needs the simulator (section 2.6).
+**Where:** `main`; `04-module/ocpp-gateway`; [docs/modules/4-ocpp-gateway.md](modules/4-ocpp-gateway.md). Needs the simulator (section 2.6).
 
 **What it adds.** `apps/ocpp-gateway` answers at `ws://ocpp.localhost/ocpp/<identity>`: it checks who connects (rate limit, known identity, TLS rule, subprotocol, password, duplicate), records boots, heartbeats, connector status, transactions and meter values, carries commands from the portal to the charger (remote start and stop, unlock, reset, change availability) and announces every change over Postgres `NOTIFY`, which the API turns into a server-sent live stream for the charger page. A charger is online exactly while the gateway holds a lease on its socket. `packages/charger-sim` is a simulated charger used by the tests and by `npm run sim`.
 
@@ -331,7 +331,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 5: sessions, tariffs and the pricing engine
 
-**Where:** `main`; `review/module-5`; [docs/modules/5-sessions-pricing.md](modules/5-sessions-pricing.md).
+**Where:** `main`; `05-module/sessions-pricing`; [docs/modules/5-sessions-pricing.md](modules/5-sessions-pricing.md).
 
 **What it adds.** A session's whole life (nine states from `authorising` to `completed` or `failed`, every move in `session_state_changes`), tariffs with numbered price versions (time bands that must cover the week exactly once, start fee, energy and time prices, idle fee after a grace period, tax, minimum and maximum), a pure pricing engine in `packages/pricing`, and `apps/worker`: a NestJS app with interval jobs that price stopped sessions, update the running cost every 30 seconds and fail stale sessions. The portal gains Tariffs and Sessions pages with a receipt, an energy chart, a CSV export and "Close session" for stuck ones.
 
@@ -364,7 +364,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 6: card payments through Stripe Connect
 
-**Where:** `main`; `review/module-6`; [docs/modules/6-stripe-payments.md](modules/6-stripe-payments.md). Needs Stripe test keys (section 2.7) for the paid flow; the refusals can be tested without.
+**Where:** `main`; `06-module/stripe-payments`; [docs/modules/6-stripe-payments.md](modules/6-stripe-payments.md). Needs Stripe test keys (section 2.7) for the paid flow; the refusals can be tested without.
 
 **What it adds.** Each tenant connects its own Stripe Express account; the platform never holds the money. A driver's start places a hold (default 50.00, 1.00 to 1000.00) on a card, the charger receives RemoteStart only once the hold is authorised, the worker captures the priced total (never above the hold) and stops the charge when the cost reaches 90 % of the hold. Refunds: small ones at once, large ones (over 100.00) wait for approval by a second person. Webhooks are verified, stored once, and retried.
 
@@ -398,7 +398,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 7: the driver's QR page and app
 
-**Where:** `main`; `review/module-7`; [docs/modules/7-drivers-qr-page.md](modules/7-drivers-qr-page.md).
+**Where:** `main`; `07-module/drivers-qr-page`; [docs/modules/7-drivers-qr-page.md](modules/7-drivers-qr-page.md).
 
 **What it adds.** `apps/driver`, a public Angular app at http://charge.localhost without login: a sticker on each plug points at `/c/<identity>/<plug>`, which shows the operator, site, plug, availability, prices and the hold, then "Pay and charge" (module 6's flow with Stripe's card form), the running charge with cost, energy, duration and Stop, and the receipt once priced. Charges started on this phone are remembered in `localStorage`. The portal gets "QR codes" and a printable sticker sheet on every charger.
 
@@ -427,7 +427,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 8: tenant branding
 
-**Where:** `main`; `review/module-8`; [docs/modules/8-tenant-branding.md](modules/8-tenant-branding.md).
+**Where:** `main`; `08-module/tenant-branding`; [docs/modules/8-tenant-branding.md](modules/8-tenant-branding.md).
 
 **What it adds.** Each tenant sets a display name, primary and accent colours, a logo (PNG, JPEG, SVG or WebP up to 512 KB, checked by magic bytes, unsafe SVG refused) and support contact. The driver app paints itself in the operator's brand, with "Powered by Wattwisely" underneath; e-mails go out in the brand as the operator's name; the logo is served publicly with caching headers and a strict CSP.
 
@@ -457,7 +457,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 9: the admin console, plans and add-ons
 
-**Where:** [PR #11](https://github.com/findevdict-creator/wattwisely-cpms/pull/11); `review/module-9`; [docs/modules/9-admin-portal-plans.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-9/docs/modules/9-admin-portal-plans.md). From here on, check out `review/module-9` or higher.
+**Where:** [PR #28](https://github.com/findevdict-creator/wattwisely-cpms/pull/28); `09-module/admin-portal-plans`; [docs/modules/9-admin-portal-plans.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/09-module/admin-portal-plans/docs/modules/9-admin-portal-plans.md). From here on, check out `09-module/admin-portal-plans` or higher.
 
 **What it adds.** `apps/admin`, a third Angular app at http://admin.localhost for Wattwisely staff (`platform_staff`, four platform roles, nine platform permissions): an overview, tenants (search, create with a first Owner invited by e-mail, edit, suspend, reactivate, delete after 30 days by typing the slug back), a plan catalogue (four plans, two add-ons, module keys, user and connector limits) and a platform-wide audit log. Each tenant has one subscription and per-module entitlements (add-on, trial with an end date, or override). A permission whose module is not in the plan answers 403 `module_not_in_plan`; the portal shows the plan and greys locked modules under Settings > Plan.
 
@@ -491,7 +491,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 10: managed tenants
 
-**Where:** [PR #12](https://github.com/findevdict-creator/wattwisely-cpms/pull/12); `review/module-10`; [docs/modules/10-managed-tenants.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-10/docs/modules/10-managed-tenants.md).
+**Where:** [PR #29](https://github.com/findevdict-creator/wattwisely-cpms/pull/29); `10-module/managed-tenants`; [docs/modules/10-managed-tenants.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/10-module/managed-tenants/docs/modules/10-managed-tenants.md).
 
 **What it adds.** Wattwisely can run a tenant for its owner: staff offer a managed service (terms, account manager, whether tariff changes need the Owner's approval), the Owner accepts in the portal, staff become "Managed operators" through a reserved role the tenant cannot hand out, and act visibly as "Wattwisely" in the team page and audit log. A Managed operator's tariff change becomes a proposal the Owner approves or rejects. Either side can give notice of at least 30 days; the worker ends due agreements and removes the operators.
 
@@ -523,7 +523,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 11: notifications and reports
 
-**Where:** [PR #14](https://github.com/findevdict-creator/wattwisely-cpms/pull/14); `review/module-11`; [docs/modules/11-notifications-reports.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-11/docs/modules/11-notifications-reports.md).
+**Where:** [PR #30](https://github.com/findevdict-creator/wattwisely-cpms/pull/30); `11-module/notifications-reports`; [docs/modules/11-notifications-reports.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/11-module/notifications-reports/docs/modules/11-notifications-reports.md).
 
 **What it adds.** The worker derives alerts from the state it already has (`charger_offline`, `connector_faulted`, `session_stuck`, `start_failures`, `reset_no_return`; open → acknowledged → closed, reopened silently within 15 minutes), routes them by tenant rules or defaults (Owner, Operations and Managed operator by e-mail and bell, Technician bell only, always within the person's site scope), honours quiet hours, and sends every e-mail through an outbox with a dedupe key and retries. Drivers can get e-mails about a charge (started, nearly full, finished, idle fee soon, receipt). `packages/reports` builds CSVs (sessions, usage with utilisation and uptime, audit log), background exports kept seven days, and weekly or monthly scheduled usage reports (Growth and Enterprise). The portal gets a home dashboard, Alerts, Reports, Settings > Alert routing, a bell and Quiet hours.
 
@@ -555,7 +555,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 12: hardening and operations
 
-**Where:** [PR #15](https://github.com/findevdict-creator/wattwisely-cpms/pull/15); `review/module-12`; [docs/modules/12-hardening-operations.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-12/docs/modules/12-hardening-operations.md). Monitoring needs `COMPOSE_PROFILES=dev,monitoring` (section 2.7).
+**Where:** [PR #31](https://github.com/findevdict-creator/wattwisely-cpms/pull/31); `12-module/hardening-operations`; [docs/modules/12-hardening-operations.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/12-module/hardening-operations/docs/modules/12-hardening-operations.md). Monitoring needs `COMPOSE_PROFILES=dev,monitoring` (section 2.7).
 
 **What it adds.** Prometheus metrics on the API, gateway and worker (`packages/observability`), a monitoring profile (Prometheus, Alertmanager, Grafana, node-exporter) with 18 alert rules and promtool tests in CI, rate limits per client address (1,200 signed-in, 300 public reads, 30 public writes a minute; 429 with `Retry-After`), trusted proxy hops so the audit log sees the real address, `/docs` off by default on servers, export files in S3-style storage (SeaweedFS; `packages/file-storage`), an hourly retention job (OCPP log 90 days, outbox 30, bell 90, driver addresses 30, export rows 90, Stripe events 90), queue backlog metrics, verified backups with a restore drill, a load-test tool, dependency upgrades and a Security workflow, and anti-framing headers in Caddy.
 
@@ -589,7 +589,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 13: drivers, RFID cards and access groups
 
-**Where:** [PR #16](https://github.com/findevdict-creator/wattwisely-cpms/pull/16); `review/module-13`; [docs/modules/13-drivers.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-13/docs/modules/13-drivers.md).
+**Where:** [PR #32](https://github.com/findevdict-creator/wattwisely-cpms/pull/32); `13-module/drivers`; [docs/modules/13-drivers.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/13-module/drivers/docs/modules/13-drivers.md).
 
 **What it adds.** A tenant's drivers (identity, reference, status, soft deletion), their RFID cards (tag unique per tenant, status, end date, last use) and access groups (which sites they open, which drivers are in them). The gateway answers `Authorize` and `StartTransaction` from the cards: platform-issued tags first; an unknown tag is Invalid (or Accepted on a bench with `OCPP_ACCEPT_UNKNOWN_ID_TAGS=true`); a card is Invalid (driver deleted, or private site and driver in no group that opens it), Blocked (card or driver blocked, card lost), Expired, or Accepted, and the session carries the driver and card. Personal data (e-mail, phone) needs `drivers:read_personal`.
 
@@ -620,7 +620,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 14: custom roles and the permission matrix
 
-**Where:** [PR #17](https://github.com/findevdict-creator/wattwisely-cpms/pull/17); `review/module-14`; [docs/modules/14-custom-roles.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-14/docs/modules/14-custom-roles.md).
+**Where:** [PR #33](https://github.com/findevdict-creator/wattwisely-cpms/pull/33); `14-module/custom-roles`; [docs/modules/14-custom-roles.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/14-module/custom-roles/docs/modules/14-custom-roles.md).
 
 **What it adds.** Tenants on plans with the `custom_roles` module create their own roles (`POST`, `PATCH`, `DELETE /v1/roles` behind `custom_roles:manage`, `If-Match`): a name unique per tenant, a description, a set of permissions the maker holds for the whole company. Changes reach every holder on their next request. Team > Roles and permissions shows the matrix of every role against every permission, grouped by module, with locks on modules the plan lacks.
 
@@ -648,7 +648,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 15: invoicing of plan and managed-service fees
 
-**Where:** [PR #18](https://github.com/findevdict-creator/wattwisely-cpms/pull/18); `review/module-15`; [docs/modules/15-invoicing.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-15/docs/modules/15-invoicing.md).
+**Where:** [PR #34](https://github.com/findevdict-creator/wattwisely-cpms/pull/34); `15-module/invoicing`; [docs/modules/15-invoicing.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/15-module/invoicing/docs/modules/15-invoicing.md).
 
 **What it adds.** Wattwisely invoices its tenants: `packages/billing` turns a tenant's month (plan fee, AC and DC connector fees, add-ons, managed-service fee, revenue share, all prorated by days) into lines and totals with tax. The worker drafts last month's invoice for every tenant hourly and marks subscriptions `past_due` while an issued invoice is overdue. Staff with `billing:write` add adjustment lines, recalculate, issue (number `WW-YYYY-NNNN`, due in 30 days, e-mail to the billing contact), mark paid, or void. Tenants see issued invoices under Settings > Invoices, laid out to print.
 
@@ -679,7 +679,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 16: API keys and webhooks
 
-**Where:** [PR #19](https://github.com/findevdict-creator/wattwisely-cpms/pull/19); `review/module-16`; [docs/modules/16-api-keys-webhooks.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-16/docs/modules/16-api-keys-webhooks.md).
+**Where:** [PR #35](https://github.com/findevdict-creator/wattwisely-cpms/pull/35); `16-module/api-keys-webhooks`; [docs/modules/16-api-keys-webhooks.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/16-module/api-keys-webhooks/docs/modules/16-api-keys-webhooks.md).
 
 **What it adds.** A `wwk_...` bearer token is an API key: found by its SHA-256, checked for expiry, revocation and the plan, holding a subset of its maker's company-wide permissions (never `api_keys:manage`), with its own rate budget (600 a minute) and an "API key" actor in the audit log. Webhook endpoints (up to ten, https only outside localhost, private addresses refused unless `WEBHOOK_ALLOW_PRIVATE_URLS=true`) receive `session.started`, `session.completed`, `session.failed`, `alert.opened`, `alert.closed`, signed with a `whsec_` secret (five-minute tolerance), retried at 1, 5 and 30 minutes, 2 and 12 hours, then failed. Settings > API keys and Settings > Webhooks.
 
@@ -711,7 +711,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 17: load management and WhatsApp charging
 
-**Where:** [PR #20](https://github.com/findevdict-creator/wattwisely-cpms/pull/20); `review/module-17`; [docs/modules/17-load-management-messaging.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-17/docs/modules/17-load-management-messaging.md). WhatsApp needs a Meta app (section 2.7); load management needs only the simulator.
+**Where:** [PR #36](https://github.com/findevdict-creator/wattwisely-cpms/pull/36); `17-module/load-management-messaging`; [docs/modules/17-load-management-messaging.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/17-module/load-management-messaging/docs/modules/17-load-management-messaging.md). WhatsApp needs a Meta app (section 2.7); load management needs only the simulator.
 
 **What it adds.** A site's load policy (enabled, limit in kW, strategy equal or by priority, minimum per car) and per-charger priority and ceiling. Every 10 seconds the worker's `LoadBalanceJob` shares the cap among the site's online chargers (`packages/load-management` allocator: floors for charging cars, a reserve for idle chargers, the rest shared), sends `set_charging_profile` (a `ChargePointMaxProfile` on connector 0) and `clear_charging_profile`, settles what the chargers answered and retries after a failure or a reboot. Drivers message a tenant's WhatsApp number (`charge <code>/<plug>`, `stop`, `status`, `help`); Meta's webhook hits `POST /v1/public/messaging/whatsapp`, the API replies with the pay link carrying the chat's token, and the worker reports the charge's start and end in the chat. Both are add-ons (`load_management`, `messaging`).
 
@@ -744,7 +744,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 18: the OCPP 2.0.1 adapter
 
-**Where:** [PR #21](https://github.com/findevdict-creator/wattwisely-cpms/pull/21); `review/module-18`; [docs/modules/18-ocpp-201.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/review/module-18/docs/modules/18-ocpp-201.md).
+**Where:** [PR #37](https://github.com/findevdict-creator/wattwisely-cpms/pull/37); `18-module/ocpp-201`; [docs/modules/18-ocpp-201.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/18-module/ocpp-201/docs/modules/18-ocpp-201.md).
 
 **What it adds.** The gateway speaks OCPP 2.0.1 next to 1.6 on the same address: the handshake takes the first subprotocol the station offers that the gateway speaks (`ocpp1.6`, `ocpp2.0.1`), records the version on the connection and the charger, and routes each message through an `OcppAdapter` per version (`AdapterRegistry`) and each command through a `CommandTranslator` per version. 2.0.1 stations send `BootNotification`, `Authorize`, `StatusNotification` per EVSE, `TransactionEvent` Started/Updated/Ended (the station's own transaction id lands in `charging_sessions.ocpp_transaction_ref`, migration 0031) and `MeterValues`; the platform's commands go out as `RequestStartTransaction`, `RequestStopTransaction`, `Reset`, `UnlockConnector`, `ChangeAvailability`, `SetChargingProfile` (`ChargingStationMaxProfile`), `ClearChargingProfile`. The simulator runs as a station with `--ocpp 2.0.1`. Everything above the gateway (sessions, pricing, payments, drivers, reports) is unchanged.
 
@@ -774,7 +774,7 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ### Module 19: driver accounts, invitations and payment modes
 
-**Where:** part 1 [PR #22](https://github.com/findevdict-creator/wattwisely-cpms/pull/22), branch `claude/project-thread-9d72a9`, [docs/modules/19-driver-accounts.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/claude/project-thread-9d72a9/docs/modules/19-driver-accounts.md); part 2 [PR #23](https://github.com/findevdict-creator/wattwisely-cpms/pull/23), branch `claude/project-thread-9d72a9-part2`, [docs/modules/19-driver-accounts-part-2.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/claude/project-thread-9d72a9-part2/docs/modules/19-driver-accounts-part-2.md). Check out the part 2 branch to test both. Saved cards need Stripe keys; everything else works without.
+**Where:** part 1 [PR #38](https://github.com/findevdict-creator/wattwisely-cpms/pull/38), branch `19-module/driver-accounts-part-1`, [docs/modules/19-driver-accounts.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/19-module/driver-accounts-part-1/docs/modules/19-driver-accounts.md); part 2 [PR #39](https://github.com/findevdict-creator/wattwisely-cpms/pull/39), branch `19-module/driver-accounts-part-2`, [docs/modules/19-driver-accounts-part-2.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/19-module/driver-accounts-part-2/docs/modules/19-driver-accounts-part-2.md). Check out the part 2 branch to test both. Saved cards need Stripe keys; everything else works without.
 
 **What it adds.** Part 1: drivers get a login. `driver_accounts` is global and matched to a Keycloak user by verified e-mail; Keycloak gets a `driver browser` flow (no authenticator required) bound to a new public client `wattwisely-driver`, next to the `staff browser` flow. The API accepts both audiences and lets a driver token open only routes marked `RouteAccess.driver()` under `/v1/driver`. Operators invite a driver to the app (`drivers:invite`; e-mail link valid 7 days), resend, cancel, unlink; drivers see their operators, what each holds about them, and can leave. `payment_mode` (`inherit`, `pay`, `free`) lands on cards, drivers and groups, plus a group's own `hold_amount`. Part 2 applies the modes: `PaymentRules` resolves card → driver → groups → operator at every start and stores `start_source` and `payment_rule` on the session; a paid RFID tap is accepted only if the holder's login has a usable saved card and the operator takes payments, otherwise `Invalid`; `SavedCardHoldJob` takes the hold off-session (refusal → RemoteStop, `hold_refused` flag, e-mail); `member_hold_amount` for the operator's own drivers; saved cards through Stripe SetupIntents on the platform account; the driver app starts a charge with one button when logged in, lists saved cards and charges across operators with a CSV; a login charging at an operator with no record of it gets a guest record with consent.
 
@@ -812,4 +812,4 @@ Each section below has the same shape: where the module is, what it adds, which 
 
 ## 6. Reporting findings
 
-Report what you find on the module's PR, one comment per finding, with the manual step number and what you saw instead of the expected result. Fixes go on the module's development branch; the `review/module-N` branch is moved to the new tip afterwards so the diff between consecutive review branches stays one module. Documentation gaps belong in that module's walkthrough under `docs/modules/`.
+Report what you find on the module's PR, one comment per finding, with the manual step number and what you saw instead of the expected result. Fixes go on the module's branch and PR, are merged forward into every module branch above it, and the `module-NN` tag is moved to the new tip, so the diff between consecutive module branches stays one module. Documentation gaps belong in that module's walkthrough under `docs/modules/`.

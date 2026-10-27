@@ -24,19 +24,19 @@ This one repository holds every part of the platform, managed with [Nx](https://
 
 ## How the work is organised
 
-Each feature is built as a **module** on its own branch, named `N-name`, with a pull request to review:
+Each feature is built as a **module** on its own branch, named `NN-module/<slug>` (two-digit module number, then the slug of its document in `docs/modules/`), with a pull request to review. The naming rules are in [CLAUDE.md](CLAUDE.md).
 
-| Branch                | Module                                                                                          |
-| --------------------- | ----------------------------------------------------------------------------------------------- |
-| `1-auth-keycloak`     | Repo skeleton, deployment, login with Keycloak, tenant selection                                |
-| `2-roles-permissions` | Tenants in Postgres with row-level security, roles and permissions, team invitations, audit log |
-| `3-sites-chargers`    | Sites, chargers and connectors; site-scoped permissions in use                                  |
-| `4-ocpp-gateway`      | The OCPP 1.6J gateway: charger connections, live status, commands, a charger simulator          |
-| `5-sessions-pricing`  | Charging sessions, tariffs and the pricing engine, the worker app                               |
-| `6-stripe-payments`   | Card payments through Stripe Connect: onboarding, holds, capture, refunds, webhooks             |
-| `7-drivers-qr-page`   | The driver's QR charge page: the driver web app, public place and stop endpoints, QR codes      |
-| `8-tenant-branding`   | Tenant branding: name, logo, colours and support contact on the driver's pages and e-mails      |
-| `9-…`                 | Next module, started from `main`                                                                |
+| Branch                        | Module                                                                                          |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| `01-module/auth-keycloak`     | Repo skeleton, deployment, login with Keycloak, tenant selection                                |
+| `02-module/roles-permissions` | Tenants in Postgres with row-level security, roles and permissions, team invitations, audit log |
+| `03-module/sites-chargers`    | Sites, chargers and connectors; site-scoped permissions in use                                  |
+| `04-module/ocpp-gateway`      | The OCPP 1.6J gateway: charger connections, live status, commands, a charger simulator          |
+| `05-module/sessions-pricing`  | Charging sessions, tariffs and the pricing engine, the worker app                               |
+| `06-module/stripe-payments`   | Card payments through Stripe Connect: onboarding, holds, capture, refunds, webhooks             |
+| `07-module/drivers-qr-page`   | The driver's QR charge page: the driver web app, public place and stop endpoints, QR codes      |
+| `08-module/tenant-branding`   | Tenant branding: name, logo, colours and support contact on the driver's pages and e-mails      |
+| `09-module/…`                 | Modules 9 to 19: open pull requests, each based on the module before it                         |
 
 Once a pull request is approved it is merged into `main`. A later change to an area goes on a fresh branch from `main`.
 
