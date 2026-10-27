@@ -9,6 +9,8 @@ import { SimOptions } from './sim-options';
  */
 export class DemoCharger {
   static readonly RECONNECT_DELAY_MS = 5_000;
+  /** The longest timer Node allows (about 24.8 days); anything larger fires after 1 ms. */
+  static readonly MAX_TIMER_MS = 2_147_483_647;
 
   private charger: SimulatedCharger | null = null;
   private heartbeat: NodeJS.Timeout | null = null;
@@ -62,7 +64,7 @@ export class DemoCharger {
     await charger.connect();
     this.log(`connected to ${this.options.url}`);
     await this.boot(messages);
-    const code = await charger.closed(Number.MAX_SAFE_INTEGER);
+    const code = await charger.closed(DemoCharger.MAX_TIMER_MS);
     this.clearHeartbeat();
     this.connectors.forEach((connector) => connector.suspend());
     this.log(`socket closed with ${code}`);
