@@ -42,6 +42,8 @@ Once a pull request is approved it is merged into `main`. A later change to an a
 
 Start with [docs/modules/1-auth-keycloak.md](docs/modules/1-auth-keycloak.md): it walks through the login flow file by file. Then [docs/modules/2-roles-permissions.md](docs/modules/2-roles-permissions.md): roles, permissions and the team. Then [docs/modules/3-sites-chargers.md](docs/modules/3-sites-chargers.md): sites, chargers and connectors. Then [docs/modules/4-ocpp-gateway.md](docs/modules/4-ocpp-gateway.md): how chargers connect and are commanded. Then [docs/modules/5-sessions-pricing.md](docs/modules/5-sessions-pricing.md): charging sessions, tariffs and how a session gets its price. Then [docs/modules/6-stripe-payments.md](docs/modules/6-stripe-payments.md): how a driver pays by card through the operator's own Stripe account. Then [docs/modules/7-drivers-qr-page.md](docs/modules/7-drivers-qr-page.md): the page a driver's phone opens after scanning a plug's QR code. Then [docs/modules/8-tenant-branding.md](docs/modules/8-tenant-branding.md): how an operator's name, logo and colours reach the driver's pages, receipts and e-mails.
 
+To review and test the modules step by step, including the ones still in open pull requests, use [docs/review-and-testing-manual.md](docs/review-and-testing-manual.md): where each module's code is, how to run the platform locally, and a numbered manual test per module with the result to expect.
+
 ## Try it on your machine
 
 You need Docker. This starts the whole platform with demo users:
