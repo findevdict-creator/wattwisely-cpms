@@ -78,6 +78,28 @@ export class WorkerConfig implements SmtpSettings {
   @IsBoolean()
   isWebhookPrivateUrlAllowed!: boolean;
 
+  /** How often each managed site's power cap is shared out among its chargers (module 17). */
+  @IsInt()
+  @Min(100)
+  loadManagementIntervalMs!: number;
+
+  /** How often chat messages are sent and linked charges reported on (module 17). */
+  @IsInt()
+  @Min(100)
+  messagingIntervalMs!: number;
+
+  /** The driver app's address, for the charge and receipt links sent in chats (module 17). */
+  @IsUrl({ require_tld: false })
+  driverUrl!: string;
+
+  /** The platform's WhatsApp Business token (module 17). Empty switches chat sending off. */
+  @IsString()
+  whatsappAccessToken!: string;
+
+  /** Meta's Graph API, versioned. */
+  @IsUrl({ require_tld: false })
+  whatsappApiUrl!: string;
+
   /** How often chargers are checked for problems that open or close alerts (module 11). */
   @IsInt()
   @Min(100)

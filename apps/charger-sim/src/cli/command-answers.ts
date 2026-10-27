@@ -23,6 +23,11 @@ export class CommandAnswers {
     charger.on('ChangeAvailability', (payload) =>
       this.changeAvailability(payload as { connectorId: number; type: string }),
     );
+    charger.on('SetChargingProfile', (payload) => this.setChargingProfile(payload));
+    charger.on('ClearChargingProfile', () => {
+      this.log('power cap removed');
+      return { status: 'Accepted' };
+    });
     charger.on('Reset', (payload) => {
       this.log(`reset (${(payload as { type: string }).type}) accepted`);
       setTimeout(() => void onReset(), CommandAnswers.ACT_AFTER_MS);
@@ -63,6 +68,16 @@ export class CommandAnswers {
         await connector.setStatus(status);
       }
     });
+    return { status: 'Accepted' };
+  }
+
+  /** A real charger would hold the cap; the demo one only reports it. */
+  private setChargingProfile(payload: unknown): { status: string } {
+    const profile = payload as {
+      csChargingProfiles?: { chargingSchedule?: { chargingSchedulePeriod?: { limit?: number }[] } };
+    };
+    const limit = profile.csChargingProfiles?.chargingSchedule?.chargingSchedulePeriod?.[0]?.limit;
+    this.log(`power cap set to ${limit ?? '?'} W`);
     return { status: 'Accepted' };
   }
 

@@ -33,6 +33,8 @@ import { TariffSummaryComponent } from './tariff-summary.component';
 export class PlaceComponent implements OnInit {
   readonly identity = input.required<string>();
   readonly connector = input.required<string>();
+  /** `?chat=`: the conversation the driver came from (module 17); the charge reports back there. */
+  readonly chat = input<string>();
 
   protected readonly store = inject(PlaceStore);
   private readonly router = inject(Router);
@@ -72,7 +74,7 @@ export class PlaceComponent implements OnInit {
   }
 
   protected async start(): Promise<void> {
-    const charge = await this.store.start();
+    const charge = await this.store.start(this.chat());
     if (charge) {
       await this.router.navigate(['/charges', charge.charge_key]);
     }

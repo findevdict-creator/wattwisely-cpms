@@ -11,6 +11,7 @@ import { AnyPgColumn, pgRole } from 'drizzle-orm/pg-core';
  *   app.charger_identity   only while the OCPP gateway looks up a charger that is connecting
  *   app.provider_account_id only while a payment webhook looks up whose connected account it is about
  *   app.api_key_hash       only while a request with an API key looks up which key and tenant it is (module 16)
+ *   app.messaging_phone_number_id only while a messaging webhook looks up whose chat number a message came to (module 17)
  *   app.platform_access    'true' only in admin console requests by Wattwisely staff (module 9)
  * A policy compares a row with these settings. When a setting is missing the
  * comparison is null, so the row is hidden: forgetting to set the tenant shows nothing.
@@ -44,6 +45,11 @@ export class RowLevelSecurity {
   /** The SHA-256 of the API key a request carries, before its tenant is known (module 16). */
   static currentApiKeyHash(): SQL {
     return sql`nullif(current_setting('app.api_key_hash', true), '')`;
+  }
+
+  /** The messaging provider's phone number id an inbound chat message names, before its tenant is known (module 17). */
+  static currentMessagingPhoneNumberId(): SQL {
+    return sql`nullif(current_setting('app.messaging_phone_number_id', true), '')`;
   }
 
   /** `tenant_id = <current tenant>`: the rule for every tenant-owned table. */

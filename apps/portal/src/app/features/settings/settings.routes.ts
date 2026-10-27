@@ -6,11 +6,12 @@ import { BrandingComponent } from './branding.component';
 import { InvoiceComponent } from './invoice.component';
 import { InvoicesComponent } from './invoices.component';
 import { ManagedServiceComponent } from './managed-service.component';
+import { MessagingComponent } from './messaging/messaging.component';
 import { PlanComponent } from './plan.component';
 import { WebhookComponent } from './webhooks/webhook.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 
-/** The Settings pages: branding, alert routing, the plan, the managed service, the invoices, API keys and webhooks. */
+/** The Settings pages: branding, alert routing, the plan, the managed service, the invoices, API keys, webhooks and WhatsApp charging. */
 export const SETTINGS_ROUTES: Routes = [
   {
     path: 'settings/branding',
@@ -65,5 +66,11 @@ export const SETTINGS_ROUTES: Routes = [
     component: WebhookComponent,
     canActivate: [PermissionGuard],
     data: { permission: 'api_keys:manage' },
+  },
+  {
+    path: 'settings/messaging',
+    component: MessagingComponent,
+    canActivate: [PermissionGuard],
+    data: { permission: 'messaging:manage' },
   },
 ];

@@ -204,6 +204,20 @@
       "when": 1792869529891,
       "tag": "0028_api_keys_webhooks_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1792882322990,
+      "tag": "0029_load_management_messaging",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1792882346673,
+      "tag": "0030_load_management_messaging_grants",
+      "breakpoints": true
     }
   ]
 }

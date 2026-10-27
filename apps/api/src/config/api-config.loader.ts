@@ -22,6 +22,7 @@ export class ApiConfigLoader {
       stripeWebhookSecret: environment['STRIPE_WEBHOOK_SECRET'] ?? '',
       isApiDocsEnabled: environment['API_DOCS_ENABLED'] !== 'false',
       isWebhookPrivateUrlAllowed: environment['WEBHOOK_ALLOW_PRIVATE_URLS'] === 'true',
+      ...this.whatsappSettings(environment),
       rateLimits: this.rateLimits(environment),
     });
     this.validate(config);
@@ -46,6 +47,15 @@ export class ApiConfigLoader {
       ocppUrl: environment['OCPP_URL'] ?? '',
       ocppPlainUrl: environment['OCPP_PLAIN_URL'] ?? '',
       driverUrl: environment['DRIVER_URL'] ?? '',
+    };
+  }
+
+  /** Module 17: the WhatsApp Business app behind the messaging add-on. */
+  private whatsappSettings(environment: NodeJS.ProcessEnv): Partial<ApiConfig> {
+    return {
+      whatsappAppSecret: environment['WHATSAPP_APP_SECRET'] ?? '',
+      whatsappVerifyToken: environment['WHATSAPP_VERIFY_TOKEN'] ?? '',
+      whatsappAccessToken: environment['WHATSAPP_ACCESS_TOKEN'] ?? '',
     };
   }
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 /** Body of POST /v1/public/charges: which plug the driver is standing at (from the QR code). */
 export class StartChargeRequestDto {
@@ -13,4 +13,14 @@ export class StartChargeRequestDto {
   @Min(1)
   @Max(100)
   readonly ocpp_connector_id!: number;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'The chat this charge was asked for in (the ?chat= of the link the driver got, module 17)',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  readonly chat_ref?: string;
 }

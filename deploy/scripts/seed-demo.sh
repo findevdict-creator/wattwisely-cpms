@@ -183,8 +183,13 @@ INSERT INTO tenant_subscriptions (id, tenant_id, plan_id, status, billing_email,
   ('01900000-0000-7000-8000-000000009002', '01900000-0000-7000-8000-00000000a002', '00000000-0000-7000-8000-000000000102', 'active', NULL, NULL, now() - interval '3 months', 0)
 ON CONFLICT (tenant_id) DO NOTHING;
 INSERT INTO tenant_entitlements (id, tenant_id, feature_key, source, note) VALUES
-  ('01900000-0000-7000-8000-000000009101', '01900000-0000-7000-8000-00000000a001', 'load_management', 'addon', 'Demo add-on')
+  ('01900000-0000-7000-8000-000000009101', '01900000-0000-7000-8000-00000000a001', 'load_management', 'addon', 'Demo add-on'),
+  ('01900000-0000-7000-8000-000000009102', '01900000-0000-7000-8000-00000000a001', 'messaging_charging', 'addon', 'Demo add-on')
 ON CONFLICT (tenant_id, feature_key) DO NOTHING;
+-- Module 17: Riverside is capped at 30 kW, shared equally; the worker sends the caps once a charger connects.
+INSERT INTO site_load_policies (id, tenant_id, site_id, is_enabled, limit_kw, strategy, min_power_kw) VALUES
+  ('01900000-0000-7000-8000-000000009201', '01900000-0000-7000-8000-00000000a001', '01900000-0000-7000-8000-00000000c001', true, 30, 'equal_share', 4.2)
+ON CONFLICT (tenant_id, site_id) DO NOTHING;
 -- Module 10: Wattwisely runs Volt Hotels' charging. Its Owner (Mia) accepted the managed service; Sam Support
 -- is the account manager and works in the tenant as its Managed operator (the reserved role from migration 0016).
 INSERT INTO managed_services (id, tenant_id, status, account_manager_id, is_tariff_approval_required,
@@ -288,4 +293,6 @@ info "Acme Charging has the API key 'Demo fleet tool': Authorization: Bearer wwk
 info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted, DEMO-CARD-4 is blocked"
 info "Invoices (module 15): within an hour the worker drafts last month's invoices; admin@wattwisely.test checks and issues them under Invoices in the console, owner@acme.test and multi@demo.test read theirs under Settings > Invoices"
 info "Roles (module 14): owner@acme.test shapes the Depot supervisor role under Team > Roles and permissions; multi@demo.test sees Volt Hotels' built-in roles only (Starter plan)"
+info "Load management (module 17): Riverside is capped at 30 kW under Sites > Riverside Car Park > Load management; connect the simulator as WW-7KQ4M2XR9T to watch it get its cap"
+info "WhatsApp charging (module 17): owner@acme.test sets the company's number under Settings > WhatsApp charging once WHATSAPP_* are set in deploy/.env"
 info "Drivers see plug A of the Riverside charger at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/c/WW-7KQ4M2XR9T/1 (the QR code on the charger page); it shows as offline until a charger or the simulator connects with that identity"
