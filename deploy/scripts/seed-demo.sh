@@ -28,13 +28,19 @@ require_env_file
 DEMO_PASSWORD="Wattwisely-demo-1"
 REALM=wattwisely
 
+# The leading "//" keeps Git Bash on Windows from rewriting the container path into a Windows
+# path (C:/Program Files/Git/opt/...); Linux and macOS read it as a single "/".
 kcadm() {
-  compose exec -T keycloak /opt/keycloak/bin/kcadm.sh "$@"
+  compose exec -T keycloak //opt/keycloak/bin/kcadm.sh "$@"
 }
 
 login() {
-  kcadm config credentials --server http://localhost:8080 --realm master \
-    --user "$(env_value KEYCLOAK_ADMIN_USER)" --password "$(env_value KEYCLOAK_ADMIN_PASSWORD)" >/dev/null 2>&1
+  local user output
+  user="$(env_value KEYCLOAK_ADMIN_USER || true)"
+  user="${user:-admin}"
+  output="$(kcadm config credentials --server http://localhost:8080 --realm master \
+    --user "$user" --password "$(env_value KEYCLOAK_ADMIN_PASSWORD)" 2>&1)" ||
+    die "Could not sign in to Keycloak as $user. Is Keycloak running (./scripts/health.sh) and is KEYCLOAK_ADMIN_PASSWORD in .env correct? Keycloak said: ${output:-nothing}"
 }
 
 # Prints the id of an existing user, or creates it with the demo password.
