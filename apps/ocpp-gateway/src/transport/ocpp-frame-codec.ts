@@ -1,3 +1,4 @@
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { OcppCallError, OcppErrorCode } from './ocpp-call-error';
 import { CallErrorFrame, CallResultFrame, OcppFrame } from './ocpp-frame';
 
@@ -52,11 +53,12 @@ export class OcppFrameCodec {
     return JSON.stringify([OcppFrameCodec.CALL_RESULT, id, payload]);
   }
 
-  static encodeError(id: string, error: OcppCallError): string {
+  /** The error code is spelt the way the charger's version spells it (FormatViolation in 2.0.1). */
+  static encodeError(id: string, error: OcppCallError, version: OcppVersion = '1.6'): string {
     return JSON.stringify([
       OcppFrameCodec.CALL_ERROR,
       id,
-      error.code,
+      error.codeFor(version),
       error.description,
       error.details,
     ]);

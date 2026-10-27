@@ -1,0 +1,27 @@
+{
+  "title": "LogStatusNotificationRequest",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "BadMessage",
+        "Idle",
+        "NotSupportedOperation",
+        "PermissionDenied",
+        "Uploaded",
+        "UploadFailure",
+        "Uploading",
+        "AcceptedCanceled"
+      ]
+    },
+    "requestId": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["status"]
+}

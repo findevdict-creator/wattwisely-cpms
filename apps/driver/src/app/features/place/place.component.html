@@ -24,6 +24,10 @@
     </section>
   }
 
+  @if (place.availability === 'available') {
+    <ww-account-start [place]="place" />
+  }
+
   <section class="panel pay">
     @if (canStart()) {
       <p>

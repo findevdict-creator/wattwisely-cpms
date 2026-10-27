@@ -86,12 +86,12 @@ export class TestData {
     tenantId: string,
     siteId: string,
     identity: string,
-    options: { passwordHash?: string; allowPlainWs?: boolean } = {},
+    options: { passwordHash?: string; allowPlainWs?: boolean; ocppVersion?: '1.6' | '2.0.1' } = {},
   ): Promise<string> {
     const id = UuidV7.create();
     await this.sql(
-      `insert into chargers (id, tenant_id, site_id, ocpp_identity, auth_mode, password_hash, allow_plain_ws)
-       values ($1, $2, $3, $4, $5, $6, $7)`,
+      `insert into chargers (id, tenant_id, site_id, ocpp_identity, auth_mode, password_hash, allow_plain_ws, ocpp_version)
+       values ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         id,
         tenantId,
@@ -100,6 +100,7 @@ export class TestData {
         options.passwordHash ? 'password' : 'none',
         options.passwordHash ?? null,
         options.allowPlainWs ?? false,
+        options.ocppVersion ?? null,
       ],
     );
     return id;

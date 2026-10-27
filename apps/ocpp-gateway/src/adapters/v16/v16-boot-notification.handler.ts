@@ -3,7 +3,7 @@ import { GatewayConfig } from '../../config/gateway.config';
 import { ChargerConnection } from '../../connection/charger-connection';
 import { ActionHandler, HandlerResult } from '../action-handler';
 import { BootFollowUp } from '../../connection/boot-follow-up';
-import { BootRecorder } from './boot-recorder';
+import { BootRecorder, BootReport } from '../boot-recorder';
 import { BootNotificationRequest } from './v16-messages';
 
 /**
@@ -25,7 +25,7 @@ export class V16BootNotificationHandler implements ActionHandler {
     const interval = this.config.heartbeatIntervalS;
     const verdict = await this.recorder.record(
       connection,
-      payload as BootNotificationRequest,
+      V16BootNotificationHandler.toReport(payload as BootNotificationRequest),
       interval,
     );
     const isAccepted = verdict.status === 'accepted';
@@ -39,6 +39,20 @@ export class V16BootNotificationHandler implements ActionHandler {
       },
       after: () =>
         isAccepted ? this.followUp.accepted(connection) : this.followUp.rejected(connection),
+    };
+  }
+
+  static toReport(payload: BootNotificationRequest): BootReport {
+    return {
+      vendor: payload.chargePointVendor,
+      model: payload.chargePointModel,
+      chargePointSerial: payload.chargePointSerialNumber ?? null,
+      chargeBoxSerial: payload.chargeBoxSerialNumber ?? null,
+      firmwareVersion: payload.firmwareVersion ?? null,
+      iccid: payload.iccid ?? null,
+      imsi: payload.imsi ?? null,
+      meterType: payload.meterType ?? null,
+      meterSerial: payload.meterSerialNumber ?? null,
     };
   }
 }

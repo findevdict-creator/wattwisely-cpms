@@ -17,6 +17,7 @@ import { PaymentsComponent } from './features/payments/payments.component';
 import { ReportsComponent } from './features/reports/reports.component';
 import { SessionComponent } from './features/sessions/session.component';
 import { SessionsComponent } from './features/sessions/sessions.component';
+import { LoadManagementComponent } from './features/sites/load-management/load-management.component';
 import { SiteComponent } from './features/sites/site.component';
 import { SitesComponent } from './features/sites/sites.component';
 import { TariffProposalComponent } from './features/tariffs/proposals/tariff-proposal.component';
@@ -76,6 +77,12 @@ export const APP_ROUTES: Routes = [
             component: SiteComponent,
             canActivate: [PermissionGuard],
             data: { permission: 'sites:read' },
+          },
+          {
+            path: 'sites/:id/load-management',
+            component: LoadManagementComponent,
+            canActivate: [PermissionGuard],
+            data: { permission: 'load_management:read' },
           },
           {
             path: 'chargers',

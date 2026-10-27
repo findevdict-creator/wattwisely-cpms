@@ -6,7 +6,7 @@ import { IdleRule } from '../../sessions/idle-rule';
 import { SessionRecorder } from '../../sessions/session-recorder';
 import { GatewayRepositories } from '../../storage/gateway-repositories';
 import { ActionHandler, HandlerResult } from '../action-handler';
-import { V16MeterReader } from './v16-meter-reader';
+import { MeterReader } from '../meter-reader';
 import { MeterValuesRequest } from './v16-messages';
 
 /**
@@ -66,13 +66,13 @@ export class V16MeterValuesHandler implements ActionHandler {
     request: MeterValuesRequest,
   ): Promise<void> {
     const charger = connection.charger;
-    const readings = V16MeterReader.read(request.meterValue);
+    const readings = MeterReader.read(request.meterValue);
     await this.store.meterValues.insertMany(
       tx,
       { id: session.id, tenantId: charger.tenantId, chargerId: charger.id },
       readings,
     );
-    const latest = V16MeterReader.latestEnergy(readings);
+    const latest = MeterReader.latestEnergy(readings);
     if (!latest) {
       await this.recorder.announce(tx, session, {
         status: session.status,

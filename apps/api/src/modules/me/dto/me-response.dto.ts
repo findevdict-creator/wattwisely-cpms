@@ -27,10 +27,19 @@ export class MeResponseDto {
 
   constructor(auth: RequestAuth, tenants: TenantSummary[], platform: PlatformAccess | null) {
     this.id = auth.account?.id ?? null;
-    this.email = auth.account?.email ?? auth.user.email;
-    this.name = auth.account?.name || auth.user.name;
+    this.email = MeResponseDto.emailOf(auth);
+    this.name = MeResponseDto.nameOf(auth);
     this.is_platform_staff = platform !== null;
     this.platform = platform ? new PlatformRoleDto(platform) : null;
     this.tenants = tenants.map((tenant) => new TenantMembershipDto(tenant));
+  }
+
+  /** The account's e-mail, or the token's for a first login; an API key has neither. */
+  private static emailOf(auth: RequestAuth): string {
+    return auth.account?.email ?? auth.user?.email ?? '';
+  }
+
+  private static nameOf(auth: RequestAuth): string {
+    return auth.account?.name || (auth.user?.name ?? '');
   }
 }

@@ -11,6 +11,7 @@ import { PlatformPermissionKey } from '../platform/platform-permission-catalog';
  *   @RouteAccess.withoutTenant()          login needed, but no tenant selected (e.g. GET /me)
  *   @RouteAccess.public()                 no login needed (health checks, invitation preview)
  *   @RouteAccess.platform('tenants:read') Wattwisely staff only, in the admin console (module 9)
+ *   @RouteAccess.driver()                 a driver logged into the driver app, no tenant (module 19)
  *
  * A tenant route with none of them is refused, so forgetting a decorator can only
  * make a route stricter, never open it up.
@@ -20,6 +21,7 @@ export class RouteAccess {
   static readonly WITHOUT_TENANT_KEY = 'route-access:without-tenant';
   static readonly PERMISSION_KEY = 'route-access:permission';
   static readonly PLATFORM_KEY = 'route-access:platform';
+  static readonly DRIVER_KEY = 'route-access:driver';
   static readonly ANY_MEMBER = 'any-member';
 
   static public(): CustomDecorator {
@@ -41,5 +43,10 @@ export class RouteAccess {
   /** No tenant: the caller must be Wattwisely staff whose console role holds this permission. */
   static platform(permission: PlatformPermissionKey): CustomDecorator {
     return SetMetadata(RouteAccess.PLATFORM_KEY, permission);
+  }
+
+  /** No tenant: the caller must hold a driver token (module 19); a staff token or an API key is refused. */
+  static driver(): CustomDecorator {
+    return SetMetadata(RouteAccess.DRIVER_KEY, true);
   }
 }

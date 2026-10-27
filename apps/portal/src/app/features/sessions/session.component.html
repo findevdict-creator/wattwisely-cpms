@@ -45,6 +45,14 @@
               · <a [routerLink]="['/drivers', session.driver_id]">{{ session.driver_name }}</a>
             }
           </dd>
+          @if (session.start_source) {
+            <dt>Started by</dt>
+            <dd data-testid="start-source">{{ startSource(session.start_source) }}</dd>
+          }
+          @if (session.payment_rule; as rule) {
+            <dt>Who pays</dt>
+            <dd data-testid="payment-rule">{{ rule.words }}</dd>
+          }
           <dt>Transaction</dt>
           <dd>{{ session.ocpp_transaction_id ?? 'Not started by the charger yet' }}</dd>
           @if (session.stop_reason) {

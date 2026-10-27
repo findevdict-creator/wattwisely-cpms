@@ -1,0 +1,17 @@
+{
+  "title": "AuthorizeResponse",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "idTokenInfo": {
+      "$ref": "IdTokenInfo"
+    },
+    "certificateStatus": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["idTokenInfo"]
+}

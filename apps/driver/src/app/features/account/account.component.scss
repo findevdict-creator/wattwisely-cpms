@@ -1,0 +1,77 @@
+.where {
+  margin-bottom: 16px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+}
+
+h2 {
+  font-size: 16px;
+  margin: 24px 0 8px;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.profile {
+  display: grid;
+  gap: 4px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.operators {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.operator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.blocked {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mat-sys-error);
+}
+
+.signout {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+
+  span {
+    flex: 1;
+    font-weight: 500;
+  }
+}
