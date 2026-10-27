@@ -1,0 +1,55 @@
+<p class="back">
+  <a routerLink="/account"><mat-icon>arrow_back</mat-icon> Your account</a>
+</p>
+<header class="where">
+  <h1>Your charges</h1>
+  @if (store.charges().length > 0) {
+    <button mat-stroked-button (click)="store.download()" data-testid="download-csv">
+      <mat-icon>download</mat-icon>
+      CSV
+    </button>
+  }
+</header>
+
+@if (store.charges().length > 0) {
+  <ul class="charges">
+    @for (charge of store.charges(); track charge.id) {
+      <li>
+        <a class="panel charge" [routerLink]="['/account/charges', charge.id]" data-testid="charge">
+          <div>
+            <div class="place">{{ charge.site_name }} · {{ charge.connector_label }}</div>
+            <div class="hint">
+              {{ charge.operator_name }} ·
+              {{ charge.started_at | zonedTime: charge.time_zone : true }}
+            </div>
+            <div class="hint">
+              {{ status(charge.status) }}
+              @if (charge.payment_rule; as rule) {
+                · {{ rule.words }}
+              }
+            </div>
+          </div>
+          <div class="amount">
+            @if (charge.payment_rule?.outcome === 'free') {
+              Free
+            } @else {
+              {{ charge.amount | money: charge.currency }}
+            }
+          </div>
+        </a>
+      </li>
+    }
+  </ul>
+} @else if (store.isLoaded()) {
+  <section class="panel">
+    <p class="hint" data-testid="no-charges">
+      No charges yet. Scan the QR code on a plug while logged in, or tap one of your operator's
+      cards at a charger.
+    </p>
+  </section>
+} @else {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+}
+@if (store.error()) {
+  <p class="error" role="alert">{{ store.error() }}</p>
+}

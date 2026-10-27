@@ -14,7 +14,8 @@ import { PermissionCatalog, PermissionDefinition } from './permission-catalog';
  * current tenant must hold it (anywhere: services narrow site-scoped permissions to rows),
  * and the tenant's plan must include the permission's module (module 9).
  * Suspended tenants keep read-only permissions only. Admin console routes name a platform
- * permission with RouteAccess.platform(); the caller's staff role must hold it.
+ * permission with RouteAccess.platform(); the caller's staff role must hold it. Driver routes
+ * (module 19) have no permissions: a driver may only act on their own account and links.
  */
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -23,7 +24,11 @@ export class PermissionGuard implements CanActivate {
   constructor(private readonly routeAccess: RouteAccessReader) {}
 
   canActivate(context: ExecutionContext): boolean {
-    if (this.routeAccess.isPublic(context) || this.routeAccess.isWithoutTenant(context)) {
+    if (
+      this.routeAccess.isPublic(context) ||
+      this.routeAccess.isWithoutTenant(context) ||
+      this.routeAccess.isDriver(context)
+    ) {
       return true;
     }
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();

@@ -1,0 +1,14 @@
+{
+  "name": "webhooks",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/webhooks/src",
+  "projectType": "library",
+  "tags": ["scope:webhooks", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

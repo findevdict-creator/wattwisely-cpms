@@ -1,0 +1,17 @@
+{
+  "title": "EVSEType",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "connectorId": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["id"]
+}

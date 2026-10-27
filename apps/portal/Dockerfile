@@ -11,7 +11,7 @@ COPY . .
 RUN npx nx build portal --configuration=production
 
 # 2. Serve the static files with nginx. config.json is written at start-up from environment variables.
-FROM nginx:1.29-alpine AS runtime
+FROM nginx:1.31-alpine AS runtime
 COPY apps/portal/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY apps/portal/docker/40-write-runtime-config.sh /docker-entrypoint.d/40-write-runtime-config.sh
 COPY --from=build /workspace/dist/apps/portal/browser /usr/share/nginx/html

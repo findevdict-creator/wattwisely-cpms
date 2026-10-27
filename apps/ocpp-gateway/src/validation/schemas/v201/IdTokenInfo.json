@@ -1,0 +1,53 @@
+{
+  "title": "IdTokenInfoType",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Accepted",
+        "Blocked",
+        "ConcurrentTx",
+        "Expired",
+        "Invalid",
+        "NoCredit",
+        "NotAllowedTypeEVSE",
+        "NotAtThisLocation",
+        "NotAtThisTime",
+        "Unknown"
+      ]
+    },
+    "cacheExpiryDateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "chargingPriority": {
+      "type": "integer"
+    },
+    "language1": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "evseId": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "groupIdToken": {
+      "$ref": "IdToken"
+    },
+    "language2": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "personalMessage": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["status"]
+}

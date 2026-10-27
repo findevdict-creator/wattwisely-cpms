@@ -30,6 +30,23 @@
       </mat-select>
       <mat-hint>A driver can also be put in groups from their own page</mat-hint>
     </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Paying</mat-label>
+      <mat-select formControlName="paymentMode" data-testid="group-payment-mode">
+        <mat-option value="inherit">As the operator's standard: paid</mat-option>
+        <mat-option value="pay">Always paid by the driver</mat-option>
+        <mat-option value="free">Free: you pay for the members' charges</mat-option>
+      </mat-select>
+      <mat-hint>A driver's or a card's own setting comes first</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Hold per session ({{ form.currency }}, optional)</mat-label>
+      <input matInput formControlName="holdAmount" inputmode="decimal" data-testid="group-hold" />
+      <mat-hint
+        >Held on a member's card when a session starts; empty for your standard hold</mat-hint
+      >
+      <mat-error>An amount like 20.00</mat-error>
+    </mat-form-field>
   </form>
   @if (error()) {
     <p class="error" role="alert">{{ error() }}</p>

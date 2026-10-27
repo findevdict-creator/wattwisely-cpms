@@ -165,6 +165,37 @@
           <span matListItemTitle>Invoices</span>
         </a>
       }
+      @if (permissions.can('api_keys:manage')) {
+        <a
+          mat-list-item
+          routerLink="/settings/api-keys"
+          routerLinkActive="active"
+          data-testid="nav-api-keys"
+        >
+          <mat-icon matListItemIcon>key</mat-icon>
+          <span matListItemTitle>API keys</span>
+        </a>
+        <a
+          mat-list-item
+          routerLink="/settings/webhooks"
+          routerLinkActive="active"
+          data-testid="nav-webhooks"
+        >
+          <mat-icon matListItemIcon>webhook</mat-icon>
+          <span matListItemTitle>Webhooks</span>
+        </a>
+      }
+      @if (permissions.can('messaging:manage')) {
+        <a
+          mat-list-item
+          routerLink="/settings/messaging"
+          routerLinkActive="active"
+          data-testid="nav-messaging"
+        >
+          <mat-icon matListItemIcon>chat</mat-icon>
+          <span matListItemTitle>WhatsApp charging</span>
+        </a>
+      }
       @if (permissions.can('team:read')) {
         <a mat-list-item routerLink="/team" routerLinkActive="active" data-testid="nav-team">
           <mat-icon matListItemIcon>group</mat-icon>

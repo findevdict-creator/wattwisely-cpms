@@ -1,0 +1,11 @@
+{
+  "title": "MeterValuesResponse",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "required": []
+}
