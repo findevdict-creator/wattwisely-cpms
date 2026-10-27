@@ -13,4 +13,19 @@ describe('ThemeFiles', () => {
     expect(source).toContain("static readonly PRIMARY = '#16a34a';");
     expect(source).toContain("static readonly ON_PRIMARY = '#ffffff';");
   });
+
+  it('gives Keycloak the same tokens as the apps', () => {
+    const expected = files.expected();
+    expect(expected.get(ThemeFiles.KEYCLOAK_TOKENS_CSS)).toBe(expected.get(ThemeFiles.TOKENS_CSS));
+  });
+
+  it('draws the mark and the e-mail header in the brand green with white on it', () => {
+    const mark = files.expected().get(ThemeFiles.KEYCLOAK_MARK) ?? '';
+    expect(mark).toContain('fill="#16a34a"');
+    expect(mark).toContain('stroke="#ffffff"');
+    const mail = files.expected().get(ThemeFiles.KEYCLOAK_MAIL_COLOURS) ?? '';
+    expect(mail).toContain('<#assign primary = "#16a34a">');
+    expect(mail).toContain('<#assign onPrimary = "#ffffff">');
+    expect(mail).toContain('<#assign fontFamily = "Inter">');
+  });
 });
