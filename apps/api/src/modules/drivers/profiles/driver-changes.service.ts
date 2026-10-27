@@ -187,6 +187,7 @@ export class DriverChangesService {
       phone: DriverChangesService.blankToNull(request.phone),
       reference: request.reference?.trim(),
       notes: request.notes?.trim(),
+      paymentMode: request.payment_mode,
     };
   }
 

@@ -39,8 +39,17 @@ export class PaymentAccountDto {
   @ApiProperty({ nullable: true, example: 'gbp' })
   readonly default_currency: string | null;
 
-  @ApiProperty({ nullable: true, description: 'The hold on a card at the start, minor units' })
+  @ApiProperty({
+    nullable: true,
+    description: "The hold on a guest's card at the start, minor units",
+  })
   readonly hold_amount: number | null;
+
+  @ApiProperty({
+    nullable: true,
+    description: "The hold on the saved card of one of the tenant's own drivers (module 19)",
+  })
+  readonly member_hold_amount: number | null;
 
   @ApiProperty({ nullable: true })
   readonly last_synced_at: string | null;
@@ -66,6 +75,7 @@ export class PaymentAccountDto {
     this.country = details.country;
     this.default_currency = details.defaultCurrency;
     this.hold_amount = details.holdAmount;
+    this.member_hold_amount = details.memberHoldAmount;
     this.last_synced_at = details.lastSyncedAt;
     this.connected_at = details.connectedAt;
     this.version = details.version;
@@ -86,6 +96,7 @@ export class PaymentAccountDto {
     country: null as string | null,
     defaultCurrency: null as string | null,
     holdAmount: null as number | null,
+    memberHoldAmount: null as number | null,
     lastSyncedAt: null as string | null,
     connectedAt: null as string | null,
     version: null as number | null,
@@ -109,6 +120,7 @@ export class PaymentAccountDto {
       country: account.country,
       defaultCurrency: account.defaultCurrency,
       holdAmount: account.holdAmount,
+      memberHoldAmount: account.memberHoldAmount,
       lastSyncedAt: account.lastSyncedAt?.toISOString() ?? null,
       connectedAt: account.createdAt.toISOString(),
       version: account.version,

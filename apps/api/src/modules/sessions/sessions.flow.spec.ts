@@ -150,7 +150,7 @@ import { TestApi } from '../../testing/test-api';
     const [header, row, extra] = csv.body.split('\r\n');
     expect(header).toBe(
       'session_id,status,site,charger,connector,id_tag,started_at,ended_at,unplugged_at,' +
-        'energy_kwh,currency,net,tax,gross,review_flags,failure_reason',
+        'energy_kwh,currency,net,tax,gross,review_flags,failure_reason,start_source,payment_rule',
     );
     expect(row).toContain(`${stopped},completed,Riverside,CP-RIVER-1,A,TEST-TAG,`);
     expect(row).toContain(',22.000,GBP,7.33,1.47,8.80,,');

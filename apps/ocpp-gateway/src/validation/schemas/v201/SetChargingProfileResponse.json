@@ -1,0 +1,32 @@
+{
+  "title": "SetChargingProfileResponse",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Accepted", "Rejected"]
+    },
+    "statusInfo": {
+      "type": "object",
+      "properties": {
+        "customData": {
+          "type": "object"
+        },
+        "reasonCode": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "additionalInfo": {
+          "type": "string",
+          "maxLength": 512
+        }
+      },
+      "required": ["reasonCode"]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["status"]
+}

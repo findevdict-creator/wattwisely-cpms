@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { DatabaseSession, TransactionRunner } from '@wattwisely/db';
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { GatewayConfig } from '../config/gateway.config';
 import { ChargerIdentity } from '../storage/charger-identity';
 import { ConnectionsRepository } from '../storage/connections.repository';
@@ -35,14 +36,18 @@ export class LeaseKeeper implements OnModuleInit, OnModuleDestroy {
     await Promise.all(this.registry.all().map((connection) => this.release(connection)));
   }
 
-  acquire(charger: ChargerIdentity, connectionId: string, remoteIp: string): Promise<boolean> {
+  acquire(
+    charger: ChargerIdentity,
+    socket: { connectionId: string; remoteIp: string; version: OcppVersion },
+  ): Promise<boolean> {
     return this.transactionRunner.run(DatabaseSession.forTenant(charger.tenantId), (tx) =>
       this.connections.acquire(tx, {
         chargerId: charger.id,
         tenantId: charger.tenantId,
         instanceId: this.config.instanceId,
-        connectionId,
-        remoteIp,
+        connectionId: socket.connectionId,
+        remoteIp: socket.remoteIp,
+        ocppVersion: socket.version,
         leaseSeconds: this.config.leaseSeconds,
       }),
     );

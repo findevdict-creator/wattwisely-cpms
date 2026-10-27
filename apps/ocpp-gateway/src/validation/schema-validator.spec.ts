@@ -1,8 +1,9 @@
 import { OcppCallError } from '../transport/ocpp-call-error';
 import { SchemaValidator } from './schema-validator';
+import { V16Schemas } from './v16-schemas';
 
 describe('SchemaValidator', () => {
-  const validator = new SchemaValidator();
+  const validator = new SchemaValidator(V16Schemas.SHARED, V16Schemas.MESSAGES);
 
   it('knows the OCPP 1.6 messages the gateway handles and their replies', () => {
     for (const message of [
