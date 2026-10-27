@@ -28,7 +28,7 @@ export class TenantAccessRepository {
     tenantId?: string,
   ): Promise<ActiveMembership[]> {
     const rows = await tx
-      .select(TenantAccessRepository.columns(tx))
+      .select({ membershipId: tenantMemberships.id, ...TenantAccessRepository.columns(tx) })
       .from(tenantMemberships)
       .innerJoin(tenants, eq(tenants.id, tenantMemberships.tenantId))
       .where(
@@ -47,9 +47,23 @@ export class TenantAccessRepository {
     }));
   }
 
+  /** One open tenant by id, as an API key's tenant is read (module 16); null when closed or unknown. */
+  async findTenant(tx: Transaction, tenantId: string): Promise<TenantSummary | null> {
+    const [row] = await tx
+      .select(TenantAccessRepository.columns(tx))
+      .from(tenants)
+      .where(
+        and(eq(tenants.id, tenantId), isNull(tenants.deletedAt), ne(tenants.status, 'cancelled')),
+      );
+    if (!row) {
+      return null;
+    }
+    const { isManaged, ...tenant } = row;
+    return new TenantSummary({ ...tenant, serviceTier: isManaged ? 'managed' : 'self_serve' });
+  }
+
   private static columns(tx: Transaction) {
     return {
-      membershipId: tenantMemberships.id,
       id: tenants.id,
       slug: tenants.slug,
       name: tenants.name,

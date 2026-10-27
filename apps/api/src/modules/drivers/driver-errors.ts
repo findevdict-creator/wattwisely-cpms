@@ -92,4 +92,45 @@ export class DriverErrors {
       'You already have an access group with this name.',
     );
   }
+
+  /** Module 19: the driver already has a login linked; unlink it before inviting again. */
+  static alreadyLinked(): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'driver_already_linked',
+      'This driver already has a login linked to them.',
+    );
+  }
+
+  static notLinked(): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'driver_not_linked',
+      'This driver has no login linked to them.',
+    );
+  }
+
+  static alreadyInvited(): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'driver_already_invited',
+      'This driver already has a pending invitation. Resend it instead.',
+    );
+  }
+
+  static notInvited(): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'driver_not_invited',
+      'This driver has no pending invitation.',
+    );
+  }
+
+  static emailRequired(): ProblemException {
+    return new ProblemException(
+      HttpStatus.UNPROCESSABLE_ENTITY,
+      'driver_email_required',
+      'Give the driver an e-mail address to send the invitation to.',
+    );
+  }
 }

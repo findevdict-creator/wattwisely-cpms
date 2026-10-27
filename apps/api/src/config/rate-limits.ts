@@ -11,6 +11,7 @@ export class RateLimits implements Record<RateLimitPolicy, number> {
   static readonly DEFAULT_PER_MINUTE = 1200;
   static readonly PUBLIC_PER_MINUTE = 300;
   static readonly PUBLIC_WRITE_PER_MINUTE = 30;
+  static readonly API_KEY_PER_MINUTE = 600;
 
   @IsBoolean()
   isEnabled!: boolean;
@@ -33,4 +34,10 @@ export class RateLimits implements Record<RateLimitPolicy, number> {
   @Max(1_000_000)
   // eslint-disable-next-line @typescript-eslint/naming-convention -- the policy's name
   public_write!: number;
+
+  /** Requests per API key and minute, on top of the address budget (RATE_LIMIT_API_KEY_PER_MINUTE, module 16). */
+  @IsInt()
+  @Min(1)
+  @Max(1_000_000)
+  apiKey!: number;
 }

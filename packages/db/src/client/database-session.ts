@@ -5,6 +5,9 @@ export interface DatabaseSessionOptions {
   inviteTokenHash?: string | null;
   chargerIdentity?: string | null;
   providerAccountId?: string | null;
+  apiKeyHash?: string | null;
+  messagingPhoneNumberId?: string | null;
+  driverAccountId?: string | null;
   isPlatformAccess?: boolean;
 }
 
@@ -18,16 +21,31 @@ export class DatabaseSession {
   readonly inviteTokenHash: string | null;
   readonly chargerIdentity: string | null;
   readonly providerAccountId: string | null;
+  /** The hash of the API key a request carries, while the key is looked up (module 16). */
+  readonly apiKeyHash: string | null;
+  /** The chat number id an inbound message came to, while its channel is looked up (module 17). */
+  readonly messagingPhoneNumberId: string | null;
+  /** The driver account behind a driver app request (module 19): their own linked drivers rows are visible. */
+  readonly driverAccountId: string | null;
   /** True only in admin console requests by Wattwisely staff (module 9). */
   readonly isPlatformAccess: boolean;
 
   constructor(options: DatabaseSessionOptions = {}) {
-    this.tenantId = options.tenantId ?? null;
-    this.userAccountId = options.userAccountId ?? null;
-    this.inviteTokenHash = options.inviteTokenHash ?? null;
-    this.chargerIdentity = options.chargerIdentity ?? null;
-    this.providerAccountId = options.providerAccountId ?? null;
-    this.isPlatformAccess = options.isPlatformAccess ?? false;
+    const given = DatabaseSession.given;
+    this.tenantId = given(options.tenantId);
+    this.userAccountId = given(options.userAccountId);
+    this.inviteTokenHash = given(options.inviteTokenHash);
+    this.chargerIdentity = given(options.chargerIdentity);
+    this.providerAccountId = given(options.providerAccountId);
+    this.apiKeyHash = given(options.apiKeyHash);
+    this.messagingPhoneNumberId = given(options.messagingPhoneNumberId);
+    this.driverAccountId = given(options.driverAccountId);
+    this.isPlatformAccess = options.isPlatformAccess === true;
+  }
+
+  /** A setting that was left out is empty, which hides the rows it guards. */
+  private static given(value: string | null | undefined): string | null {
+    return value ?? null;
   }
 
   static forTenant(tenantId: string, userAccountId: string | null = null): DatabaseSession {
@@ -50,6 +68,24 @@ export class DatabaseSession {
   /** A payment webhook looking up the tenant behind a connected account (acct_…), before its tenant is known. */
   static forProviderAccount(providerAccountId: string): DatabaseSession {
     return new DatabaseSession({ providerAccountId });
+  }
+
+  /** A request with an API key looking up its key by the token's hash, before its tenant is known (module 16). */
+  static forApiKey(apiKeyHash: string): DatabaseSession {
+    return new DatabaseSession({ apiKeyHash });
+  }
+
+  /** A messaging webhook looking up the channel behind a phone number id, before its tenant is known (module 17). */
+  static forMessagingPhoneNumber(phoneNumberId: string): DatabaseSession {
+    return new DatabaseSession({ messagingPhoneNumberId: phoneNumberId });
+  }
+
+  /**
+   * A driver in the driver app (module 19), before any tenant is chosen: the global driver
+   * tables, and the drivers rows of every tenant that are linked to this account.
+   */
+  static forDriverAccount(driverAccountId: string): DatabaseSession {
+    return new DatabaseSession({ driverAccountId });
   }
 
   /**

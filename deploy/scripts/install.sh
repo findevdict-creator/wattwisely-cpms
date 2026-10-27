@@ -47,6 +47,7 @@ write_addresses() {
     set_env_value ACME_EMAIL admin@localhost
     set_env_value PORTAL_DEV_URL http://localhost:4200
     set_env_value ADMIN_DEV_URL http://localhost:4400
+    set_env_value DRIVER_DEV_URL http://localhost:4300
     set_env_value SMTP_HOST mailpit
     set_env_value SMTP_FROM no-reply@wattwisely.localhost
     set_env_value SMTP_PORT 1025

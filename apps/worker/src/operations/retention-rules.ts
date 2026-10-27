@@ -7,6 +7,7 @@ import {
   reportExports,
   sessionSubscriptions,
   staffNotifications,
+  webhookDeliveries,
 } from '@wattwisely/db';
 import { RetentionPeriods } from '../config/retention-periods';
 import { RetentionRule } from './retention-rule';
@@ -31,6 +32,7 @@ export class RetentionRules {
       },
       RetentionRules.driverAddresses(periods.driverEmailDays),
       RetentionRules.exports(periods.exportsDays),
+      RetentionRules.webhookDeliveries(periods.webhookDeliveriesDays),
     ];
   }
 
@@ -87,6 +89,21 @@ export class RetentionRules {
         and(
           inArray(reportExports.status, ['expired', 'failed']),
           lt(reportExports.createdAt, cutoff),
+        ),
+    };
+  }
+
+  /** Pending deliveries stay, however old: they are still to be sent (module 16). */
+  private static webhookDeliveries(days: number): RetentionRule {
+    return {
+      name: 'webhook_deliveries',
+      table: webhookDeliveries,
+      id: webhookDeliveries.id,
+      days,
+      isOld: (cutoff) =>
+        and(
+          inArray(webhookDeliveries.status, ['delivered', 'failed']),
+          lt(webhookDeliveries.createdAt, cutoff),
         ),
     };
   }

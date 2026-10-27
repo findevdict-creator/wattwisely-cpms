@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Transaction, UuidV7 } from '@wattwisely/db';
-import { CommandAction, CommandCatalog } from '@wattwisely/ocpp-contracts';
+import { CommandCatalog, StaffCommandAction } from '@wattwisely/ocpp-contracts';
 import { RequestAuth } from '../../../common/request/request-auth';
 import { AssetChangeRecorder } from '../../assets/asset-change.recorder';
 import { ChargerRecord } from '../../assets/chargers/charger-record';
@@ -26,7 +26,7 @@ export class CommandSender {
     tx: Transaction,
     auth: RequestAuth,
     charger: ChargerRecord,
-    request: { action: CommandAction; body: CommandRequest },
+    request: { action: StaffCommandAction; body: CommandRequest },
   ): Promise<CommandRecord> {
     const account = auth.requireAccount();
     const tenantId = auth.requireAccess().tenant.id;

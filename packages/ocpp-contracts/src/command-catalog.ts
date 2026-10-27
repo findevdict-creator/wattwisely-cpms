@@ -1,6 +1,18 @@
 /** What the platform can ask a charger to do. The names match the charger_command_action enum. */
 export type CommandAction =
-  'remote_start' | 'remote_stop' | 'reset' | 'unlock' | 'change_availability';
+  | 'remote_start'
+  | 'remote_stop'
+  | 'reset'
+  | 'unlock'
+  | 'change_availability'
+  | 'set_charging_profile'
+  | 'clear_charging_profile';
+
+/** The commands a person sends from the portal; the charging profile commands are the worker's (module 17). */
+export type StaffCommandAction = Exclude<
+  CommandAction,
+  'set_charging_profile' | 'clear_charging_profile'
+>;
 
 /** The charger_command_status enum: queued and sent are in flight, the rest are final. */
 export type CommandStatus =
@@ -17,6 +29,17 @@ export class CommandCatalog {
     'reset',
     'unlock',
     'change_availability',
+    'set_charging_profile',
+    'clear_charging_profile',
+  ];
+
+  /** The commands the portal's command endpoints accept. */
+  static readonly STAFF_ACTIONS: StaffCommandAction[] = [
+    'remote_start',
+    'remote_stop',
+    'reset',
+    'unlock',
+    'change_availability',
   ];
 
   /** Commands that may wait for an offline charger. A reset never waits: it fails at once. */
@@ -25,6 +48,8 @@ export class CommandCatalog {
     'remote_stop',
     'unlock',
     'change_availability',
+    'set_charging_profile',
+    'clear_charging_profile',
   ];
 
   /** How long a queued command waits for the charger before it expires. */
@@ -50,6 +75,19 @@ export class CommandCatalog {
     reset: 'Reset',
     unlock: 'UnlockConnector',
     change_availability: 'ChangeAvailability',
+    set_charging_profile: 'SetChargingProfile',
+    clear_charging_profile: 'ClearChargingProfile',
+  };
+
+  /** The OCPP 2.0.1 action each command becomes on the wire (module 18). */
+  static readonly OCPP201_ACTIONS: Record<CommandAction, string> = {
+    remote_start: 'RequestStartTransaction',
+    remote_stop: 'RequestStopTransaction',
+    reset: 'Reset',
+    unlock: 'UnlockConnector',
+    change_availability: 'ChangeAvailability',
+    set_charging_profile: 'SetChargingProfile',
+    clear_charging_profile: 'ClearChargingProfile',
   };
 
   static isQueueable(action: CommandAction): boolean {

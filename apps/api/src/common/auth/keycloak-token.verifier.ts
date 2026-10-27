@@ -7,8 +7,9 @@ import { KeycloakKeySetProvider } from './keycloak-key-set.provider';
 
 /**
  * Checks that an access token is genuine: signed by our Keycloak realm,
- * not expired, and meant for this API. No call to Keycloak is made per request;
- * the signature is checked locally against Keycloak's public keys.
+ * not expired, and meant for this API or for the driver app's routes (module 19).
+ * No call to Keycloak is made per request; the signature is checked locally against
+ * Keycloak's public keys. AuthenticatedUserFactory reads which of the two audiences it is.
  */
 @Injectable()
 export class KeycloakTokenVerifier {
@@ -26,7 +27,7 @@ export class KeycloakTokenVerifier {
         this.keySetProvider.getKeySet(),
         {
           issuer: this.config.keycloakIssuerUrl,
-          audience: this.config.keycloakAudience,
+          audience: [this.config.keycloakAudience, this.config.keycloakDriverAudience],
           algorithms: KeycloakTokenVerifier.ALGORITHMS,
         },
       );
