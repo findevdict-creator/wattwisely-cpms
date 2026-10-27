@@ -1,0 +1,77 @@
+<div class="title">
+  <h1>Wattwisely staff</h1>
+  @if (staff.can('staff:manage')) {
+    <button mat-flat-button (click)="add()" data-testid="add-staff">
+      <mat-icon>person_add</mat-icon>
+      Add staff
+    </button>
+  }
+</div>
+
+<table mat-table [dataSource]="members()" class="members" data-testid="staff">
+  <ng-container matColumnDef="person">
+    <th mat-header-cell *matHeaderCellDef>Person</th>
+    <td mat-cell *matCellDef="let member">
+      <div class="name">
+        {{ member.name || member.email }}
+        @if (isMe(member)) {
+          <span class="sub">(you)</span>
+        }
+      </div>
+      <div class="sub">{{ member.email }}</div>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="role">
+    <th mat-header-cell *matHeaderCellDef>Role</th>
+    <td mat-cell *matCellDef="let member" [attr.data-role]="member.role">
+      {{ roleName(member.role) }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="since">
+    <th mat-header-cell *matHeaderCellDef>Since</th>
+    <td mat-cell *matCellDef="let member">{{ member.granted_at | date: 'mediumDate' }}</td>
+  </ng-container>
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let member" class="actions">
+      @if (staff.can('staff:manage')) {
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="menu"
+          aria-label="Change staff member"
+          [attr.data-testid]="'staff-menu-' + member.email"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          @for (role of roles(); track role.key) {
+            @if (role.key !== member.role) {
+              <button mat-menu-item (click)="changeRole(member, role.key)">
+                <mat-icon>swap_horiz</mat-icon>
+                Make {{ role.name }}
+              </button>
+            }
+          }
+          <button mat-menu-item (click)="remove(member)" data-testid="remove-staff">
+            <mat-icon>person_remove</mat-icon>
+            Remove from staff
+          </button>
+        </mat-menu>
+      }
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+<h2>Roles</h2>
+<dl class="roles">
+  @for (role of roles(); track role.key) {
+    <dt>{{ role.name }}</dt>
+    <dd>{{ role.description }}</dd>
+  }
+</dl>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

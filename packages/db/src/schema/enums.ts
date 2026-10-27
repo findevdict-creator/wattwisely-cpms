@@ -6,8 +6,17 @@ export const tenantStatus = pgEnum('tenant_status', ['trial', 'active', 'suspend
 /** invited: e-mail sent, not accepted yet. active: can work in the tenant. removed: access ended. */
 export const membershipStatus = pgEnum('membership_status', ['invited', 'active', 'removed']);
 
-/** Who did something recorded in the audit log. */
-export const auditActorType = pgEnum('audit_actor_type', ['user', 'api_key', 'support', 'system']);
+/**
+ * Who did something recorded in the audit log. platform: Wattwisely staff acting from the
+ * admin console (module 9); support: staff inside a tenant under time-limited support access.
+ */
+export const auditActorType = pgEnum('audit_actor_type', [
+  'user',
+  'api_key',
+  'support',
+  'system',
+  'platform',
+]);
 
 /** public: any driver or guest may charge. private: only the tenant's own drivers (story AST-04). */
 export const siteVisibility = pgEnum('site_visibility', ['public', 'private']);
@@ -161,3 +170,31 @@ export const refundStatus = pgEnum('refund_status', [
   'failed',
   'cancelled',
 ]);
+
+/**
+ * A Wattwisely staff member's role in the admin console (module 9). admin: everything;
+ * billing: plans, add-ons and each tenant's plan; support: tenants and their plans, read-only
+ * until support access arrives; viewer: read-only everywhere.
+ */
+export const platformRole = pgEnum('platform_role', ['admin', 'billing', 'support', 'viewer']);
+
+/** A tenant's subscription: trialing until trial_ends_at, active, past_due (an invoice is unpaid), cancelled. */
+export const subscriptionStatus = pgEnum('subscription_status', [
+  'trialing',
+  'active',
+  'past_due',
+  'cancelled',
+]);
+
+/** What an add-on's price counts: connectors, sites, or the tenant as a whole. */
+export const addonPricingUnit = pgEnum('addon_pricing_unit', [
+  'per_connector',
+  'per_site',
+  'per_tenant',
+]);
+
+/**
+ * Why a tenant has (or lacks) a module beyond its plan: bought as an add-on, a trial that
+ * ends on a date, or an override by Wattwisely staff (which can also switch a plan's module off).
+ */
+export const entitlementSource = pgEnum('entitlement_source', ['addon', 'trial', 'override']);

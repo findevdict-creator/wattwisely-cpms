@@ -159,6 +159,39 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "wattwisely-admin",
+      "name": "Wattwisely admin console",
+      "description": "The Angular admin console for Wattwisely staff (module 9). Public client with PKCE, like the portal; the API decides who is staff.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "rootUrl": "${ADMIN_URL}",
+      "baseUrl": "/",
+      "redirectUris": ["${ADMIN_URL}/*", "${ADMIN_DEV_URL}/*"],
+      "webOrigins": ["${ADMIN_URL}", "${ADMIN_DEV_URL}"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${ADMIN_URL}/*##${ADMIN_DEV_URL}/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "wattwisely-api audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "wattwisely-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
     }
   ]
 }

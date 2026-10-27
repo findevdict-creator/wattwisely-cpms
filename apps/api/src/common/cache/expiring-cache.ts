@@ -23,8 +23,17 @@ export class ExpiringCache<V> {
 
   /** Drops every entry whose key starts with `prefix`, e.g. all entries of one person. */
   deleteByPrefix(prefix: string): void {
+    this.deleteWhere((key) => key.startsWith(prefix));
+  }
+
+  /** Drops every entry whose key ends with `suffix`, e.g. all entries of one tenant. */
+  deleteBySuffix(suffix: string): void {
+    this.deleteWhere((key) => key.endsWith(suffix));
+  }
+
+  private deleteWhere(matches: (key: string) => boolean): void {
     for (const key of this.entries.keys()) {
-      if (key.startsWith(prefix)) {
+      if (matches(key)) {
         this.entries.delete(key);
       }
     }

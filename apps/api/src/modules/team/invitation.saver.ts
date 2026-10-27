@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Transaction } from '@wattwisely/db';
 import { UserAccountsRepository } from '../../common/account/user-accounts.repository';
+import { PlanLimits } from '../../common/entitlements/plan-limits';
 import { RequestAuth } from '../../common/request/request-auth';
 import { InviteMemberRequestDto } from './dto/invite-member-request.dto';
 import { InvitationToken } from './invitation-token';
@@ -17,7 +18,10 @@ export interface MemberChange {
   after: MemberRecord;
 }
 
-/** Saves new and renewed invitations inside the caller's transaction (story ACC-02). */
+/**
+ * Saves new and renewed invitations inside the caller's transaction (story ACC-02).
+ * A new seat must fit the plan's user limit (module 9).
+ */
 @Injectable()
 export class InvitationSaver {
   constructor(
@@ -38,6 +42,9 @@ export class InvitationSaver {
     await this.policy.check(tx, assignments, access.permissions);
     const account = await this.accounts.findOrCreateByEmail(tx, request.email.trim());
     const before = await this.members.findByAccount(tx, account.id);
+    if (before?.status !== 'invited') {
+      await PlanLimits.ensureUserRoom(tx, access);
+    }
     const details = InvitationSaver.details(auth, token);
     const id = before
       ? await this.reopen(tx, before, details)

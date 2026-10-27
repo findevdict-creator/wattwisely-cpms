@@ -1,0 +1,75 @@
+<h2 mat-dialog-title>{{ data.plan ? 'Edit ' + data.plan.name : 'New plan' }}</h2>
+<mat-dialog-content class="content" [formGroup]="form">
+  @if (!data.plan) {
+    <mat-form-field appearance="outline">
+      <mat-label>Code</mat-label>
+      <input matInput formControlName="code" placeholder="growth" data-testid="plan-code" />
+      <mat-hint>Lower-case, cannot change later</mat-hint>
+    </mat-form-field>
+  }
+  <mat-form-field appearance="outline">
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" data-testid="plan-name" />
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="wide">
+    <mat-label>Description</mat-label>
+    <input matInput formControlName="description" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Currency</mat-label>
+    <input matInput formControlName="currency" maxlength="3" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Platform fee per month</mat-label>
+    <input matInput formControlName="platform_fee" data-testid="plan-platform-fee" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Per AC connector per month</mat-label>
+    <input matInput formControlName="ac_connector_fee" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Per DC connector per month</mat-label>
+    <input matInput formControlName="dc_connector_fee" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Share of charging revenue (%)</mat-label>
+    <input matInput formControlName="revenue_share_percent" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Order in lists</mat-label>
+    <input matInput formControlName="sort_order" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Connector limit</mat-label>
+    <input matInput formControlName="connector_limit" data-testid="plan-connector-limit" />
+    <mat-hint>Empty means unlimited</mat-hint>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>User limit</mat-label>
+    <input matInput formControlName="user_limit" />
+    <mat-hint>Empty means unlimited</mat-hint>
+  </mat-form-field>
+
+  <p class="wide">Modules beyond the core</p>
+  <div class="wide modules">
+    @for (module of data.modules; track module.key) {
+      <mat-checkbox
+        [checked]="moduleKeys().includes(module.key)"
+        (change)="toggleModule(module.key, $event.checked)"
+        [attr.data-testid]="'plan-module-' + module.key"
+      >
+        {{ module.name }} <span class="sub">— {{ module.description }}</span>
+      </mat-checkbox>
+    }
+  </div>
+  <mat-slide-toggle formControlName="is_active" class="wide">Sold to new tenants</mat-slide-toggle>
+  @if (error()) {
+    <p class="error wide" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-plan">
+    {{ data.plan ? 'Save' : 'Create plan' }}
+  </button>
+</mat-dialog-actions>

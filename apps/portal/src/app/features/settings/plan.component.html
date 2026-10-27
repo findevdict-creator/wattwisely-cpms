@@ -1,0 +1,97 @@
+<header class="title">
+  <h1>Plan</h1>
+</header>
+<p class="hint lead">
+  What your plan includes and how much of it you use. To change plan or add a module, contact
+  Wattwisely.
+</p>
+
+@if (subscription(); as s) {
+  <div class="cards">
+    <mat-card appearance="outlined" class="card" data-testid="plan-card">
+      <mat-card-header>
+        <mat-card-title>{{ s.plan?.name ?? 'No plan yet' }}</mat-card-title>
+        <mat-card-subtitle>{{ statusLabel(s.status) }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (s.plan?.description) {
+          <p>{{ s.plan?.description }}</p>
+        }
+        @if (s.status === 'trialing' && s.trial_ends_at) {
+          <p>Your trial ends on {{ s.trial_ends_at | date: 'longDate' }}.</p>
+        }
+        @if (s.started_at) {
+          <p class="hint">On this plan since {{ s.started_at | date: 'longDate' }}.</p>
+        }
+        @if (s.billing_email) {
+          <p class="hint">
+            Billing goes to {{ s.billing_name || s.billing_email }}
+            @if (s.billing_name) {
+              ({{ s.billing_email }})
+            }
+          </p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="card" data-testid="usage-card">
+      <mat-card-header>
+        <mat-card-title>Usage</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="meter">
+          <div class="meter-label">
+            <span>Connectors</span>
+            <span>{{ s.usage.connectors }} of {{ s.usage.connector_limit ?? 'unlimited' }}</span>
+          </div>
+          @if (s.usage.connector_limit) {
+            <progress
+              max="100"
+              [value]="percentOf(s.usage.connectors, s.usage.connector_limit)"
+            ></progress>
+          }
+          <div class="hint">{{ s.usage.ac_connectors }} AC, {{ s.usage.dc_connectors }} DC</div>
+        </div>
+        <div class="meter">
+          <div class="meter-label">
+            <span>Team members</span>
+            <span>{{ s.usage.users }} of {{ s.usage.user_limit ?? 'unlimited' }}</span>
+          </div>
+          @if (s.usage.user_limit) {
+            <progress max="100" [value]="percentOf(s.usage.users, s.usage.user_limit)"></progress>
+          }
+          <div class="hint">Invited people count until they are removed.</div>
+        </div>
+        <p class="hint">{{ s.usage.sites }} sites, {{ s.usage.chargers }} chargers.</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <h2>Modules</h2>
+  <ul class="modules" data-testid="modules">
+    @for (module of s.modules; track module.key) {
+      <li [class.locked]="!module.is_enabled" [attr.data-module]="module.key">
+        <mat-icon>{{ module.is_enabled ? 'check_circle' : 'lock' }}</mat-icon>
+        <div>
+          <div class="name">{{ module.name }}</div>
+          <div class="hint">{{ module.description }}</div>
+        </div>
+        <div class="source">
+          {{ sourceLabel(module) }}
+          @if (module.ends_at) {
+            <div class="hint">until {{ module.ends_at | date: 'mediumDate' }}</div>
+          }
+          @if (!module.is_enabled && module.price) {
+            <div class="hint">
+              {{ module.price.amount | money: module.price.currency }}
+              {{ unitLabel(module.price.pricing_unit) }}
+            </div>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

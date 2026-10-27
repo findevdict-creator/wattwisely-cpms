@@ -1,0 +1,46 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.top-bar {
+  gap: 16px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.brand {
+  font-weight: 500;
+}
+
+.role {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.body {
+  flex: 1;
+}
+
+.side-menu {
+  width: 220px;
+}
+
+.page {
+  padding: 24px;
+}
+
+.active {
+  background: var(--mat-sys-secondary-container);
+}

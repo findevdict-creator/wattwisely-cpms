@@ -5,19 +5,22 @@ import { AuditLogCursor } from './audit-log-cursor';
 import { AuditLogRecord } from './audit-log-record';
 import { ListAuditLogQueryDto } from './dto/list-audit-log-query.dto';
 
-/** Reads the current tenant's audit log (RLS hides every other tenant's entries). */
+/** The tenant log's filters, plus one tenant for the admin console (which sees every tenant). */
+export type AuditLogFilter = ListAuditLogQueryDto & { tenant_id?: string };
+
+/** Reads the audit log: a tenant's own entries (RLS hides the others'), or all of them with platform access. */
 @Injectable()
 export class AuditLogRepository {
   async findPage(
     tx: Transaction,
-    query: ListAuditLogQueryDto,
+    query: AuditLogFilter,
     cursor: AuditLogCursor | null,
     limit: number,
   ): Promise<AuditLogRecord[]> {
     return tx
       .select()
       .from(auditLog)
-      .where(and(...AuditLogRepository.conditions(query, cursor)))
+      .where(and(...AuditLogRepository.filters(query), ...AuditLogRepository.window(query, cursor)))
       .orderBy(desc(auditLog.occurredAt), desc(auditLog.id))
       .limit(limit);
   }
@@ -27,17 +30,22 @@ export class AuditLogRepository {
     return rows[0] ?? null;
   }
 
-  private static conditions(
-    query: ListAuditLogQueryDto,
-    cursor: AuditLogCursor | null,
-  ): (SQL | undefined)[] {
+  /** Who did what to what. */
+  private static filters(query: AuditLogFilter): (SQL | undefined)[] {
     const actions = query.action?.split(',').map((action) => action.trim());
     return [
+      query.tenant_id ? eq(auditLog.tenantId, query.tenant_id) : undefined,
       actions ? inArray(auditLog.action, actions) : undefined,
       query.actor_type ? eq(auditLog.actorType, query.actor_type) : undefined,
       query.actor_id ? eq(auditLog.actorId, query.actor_id) : undefined,
       query.target_type ? eq(auditLog.targetType, query.target_type) : undefined,
       query.target_id ? eq(auditLog.targetId, query.target_id) : undefined,
+    ];
+  }
+
+  /** When: the time range and the page cursor. */
+  private static window(query: AuditLogFilter, cursor: AuditLogCursor | null): (SQL | undefined)[] {
+    return [
       query.occurred_at_from
         ? gte(auditLog.occurredAt, new Date(query.occurred_at_from))
         : undefined,

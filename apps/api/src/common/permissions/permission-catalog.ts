@@ -1,19 +1,17 @@
-/** One permission: a small action a role can allow, e.g. chargers:command. */
-export interface PermissionDefinition {
-  readonly key: string;
-  readonly area: string;
-  readonly label: string;
-  /** Read-only permissions keep working while a tenant is suspended (story ACC-01). */
-  readonly isReadOnly: boolean;
-}
+import { ModulePermissions } from './module-permissions';
+import { PermissionDefinition } from './permission-definition';
+
+export { PermissionDefinition } from './permission-definition';
 
 /**
  * Every permission key the API knows, grouped by area for the role matrix screen.
  * Endpoints name one of these keys; a key that is not here does not compile.
- * The system roles that hold them are created by packages/db/migrations/0002_system_roles.sql.
+ * The system roles that hold them are created by packages/db/migrations/0002_system_roles.sql
+ * (and 0014 for the plan modules' permissions, which ModulePermissions lists).
  */
 export class PermissionCatalog {
-  static readonly ENTRIES = [
+  /** The permissions of the core modules, which every plan includes. */
+  static readonly CORE_ENTRIES = [
     { key: 'team:read', area: 'team', label: 'See team members and roles', isReadOnly: true },
     {
       key: 'team:manage',
@@ -140,6 +138,11 @@ export class PermissionCatalog {
     { key: 'invoices:reissue', area: 'invoices', label: 'Reissue invoices', isReadOnly: false },
     { key: 'alerts:read', area: 'alerts', label: 'See alerts', isReadOnly: true },
     { key: 'alerts:acknowledge', area: 'alerts', label: 'Acknowledge alerts', isReadOnly: false },
+  ] as const satisfies readonly PermissionDefinition[];
+
+  static readonly ENTRIES = [
+    ...PermissionCatalog.CORE_ENTRIES,
+    ...ModulePermissions.ENTRIES,
   ] as const satisfies readonly PermissionDefinition[];
 
   static find(key: string): PermissionDefinition | undefined {

@@ -1,0 +1,48 @@
+<h1>Overview</h1>
+
+@if (overview(); as o) {
+  <div class="tiles">
+    <mat-card class="tile" data-testid="tile-tenants">
+      <span class="number">{{ o.tenants.total }}</span>
+      <span class="caption">tenants</span>
+      <span class="detail">
+        {{ o.tenants.active }} active · {{ o.tenants.trial }} trial · {{ o.tenants.suspended }}
+        suspended
+      </span>
+    </mat-card>
+    <mat-card class="tile">
+      <span class="number">{{ o.connectors }}</span>
+      <span class="caption">connectors</span>
+      <span class="detail">{{ o.ac_connectors }} AC · {{ o.dc_connectors }} DC</span>
+    </mat-card>
+    <mat-card class="tile">
+      <span class="number">{{ o.chargers }}</span>
+      <span class="caption">chargers</span>
+      <span class="detail">at {{ o.sites }} sites</span>
+    </mat-card>
+    <mat-card class="tile">
+      <span class="number">{{ o.staff }}</span>
+      <span class="caption">Wattwisely staff</span>
+      <span class="detail"><a routerLink="/staff">Manage</a></span>
+    </mat-card>
+  </div>
+
+  <h2>Plans in use</h2>
+  <table mat-table [dataSource]="o.plans" class="plans">
+    <ng-container matColumnDef="plan">
+      <th mat-header-cell *matHeaderCellDef>Plan</th>
+      <td mat-cell *matCellDef="let plan">
+        <a [routerLink]="['/tenants']" [queryParams]="{ plan: plan.code }">{{ plan.name }}</a>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="tenants">
+      <th mat-header-cell *matHeaderCellDef class="count">Tenants</th>
+      <td mat-cell *matCellDef="let plan" class="count">{{ plan.tenant_count }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="planColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: planColumns"></tr>
+  </table>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

@@ -12,10 +12,19 @@ export interface GrantedPermission {
   site_ids: string[] | null;
 }
 
-/** GET /v1/me/permissions: what I may do in the current tenant. */
+/** The plan the tenant is on, as far as the portal needs it. */
+export interface MyPlan {
+  code: string;
+  name: string;
+}
+
+/** GET /v1/me/permissions: what I may do in the current tenant, and what the plan leaves locked. */
 export interface MyPermissions {
   tenant_id: string;
   is_read_only: boolean;
+  plan: MyPlan | null;
+  /** Modules the tenant's plan does not include; their pages say so instead of failing. */
+  locked_modules: string[];
   roles: HeldRole[];
   permissions: GrantedPermission[];
 }

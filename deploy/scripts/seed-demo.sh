@@ -8,6 +8,9 @@
 #     tech@acme.test     Technician at Acme Charging, only on the Riverside site (sees no Team page)
 #     multi@demo.test    Operations at Acme Charging and Owner of Volt Hotels (tenant switcher)
 #     nobody@demo.test   member of no tenant (shows the "No workspace" page)
+#     admin@wattwisely.test    Wattwisely administrator in the admin console (module 9)
+#     support@wattwisely.test  Wattwisely support in the admin console: looks after tenants, cannot touch plans or staff
+#   Plans: Acme Charging on Growth with the Load management add-on, Volt Hotels on Starter
 #   Sites of Acme Charging: Riverside Car Park (two chargers), Depot North (one charger, waiting)
 #   Tariff of Acme Charging: Standard (off-peak 0.30, peak 0.40 per kWh from 17:00), on both sites
 #   One finished session at Riverside: the worker prices it within a minute (8.80, the design's example)
@@ -50,7 +53,7 @@ user_id() {
   echo "$id"
 }
 
-# Tenants and memberships live in the Wattwisely database. Accounts are matched to
+# Tenants, memberships, subscriptions and staff live in the Wattwisely database. Accounts are matched to
 # Keycloak users by their (verified) e-mail at first login. Runs as the database superuser.
 seed_database() {
   compose exec -T postgres psql -X -q -v ON_ERROR_STOP=1 -U wattwisely -d wattwisely >/dev/null <<'SQL'
@@ -157,6 +160,23 @@ SELECT '01900000-0000-7000-8000-000000008001', '01900000-0000-7000-8000-00000000
   'image/svg+xml', data, left(encode(sha256(data), 'hex'), 16), length(data), 2
 FROM logo
 ON CONFLICT (tenant_id) DO NOTHING;
+-- Module 9: two Wattwisely staff for the admin console, and a plan for each tenant.
+INSERT INTO user_accounts (id, email, name) VALUES
+  ('01900000-0000-7000-8000-00000000b004', 'admin@wattwisely.test', 'Ada Admin'),
+  ('01900000-0000-7000-8000-00000000b005', 'support@wattwisely.test', 'Sam Support')
+ON CONFLICT (lower(email)) DO NOTHING;
+INSERT INTO platform_staff (id, user_account_id, role)
+SELECT gen_random_uuid(), a.id, s.role::platform_role
+FROM (VALUES ('admin@wattwisely.test', 'admin'), ('support@wattwisely.test', 'support')) AS s (email, role)
+JOIN user_accounts a ON lower(a.email) = s.email
+ON CONFLICT (user_account_id) DO NOTHING;
+INSERT INTO tenant_subscriptions (id, tenant_id, plan_id, status, billing_email, billing_name) VALUES
+  ('01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000a001', '00000000-0000-7000-8000-000000000103', 'active', 'accounts@acme.test', 'Acme Charging Ltd'),
+  ('01900000-0000-7000-8000-000000009002', '01900000-0000-7000-8000-00000000a002', '00000000-0000-7000-8000-000000000102', 'active', NULL, NULL)
+ON CONFLICT (tenant_id) DO NOTHING;
+INSERT INTO tenant_entitlements (id, tenant_id, feature_key, source, note) VALUES
+  ('01900000-0000-7000-8000-000000009101', '01900000-0000-7000-8000-00000000a001', 'load_management', 'addon', 'Demo add-on')
+ON CONFLICT (tenant_id, feature_key) DO NOTHING;
 SQL
 }
 
@@ -167,8 +187,11 @@ user_id owner@acme.test Olivia Owner >/dev/null
 user_id tech@acme.test Theo Tech >/dev/null
 user_id multi@demo.test Mia Multi >/dev/null
 user_id nobody@demo.test Nora Nobody >/dev/null
+user_id admin@wattwisely.test Ada Admin >/dev/null
+user_id support@wattwisely.test Sam Support >/dev/null
 info "Creating tenants and memberships"
 seed_database
 
 info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL_HOST) with password $DEMO_PASSWORD"
+info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_HOST) as admin@wattwisely.test or support@wattwisely.test"
 info "Drivers see plug A of the Riverside charger at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/c/WW-7KQ4M2XR9T/1 (the QR code on the charger page); it shows as offline until a charger or the simulator connects with that identity"
