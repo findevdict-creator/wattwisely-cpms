@@ -59,6 +59,7 @@ Each feature is built as a **module** on its own branch, named `NN-module/<slug>
 | `18-module/ocpp-201`                  | The OCPP 2.0.1 adapter: the version chosen at the WebSocket handshake, an adapter per version, a 2.0.1 station's charge as the same session    |
 | `19-module/driver-accounts-part-1`    | Driver accounts, part 1: a driver's own login for the driver app, invitations from the operator, and who pays with a card, a driver or a group |
 | `19-module/driver-accounts-part-2`    | Driver accounts, part 2: saved cards, the hold on an RFID start, starting from the app, and the driver's own charges                           |
+| `20-module/design-system`             | Design system: every color in `theme.json`, Angular Material themed from it, Inter, Lucide icons, the same look in all three apps              |
 | `NN-module/…`                         | Next module, started from `main`                                                                                                               |
 
 Once a pull request is approved it is merged into `main`. A later change to an area goes on a fresh branch from `main`.
