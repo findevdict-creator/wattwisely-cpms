@@ -10,7 +10,11 @@ import { PaymentAccount } from '../../core/api/models/payment';
 import { PaymentsApiService } from '../../core/api/payments-api.service';
 import { Money } from '../../shared/money';
 
-/** Changes how much is held on a driver's card at the start. Closes with the saved account. */
+/**
+ * Changes how much is held on a card at the start: the guest hold for a driver paying at the QR
+ * page, and the member hold for the company's own drivers paying with a saved card (module 19).
+ * Closes with the saved account.
+ */
 @Component({
   selector: 'ww-hold-amount-dialog',
   imports: [
@@ -24,12 +28,23 @@ import { Money } from '../../shared/money';
     <h2 mat-dialog-title>Card hold</h2>
     <mat-dialog-content>
       <p>
-        Held on the driver's card when a session starts and released down to the final price. The
-        charger is stopped once the cost reaches 90% of it.
+        Held on the card when a session starts and released down to the final price. The charger is
+        stopped once the cost reaches 90% of it.
       </p>
       <mat-form-field appearance="outline">
-        <mat-label>Amount in {{ currency }}</mat-label>
+        <mat-label>Guests, in {{ currency }}</mat-label>
         <input matInput [formControl]="amount" inputmode="decimal" data-testid="hold-amount" />
+        <mat-hint>Drivers paying at the QR page without an account</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Your drivers, in {{ currency }}</mat-label>
+        <input
+          matInput
+          [formControl]="memberAmount"
+          inputmode="decimal"
+          data-testid="member-hold-amount"
+        />
+        <mat-hint>Your drivers' saved cards, unless one of their groups sets its own</mat-hint>
       </mat-form-field>
       @if (error()) {
         <p class="error" role="alert">{{ error() }}</p>
@@ -57,18 +72,24 @@ export class HoldAmountDialogComponent {
       validators: [Validators.required],
     },
   );
+  protected readonly memberAmount = new FormControl(
+    Money.toText(this.account.member_hold_amount, this.currency),
+    { nonNullable: true, validators: [Validators.required] },
+  );
   protected readonly error = signal('');
   protected readonly isSaving = signal(false);
 
   protected async save(): Promise<void> {
-    const minor = Money.fromText(this.amount.value, this.currency);
-    if (minor === null || minor < 100) {
-      this.error.set('Enter an amount of at least 1.00.');
+    const guest = Money.fromText(this.amount.value, this.currency);
+    const member = Money.fromText(this.memberAmount.value, this.currency);
+    if (guest === null || guest < 100 || member === null || member < 100) {
+      this.error.set('Enter amounts of at least 1.00.');
       return;
     }
+    const holds = { hold_amount: guest, member_hold_amount: member };
     this.isSaving.set(true);
     try {
-      this.dialogRef.close(await firstValueFrom(this.paymentsApi.updateHold(this.account, minor)));
+      this.dialogRef.close(await firstValueFrom(this.paymentsApi.updateHold(this.account, holds)));
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     } finally {

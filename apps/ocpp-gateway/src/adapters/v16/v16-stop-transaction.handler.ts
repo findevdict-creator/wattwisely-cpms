@@ -5,7 +5,7 @@ import { ChargerConnection } from '../../connection/charger-connection';
 import { SessionRecorder } from '../../sessions/session-recorder';
 import { GatewayRepositories } from '../../storage/gateway-repositories';
 import { ActionHandler, HandlerResult } from '../action-handler';
-import { V16MeterReader } from './v16-meter-reader';
+import { MeterReader } from '../meter-reader';
 import { StopTransactionRequest } from './v16-messages';
 
 /**
@@ -64,7 +64,7 @@ export class V16StopTransactionHandler implements ActionHandler {
     await this.store.meterValues.insertMany(
       tx,
       { id: session.id, tenantId: charger.tenantId, chargerId: charger.id },
-      V16MeterReader.read(stop.transactionData ?? []),
+      MeterReader.read(stop.transactionData ?? []),
     );
     if (V16StopTransactionHandler.UNPLUG_REASONS.includes(stop.reason ?? '')) {
       await this.store.sessions.markUnplugged(tx, session.id, endedAt);

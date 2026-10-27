@@ -2,6 +2,11 @@ import { Module } from '@nestjs/common';
 import { AssetsModule } from '../assets/assets.module';
 import { BrandingModule } from '../branding/branding.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { DriverInvitationMailer } from './accounts/driver-invitation.mailer';
+import { DriverInviteTransaction } from './accounts/driver-invite.transaction';
+import { DriverInvitationsRepository } from './accounts/driver-invitations.repository';
+import { DriverInvitesController } from './accounts/driver-invites.controller';
+import { DriverInvitesService } from './accounts/driver-invites.service';
 import { RfidCardsController } from './cards/rfid-cards.controller';
 import { RfidCardsRepository } from './cards/rfid-cards.repository';
 import { RfidCardsService } from './cards/rfid-cards.service';
@@ -29,7 +34,8 @@ import { QrCodesService } from './qr/qr-codes.service';
  * The driver's side of the platform: what a plug's QR code leads to, the stickers staff
  * print, stopping one's own charge and its e-mail updates (modules 7 and 11); and the
  * tenant's drivers, their RFID cards and the access groups that open private sites
- * (module 13). Driver accounts and saved cards come later; the public charge itself is module 6's.
+ * (module 13), and the invitations that link a driver's own login to their record (module 19).
+ * The driver's side of that login is DriverAppModule; the public charge itself is module 6's.
  */
 @Module({
   imports: [AssetsModule, BrandingModule, PaymentsModule],
@@ -39,6 +45,7 @@ import { QrCodesService } from './qr/qr-codes.service';
     ChargeNotificationsController,
     QrCodesController,
     DriversController,
+    DriverInvitesController,
     RfidCardsController,
     AccessGroupsController,
   ],
@@ -58,6 +65,17 @@ import { QrCodesService } from './qr/qr-codes.service';
     AccessGroupsRepository,
     AccessGroupsService,
     DriverStores,
+    DriverInvitationsRepository,
+    DriverInvitationMailer,
+    DriverInviteTransaction,
+    DriverInvitesService,
+  ],
+  exports: [
+    PlaceDescriber,
+    DriversRepository,
+    AccessGroupsRepository,
+    RfidCardsRepository,
+    DriverInvitationsRepository,
   ],
 })
 export class DriversModule {}

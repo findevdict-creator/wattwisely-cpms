@@ -42,6 +42,7 @@ export class RfidCardsService {
         driverId: driver.id,
         idTag: request.id_tag.trim(),
         label: request.label?.trim() ?? '',
+        paymentMode: request.payment_mode,
         expiresAt: request.expires_at ? new Date(request.expires_at) : null,
         createdBy: auth.requireAccount().id,
       });
@@ -64,6 +65,7 @@ export class RfidCardsService {
       const changes = {
         label: request.label?.trim(),
         status: request.status,
+        paymentMode: request.payment_mode,
         expiresAt: RfidCardsService.expiryOf(request),
       };
       if (!(await this.cards.update(tx, before.id, version, changes))) {
@@ -115,7 +117,12 @@ export class RfidCardsService {
   ): Promise<void> {
     const card = (change.after ?? change.before) as RfidCardRecord;
     const snapshot = (record: RfidCardRecord | null) =>
-      record && { label: record.label, status: record.status, expires_at: record.expiresAt };
+      record && {
+        label: record.label,
+        status: record.status,
+        payment_mode: record.paymentMode,
+        expires_at: record.expiresAt,
+      };
     return this.audit.record(tx, auth, {
       action,
       targetType: 'rfid_card',

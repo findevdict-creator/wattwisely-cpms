@@ -19,6 +19,10 @@ export class DatabaseClient {
 
   constructor(connectionString: string, poolSize: number = DatabaseClient.POOL_SIZE) {
     this.pool = new Pool({ connectionString, max: poolSize });
+    // An idle connection that Postgres closes (a restart, a dropped test database) is an
+    // 'error' on the pool. The pool has already discarded it and the next query opens a new
+    // one, so it is not fatal; without a listener Node would crash the process instead.
+    this.pool.on('error', () => undefined);
     this.db = drizzle(this.pool, { schema });
   }
 

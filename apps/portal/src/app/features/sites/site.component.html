@@ -72,7 +72,17 @@
             }}
           </dd>
           <dt>Power limit</dt>
-          <dd>{{ site.power_limit_kw ? site.power_limit_kw + ' kW' : 'None set' }}</dd>
+          <dd>
+            {{ site.power_limit_kw ? site.power_limit_kw + ' kW' : 'None set' }}
+            @if (permissions.can('load_management:read')) {
+              <a
+                [routerLink]="['/sites', site.id, 'load-management']"
+                data-testid="site-load-management"
+              >
+                Load management
+              </a>
+            }
+          </dd>
           <dt>Tariff</dt>
           <dd data-testid="site-tariff-name">
             @if (tariff(); as tariff) {

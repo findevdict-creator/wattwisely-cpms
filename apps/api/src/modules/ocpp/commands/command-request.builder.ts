@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Transaction, UuidV7 } from '@wattwisely/db';
-import { CommandAction, CommandPayload, RemoteStartTag } from '@wattwisely/ocpp-contracts';
+import { CommandPayload, RemoteStartTag, StaffCommandAction } from '@wattwisely/ocpp-contracts';
 import { ConnectorsRepository } from '../../assets/connectors/connectors.repository';
 import { OcppErrors } from '../ocpp-errors';
 import { ActiveSessionLookup } from './active-session.lookup';
@@ -33,7 +33,7 @@ export class CommandRequestBuilder {
   async build(
     tx: Transaction,
     chargerId: string,
-    action: CommandAction,
+    action: StaffCommandAction,
     body: CommandRequest,
   ): Promise<CommandPayload> {
     switch (action) {

@@ -1,0 +1,66 @@
+<section class="panel">
+  <h2>Your cards</h2>
+  @if (!store.isProviderEnabled()) {
+    <p class="hint" data-testid="cards-off">Card payments are not switched on here.</p>
+  } @else {
+    <p class="hint">
+      When an operator charges for your sessions, the hold is taken from your default card. Cards
+      are kept by our payment provider; we only see the last four digits.
+    </p>
+    @if (store.cards().length > 0) {
+      <ul class="cards">
+        @for (card of store.cards(); track card.id) {
+          <li data-testid="saved-card">
+            <mat-icon>credit_card</mat-icon>
+            <div class="card">
+              <div class="name">{{ card.brand | titlecase }} ending {{ card.last4 }}</div>
+              <div class="hint">
+                Expires {{ expiry(card.exp_month, card.exp_year) }}
+                @if (card.is_default) {
+                  · <strong>Default</strong>
+                }
+              </div>
+            </div>
+            @if (!card.is_default) {
+              <button
+                mat-button
+                (click)="store.makeDefault(card)"
+                [disabled]="store.isBusy()"
+                data-testid="make-default"
+              >
+                Make default
+              </button>
+            }
+            <button
+              mat-icon-button
+              (click)="store.remove(card)"
+              [disabled]="store.isBusy()"
+              aria-label="Remove card"
+              data-testid="remove-card"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p data-testid="no-cards">No card saved yet.</p>
+    }
+    @if (store.setup(); as setup) {
+      <ww-card-saver [setup]="setup" (saved)="store.finish()" (cancelled)="store.cancel()" />
+    } @else {
+      <button
+        mat-stroked-button
+        (click)="store.begin()"
+        [disabled]="store.isBusy()"
+        data-testid="add-card"
+      >
+        <mat-icon>add</mat-icon>
+        Add a card
+      </button>
+    }
+  }
+  @if (store.error()) {
+    <p class="error" role="alert">{{ store.error() }}</p>
+  }
+</section>

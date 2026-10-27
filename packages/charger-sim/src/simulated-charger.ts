@@ -7,8 +7,9 @@ import { ConnectRefused } from './connect-refused';
 import { IncomingCall, SimFrames, SimReply } from './sim-frames';
 
 /**
- * A charge point for tests and demos: it connects like an OCPP 1.6J charger, sends the
- * usual messages and answers the gateway's commands with whatever the test tells it to.
+ * A charge point for tests and demos: it connects like an OCPP-J charger (1.6 unless told
+ * to offer 2.0.1), sends the usual messages (`ChargerMessages` or `ChargerMessages201`)
+ * and answers the gateway's commands with whatever the test tells it to.
  */
 export class SimulatedCharger {
   static readonly DEFAULT_PROTOCOLS = ['ocpp1.6'];
@@ -26,6 +27,11 @@ export class SimulatedCharger {
 
   get isConnected(): boolean {
     return this.socket?.readyState === WebSocket.OPEN;
+  }
+
+  /** The subprotocol the gateway answered the handshake with: which OCPP version it will speak. */
+  get protocol(): string | null {
+    return this.socket?.protocol || null;
   }
 
   /** Opens the socket. Rejects with ConnectRefused when the gateway answers with an HTTP status. */
@@ -133,6 +139,23 @@ export class SimulatedCharger {
       throw new Error(`${action} answered ${reply.code}: ${reply.description}`);
     }
     return reply.payload as T;
+  }
+
+  /** A frame written by hand, with the id to expect the gateway's answer under: for tests of bad frames. */
+  sendRawForReply(id: string, text: string): Promise<SimReply> {
+    const timeoutMs = this.options.replyTimeoutMs ?? SimulatedCharger.DEFAULT_REPLY_TIMEOUT_MS;
+    const reply = new Promise<SimReply>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.waiting.delete(id);
+        reject(new Error(`No reply to frame ${id} within ${timeoutMs} ms.`));
+      }, timeoutMs);
+      this.waiting.set(id, (answer) => {
+        clearTimeout(timer);
+        resolve(answer);
+      });
+    });
+    this.sendRaw(text);
+    return reply;
   }
 
   /** Anything at all, for tests of the gateway's handling of bad frames. */

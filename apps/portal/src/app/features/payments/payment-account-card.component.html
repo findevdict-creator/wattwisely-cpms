@@ -31,7 +31,11 @@
           <dd>{{ account.is_payouts_enabled ? 'Enabled' : 'Not yet enabled' }}</dd>
           <dt>Card hold</dt>
           <dd>
-            {{ account.hold_amount | money: account.default_currency || 'GBP' }}
+            {{ account.hold_amount | money: account.default_currency || 'GBP' }} guests ·
+            <span data-testid="member-hold">
+              {{ account.member_hold_amount | money: account.default_currency || 'GBP' }} your
+              drivers
+            </span>
             @if (permissions.canChange('settings:payments')) {
               <button mat-button (click)="editHold()" data-testid="edit-hold">Change</button>
             }

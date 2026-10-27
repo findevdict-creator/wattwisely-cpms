@@ -8,9 +8,16 @@ import {
   DriverDetail,
   DriverInput,
   DriverPage,
+  DriverPaymentMode,
   RfidCard,
   RfidCardStatus,
 } from './models/driver';
+
+/** Answer to inviting a driver: the driver, and whether the e-mail left. */
+export interface DriverInviteResult {
+  driver: DriverDetail;
+  is_email_sent: boolean;
+}
 
 /** The filters of the drivers list. */
 export interface DriversFilter {
@@ -19,7 +26,10 @@ export interface DriversFilter {
   group_id?: string;
 }
 
-/** Calls /v1/drivers and the cards under it (stories DRV-01 to DRV-03). Changes carry the version seen. */
+/**
+ * Calls /v1/drivers, the cards under it (stories DRV-01 to DRV-03) and the driver's login
+ * (module 19, story DRV-04). Changes carry the version seen.
+ */
 @Injectable({ providedIn: 'root' })
 export class DriversApiService {
   static readonly PAGE_SIZE = 50;
@@ -77,9 +87,43 @@ export class DriversApiService {
   }
 
   setCardStatus(card: RfidCard, status: RfidCardStatus): Observable<RfidCard> {
+    return this.updateCard(card, { status });
+  }
+
+  setCardPaymentMode(card: RfidCard, mode: DriverPaymentMode): Observable<RfidCard> {
+    return this.updateCard(card, { payment_mode: mode });
+  }
+
+  /** E-mails the driver a link to the app; `email` overrides the address on the record. */
+  invite(driverId: string, email: string | null): Observable<DriverInviteResult> {
+    return this.http.post<DriverInviteResult>(
+      this.url(`drivers/${driverId}/invite`),
+      email ? { email } : {},
+    );
+  }
+
+  resendInvite(driverId: string): Observable<DriverInviteResult> {
+    return this.http.post<DriverInviteResult>(this.url(`drivers/${driverId}/invite/resend`), {});
+  }
+
+  cancelInvite(driverId: string): Observable<void> {
+    return this.http.delete<void>(this.url(`drivers/${driverId}/invite`));
+  }
+
+  /** The driver's login stops seeing this operator; the record and its cards stay. */
+  unlink(driver: Driver): Observable<void> {
+    return this.http.delete<void>(this.url(`drivers/${driver.id}/account-link`), {
+      headers: this.ifMatch(driver),
+    });
+  }
+
+  private updateCard(
+    card: RfidCard,
+    changes: { status?: RfidCardStatus; payment_mode?: DriverPaymentMode },
+  ): Observable<RfidCard> {
     return this.http.patch<RfidCard>(
       this.url(`drivers/${card.driver_id}/cards/${card.id}`),
-      { status },
+      changes,
       { headers: this.ifMatch(card) },
     );
   }

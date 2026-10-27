@@ -1,13 +1,20 @@
 import { Global, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { DriverAccountResolver } from '../account/driver-account.resolver';
+import { DriverAccountsRepository } from '../account/driver-accounts.repository';
 import { StaffAccountResolver } from '../account/staff-account.resolver';
 import { UserAccountsRepository } from '../account/user-accounts.repository';
+import { ApiKeyAccessRepository } from '../api-keys/api-key-access.repository';
+import { ApiKeyAccessResolver } from '../api-keys/api-key-access.resolver';
+import { ApiKeyAuthenticator } from '../api-keys/api-key-authenticator';
+import { ApiKeyRateLimiter } from '../api-keys/api-key-rate-limiter';
 import { PermissionGuard } from '../permissions/permission.guard';
 import { RateLimitGuard } from '../rate-limit/rate-limit.guard';
 import { PlatformAccessRepository } from '../platform/platform-access.repository';
 import { PlatformAccessResolver } from '../platform/platform-access.resolver';
 import { PlatformTransaction } from '../platform/platform-transaction';
 import { TenantAccessRepository } from '../tenant/tenant-access.repository';
+import { StaffContextResolver } from '../tenant/staff-context.resolver';
 import { TenantAccessResolver } from '../tenant/tenant-access.resolver';
 import { TenantContextGuard } from '../tenant/tenant-context.guard';
 import { AuthenticatedUserFactory } from './authenticated-user.factory';
@@ -16,12 +23,13 @@ import { BearerTokenExtractor } from './bearer-token.extractor';
 import { KeycloakKeySetProvider } from './keycloak-key-set.provider';
 import { KeycloakTokenVerifier } from './keycloak-token.verifier';
 import { RouteAccessReader } from './route-access.reader';
+import { UserAuthenticator } from './user-authenticator';
 
 /**
  * Registers the global guards that run, in this order, before every controller:
  *   0. RateLimitGuard       - has this address used up its budget? (module 12)
- *   1. AuthenticationGuard  - who is calling? (token)
- *   2. TenantContextGuard   - which account and tenant, or which staff role? (database)
+ *   1. AuthenticationGuard  - who is calling? (token, or an API key, module 16)
+ *   2. TenantContextGuard   - which account and tenant, which staff role, or which driver? (database)
  *   3. PermissionGuard      - may they do this? (roles, and the tenant's plan)
  */
 @Global()
@@ -34,11 +42,19 @@ import { RouteAccessReader } from './route-access.reader';
     RouteAccessReader,
     UserAccountsRepository,
     StaffAccountResolver,
+    DriverAccountsRepository,
+    DriverAccountResolver,
     TenantAccessRepository,
     TenantAccessResolver,
+    StaffContextResolver,
     PlatformAccessRepository,
     PlatformAccessResolver,
     PlatformTransaction,
+    ApiKeyAccessRepository,
+    ApiKeyAccessResolver,
+    ApiKeyRateLimiter,
+    ApiKeyAuthenticator,
+    UserAuthenticator,
     { provide: APP_GUARD, useClass: RateLimitGuard },
     { provide: APP_GUARD, useClass: AuthenticationGuard },
     { provide: APP_GUARD, useClass: TenantContextGuard },
@@ -47,10 +63,13 @@ import { RouteAccessReader } from './route-access.reader';
   exports: [
     KeycloakKeySetProvider,
     UserAccountsRepository,
+    DriverAccountsRepository,
+    DriverAccountResolver,
     TenantAccessRepository,
     TenantAccessResolver,
     PlatformAccessResolver,
     PlatformTransaction,
+    ApiKeyAccessResolver,
   ],
 })
 export class AuthModule {}

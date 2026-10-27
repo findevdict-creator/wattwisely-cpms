@@ -4,6 +4,12 @@ import { AccountState } from '../gateway/payment-gateway';
 import { AccountStatusPolicy } from './account-status-policy';
 import { NewPaymentAccount, PaymentAccountRow } from './payment-rows';
 
+/** The two holds a tenant takes (module 19): on a guest's card, and on one of its own drivers' saved card. */
+export interface HoldAmounts {
+  holdAmount?: number;
+  memberHoldAmount?: number;
+}
+
 /** Reads and writes the tenant's connected account. RLS limits every query to the current tenant. */
 export class PaymentAccountStore {
   /** The current tenant's account, if it connected one. */
@@ -45,11 +51,11 @@ export class PaymentAccountStore {
     return rows[0] ?? account;
   }
 
-  /** Applies the new hold only when the row still has the version the client saw. True when it did. */
-  async updateHold(tx: Transaction, id: string, version: number, holdAmount: number) {
+  /** Applies the new holds only when the row still has the version the client saw. True when it did. */
+  async updateHold(tx: Transaction, id: string, version: number, holds: HoldAmounts) {
     const rows = await tx
       .update(paymentAccounts)
-      .set({ holdAmount, version: version + 1, updatedAt: new Date() })
+      .set({ ...holds, version: version + 1, updatedAt: new Date() })
       .where(and(eq(paymentAccounts.id, id), eq(paymentAccounts.version, version)))
       .returning({ id: paymentAccounts.id });
     return rows.length === 1;

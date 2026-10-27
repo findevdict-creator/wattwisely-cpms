@@ -14,8 +14,6 @@ import { OcppRoute } from './connection/ocpp-route';
  * they run the real upgrade path.
  */
 export class GatewayServer {
-  static readonly SUBPROTOCOL = 'ocpp1.6';
-
   private readonly logger = new Logger(GatewayServer.name);
 
   async start(): Promise<void> {
@@ -45,8 +43,8 @@ export class GatewayServer {
     await app.register(websocket, {
       options: {
         maxPayload: config.maxFrameBytes,
-        // VersionCheck already refused anything but ocpp1.6, so this only names it in the answer.
-        handleProtocols: () => GatewayServer.SUBPROTOCOL,
+        // The checks already picked the version from what the charger offered; this names it in the answer.
+        handleProtocols: (_protocols, request) => route.subprotocolFor(request),
       },
     });
     app

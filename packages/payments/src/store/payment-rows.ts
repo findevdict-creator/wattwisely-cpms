@@ -1,4 +1,10 @@
-import { paymentAccounts, payments, paymentWebhookEvents, refunds } from '@wattwisely/db';
+import {
+  paymentAccounts,
+  paymentMethods,
+  payments,
+  paymentWebhookEvents,
+  refunds,
+} from '@wattwisely/db';
 
 /** One payments row, as the tables define it. */
 export type PaymentRow = typeof payments.$inferSelect;
@@ -9,6 +15,10 @@ export type NewPayment = typeof payments.$inferInsert;
 export type PaymentAccountRow = typeof paymentAccounts.$inferSelect;
 export type PaymentAccountStatus = PaymentAccountRow['status'];
 export type NewPaymentAccount = typeof paymentAccounts.$inferInsert;
+
+/** One payment_methods row: a card a driver saved (module 19). */
+export type PaymentMethodRow = typeof paymentMethods.$inferSelect;
+export type NewPaymentMethod = typeof paymentMethods.$inferInsert;
 
 /** One refunds row. */
 export type RefundRow = typeof refunds.$inferSelect;
