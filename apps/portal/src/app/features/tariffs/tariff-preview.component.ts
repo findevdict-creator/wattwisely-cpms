@@ -30,14 +30,30 @@ import { TariffForm } from './tariff-form';
   ],
   templateUrl: './tariff-preview.component.html',
   styles: `
-    .preview-row {
+    :host {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 12px;
     }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-top: 8px;
+    }
+    .wide {
+      grid-column: 1 / -1;
+    }
+    .run {
+      align-self: flex-start;
+    }
     .total {
+      margin: 0;
       font-size: 18px;
-      font-weight: 500;
+      font-weight: 600;
+    }
+    ww-receipt {
+      margin: 0 -20px;
     }
   `,
 })

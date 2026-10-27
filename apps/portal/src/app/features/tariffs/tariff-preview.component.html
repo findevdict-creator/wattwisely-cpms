@@ -1,22 +1,25 @@
-<div class="preview-row" [formGroup]="session">
-  <mat-form-field appearance="outline">
+<div class="grid" [formGroup]="session">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="wide">
     <mat-label>Starts</mat-label>
     <input matInput type="datetime-local" formControlName="start" />
   </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Charges for (minutes)</mat-label>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Charging</mat-label>
     <input matInput type="number" formControlName="minutes" />
+    <span matTextSuffix>min</span>
   </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Energy (kWh)</mat-label>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Energy</mat-label>
     <input matInput type="number" formControlName="energyKwh" />
+    <span matTextSuffix>kWh</span>
   </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Stays plugged in after (minutes)</mat-label>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="wide">
+    <mat-label>Stays plugged in after charging</mat-label>
     <input matInput type="number" formControlName="idleMinutes" />
+    <span matTextSuffix>min</span>
   </mat-form-field>
 </div>
-<button mat-stroked-button type="button" (click)="run()" data-testid="run-preview">
+<button mat-stroked-button class="run" type="button" (click)="run()" data-testid="run-preview">
   What would this cost?
 </button>
 @if (preview(); as result) {
@@ -25,6 +28,7 @@
     {{ result.energy_wh / 1000 | number: '1.0-3' }} kWh
   </p>
   <ww-receipt
+    [isCompact]="true"
     [lines]="result.lines"
     [currency]="result.currency"
     [totals]="{ net: result.net_total, tax: result.tax_total, gross: result.gross_total }"

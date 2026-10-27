@@ -28,6 +28,11 @@ export class TariffBandsComponent {
     );
   }
 
+  protected daysOf(band: TariffBandControls): string {
+    const days = TariffBandForm.daysText(band.controls.days.value);
+    return days.charAt(0).toUpperCase() + days.slice(1);
+  }
+
   protected remove(index: number): void {
     this.bands().removeAt(index);
   }

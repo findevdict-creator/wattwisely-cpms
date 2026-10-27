@@ -1,19 +1,57 @@
-.title {
+:host {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.filters {
+.bare {
+  padding: 0;
+}
+
+.period {
+  width: 180px;
+}
+
+.site {
+  width: 200px;
+}
+
+.bars {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 12px;
+  gap: 16px;
+
+  > .ww-card {
+    flex: 1 1 420px;
+  }
 }
 
-.usage {
-  max-width: 1100px;
+.total {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+
+  .name {
+    flex: none;
+    width: 160px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  b {
+    flex: none;
+    width: 52px;
+    font-weight: 600;
+    text-align: right;
+  }
 }
 
 .totals td {

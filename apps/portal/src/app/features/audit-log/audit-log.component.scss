@@ -1,23 +1,28 @@
-.entries {
-  max-width: 960px;
-}
-
-.more {
-  margin-top: 16px;
-}
-
-.toggle {
+.notice {
   margin-bottom: 16px;
 }
 
-.wattwisely {
-  margin-left: 8px;
-  --mat-chip-container-height: 22px;
+.nowrap {
+  white-space: nowrap;
 }
 
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 960px;
+.action {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  color: var(--ww-brand-dark);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+tr.on td {
+  background: var(--ww-brand-soft);
+}
+
+.ww-kv.one {
+  grid-template-columns: minmax(0, 1fr);
 }

@@ -1,17 +1,22 @@
-<mat-card appearance="outlined" class="account" data-testid="payment-account">
-  <mat-card-header>
-    <mat-card-title>
-      Stripe account
+<section class="ww-card" aria-labelledby="stripe-title" data-testid="payment-account">
+  <div class="ww-card-head">
+    <div class="titles">
+      <h2 id="stripe-title">Stripe account</h2>
       @if (account(); as account) {
-        <ww-status-chip kind="payment_account" [status]="account.status" />
+        <p [class.mono]="account.provider_account_id">
+          {{ account.provider_account_id || 'Not connected yet' }}
+        </p>
       }
-    </mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
+    </div>
+    @if (account(); as account) {
+      <ww-status-chip kind="payment_account" [status]="account.status" />
+    }
+  </div>
+  <div class="ww-card-body">
     @if (account(); as account) {
       <p class="hint">{{ action()?.hint }}</p>
       @if (account.requirements_due.length > 0) {
-        <div class="requirements" role="status" data-testid="requirements">
+        <div class="notice warn has-icon" role="status" data-testid="requirements">
           <mat-icon svgIcon="info" />
           <span>
             Stripe still needs:
@@ -22,41 +27,60 @@
         </div>
       }
       @if (account.status !== 'not_connected') {
-        <dl>
-          <dt>Account</dt>
-          <dd>{{ account.provider_account_id }} ({{ account.country }})</dd>
-          <dt>Payments</dt>
-          <dd>{{ account.is_charges_enabled ? 'Enabled' : 'Not yet enabled' }}</dd>
-          <dt>Payouts</dt>
-          <dd>{{ account.is_payouts_enabled ? 'Enabled' : 'Not yet enabled' }}</dd>
-          <dt>Card hold</dt>
-          <dd>
-            {{ account.hold_amount | money: account.default_currency || 'GBP' }} guests ·
-            <span data-testid="member-hold">
-              {{ account.member_hold_amount | money: account.default_currency || 'GBP' }} your
-              drivers
-            </span>
-            @if (permissions.canChange('settings:payments')) {
-              <button mat-button (click)="editHold()" data-testid="edit-hold">Change</button>
-            }
-          </dd>
+        <dl class="ww-kv">
+          <div>
+            <dt>Payments</dt>
+            <dd>{{ account.is_charges_enabled ? 'Enabled' : 'Not yet enabled' }}</dd>
+          </div>
+          <div>
+            <dt>Payouts</dt>
+            <dd>{{ account.is_payouts_enabled ? 'Enabled' : 'Not yet enabled' }}</dd>
+          </div>
+          <div>
+            <dt>Card hold, guests</dt>
+            <dd>{{ account.hold_amount | money: account.default_currency || 'GBP' }}</dd>
+          </div>
+          <div>
+            <dt>Card hold, your drivers</dt>
+            <dd data-testid="member-hold">
+              {{ account.member_hold_amount | money: account.default_currency || 'GBP' }}
+            </dd>
+          </div>
         </dl>
       }
     }
-  </mat-card-content>
-  <mat-card-actions align="end">
-    @if (account()?.status !== 'not_connected') {
-      <button mat-button (click)="refresh()" [disabled]="isBusy()">Refresh status</button>
+    @if (error()) {
+      <div class="notice danger" role="alert">{{ error() }}</div>
     }
+  </div>
+  <div class="ww-card-foot">
+    @if (account()?.status !== 'not_connected') {
+      @if (permissions.canChange('settings:payments')) {
+        <button mat-button class="ww-small" (click)="editHold()" data-testid="edit-hold">
+          Change card hold
+        </button>
+      }
+      <button mat-button class="ww-small" (click)="refresh()" [disabled]="isBusy()">
+        <mat-icon svgIcon="refresh-cw" />
+        Refresh status
+      </button>
+    }
+    <span class="ww-spacer"></span>
     @if (action(); as action) {
       @if (action.kind !== 'none' && permissions.canChange('settings:payments')) {
-        <button mat-flat-button (click)="act()" [disabled]="isBusy()" data-testid="account-action">
+        <button
+          mat-stroked-button
+          class="ww-small"
+          (click)="act()"
+          [disabled]="isBusy()"
+          data-testid="account-action"
+        >
+          @if (action.kind === 'dashboard') {
+            <mat-icon svgIcon="external-link" />
+          }
           {{ action.label }}
         </button>
       }
     }
-  </mat-card-actions>
-  @if (error()) {
-    <p class="error" role="alert">{{ error() }}</p>
-  }
-</mat-card>
+  </div>
+</section>

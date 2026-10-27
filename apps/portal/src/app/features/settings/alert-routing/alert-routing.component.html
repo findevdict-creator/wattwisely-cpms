@@ -1,120 +1,173 @@
-<h1>Alert routing</h1>
-<p class="hint intro">
-  Choose who hears about each kind of alert. A kind of alert with no rules goes to the default roles
-  below. People only hear about sites they are allowed to see.
-</p>
-
-<section class="rules" data-testid="alert-rules">
-  @for (rule of rules(); track $index; let index = $index) {
-    <div class="rule" data-testid="alert-rule">
-      <mat-form-field appearance="outline">
-        <mat-label>Alert</mat-label>
-        <mat-select
-          [value]="rule.alert_type"
-          (selectionChange)="change(index, { alert_type: $event.value })"
-        >
-          @for (type of types; track type) {
-            <mat-option [value]="type">{{ labels[type] }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Site</mat-label>
-        <mat-select
-          [value]="rule.site_id"
-          (selectionChange)="change(index, { site_id: $event.value })"
-        >
-          <mat-option [value]="null">Every site</mat-option>
-          @for (site of sites(); track site.id) {
-            <mat-option [value]="site.id">{{ site.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Send to</mat-label>
-        <mat-select [value]="targetOf(rule)" (selectionChange)="changeTarget(index, $event.value)">
-          @for (role of roles(); track role.id) {
-            <mat-option [value]="'role:' + role.id">Everyone who is {{ role.name }}</mat-option>
-          }
-          @for (member of members(); track member.id) {
-            <mat-option [value]="'member:' + member.id">{{
-              member.name || member.email
-            }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-checkbox [checked]="rule.is_email" (change)="change(index, { is_email: $event.checked })"
-        >E-mail</mat-checkbox
-      >
-      <mat-checkbox
-        [checked]="rule.is_in_portal"
-        (change)="change(index, { is_in_portal: $event.checked })"
-        >Portal</mat-checkbox
-      >
-      @if (permissions.canChange('settings:write')) {
-        <button mat-icon-button (click)="remove(index)" aria-label="Remove rule">
-          <mat-icon svgIcon="trash-2" />
-        </button>
-      }
+<section class="ww-card" aria-labelledby="rules-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="rules-title">Alert routing</h2>
+      <p>Who hears about each kind of alert; people only hear about sites they may see</p>
     </div>
-  } @empty {
-    <p class="hint" data-testid="no-rules">No rules yet: every alert goes to the default roles.</p>
+    @if (permissions.canChange('settings:write')) {
+      <button mat-stroked-button class="ww-small" (click)="add()" data-testid="add-rule">
+        <mat-icon svgIcon="plus" />
+        Add rule
+      </button>
+    }
+  </div>
+
+  @if (rules().length === 0) {
+    <ww-empty-state
+      icon="route"
+      heading="No rules yet"
+      text="Every alert goes to the default roles below until you add a rule."
+      data-testid="no-rules"
+    />
+  } @else {
+    <div class="scroll" data-testid="alert-rules">
+      <table class="rules">
+        <thead>
+          <tr>
+            <th>Alert</th>
+            <th>Sites</th>
+            <th>Sent to</th>
+            <th class="mark">E-mail</th>
+            <th class="mark">Portal</th>
+            @if (permissions.canChange('settings:write')) {
+              <th><span class="ww-faint">Remove</span></th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules(); track $index; let index = $index) {
+            <tr data-testid="alert-rule">
+              <td>
+                <mat-select
+                  class="ww-field type"
+                  aria-label="Alert"
+                  [value]="rule.alert_type"
+                  (selectionChange)="change(index, { alert_type: $event.value })"
+                >
+                  @for (type of types; track type) {
+                    <mat-option [value]="type">{{ labels[type] }}</mat-option>
+                  }
+                </mat-select>
+              </td>
+              <td>
+                <mat-select
+                  class="ww-field site"
+                  aria-label="Site"
+                  [value]="rule.site_id ?? everySite"
+                  (selectionChange)="changeSite(index, $event.value)"
+                >
+                  <mat-option [value]="everySite">Every site</mat-option>
+                  @for (site of sites(); track site.id) {
+                    <mat-option [value]="site.id">{{ site.name }}</mat-option>
+                  }
+                </mat-select>
+              </td>
+              <td>
+                <mat-select
+                  class="ww-field target"
+                  aria-label="Send to"
+                  placeholder="Choose who"
+                  [value]="targetOf(rule)"
+                  (selectionChange)="changeTarget(index, $event.value)"
+                >
+                  @for (role of roles(); track role.id) {
+                    <mat-option [value]="'role:' + role.id"
+                      >Everyone who is {{ role.name }}</mat-option
+                    >
+                  }
+                  @for (member of members(); track member.id) {
+                    <mat-option [value]="'member:' + member.id">{{
+                      member.name || member.email
+                    }}</mat-option>
+                  }
+                </mat-select>
+              </td>
+              <td class="mark">
+                <mat-checkbox
+                  aria-label="E-mail"
+                  [checked]="rule.is_email"
+                  (change)="change(index, { is_email: $event.checked })"
+                />
+              </td>
+              <td class="mark">
+                <mat-checkbox
+                  aria-label="Portal"
+                  [checked]="rule.is_in_portal"
+                  (change)="change(index, { is_in_portal: $event.checked })"
+                />
+              </td>
+              @if (permissions.canChange('settings:write')) {
+                <td>
+                  <button mat-icon-button (click)="remove(index)" aria-label="Remove rule">
+                    <mat-icon svgIcon="trash-2" />
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  }
+  @if (permissions.canChange('settings:write')) {
+    <div class="ww-card-foot">
+      @if (isIncomplete()) {
+        <span>Each rule needs someone to send to and at least one way to reach them.</span>
+      } @else if (saved()) {
+        <span class="saved" role="status" data-testid="rules-saved">
+          <mat-icon svgIcon="check" />
+          Saved.
+        </span>
+      }
+      <span class="ww-spacer"></span>
+      <button
+        mat-flat-button
+        class="ww-small"
+        (click)="save()"
+        [disabled]="isSaving() || isIncomplete()"
+        data-testid="save-rules"
+      >
+        Save rules
+      </button>
+    </div>
   }
 </section>
 
-@if (permissions.canChange('settings:write')) {
-  <div class="actions">
-    <button mat-stroked-button (click)="add()" data-testid="add-rule">
-      <mat-icon svgIcon="plus" />
-      Add rule
-    </button>
-    <button
-      mat-flat-button
-      (click)="save()"
-      [disabled]="isSaving() || isIncomplete()"
-      data-testid="save-rules"
-    >
-      Save
-    </button>
-    @if (saved()) {
-      <span class="hint" role="status" data-testid="rules-saved">Saved.</span>
+<section class="ww-card defaults" aria-labelledby="defaults-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="defaults-title">Default roles</h2>
+      <p>
+        Used for
+        @if (typesWithoutRules().length === types.length) {
+          every kind of alert, as there are no rules yet
+        } @else if (typesWithoutRules().length === 0) {
+          nothing at the moment: every kind of alert has a rule
+        } @else {
+          @for (type of typesWithoutRules(); track type; let last = $last) {
+            {{ labels[type] }}{{ last ? '' : ', ' }}
+          }
+        }
+      </p>
+    </div>
+  </div>
+  <div class="ww-card-body list">
+    @for (role of defaults(); track role.role_name) {
+      <div class="ww-list-item">
+        <b class="ww-grow">{{ role.role_name }}</b>
+        @if (role.is_email) {
+          <span class="ww-chip neutral">E-mail</span>
+        }
+        @if (role.is_in_portal) {
+          <span class="ww-chip neutral">Portal</span>
+        }
+      </div>
     }
   </div>
-  @if (isIncomplete()) {
-    <p class="hint">Each rule needs someone to send to and at least one way to reach them.</p>
-  }
-}
-
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
-
-<section class="defaults">
-  <h2>Default roles</h2>
-  <p class="hint">
-    Used for
-    @if (typesWithoutRules().length === types.length) {
-      every kind of alert, as there are no rules yet.
-    } @else if (typesWithoutRules().length === 0) {
-      nothing at the moment: every kind of alert has a rule.
-    } @else {
-      @for (type of typesWithoutRules(); track type; let last = $last) {
-        {{ labels[type] }}{{ last ? '.' : ', ' }}
-      }
-    }
-  </p>
-  <ul>
-    @for (role of defaults(); track role.role_name) {
-      <li>
-        {{ role.role_name }}:
-        {{
-          role.is_email && role.is_in_portal
-            ? 'e-mail and portal'
-            : role.is_email
-              ? 'e-mail'
-              : 'portal'
-        }}
-      </li>
-    }
-  </ul>
 </section>

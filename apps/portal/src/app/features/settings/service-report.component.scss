@@ -1,38 +1,47 @@
-.report-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
+.month {
+  width: 200px;
 }
 
 .totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.total {
   display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin: 8px 0 16px;
-}
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
 
-.value {
-  font-size: 22px;
-  font-weight: 500;
-}
+  & + .total {
+    border-left: 1px solid var(--mat-sys-outline-variant);
+  }
 
-.chargers {
-  max-width: 1100px;
-}
+  .label {
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant);
+  }
 
-.name {
-  font-weight: 500;
-}
-
-.changes {
-  padding-left: 20px;
+  b {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+  }
 }
 
 .hint {
+  margin: 0;
+  font-size: 13px;
   color: var(--mat-sys-on-surface-variant);
 }
 
-.error {
-  color: var(--mat-sys-error);
+.ww-overline {
+  padding-top: 8px;
+}
+
+.changes .when {
+  flex: none;
+  width: 56px;
+  color: var(--mat-sys-on-surface-variant);
 }

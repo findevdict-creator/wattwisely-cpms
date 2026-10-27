@@ -152,7 +152,8 @@ mat-select.ww-field {
 
 // Numbers in a table line up on the right; .ww-faint for a dash where there is nothing.
 .mat-mdc-header-cell.ww-num,
-.mat-mdc-cell.ww-num {
+.mat-mdc-cell.ww-num,
+.mat-mdc-footer-cell.ww-num {
   text-align: right;
 }
 
@@ -221,4 +222,10 @@ mat-select.ww-field {
   --mat-button-outlined-label-text-color: var(--ww-danger-text);
   --mat-button-outlined-outline-color: color-mix(in srgb, var(--ww-danger) 40%, transparent);
   --mat-button-outlined-state-layer-color: var(--ww-danger);
+}
+
+// The same as a text button, such as Revoke in a table row.
+.mat-mdc-button.ww-danger {
+  --mat-button-text-label-text-color: var(--ww-danger-text);
+  --mat-button-text-state-layer-color: var(--ww-danger);
 }

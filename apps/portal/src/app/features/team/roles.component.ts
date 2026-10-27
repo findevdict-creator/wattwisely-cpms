@@ -1,18 +1,19 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink } from '@angular/router';
+import { PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { Permission, Role } from '../../core/api/models/role';
 import { TeamApiService } from '../../core/api/team-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
-import { PermissionGroup, PermissionMatrix } from './permission-matrix';
+import { RoleAreas } from './role-areas';
 import { RoleDialogComponent, RoleDialogData } from './role-dialog.component';
+import { TeamTabsComponent } from './team-tabs.component';
 
 /**
  * Team > Roles: the permission matrix, every role against every permission (module 14).
@@ -21,7 +22,13 @@ import { RoleDialogComponent, RoleDialogData } from './role-dialog.component';
  */
 @Component({
   selector: 'ww-roles',
-  imports: [MatButtonModule, MatIconModule, MatTooltipModule, RouterLink],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    PageHeaderComponent,
+    TeamTabsComponent,
+  ],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.scss',
 })
@@ -33,10 +40,17 @@ export class RolesComponent implements OnInit {
 
   protected readonly roles = signal<Role[]>([]);
   protected readonly catalogue = signal<Permission[]>([]);
-  protected readonly groups = signal<PermissionGroup[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly error = signal('');
-  protected readonly holds = PermissionMatrix.holds;
+  protected readonly selectedId = signal<string | null>(null);
+  protected readonly selected = computed<Role | null>(
+    () => this.roles().find((role) => role.id === this.selectedId()) ?? this.roles()[0] ?? null,
+  );
+  protected readonly areas = computed(() => {
+    const role = this.selected();
+    return role ? RoleAreas.of(role, this.catalogue()) : [];
+  });
+  protected readonly countOf = (role: Role) => RoleAreas.countOf(role, this.catalogue());
 
   ngOnInit(): void {
     void this.load();
@@ -65,6 +79,7 @@ export class RolesComponent implements OnInit {
     if (saved) {
       this.tell(role ? `${saved.name} saved.` : `${saved.name} created.`);
       await this.load();
+      this.selectedId.set(saved.id);
     }
   }
 
@@ -97,7 +112,6 @@ export class RolesComponent implements OnInit {
       ]);
       this.roles.set(roles);
       this.catalogue.set(catalogue);
-      this.groups.set(PermissionMatrix.group(catalogue));
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     } finally {

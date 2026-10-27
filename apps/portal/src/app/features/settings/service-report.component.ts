@@ -1,10 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
@@ -19,16 +15,7 @@ import { ReportMonth } from './report-month';
  */
 @Component({
   selector: 'ww-service-report',
-  imports: [
-    DatePipe,
-    FormsModule,
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTableModule,
-    MoneyPipe,
-  ],
+  imports: [DatePipe, FormsModule, MatTableModule, MoneyPipe],
   templateUrl: './service-report.component.html',
   styleUrl: './service-report.component.scss',
 })

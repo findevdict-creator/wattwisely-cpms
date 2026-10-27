@@ -1,21 +1,20 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
-import { RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { InviteResult, Member } from '../../core/api/models/member';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog.component';
+import { Initials } from '../../shared/initials';
 import { EditRolesDialogComponent } from './edit-roles-dialog.component';
 import { InviteDialogComponent } from './invite-dialog.component';
 import { MemberRoles } from './member-roles';
+import { TeamTabsComponent } from './team-tabs.component';
 import { TeamStore } from './team.store';
 
 /** Settings > Team: who has access, with which roles; invite, change and remove (ACC-02, ACC-03). */
@@ -23,14 +22,13 @@ import { TeamStore } from './team.store';
   selector: 'ww-team',
   imports: [
     DatePipe,
+    EmptyStateComponent,
     MatButtonModule,
-    MatChipsModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatMenuModule,
     MatTableModule,
-    RouterLink,
+    PageHeaderComponent,
+    TeamTabsComponent,
   ],
   providers: [TeamStore],
   templateUrl: './team.component.html',
@@ -40,11 +38,17 @@ export class TeamComponent implements OnInit {
   protected readonly store = inject(TeamStore);
   protected readonly permissions = inject(PermissionsService);
   private readonly dialog = inject(MatDialog);
-  protected readonly columns = ['person', 'roles', 'status', 'actions'];
-  protected readonly describeRoles = MemberRoles.describe;
+  protected readonly columns = ['person', 'roles', 'where', 'status', 'actions'];
+  protected readonly initialsOf = (member: Member) => Initials.of(member.name || member.email);
 
   ngOnInit(): void {
     void this.store.load();
+  }
+
+  protected whereOf(member: Member): string {
+    return member.is_managed_operator
+      ? 'Managed service'
+      : MemberRoles.where(member, this.store.sites());
   }
 
   protected search(query: string): void {

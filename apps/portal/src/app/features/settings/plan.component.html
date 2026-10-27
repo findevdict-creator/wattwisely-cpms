@@ -1,97 +1,126 @@
-<header class="title">
-  <h1>Plan</h1>
-</header>
-<p class="hint lead">
-  What your plan includes and how much of it you use. To change plan or add a module, contact
-  Wattwisely.
-</p>
-
 @if (subscription(); as s) {
   <div class="cards">
-    <mat-card appearance="outlined" class="card" data-testid="plan-card">
-      <mat-card-header>
-        <mat-card-title>{{ s.plan?.name ?? 'No plan yet' }}</mat-card-title>
-        <mat-card-subtitle>{{ statusLabel(s.status) }}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        @if (s.plan?.description) {
+    <section class="ww-card" aria-labelledby="plan-title" data-testid="plan-card">
+      <div class="ww-card-head">
+        <div class="titles">
+          <h2 id="plan-title">{{ s.plan?.name ?? 'No plan yet' }}</h2>
           <p>{{ s.plan?.description }}</p>
-        }
-        @if (s.status === 'trialing' && s.trial_ends_at) {
-          <p>Your trial ends on {{ s.trial_ends_at | date: 'longDate' }}.</p>
-        }
-        @if (s.started_at) {
-          <p class="hint">On this plan since {{ s.started_at | date: 'longDate' }}.</p>
-        }
-        @if (s.billing_email) {
-          <p class="hint">
-            Billing goes to {{ s.billing_name || s.billing_email }}
-            @if (s.billing_name) {
-              ({{ s.billing_email }})
-            }
-          </p>
-        }
-      </mat-card-content>
-    </mat-card>
+        </div>
+        <span class="ww-chip {{ statusTone(s.status) }}">{{ statusLabel(s.status) }}</span>
+      </div>
+      <div class="ww-card-body">
+        <dl class="ww-kv">
+          @if (s.started_at) {
+            <div>
+              <dt>On this plan since</dt>
+              <dd>{{ s.started_at | date: 'd MMM y' }}</dd>
+            </div>
+          }
+          @if (s.status === 'trialing' && s.trial_ends_at) {
+            <div>
+              <dt>Trial ends</dt>
+              <dd>{{ s.trial_ends_at | date: 'd MMM y' }}</dd>
+            </div>
+          }
+          @if (s.billing_email) {
+            <div class="wide">
+              <dt>Billing goes to</dt>
+              <dd>
+                {{ s.billing_name || s.billing_email }}
+                @if (s.billing_name) {
+                  <span class="faint">· {{ s.billing_email }}</span>
+                }
+              </dd>
+            </div>
+          }
+        </dl>
+      </div>
+      <div class="ww-card-foot">
+        <span>To change plan or add a module, contact Wattwisely.</span>
+        <span class="ww-spacer"></span>
+        <a mat-button class="ww-small" routerLink="/settings/invoices">Invoices</a>
+      </div>
+    </section>
 
-    <mat-card appearance="outlined" class="card" data-testid="usage-card">
-      <mat-card-header>
-        <mat-card-title>Usage</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <section class="ww-card" aria-labelledby="usage-title" data-testid="usage-card">
+      <div class="ww-card-head">
+        <div class="titles">
+          <h2 id="usage-title">Usage</h2>
+          <p>{{ s.usage.sites }} sites, {{ s.usage.chargers }} chargers</p>
+        </div>
+      </div>
+      <div class="ww-card-body meters">
         <div class="meter">
           <div class="meter-label">
             <span>Connectors</span>
-            <span>{{ s.usage.connectors }} of {{ s.usage.connector_limit ?? 'unlimited' }}</span>
+            <b>{{ s.usage.connectors }} of {{ s.usage.connector_limit ?? 'unlimited' }}</b>
           </div>
           @if (s.usage.connector_limit) {
-            <progress
-              max="100"
-              [value]="percentOf(s.usage.connectors, s.usage.connector_limit)"
-            ></progress>
+            <span class="ww-progress {{ toneOf(s.usage.connectors, s.usage.connector_limit) }}">
+              <i [style.width.%]="percentOf(s.usage.connectors, s.usage.connector_limit)"></i>
+            </span>
           }
-          <div class="hint">{{ s.usage.ac_connectors }} AC, {{ s.usage.dc_connectors }} DC</div>
+          <span class="hint">{{ s.usage.ac_connectors }} AC, {{ s.usage.dc_connectors }} DC</span>
         </div>
         <div class="meter">
           <div class="meter-label">
             <span>Team members</span>
-            <span>{{ s.usage.users }} of {{ s.usage.user_limit ?? 'unlimited' }}</span>
+            <b>{{ s.usage.users }} of {{ s.usage.user_limit ?? 'unlimited' }}</b>
           </div>
           @if (s.usage.user_limit) {
-            <progress max="100" [value]="percentOf(s.usage.users, s.usage.user_limit)"></progress>
+            <span class="ww-progress {{ toneOf(s.usage.users, s.usage.user_limit) }}">
+              <i [style.width.%]="percentOf(s.usage.users, s.usage.user_limit)"></i>
+            </span>
           }
-          <div class="hint">Invited people count until they are removed.</div>
+          <span class="hint">Invited people count until they are removed.</span>
         </div>
-        <p class="hint">{{ s.usage.sites }} sites, {{ s.usage.chargers }} chargers.</p>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </section>
   </div>
 
-  <h2>Modules</h2>
-  <ul class="modules" data-testid="modules">
-    @for (module of s.modules; track module.key) {
-      <li [class.locked]="!module.is_enabled" [attr.data-module]="module.key">
-        <mat-icon [svgIcon]="module.is_enabled ? 'circle-check' : 'lock'" />
-        <div>
-          <div class="name">{{ module.name }}</div>
-          <div class="hint">{{ module.description }}</div>
+  <section class="ww-card" aria-labelledby="modules-title">
+    <div class="ww-card-head line">
+      <div class="titles">
+        <h2 id="modules-title">Modules and add-ons</h2>
+        <p>What your plan switches on; locked ones come from Wattwisely</p>
+      </div>
+    </div>
+    <div class="ww-card-body list" data-testid="modules">
+      @for (module of s.modules; track module.key) {
+        <div
+          class="ww-list-item"
+          [class.locked]="!module.is_enabled"
+          [attr.data-module]="module.key"
+        >
+          <mat-icon
+            [class.on]="module.is_enabled"
+            [svgIcon]="module.is_enabled ? 'circle-check' : 'lock'"
+          />
+          <span class="ww-two ww-grow">
+            <b>{{ module.name }}</b>
+            <span>{{ module.description }}</span>
+          </span>
+          <span class="source">
+            @if (module.is_enabled) {
+              <span class="ww-chip ok">{{ sourceLabel(module) }}</span>
+            } @else {
+              <span class="ww-chip neutral">{{ sourceLabel(module) }}</span>
+            }
+            @if (module.ends_at) {
+              <span class="hint">until {{ module.ends_at | date: 'd MMM y' }}</span>
+            }
+            @if (!module.is_enabled && module.price) {
+              <span class="hint">
+                {{ module.price.amount | money: module.price.currency }}
+                {{ unitLabel(module.price.pricing_unit) }}
+              </span>
+            }
+          </span>
         </div>
-        <div class="source">
-          {{ sourceLabel(module) }}
-          @if (module.ends_at) {
-            <div class="hint">until {{ module.ends_at | date: 'mediumDate' }}</div>
-          }
-          @if (!module.is_enabled && module.price) {
-            <div class="hint">
-              {{ module.price.amount | money: module.price.currency }}
-              {{ unitLabel(module.price.pricing_unit) }}
-            </div>
-          }
-        </div>
-      </li>
-    }
-  </ul>
+      }
+    </div>
+  </section>
 }
 @if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
+  <div class="notice danger" role="alert">{{ error() }}</div>
 }

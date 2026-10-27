@@ -1,0 +1,66 @@
+<ww-page-header
+  heading="Reports"
+  subtitle="How busy, how reliable and how profitable each site is, and the files you asked for"
+/>
+
+<nav class="ww-tabs" aria-label="Report">
+  @if (permissions.can('reports:read')) {
+    <button
+      type="button"
+      class="ww-tab"
+      [class.on]="shown() === 'usage'"
+      [attr.aria-current]="shown() === 'usage' ? 'page' : null"
+      (click)="shown.set('usage')"
+      data-testid="tab-usage"
+    >
+      Usage
+    </button>
+  }
+  <button
+    type="button"
+    class="ww-tab"
+    [class.on]="shown() === 'exports'"
+    [attr.aria-current]="shown() === 'exports' ? 'page' : null"
+    (click)="shown.set('exports')"
+    data-testid="tab-exports"
+  >
+    Exports
+  </button>
+  @if (canSchedule() || isScheduleLocked()) {
+    <button
+      type="button"
+      class="ww-tab"
+      [class.on]="shown() === 'schedules'"
+      [attr.aria-current]="shown() === 'schedules' ? 'page' : null"
+      (click)="shown.set('schedules')"
+      data-testid="tab-schedules"
+    >
+      Scheduled
+    </button>
+  }
+</nav>
+
+@switch (shown()) {
+  @case ('usage') {
+    <ww-usage-report />
+  }
+  @case ('exports') {
+    <ww-report-exports [highlight]="export()" />
+  }
+  @case ('schedules') {
+    @if (canSchedule()) {
+      <ww-report-schedules />
+    } @else {
+      <section class="ww-card" data-testid="schedules-locked">
+        <div class="ww-card-body">
+          <div class="notice has-icon">
+            <span>
+              Reports e-mailed every week or month come with Advanced reports, on the Growth and
+              Enterprise plans. Ask Wattwisely to add it.
+            </span>
+          </div>
+        </div>
+      </section>
+    }
+  }
+}

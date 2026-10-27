@@ -24,6 +24,12 @@ export class DayLabel {
     });
   }
 
+  /** The day inside a sentence: "saved today", "saved 26 Oct". */
+  static inSentence(iso: string, now = new Date()): string {
+    const day = DayLabel.day(iso, now);
+    return /\d/.test(day) ? day : day.toLowerCase();
+  }
+
   /** "Today, 09:06" or "26 Oct, 18:20". */
   static dayAndTime(iso: string, now = new Date()): string {
     return `${DayLabel.day(iso, now)}, ${DayLabel.time(iso)}`;

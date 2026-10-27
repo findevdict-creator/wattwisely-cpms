@@ -10,7 +10,10 @@
 @if (store.notice()) {
   <p class="notice info has-icon" role="status" data-testid="export-notice">
     <mat-icon svgIcon="info" />
-    <span>{{ store.notice() }} <a routerLink="/reports">Go to Reports</a></span>
+    <span
+      >{{ store.notice() }}
+      <a routerLink="/reports" [queryParams]="{ tab: 'exports' }">Go to Reports</a></span
+    >
   </p>
 }
 

@@ -1,10 +1,10 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { KpiCardComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { UsageQuery, UsageReport } from '../../core/api/models/report';
@@ -19,9 +19,9 @@ import { UsageFigures } from './usage-figures';
 @Component({
   selector: 'ww-usage-report',
   imports: [
+    DecimalPipe,
+    KpiCardComponent,
     MatButtonModule,
-    MatButtonToggleModule,
-    MatFormFieldModule,
     MatIconModule,
     MatSelectModule,
     MatTableModule,

@@ -1,11 +1,13 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EmptyStateComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../../core/api/api-problem';
 import { IntegrationsApiService } from '../../../core/api/integrations-api.service';
@@ -13,9 +15,10 @@ import { ApiKey, CreatedApiKey } from '../../../core/api/models/api-key';
 import { TeamApiService } from '../../../core/api/team-api.service';
 import { PermissionsService } from '../../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component';
+import { DayLabel } from '../../../shared/day-label';
+import { DurationLabel } from '../../../shared/duration-label';
 import { StatusChipComponent } from '../../../shared/status-chip.component';
 import { ApiKeyDialogComponent, ApiKeyDialogData } from './api-key-dialog.component';
-import { CreatedKeyDialogComponent } from './created-key-dialog.component';
 
 /** Settings > API keys (module 16): the keys the company's own systems call the API with. */
 @Component({
@@ -26,6 +29,7 @@ import { CreatedKeyDialogComponent } from './created-key-dialog.component';
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
+    EmptyStateComponent,
     StatusChipComponent,
   ],
   templateUrl: './api-keys.component.html',
@@ -37,19 +41,21 @@ export class ApiKeysComponent implements OnInit {
   private readonly teamApi = inject(TeamApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly clipboard = inject(Clipboard);
 
-  protected readonly columns = [
-    'name',
-    'hint',
-    'permissions',
-    'created_by',
-    'last_used',
-    'status',
-    'actions',
-  ];
+  protected readonly columns = ['name', 'permissions', 'created', 'last_used', 'status', 'actions'];
   protected readonly keys = signal<ApiKey[]>([]);
   protected readonly isLoaded = signal(false);
   protected readonly error = signal('');
+  /** A key just made: its token is on the page until Done, and never again. */
+  protected readonly created = signal<CreatedApiKey | null>(null);
+  protected readonly isCopied = signal(false);
+
+  protected readonly countLine = computed(() => {
+    const keys = this.keys();
+    const active = keys.filter((key) => key.status === 'active').length;
+    return `${keys.length === 1 ? '1 key' : `${keys.length} keys`}, ${active} active`;
+  });
 
   ngOnInit(): void {
     void this.load();
@@ -63,8 +69,36 @@ export class ApiKeysComponent implements OnInit {
     return this.permissions.canChange('api_keys:manage') && !this.isLocked();
   }
 
-  protected permissionSummary(key: ApiKey): string {
-    return key.permissions.length === 1 ? '1 permission' : `${key.permissions.length} permissions`;
+  /** The first two permissions, then how many more. */
+  protected scopesOf(key: ApiKey): string {
+    const shown = key.permissions.slice(0, 2).join(' · ');
+    const more = key.permissions.length - 2;
+    return more > 0 ? `${shown} +${more}` : shown;
+  }
+
+  protected lastUsedOf(key: ApiKey): string {
+    return key.last_used_at ? DurationLabel.ago(key.last_used_at) : 'Never used';
+  }
+
+  protected expiryOf(key: ApiKey): string {
+    if (key.revoked_at) {
+      return `Revoked ${DayLabel.inSentence(key.revoked_at)}`;
+    }
+    if (!key.expires_at) {
+      return 'No expiry';
+    }
+    const verb = key.status === 'expired' ? 'Expired' : 'Expires';
+    return `${verb} ${DayLabel.inSentence(key.expires_at)}`;
+  }
+
+  protected copy(created: CreatedApiKey): void {
+    this.clipboard.copy(created.token);
+    this.isCopied.set(true);
+  }
+
+  protected forget(): void {
+    this.created.set(null);
+    this.isCopied.set(false);
   }
 
   protected async add(): Promise<void> {
@@ -74,11 +108,8 @@ export class ApiKeysComponent implements OnInit {
     const dialog = this.dialog.open(ApiKeyDialogComponent, { data, width: '640px' });
     const created: CreatedApiKey | undefined = await firstValueFrom(dialog.afterClosed());
     if (created) {
-      this.dialog.open(CreatedKeyDialogComponent, {
-        data: created,
-        width: '560px',
-        disableClose: true,
-      });
+      this.isCopied.set(false);
+      this.created.set(created);
       await this.load();
     }
   }

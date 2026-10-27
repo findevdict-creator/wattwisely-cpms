@@ -3,7 +3,6 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -14,6 +13,8 @@ import { BrandingApiService } from '../../core/api/branding-api.service';
 import { Branding, PublicBranding } from '../../core/api/models/branding';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { TenantContextService } from '../../core/tenant/tenant-context.service';
+import { Initials } from '../../shared/initials';
+import { BrandColour } from './brand-colour';
 import { BrandPreviewComponent } from './brand-preview.component';
 import { BrandingForm } from './branding-form';
 import { LogoFileReader } from './logo-file.reader';
@@ -29,7 +30,6 @@ import { LogoFileReader } from './logo-file.reader';
     BrandPreviewComponent,
     DecimalPipe,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -60,6 +60,14 @@ export class BrandingComponent implements OnInit {
       ? this.form.preview(saved.preview, this.tenantContext.currentTenant()?.name ?? '')
       : null;
   });
+
+  protected readonly contrastNote = computed(() => {
+    const brand = this.preview();
+    return brand ? BrandColour.contrastNote(brand.primary_color, brand.on_primary_color) : '';
+  });
+  protected readonly initials = computed(() =>
+    Initials.of(this.preview()?.name || this.tenantContext.currentTenant()?.name || 'W'),
+  );
 
   ngOnInit(): void {
     if (!this.canEdit()) {

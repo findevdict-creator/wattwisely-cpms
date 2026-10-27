@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { EmptyStateComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { ReportSchedule } from '../../core/api/models/report';
@@ -17,17 +18,11 @@ import { ScheduleDialogComponent, ScheduleDialogData } from './schedule-dialog.c
 /** Scheduled reports (advanced_reports): a usage CSV e-mailed every Monday or on the 1st. */
 @Component({
   selector: 'ww-report-schedules',
-  imports: [DatePipe, MatButtonModule, MatIconModule, MatTableModule],
+  imports: [DatePipe, EmptyStateComponent, MatButtonModule, MatIconModule, MatTableModule],
   templateUrl: './report-schedules.component.html',
   styles: `
-    .title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1100px;
-    }
-    .schedules {
-      max-width: 1100px;
+    .buttons {
+      display: inline-flex;
     }
   `,
 })

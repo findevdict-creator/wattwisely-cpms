@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { PlanModule, Subscription } from '../../core/api/models/subscription';
@@ -14,7 +15,7 @@ import { MoneyPipe } from '../../shared/money.pipe';
  */
 @Component({
   selector: 'ww-plan',
-  imports: [DatePipe, MatCardModule, MatIconModule, MoneyPipe],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MoneyPipe, RouterLink],
   templateUrl: './plan.component.html',
   styleUrl: './plan.component.scss',
 })
@@ -61,6 +62,19 @@ export class PlanComponent implements OnInit {
     return (
       { per_connector: 'per connector', per_site: 'per site', per_tenant: 'per month' }[unit] ?? ''
     );
+  }
+
+  protected statusTone(status: string | null): string {
+    return { active: 'ok', trialing: 'info', past_due: 'danger' }[status ?? ''] ?? 'neutral';
+  }
+
+  /** Amber from 80% of a limit, red at the limit. */
+  protected toneOf(used: number, limit: number | null): string {
+    const percent = this.percentOf(used, limit);
+    if (percent >= 100) {
+      return 'danger';
+    }
+    return percent >= 80 ? 'warn' : '';
   }
 
   protected percentOf(used: number, limit: number | null): number {

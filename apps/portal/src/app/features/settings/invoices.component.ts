@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { InvoicesApiService } from '../../core/api/invoices-api.service';
@@ -12,14 +13,21 @@ import { StatusChipComponent } from '../../shared/status-chip.component';
 /** Settings, Invoices (module 15): what Wattwisely has invoiced the company, newest month first. */
 @Component({
   selector: 'ww-invoices',
-  imports: [DatePipe, MatTableModule, MoneyPipe, RouterLink, StatusChipComponent],
+  imports: [
+    DatePipe,
+    EmptyStateComponent,
+    MatTableModule,
+    MoneyPipe,
+    PageHeaderComponent,
+    RouterLink,
+    StatusChipComponent,
+  ],
   templateUrl: './invoices.component.html',
-  styleUrl: './invoices.component.scss',
 })
 export class InvoicesComponent implements OnInit {
   private readonly invoicesApi = inject(InvoicesApiService);
 
-  protected readonly columns = ['number', 'month', 'status', 'total', 'due'];
+  protected readonly columns = ['number', 'month', 'net', 'tax', 'total', 'due', 'status'];
   protected readonly invoices = signal<InvoiceSummary[]>([]);
   protected readonly isLoaded = signal(false);
   protected readonly error = signal('');

@@ -1,6 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -23,7 +22,7 @@ import { PaymentAccountAction } from './payment-account-action';
  */
 @Component({
   selector: 'ww-payment-account-card',
-  imports: [MatButtonModule, MatCardModule, MatIconModule, MoneyPipe, StatusChipComponent],
+  imports: [MatButtonModule, MatIconModule, MoneyPipe, StatusChipComponent],
   templateUrl: './payment-account-card.component.html',
   styleUrl: './payment-account-card.component.scss',
 })
