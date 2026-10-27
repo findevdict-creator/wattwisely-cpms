@@ -14,6 +14,7 @@ import {
   PaymentStore,
 } from '@wattwisely/payments';
 import { SessionRow } from '@wattwisely/session-engine';
+import { ChatChargeLinker } from '../../messaging/chat-charge.linker';
 import { PaymentErrors } from '../payment-errors';
 import { ChargeKeyResolver } from './charge-key.resolver';
 import { ChargePlaceLookup, PublicCharger, PublicConnector } from './charge-place.lookup';
@@ -34,6 +35,7 @@ export class PublicChargeService {
   private readonly keys = new ChargeKeyResolver();
   private readonly opener = new PaidSessionOpener();
   private readonly authoriser = new HoldAuthoriser();
+  private readonly chats = new ChatChargeLinker();
 
   constructor(
     private readonly runner: TransactionRunner,
@@ -56,7 +58,7 @@ export class PublicChargeService {
     return this.runner.run(DatabaseSession.forTenant(charger.tenantId), async (tx) => {
       const account = await this.requireActiveAccount(tx);
       const connector = await this.requireFreeConnector(tx, charger.id, body.ocpp_connector_id);
-      return this.open(tx, { charger, connector, account });
+      return this.open(tx, { charger, connector, account }, body.chat_ref);
     });
   }
 
@@ -88,6 +90,7 @@ export class PublicChargeService {
   private async open(
     tx: Transaction,
     at: { charger: PublicCharger; connector: PublicConnector; account: PaymentAccountRow },
+    chatRef?: string,
   ): Promise<ChargeDto> {
     const now = new Date();
     const place = {
@@ -101,6 +104,9 @@ export class PublicChargeService {
     }
     const hold = await this.hold(at, session.id, { currency: session.currency, ...place });
     const { payment, key } = await this.recordHold(tx, at, session, hold);
+    if (chatRef) {
+      await this.chats.link(tx, chatRef, { sessionId: session.id, chargeKey: key });
+    }
     return this.views.build(tx, payment, key, hold.clientSecret);
   }
 

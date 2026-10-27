@@ -7,6 +7,7 @@ import { RateLimits } from './rate-limits';
 export class ApiConfigLoader {
   static readonly DEFAULT_PORT = 3000;
   static readonly DEFAULT_AUDIENCE = 'wattwisely-api';
+  static readonly DEFAULT_DRIVER_AUDIENCE = 'wattwisely-driver';
   static readonly DEFAULT_SMTP_PORT = 587;
 
   load(environment: NodeJS.ProcessEnv): ApiConfig {
@@ -22,6 +23,7 @@ export class ApiConfigLoader {
       stripeWebhookSecret: environment['STRIPE_WEBHOOK_SECRET'] ?? '',
       isApiDocsEnabled: environment['API_DOCS_ENABLED'] !== 'false',
       isWebhookPrivateUrlAllowed: environment['WEBHOOK_ALLOW_PRIVATE_URLS'] === 'true',
+      ...this.whatsappSettings(environment),
       rateLimits: this.rateLimits(environment),
     });
     this.validate(config);
@@ -35,6 +37,8 @@ export class ApiConfigLoader {
       keycloakJwksUrl:
         environment['KEYCLOAK_JWKS_URL'] ?? `${issuerUrl}/protocol/openid-connect/certs`,
       keycloakAudience: environment['KEYCLOAK_AUDIENCE'] ?? ApiConfigLoader.DEFAULT_AUDIENCE,
+      keycloakDriverAudience:
+        environment['KEYCLOAK_DRIVER_AUDIENCE'] ?? ApiConfigLoader.DEFAULT_DRIVER_AUDIENCE,
     };
   }
 
@@ -46,6 +50,15 @@ export class ApiConfigLoader {
       ocppUrl: environment['OCPP_URL'] ?? '',
       ocppPlainUrl: environment['OCPP_PLAIN_URL'] ?? '',
       driverUrl: environment['DRIVER_URL'] ?? '',
+    };
+  }
+
+  /** Module 17: the WhatsApp Business app behind the messaging add-on. */
+  private whatsappSettings(environment: NodeJS.ProcessEnv): Partial<ApiConfig> {
+    return {
+      whatsappAppSecret: environment['WHATSAPP_APP_SECRET'] ?? '',
+      whatsappVerifyToken: environment['WHATSAPP_VERIFY_TOKEN'] ?? '',
+      whatsappAccessToken: environment['WHATSAPP_ACCESS_TOKEN'] ?? '',
     };
   }
 

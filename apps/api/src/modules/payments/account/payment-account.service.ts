@@ -129,21 +129,30 @@ export class PaymentAccountService {
       DatabaseSession.forTenant(access.tenant.id),
       async (tx) => {
         const current = await this.requireIn(tx);
-        if (!(await this.accounts.updateHold(tx, current.id, version, body.hold_amount))) {
+        const holds = { holdAmount: body.hold_amount, memberHoldAmount: body.member_hold_amount };
+        if (!(await this.accounts.updateHold(tx, current.id, version, holds))) {
           throw VersionConflict.exception();
         }
-        await this.audit.record(tx, auth, {
-          action: 'payments.hold_changed',
-          targetType: 'payment_account',
-          targetId: current.id,
-          targetLabel: current.providerAccountId,
-          before: { hold_amount: current.holdAmount },
-          after: { hold_amount: body.hold_amount },
-        });
+        await this.audit.record(tx, auth, PaymentAccountService.holdChange(current, body));
         return this.requireIn(tx);
       },
     );
     return this.dto(account);
+  }
+
+  /** The audit entry for a hold change: both holds before and after. */
+  private static holdChange(current: PaymentAccountRow, body: UpdateHoldRequestDto) {
+    return {
+      action: 'payments.hold_changed',
+      targetType: 'payment_account',
+      targetId: current.id,
+      targetLabel: current.providerAccountId,
+      before: { hold_amount: current.holdAmount, member_hold_amount: current.memberHoldAmount },
+      after: {
+        hold_amount: body.hold_amount ?? current.holdAmount,
+        member_hold_amount: body.member_hold_amount ?? current.memberHoldAmount,
+      },
+    };
   }
 
   private async require(access: TenantAccess): Promise<PaymentAccountRow> {

@@ -77,6 +77,8 @@
           </dd>
           <dt>Reference</dt>
           <dd>{{ driver.reference || '—' }}</dd>
+          <dt>Paying</dt>
+          <dd data-testid="driver-payment-mode">{{ driverPaymentLabel(driver.payment_mode) }}</dd>
           <dt>Notes</dt>
           <dd>{{ driver.notes || '—' }}</dd>
           <dt>Added</dt>
@@ -101,6 +103,7 @@
         }
       </mat-card-content>
     </mat-card>
+    <ww-driver-account-card [driver]="driver" (changed)="load()" />
   </div>
 
   <h2>RFID cards</h2>
@@ -127,6 +130,12 @@
           <ww-status-chip kind="card" [status]="card.status" />
         </td>
       </ng-container>
+      <ng-container matColumnDef="payment">
+        <th mat-header-cell *matHeaderCellDef>Paying</th>
+        <td mat-cell *matCellDef="let card" data-testid="card-payment-mode">
+          {{ cardPaymentLabel(card.payment_mode) }}
+        </td>
+      </ng-container>
       <ng-container matColumnDef="expires">
         <th mat-header-cell *matHeaderCellDef>Valid until</th>
         <td mat-cell *matCellDef="let card">
@@ -149,6 +158,25 @@
             } @else {
               <button mat-button (click)="setCardStatus(card, 'active')">Reactivate</button>
             }
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="paying"
+              aria-label="Who pays with this card"
+              data-testid="card-payment-menu"
+            >
+              <mat-icon>payments</mat-icon>
+            </button>
+            <mat-menu #paying="matMenu">
+              @for (mode of paymentModes; track mode) {
+                <button
+                  mat-menu-item
+                  (click)="setCardPaymentMode(card, mode)"
+                  [disabled]="mode === card.payment_mode"
+                >
+                  {{ cardPaymentLabel(mode) }}
+                </button>
+              }
+            </mat-menu>
           }
         </td>
       </ng-container>

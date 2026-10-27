@@ -1,15 +1,15 @@
-import { ChargerMessages } from '@wattwisely/charger-sim';
+import { StationDialect } from './station-dialect';
 
 /** One connector of the demo charger: its status and, while charging, its transaction and meter. */
 export class ConnectorState {
   status = 'Available';
-  transactionId: number | null = null;
+  transactionId: string | null = null;
   meterWh = 0;
   private timer: NodeJS.Timeout | null = null;
 
   constructor(
     readonly id: number,
-    private readonly messages: ChargerMessages,
+    private readonly dialect: StationDialect,
     private readonly log: (line: string) => void,
   ) {}
 
@@ -19,24 +19,24 @@ export class ConnectorState {
 
   async setStatus(status: string): Promise<void> {
     this.status = status;
-    await this.messages.status(this.id, status);
+    await this.dialect.connectorStatus(this.id, status);
     this.log(`connector ${this.id}: ${status}`);
   }
 
-  /** Preparing → StartTransaction → Charging, then a meter reading every interval. */
+  /** Preparing → the transaction starts → Charging, then a meter reading every interval. */
   async startCharging(idTag: string, powerW: number, meterIntervalS: number): Promise<void> {
     if (this.isCharging) {
       return;
     }
     await this.setStatus('Preparing');
-    const started = await this.messages.startTransaction(this.id, idTag, Math.round(this.meterWh));
+    const started = await this.dialect.startTransaction(this.id, idTag, Math.round(this.meterWh));
     this.transactionId = started.transactionId;
-    this.log(`transaction ${started.transactionId} started (${started.idTagInfo.status})`);
+    this.log(`transaction ${started.transactionId} started (${started.tokenStatus})`);
     await this.setStatus('Charging');
     this.timer = setInterval(() => void this.tick(powerW, meterIntervalS), meterIntervalS * 1000);
   }
 
-  /** StopTransaction with the final meter reading, then Finishing → Available. */
+  /** The transaction ends with the final meter reading, then Finishing → Available. */
   async stopCharging(reason: string): Promise<void> {
     const transactionId = this.transactionId;
     if (transactionId === null) {
@@ -44,7 +44,7 @@ export class ConnectorState {
     }
     this.clearTimer();
     this.transactionId = null;
-    await this.messages.stopTransaction(transactionId, Math.round(this.meterWh), { reason });
+    await this.dialect.stopTransaction(this.id, transactionId, Math.round(this.meterWh), reason);
     this.log(`transaction ${transactionId} stopped (${reason}) at ${Math.round(this.meterWh)} Wh`);
     await this.setStatus('Finishing');
     await this.setStatus('Available');
@@ -61,12 +61,7 @@ export class ConnectorState {
     }
     this.meterWh += (powerW * meterIntervalS) / 3600;
     try {
-      await this.messages.meterValues(
-        this.id,
-        this.transactionId,
-        Math.round(this.meterWh),
-        powerW,
-      );
+      await this.dialect.meterValues(this.id, this.transactionId, Math.round(this.meterWh), powerW);
       this.log(`connector ${this.id}: ${Math.round(this.meterWh)} Wh`);
     } catch (error) {
       this.log(`meter values failed: ${(error as Error).message}`);

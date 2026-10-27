@@ -3,7 +3,8 @@ import { DriverSummary } from './driver-record';
 
 /**
  * E-mail and phone are personal data (story DRV-02): shown only to roles holding
- * drivers:read_personal. Everyone else gets null and is_personal_data_hidden.
+ * drivers:read_personal. Everyone else gets null and is_personal_data_hidden. The addresses
+ * of the driver's login and of an open invitation (module 19) are hidden the same way.
  */
 export class DriverPersonalData {
   static isVisibleTo(access: TenantAccess): boolean {
@@ -17,6 +18,7 @@ export class DriverPersonalData {
     if (DriverPersonalData.isVisibleTo(access)) {
       return { ...driver, isHidden: false };
     }
-    return { ...driver, email: null, phone: null, isHidden: true };
+    const invitation = driver.invitation && { ...driver.invitation, email: '' };
+    return { ...driver, email: null, phone: null, accountEmail: null, invitation, isHidden: true };
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { chargerConnections, Transaction } from '@wattwisely/db';
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 
 /** The lease row a gateway writes when it accepts a charger's socket. */
 export interface ConnectionLease {
@@ -9,6 +10,7 @@ export interface ConnectionLease {
   instanceId: string;
   connectionId: string;
   remoteIp: string | null;
+  ocppVersion: OcppVersion;
   leaseSeconds: number;
 }
 
@@ -28,7 +30,7 @@ export class ConnectionsRepository {
         tenantId: lease.tenantId,
         instanceId: lease.instanceId,
         connectionId: lease.connectionId,
-        ocppVersion: '1.6',
+        ocppVersion: lease.ocppVersion,
         remoteIp: lease.remoteIp,
         leaseExpiresAt: expiresAt,
       })
@@ -38,6 +40,7 @@ export class ConnectionsRepository {
           instanceId: lease.instanceId,
           connectionId: lease.connectionId,
           remoteIp: lease.remoteIp,
+          ocppVersion: lease.ocppVersion,
           isBooted: false,
           connectedAt: sql`now()`,
           leaseExpiresAt: expiresAt,

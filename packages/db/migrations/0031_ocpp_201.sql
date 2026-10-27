@@ -1,0 +1,2 @@
+ALTER TABLE "charging_sessions" ADD COLUMN "ocpp_transaction_ref" text;--> statement-breakpoint
+ALTER TABLE "charging_sessions" ADD CONSTRAINT "charging_sessions_transaction_ref_unique" UNIQUE("tenant_id","charger_id","ocpp_transaction_ref");

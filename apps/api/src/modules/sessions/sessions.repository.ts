@@ -62,6 +62,8 @@ export class SessionsRepository {
     pricingInputHash: chargingSessions.pricingInputHash,
     reviewFlags: chargingSessions.reviewFlags,
     isPaid: chargingSessions.isPaid,
+    startSource: chargingSessions.startSource,
+    paymentRule: chargingSessions.paymentRule,
     paymentStatus: sql<string | null>`(select ${payments.status} from ${payments}
       where ${payments.sessionId} = ${chargingSessions.id} and ${payments.type} = 'preauth' limit 1)`,
   };

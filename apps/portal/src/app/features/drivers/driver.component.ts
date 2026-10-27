@@ -11,22 +11,33 @@ import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { DriversApiService } from '../../core/api/drivers-api.service';
-import { DriverDetail, RfidCard, RfidCardStatus } from '../../core/api/models/driver';
+import {
+  DriverDetail,
+  DriverPaymentMode,
+  RfidCard,
+  RfidCardStatus,
+} from '../../core/api/models/driver';
 import { Session } from '../../core/api/models/session';
 import { SessionsApiService } from '../../core/api/sessions-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { MoneyPipe } from '../../shared/money.pipe';
+import { PaymentModeLabels } from '../../shared/payment-mode-labels';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { BlockDriverDialogComponent } from './block-driver-dialog.component';
 import { CardDialogComponent } from './card-dialog.component';
+import { DriverAccountCardComponent } from './driver-account-card.component';
 import { DriverDialogComponent } from './driver-dialog.component';
 
-/** One driver: their details, cards, groups and recent charges (stories DRV-01 to DRV-03). */
+/**
+ * One driver: their details, cards, groups and recent charges (stories DRV-01 to DRV-03), what
+ * they pay and their own login (module 19).
+ */
 @Component({
   selector: 'ww-driver',
   imports: [
     DatePipe,
+    DriverAccountCardComponent,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
@@ -51,7 +62,16 @@ export class DriverComponent implements OnInit {
   protected readonly driver = signal<DriverDetail | null>(null);
   protected readonly sessions = signal<Session[]>([]);
   protected readonly error = signal('');
-  protected readonly cardColumns = ['id_tag', 'label', 'status', 'expires', 'last_used', 'actions'];
+  protected readonly cardColumns = [
+    'id_tag',
+    'label',
+    'status',
+    'payment',
+    'expires',
+    'last_used',
+    'actions',
+  ];
+  protected readonly paymentModes: DriverPaymentMode[] = ['inherit', 'pay', 'free'];
   protected readonly sessionColumns = ['started_at', 'where', 'status', 'energy', 'amount'];
 
   ngOnInit(): void {
@@ -82,6 +102,24 @@ export class DriverComponent implements OnInit {
     } catch (error) {
       this.tell(ApiProblem.from(error).detail);
     }
+  }
+
+  protected async setCardPaymentMode(card: RfidCard, mode: DriverPaymentMode): Promise<void> {
+    try {
+      await firstValueFrom(this.driversApi.setCardPaymentMode(card, mode));
+      this.tell(`Card ${card.id_tag}: ${PaymentModeLabels.card(mode).toLowerCase()}.`);
+      await this.load();
+    } catch (error) {
+      this.tell(ApiProblem.from(error).detail);
+    }
+  }
+
+  protected driverPaymentLabel(mode: string): string {
+    return PaymentModeLabels.driver(mode);
+  }
+
+  protected cardPaymentLabel(mode: string): string {
+    return PaymentModeLabels.card(mode);
   }
 
   protected async block(): Promise<void> {
@@ -127,7 +165,7 @@ export class DriverComponent implements OnInit {
     }
   }
 
-  private async load(): Promise<void> {
+  protected async load(): Promise<void> {
     try {
       this.driver.set(await firstValueFrom(this.driversApi.get(this.id())));
       if (this.permissions.can('sessions:read')) {

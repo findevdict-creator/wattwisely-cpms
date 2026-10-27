@@ -112,7 +112,13 @@ export class PermissionCatalog {
     {
       key: 'drivers:write',
       area: 'drivers',
-      label: 'Invite and edit drivers and groups',
+      label: 'Add and edit drivers, cards and groups',
+      isReadOnly: false,
+    },
+    {
+      key: 'drivers:invite',
+      area: 'drivers',
+      label: 'Invite drivers to the app and unlink their logins',
       isReadOnly: false,
     },
     {

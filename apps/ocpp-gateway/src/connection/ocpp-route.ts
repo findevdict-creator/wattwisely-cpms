@@ -1,5 +1,7 @@
+import { IncomingMessage } from 'node:http';
 import { Injectable, Logger } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { OcppVersions } from '@wattwisely/ocpp-contracts';
 import { WebSocket } from 'ws';
 import { GatewayMetrics } from '../metrics/gateway-metrics';
 import { AcceptedUpgrade } from './accepted-upgrade';
@@ -11,12 +13,14 @@ import { UpgradeRequest } from './upgrade-request';
 /**
  * The /ocpp/<identity> route: the checks run as a Fastify preHandler, so a refused
  * charger gets a plain HTTP answer and never a socket; an accepted one is handed to
- * the connection opener once the upgrade is done.
+ * the connection opener once the upgrade is done. The handshake names the subprotocol
+ * of the version the checks picked, so the charger knows which OCPP to speak.
  */
 @Injectable()
 export class OcppRoute {
   private readonly logger = new Logger(OcppRoute.name);
   private readonly accepted = new WeakMap<FastifyRequest, AcceptedUpgrade>();
+  private readonly subprotocols = new WeakMap<IncomingMessage, string>();
 
   constructor(
     private readonly guard: UpgradeGuard,
@@ -27,7 +31,9 @@ export class OcppRoute {
   async preHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     const upgrade = UpgradeRequest.from(request);
     try {
-      this.accepted.set(request, await this.guard.check(upgrade));
+      const accepted = await this.guard.check(upgrade);
+      this.accepted.set(request, accepted);
+      this.subprotocols.set(request.raw, OcppVersions.subprotocolOf(accepted.version));
       this.metrics.upgrade('accepted');
     } catch (error) {
       this.metrics.upgrade(error instanceof UpgradeRefusal ? error.reason : 'internal_error');
@@ -41,6 +47,11 @@ export class OcppRoute {
       );
       await reply.code(500).send({ error: 'internal_error' });
     }
+  }
+
+  /** For the WebSocket handshake: the subprotocol to answer with, or none for a request the checks refused. */
+  subprotocolFor(request: IncomingMessage): string | false {
+    return this.subprotocols.get(request) ?? false;
   }
 
   accept(socket: WebSocket, request: FastifyRequest): void {

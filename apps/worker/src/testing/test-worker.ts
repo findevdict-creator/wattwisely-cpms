@@ -2,6 +2,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Client } from 'pg';
 import {
+  TestAddons,
   TestBilling,
   TestData,
   TestDatabase,
@@ -14,6 +15,8 @@ import {
   TestTariffs,
 } from '@wattwisely/db/testing';
 import { FileStore, MemoryFileStore } from '@wattwisely/file-storage';
+import { MESSAGING_PROVIDER } from '@wattwisely/messaging';
+import { FakeMessagingProvider } from '@wattwisely/messaging/testing';
 import { PAYMENT_GATEWAY } from '@wattwisely/payments';
 import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ChargerEvent, NotifyChannels } from '@wattwisely/ocpp-contracts';
@@ -33,6 +36,7 @@ export class TestWorker {
     SESSION_STALE_SWEEP_INTERVAL_MS: '3600000',
     PAYMENT_SETTLE_INTERVAL_MS: '3600000',
     SESSION_START_TIMEOUT_INTERVAL_MS: '3600000',
+    SAVED_CARD_HOLD_INTERVAL_MS: '3600000',
     PAYMENT_WEBHOOK_RETRY_INTERVAL_MS: '3600000',
     MANAGED_SERVICE_END_INTERVAL_MS: '3600000',
     INVOICE_INTERVAL_MS: '3600000',
@@ -44,6 +48,8 @@ export class TestWorker {
     RETENTION_INTERVAL_MS: '3600000',
     QUEUE_STATS_INTERVAL_MS: '3600000',
     WEBHOOK_INTERVAL_MS: '3600000',
+    LOAD_MANAGEMENT_INTERVAL_MS: '3600000',
+    MESSAGING_INTERVAL_MS: '3600000',
     /** Tests receive deliveries on a local port. */
     WEBHOOK_ALLOW_PRIVATE_URLS: 'true',
   };
@@ -52,6 +58,7 @@ export class TestWorker {
     SMTP_FROM: 'no-reply@wattwisely.test',
     API_URL: 'http://api.test',
     PORTAL_URL: 'http://portal.test',
+    DRIVER_URL: 'http://driver.test',
   };
 
   database!: TestDatabase;
@@ -65,10 +72,14 @@ export class TestWorker {
   billing!: TestBilling;
   /** Module 16's API keys and webhook endpoints. */
   integrations!: TestIntegrations;
+  /** Module 17's load policies, chat channels and the charger states they depend on. */
+  addons!: TestAddons;
   /** Every e-mail the worker sent. */
   readonly mail = new RecordingMailSender();
   /** The payment provider in memory the jobs talk to. */
   readonly gateway = new FakePaymentGateway();
+  /** The messaging app in memory the chat jobs talk to (module 17). */
+  readonly chat = new FakeMessagingProvider();
   app!: NestFastifyApplication;
   /** Object storage in memory, used when the worker was created with `isUsingObjectStorage`. */
   readonly files = new MemoryFileStore();
@@ -90,6 +101,7 @@ export class TestWorker {
     this.platform = new TestPlatform(this.data);
     this.billing = new TestBilling(this.data);
     this.integrations = new TestIntegrations(this.data);
+    this.addons = new TestAddons(this.data);
     Object.assign(process.env, TestWorker.INTERVALS, TestWorker.MAIL, {
       PORT: '3299',
       DATABASE_URL: this.database.urlFor('wattwisely_app'),
@@ -110,7 +122,9 @@ export class TestWorker {
       .overrideProvider(PAYMENT_GATEWAY)
       .useValue(this.gateway)
       .overrideProvider(WorkerMailSender)
-      .useValue(this.mail);
+      .useValue(this.mail)
+      .overrideProvider(MESSAGING_PROVIDER)
+      .useValue(this.chat);
     if (this.isUsingObjectStorage) {
       builder.overrideProvider(FileStore).useValue(this.files);
     }

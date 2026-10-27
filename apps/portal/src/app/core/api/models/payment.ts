@@ -14,8 +14,10 @@ export interface PaymentAccount {
   disabled_reason: string | null;
   country: string | null;
   default_currency: string | null;
-  /** Held on a driver's card at the start, minor units. */
+  /** Held on a guest's card at the start, minor units. */
   hold_amount: number | null;
+  /** Held on the saved card of one of the company's own drivers (module 19), minor units. */
+  member_hold_amount: number | null;
   last_synced_at: string | null;
   connected_at: string | null;
   version: number | null;
