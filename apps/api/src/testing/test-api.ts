@@ -4,6 +4,7 @@ import {
   TestBilling,
   TestData,
   TestDatabase,
+  TestIntegrations,
   TestManaged,
   TestNotifications,
   TestPayments,
@@ -50,6 +51,8 @@ export class TestApi {
   managed!: TestManaged;
   /** Module 15's invoices and lines. */
   billing!: TestBilling;
+  /** Module 16's API keys and webhook endpoints. */
+  integrations!: TestIntegrations;
   notifications!: TestNotifications;
   app!: NestFastifyApplication;
 
@@ -62,6 +65,7 @@ export class TestApi {
     this.platform = new TestPlatform(this.data);
     this.managed = new TestManaged(this.data);
     this.billing = new TestBilling(this.data);
+    this.integrations = new TestIntegrations(this.data);
     this.notifications = new TestNotifications(this.data);
     Object.assign(process.env, TestApi.environment(this.database), environment);
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })

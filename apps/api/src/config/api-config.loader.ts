@@ -21,6 +21,7 @@ export class ApiConfigLoader {
       stripePublishableKey: environment['STRIPE_PUBLISHABLE_KEY'] ?? '',
       stripeWebhookSecret: environment['STRIPE_WEBHOOK_SECRET'] ?? '',
       isApiDocsEnabled: environment['API_DOCS_ENABLED'] !== 'false',
+      isWebhookPrivateUrlAllowed: environment['WEBHOOK_ALLOW_PRIVATE_URLS'] === 'true',
       rateLimits: this.rateLimits(environment),
     });
     this.validate(config);
@@ -70,6 +71,7 @@ export class ApiConfigLoader {
         'RATE_LIMIT_PUBLIC_WRITE_PER_MINUTE',
         RateLimits.PUBLIC_WRITE_PER_MINUTE,
       ),
+      apiKey: number('RATE_LIMIT_API_KEY_PER_MINUTE', RateLimits.API_KEY_PER_MINUTE),
     });
   }
 

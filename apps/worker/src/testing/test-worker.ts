@@ -5,6 +5,7 @@ import {
   TestBilling,
   TestData,
   TestDatabase,
+  TestIntegrations,
   TestManaged,
   TestNotifications,
   TestPayments,
@@ -42,6 +43,9 @@ export class TestWorker {
     REPORT_SCHEDULE_INTERVAL_MS: '3600000',
     RETENTION_INTERVAL_MS: '3600000',
     QUEUE_STATS_INTERVAL_MS: '3600000',
+    WEBHOOK_INTERVAL_MS: '3600000',
+    /** Tests receive deliveries on a local port. */
+    WEBHOOK_ALLOW_PRIVATE_URLS: 'true',
   };
   static readonly MAIL = {
     SMTP_HOST: 'localhost',
@@ -59,6 +63,8 @@ export class TestWorker {
   notifications!: TestNotifications;
   platform!: TestPlatform;
   billing!: TestBilling;
+  /** Module 16's API keys and webhook endpoints. */
+  integrations!: TestIntegrations;
   /** Every e-mail the worker sent. */
   readonly mail = new RecordingMailSender();
   /** The payment provider in memory the jobs talk to. */
@@ -83,6 +89,7 @@ export class TestWorker {
     this.notifications = new TestNotifications(this.data);
     this.platform = new TestPlatform(this.data);
     this.billing = new TestBilling(this.data);
+    this.integrations = new TestIntegrations(this.data);
     Object.assign(process.env, TestWorker.INTERVALS, TestWorker.MAIL, {
       PORT: '3299',
       DATABASE_URL: this.database.urlFor('wattwisely_app'),

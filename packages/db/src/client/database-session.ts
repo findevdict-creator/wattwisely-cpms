@@ -5,6 +5,7 @@ export interface DatabaseSessionOptions {
   inviteTokenHash?: string | null;
   chargerIdentity?: string | null;
   providerAccountId?: string | null;
+  apiKeyHash?: string | null;
   isPlatformAccess?: boolean;
 }
 
@@ -18,6 +19,8 @@ export class DatabaseSession {
   readonly inviteTokenHash: string | null;
   readonly chargerIdentity: string | null;
   readonly providerAccountId: string | null;
+  /** The hash of the API key a request carries, while the key is looked up (module 16). */
+  readonly apiKeyHash: string | null;
   /** True only in admin console requests by Wattwisely staff (module 9). */
   readonly isPlatformAccess: boolean;
 
@@ -27,6 +30,7 @@ export class DatabaseSession {
     this.inviteTokenHash = options.inviteTokenHash ?? null;
     this.chargerIdentity = options.chargerIdentity ?? null;
     this.providerAccountId = options.providerAccountId ?? null;
+    this.apiKeyHash = options.apiKeyHash ?? null;
     this.isPlatformAccess = options.isPlatformAccess ?? false;
   }
 
@@ -50,6 +54,11 @@ export class DatabaseSession {
   /** A payment webhook looking up the tenant behind a connected account (acct_…), before its tenant is known. */
   static forProviderAccount(providerAccountId: string): DatabaseSession {
     return new DatabaseSession({ providerAccountId });
+  }
+
+  /** A request with an API key looking up its key by the token's hash, before its tenant is known (module 16). */
+  static forApiKey(apiKeyHash: string): DatabaseSession {
+    return new DatabaseSession({ apiKeyHash });
   }
 
   /**

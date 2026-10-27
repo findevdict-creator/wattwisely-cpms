@@ -99,6 +99,13 @@ export class ApiConfig {
   @IsBoolean()
   isApiDocsEnabled!: boolean;
 
+  /**
+   * Module 16: whether a webhook endpoint may point at a private or local address
+   * (WEBHOOK_ALLOW_PRIVATE_URLS). Off on a server: the worker would post into the network.
+   */
+  @IsBoolean()
+  isWebhookPrivateUrlAllowed!: boolean;
+
   /** Module 12: requests per client address and minute (RATE_LIMIT_*). */
   @ValidateNested()
   @Type(() => RateLimits)

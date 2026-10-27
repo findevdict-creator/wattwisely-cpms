@@ -294,3 +294,13 @@ export const invoiceLineKind = pgEnum('invoice_line_kind', [
   'revenue_share',
   'adjustment',
 ]);
+
+/**
+ * A webhook delivery (module 16): pending until the endpoint answers 2xx (tried again with a
+ * growing wait after each failure), delivered, or failed once the last try is used up.
+ */
+export const webhookDeliveryStatus = pgEnum('webhook_delivery_status', [
+  'pending',
+  'delivered',
+  'failed',
+]);
