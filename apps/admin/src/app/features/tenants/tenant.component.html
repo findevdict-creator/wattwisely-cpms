@@ -1,74 +1,102 @@
-<a routerLink="/tenants" class="back"><mat-icon svgIcon="arrow-left" /> All tenants</a>
-
 @if (store.tenant(); as tenant) {
-  <div class="title">
-    <div>
-      <h1 data-testid="tenant-name">{{ tenant.name }}</h1>
-      <div class="facts">
-        <ww-status-chip [status]="tenant.status" />
-        <span>{{ tenant.slug }}</span>
-        @if (tenant.region) {
-          <span>{{ tenant.region }}</span>
-        }
-        <span>{{
-          tenant.payment_mode === 'managed' ? 'Managed payments' : 'Direct payments'
-        }}</span>
-        <span>since {{ tenant.created_at | date: 'mediumDate' }}</span>
-      </div>
-    </div>
-    @if (staff.can('tenants:write') && tenant.status !== 'cancelled') {
-      <button mat-stroked-button [matMenuTriggerFor]="actions" data-testid="tenant-actions">
-        Actions <mat-icon svgIcon="chevron-down" />
+  <ww-page-header heading="" backLink="/tenants" backLabel="Tenants">
+    <span wwTitleExtra data-testid="tenant-name">{{ tenant.name }}</span>
+    <ww-status-chip wwTitleExtra [status]="tenant.status" />
+    <p wwSubtitle class="ww-page-subtitle">
+      {{ tenant.slug }}{{ tenant.region ? ' · ' + tenant.region : '' }} ·
+      {{ tenant.payment_mode === 'managed' ? 'Managed payments' : 'Direct payments' }} · customer
+      since {{ tenant.created_at | date: 'd MMM y' }}
+    </p>
+    @if (canChange()) {
+      <button mat-stroked-button (click)="edit()" data-testid="edit-tenant">
+        <mat-icon svgIcon="pencil" />
+        Edit details
       </button>
-      <mat-menu #actions="matMenu">
-        <button mat-menu-item (click)="edit()">
-          <mat-icon svgIcon="pencil" />
-          Edit details
-        </button>
-        @if (staff.can('tenants:suspend') && tenant.status !== 'suspended') {
-          <button mat-menu-item (click)="suspend()" data-testid="suspend-tenant">
-            <mat-icon svgIcon="circle-pause" />
-            Suspend
-          </button>
-        }
-        @if (staff.can('tenants:suspend') && tenant.status === 'suspended') {
-          <button mat-menu-item (click)="reactivate()" data-testid="reactivate-tenant">
-            <mat-icon svgIcon="circle-play" />
-            Reactivate
-          </button>
-        }
-        @if (staff.can('tenants:delete') && tenant.status === 'suspended') {
-          <button mat-menu-item (click)="delete()" data-testid="delete-tenant">
-            <mat-icon svgIcon="trash" />
-            Delete
-          </button>
-        }
-      </mat-menu>
     }
-  </div>
+  </ww-page-header>
 
   @if (tenant.status === 'suspended') {
-    <p class="notice" role="status">
-      Suspended since {{ tenant.suspended_at | date: 'medium' }}.
-      @if (tenant.can_delete_from) {
-        It can be deleted from {{ tenant.can_delete_from | date: 'mediumDate' }}.
-      }
-    </p>
+    <div class="notice warn has-icon" role="status">
+      <mat-icon svgIcon="circle-pause" />
+      <span>
+        Suspended since {{ tenant.suspended_at | date: 'd MMM y, HH:mm' }}. The team can look at
+        everything but change nothing.
+        @if (tenant.can_delete_from) {
+          It can be deleted from {{ tenant.can_delete_from | date: 'd MMM y' }}.
+        }
+      </span>
+    </div>
   }
   @if (tenant.status === 'cancelled') {
-    <p class="notice" role="status">Deleted on {{ tenant.deleted_at | date: 'medium' }}.</p>
+    <div class="notice neutral has-icon" role="status">
+      <mat-icon svgIcon="trash-2" />
+      <span>Deleted on {{ tenant.deleted_at | date: 'd MMM y, HH:mm' }}.</span>
+    </div>
   }
 
-  <div class="cards">
-    <ww-tenant-plan [tenant]="tenant" />
-    <ww-tenant-owners [tenant]="tenant" />
-    <ww-tenant-managed-service [tenant]="tenant" />
-    @if (staff.can('billing:read')) {
-      <ww-tenant-invoices [tenant]="tenant" />
-    }
+  <div class="ww-columns">
+    <div class="ww-main">
+      <ww-tenant-plan [tenant]="tenant" />
+      <ww-tenant-modules [tenant]="tenant" />
+      @if (staff.can('billing:read')) {
+        <ww-tenant-invoices [tenant]="tenant" />
+      }
+    </div>
+    <div class="ww-side">
+      <ww-tenant-managed-service [tenant]="tenant" />
+      <ww-tenant-owners [tenant]="tenant" />
+      @if (canChange()) {
+        <section class="ww-card danger" aria-labelledby="danger-title" data-testid="tenant-actions">
+          <div class="ww-card-head">
+            <div class="titles">
+              <h2 id="danger-title">Suspend or delete</h2>
+              <p>
+                Suspended: the team can look but change nothing, and charging keeps working.
+                Deleted: only after a suspension, and you type the short name to confirm.
+              </p>
+            </div>
+          </div>
+          <div class="ww-card-body buttons">
+            @if (staff.can('tenants:suspend') && tenant.status !== 'suspended') {
+              <button
+                mat-stroked-button
+                class="ww-small ww-danger"
+                (click)="suspend()"
+                data-testid="suspend-tenant"
+              >
+                <mat-icon svgIcon="circle-pause" />
+                Suspend
+              </button>
+            }
+            @if (staff.can('tenants:suspend') && tenant.status === 'suspended') {
+              <button
+                mat-stroked-button
+                class="ww-small"
+                (click)="reactivate()"
+                data-testid="reactivate-tenant"
+              >
+                <mat-icon svgIcon="circle-play" />
+                Reactivate
+              </button>
+            }
+            @if (staff.can('tenants:delete')) {
+              <button
+                mat-button
+                class="ww-small ww-danger"
+                [disabled]="tenant.status !== 'suspended'"
+                (click)="delete()"
+                data-testid="delete-tenant"
+              >
+                <mat-icon svgIcon="trash-2" />
+                Delete
+              </button>
+            }
+          </div>
+        </section>
+      }
+    </div>
   </div>
-  <ww-tenant-modules [tenant]="tenant" />
 }
 @if (store.error()) {
-  <p class="error" role="alert">{{ store.error() }}</p>
+  <div class="notice danger" role="alert">{{ store.error() }}</div>
 }

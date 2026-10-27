@@ -1,44 +1,80 @@
-<mat-card data-testid="tenant-invoices-card">
-  <mat-card-header>
-    <mat-card-title>Invoices</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    @if (shown().length) {
-      <mat-list data-testid="tenant-invoices">
-        @for (invoice of shown(); track invoice.id) {
-          <mat-list-item>
-            <a matListItemTitle [routerLink]="['/invoices', invoice.id]">
-              {{ invoice.number ?? 'Draft' }} · {{ invoice.month_label }}
-            </a>
-            <span matListItemLine>
-              {{ invoice.total | money: invoice.currency }}
-              @if (invoice.paid_at) {
-                · paid {{ invoice.paid_at | date: 'mediumDate' }}
-              } @else if (invoice.due_at) {
-                · due {{ invoice.due_at | date: 'mediumDate' }}
-              }
-            </span>
-            <ww-status-chip matListItemMeta [status]="statusOf(invoice)" />
-          </mat-list-item>
-        }
-      </mat-list>
-    } @else if (isLoaded() && !error()) {
+<section class="ww-card" aria-labelledby="invoices-title" data-testid="tenant-invoices-card">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="invoices-title">Invoices</h2>
+      <p>Wattwisely's monthly invoices to this tenant</p>
+    </div>
+    @if (canDraft()) {
+      <button mat-button class="ww-small" (click)="draft()" data-testid="draft-invoice">
+        <mat-icon svgIcon="plus" />
+        Draft an invoice
+      </button>
+    }
+  </div>
+  @if (shown().length) {
+    <table mat-table [dataSource]="shown()" data-testid="tenant-invoices">
+      <ng-container matColumnDef="invoice">
+        <th mat-header-cell *matHeaderCellDef>Invoice</th>
+        <td mat-cell *matCellDef="let invoice">
+          <span class="ww-two">
+            <b>
+              <a [routerLink]="['/invoices', invoice.id]" [class.mono]="invoice.number">
+                {{ invoice.number ?? 'Draft' }}
+              </a>
+            </b>
+            <span>{{ invoice.month_label }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Total</th>
+        <td mat-cell *matCellDef="let invoice" class="ww-num">
+          {{ invoice.total | money: invoice.currency }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="due">
+        <th mat-header-cell *matHeaderCellDef>Due · paid</th>
+        <td mat-cell *matCellDef="let invoice">
+          @if (invoice.paid_at) {
+            Paid {{ invoice.paid_at | date: 'd MMM y' }}
+          } @else if (invoice.due_at) {
+            Due {{ invoice.due_at | date: 'd MMM y' }}
+          } @else {
+            <span class="ww-faint">–</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let invoice"><ww-status-chip [status]="statusOf(invoice)" /></td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  } @else if (isLoaded() && !error()) {
+    <div class="ww-card-body">
       <p class="empty">
         No invoices yet. The worker drafts the first one on the 1st of next month.
       </p>
-    }
-    @if (error()) {
-      <p class="error" role="alert">{{ error() }}</p>
-    }
-  </mat-card-content>
-  <mat-card-actions align="end">
-    @if (invoices().length > shown().length) {
-      <a mat-button [routerLink]="['/invoices']" [queryParams]="{ tenant_id: tenant().id }">
-        All {{ invoices().length }}
+    </div>
+  }
+  @if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  }
+  @if (invoices().length > shown().length) {
+    <div class="ww-card-foot">
+      <span>Showing the latest {{ shown().length }}</span>
+      <span class="ww-spacer"></span>
+      <a
+        mat-button
+        class="ww-small"
+        [routerLink]="['/invoices']"
+        [queryParams]="{ tenant_id: tenant().id }"
+      >
+        All {{ invoices().length }} invoices
       </a>
-    }
-    @if (canDraft()) {
-      <button mat-button (click)="draft()" data-testid="draft-invoice">Draft an invoice</button>
-    }
-  </mat-card-actions>
-</mat-card>
+    </div>
+  }
+</section>

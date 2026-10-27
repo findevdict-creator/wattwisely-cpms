@@ -27,11 +27,22 @@ export interface PromptDialogData {
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
-      <p>{{ data.message }}</p>
-      <mat-form-field appearance="outline" class="field">
-        <mat-label>{{ data.label }}</mat-label>
-        <input matInput [formControl]="answer" data-testid="prompt-answer" />
-      </mat-form-field>
+      <p class="ww-lead">{{ data.message }}</p>
+      <div class="ww-form">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ data.label }}</mat-label>
+          <input
+            matInput
+            [class.mono]="data.mustEqual"
+            [formControl]="answer"
+            (keyup.enter)="isAcceptable() && dialogRef.close(answer.value.trim())"
+            data-testid="prompt-answer"
+          />
+          @if (data.mustEqual) {
+            <mat-hint>Type {{ data.mustEqual }}</mat-hint>
+          }
+        </mat-form-field>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -44,11 +55,6 @@ export interface PromptDialogData {
         {{ data.confirmLabel }}
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .field {
-      width: 100%;
-    }
   `,
 })
 export class PromptDialogComponent {

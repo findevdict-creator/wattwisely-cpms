@@ -1,13 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, input } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { RouterLink } from '@angular/router';
+import { PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { StaffContextService } from '../../core/staff/staff-context.service';
+import { PageTitleService } from '../../layout/page-title.service';
 import { PromptDialogComponent, PromptDialogData } from '../../shared/prompt-dialog.component';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { EditTenantDialogComponent } from './edit-tenant-dialog.component';
@@ -24,10 +23,8 @@ import { TenantStore } from './tenant.store';
   imports: [
     DatePipe,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
-    MatMenuModule,
-    RouterLink,
+    PageHeaderComponent,
     StatusChipComponent,
     TenantInvoicesComponent,
     TenantManagedServiceComponent,
@@ -44,6 +41,16 @@ export class TenantComponent implements OnInit {
   protected readonly store = inject(TenantStore);
   protected readonly staff = inject(StaffContextService);
   private readonly dialog = inject(MatDialog);
+  private readonly pageTitle = inject(PageTitleService);
+
+  /** Details, suspension and deletion: staff who may change tenants, while it is not deleted. */
+  protected readonly canChange = computed(
+    () => this.staff.can('tenants:write') && this.store.tenant()?.status !== 'cancelled',
+  );
+
+  constructor() {
+    effect(() => this.pageTitle.set(this.store.tenant()?.name ?? ''));
+  }
 
   ngOnInit(): void {
     void this.store.load(this.id());

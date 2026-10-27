@@ -1,16 +1,10 @@
-.content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 16px;
-  padding-top: 8px;
-}
-
-.wide {
-  grid-column: 1 / -1;
-}
-
 .modules {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+}
+
+.sub {
+  margin-left: 4px;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
 }

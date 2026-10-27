@@ -24,24 +24,34 @@ export interface AdjustmentDialogData {
   ],
   template: `
     <h2 mat-dialog-title>Add a line</h2>
-    <mat-dialog-content class="content" [formGroup]="form">
-      <p>A credit, a discount or a one-off charge. Put a minus in front of a credit.</p>
-      <mat-form-field appearance="outline">
-        <mat-label>Description</mat-label>
-        <input matInput formControlName="description" data-testid="adjustment-description" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Amount ({{ data.currency }})</mat-label>
-        <input
-          matInput
-          formControlName="amount"
-          placeholder="-50.00"
-          data-testid="adjustment-amount"
-        />
-        @if (form.controls.amount.dirty && amount() === null) {
-          <mat-error>An amount such as 12.50 or -50.00</mat-error>
-        }
-      </mat-form-field>
+    <mat-dialog-content>
+      <p class="ww-lead">
+        A credit, a discount or a one-off charge. Put a minus in front of a credit.
+      </p>
+      <form
+        class="ww-form"
+        [formGroup]="form"
+        (ngSubmit)="form.valid && amount() !== null && save()"
+      >
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" data-testid="adjustment-description" />
+          <mat-hint>The tenant reads it on the invoice</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Amount</mat-label>
+          <input
+            matInput
+            formControlName="amount"
+            placeholder="-50.00"
+            data-testid="adjustment-amount"
+          />
+          <span matTextSuffix>{{ data.currency }}</span>
+          @if (form.controls.amount.dirty && amount() === null) {
+            <mat-error>An amount such as 12.50 or -50.00</mat-error>
+          }
+        </mat-form-field>
+      </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -54,15 +64,6 @@ export interface AdjustmentDialogData {
         Add line
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding-top: 8px;
-      min-width: 360px;
-    }
   `,
 })
 export class AdjustmentDialogComponent {

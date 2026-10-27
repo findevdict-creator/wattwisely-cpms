@@ -218,3 +218,34 @@
   font-size: 13px;
   white-space: nowrap;
 }
+
+// A dialog's opening line, under its title, with room for the floating label of a field below.
+.ww-lead {
+  margin: 0 0 8px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// The fields of a dialog, one under the other; .two puts them in pairs, .wide on a field gives it
+// the whole row. One column again on a phone.
+.ww-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+
+  &.two {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  > .wide {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 599px) {
+    &.two {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

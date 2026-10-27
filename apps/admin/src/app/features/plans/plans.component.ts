@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { Addon, Plan, ProductModule } from '../../core/api/models/plan';
@@ -16,7 +17,7 @@ import { PlanDialogComponent } from './plan-dialog.component';
 /** Plans: the catalogue tenants are sold, with fees, limits and modules; and the add-on prices. */
 @Component({
   selector: 'ww-plans',
-  imports: [MatButtonModule, MatIconModule, MatTableModule, MoneyPipe],
+  imports: [MatButtonModule, MatIconModule, MatTableModule, MoneyPipe, PageHeaderComponent],
   templateUrl: './plans.component.html',
   styleUrl: './plans.component.scss',
 })
@@ -26,7 +27,17 @@ export class PlansComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly planColumns = ['plan', 'fees', 'limits', 'modules', 'tenants', 'actions'];
+  protected readonly planColumns = [
+    'plan',
+    'platform',
+    'ac',
+    'dc',
+    'share',
+    'limits',
+    'tenants',
+    'state',
+    'actions',
+  ];
   protected readonly addonColumns = ['addon', 'price', 'state', 'actions'];
   protected readonly plans = signal<Plan[]>([]);
   protected readonly addons = signal<Addon[]>([]);
@@ -42,6 +53,15 @@ export class PlansComponent implements OnInit {
       (key) => this.modules().find((module) => module.key === key)?.name ?? key,
     );
     return names.length ? names.join(', ') : 'Core modules only';
+  }
+
+  /** "250 connectors · 20 users", or "No limit". */
+  protected limitsOf(plan: Plan): string {
+    const limits = [
+      plan.connector_limit === null ? '' : `${plan.connector_limit} connectors`,
+      plan.user_limit === null ? '' : `${plan.user_limit} users`,
+    ].filter(Boolean);
+    return limits.length ? limits.join(' · ') : 'No limit';
   }
 
   protected unitOf(addon: Addon): string {

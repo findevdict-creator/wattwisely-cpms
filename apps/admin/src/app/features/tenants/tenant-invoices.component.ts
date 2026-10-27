@@ -1,10 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
@@ -22,8 +22,8 @@ import { StatusChipComponent } from '../../shared/status-chip.component';
   imports: [
     DatePipe,
     MatButtonModule,
-    MatCardModule,
-    MatListModule,
+    MatIconModule,
+    MatTableModule,
     MoneyPipe,
     RouterLink,
     StatusChipComponent,
@@ -41,6 +41,7 @@ export class TenantInvoicesComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
+  protected readonly columns = ['invoice', 'total', 'due', 'status'];
   protected readonly invoices = signal<InvoiceSummary[]>([]);
   protected readonly isLoaded = signal(false);
   protected readonly error = signal('');
@@ -58,6 +59,7 @@ export class TenantInvoicesComponent implements OnInit {
   protected async draft(): Promise<void> {
     const dialog = this.dialog.open(DraftInvoiceDialogComponent, {
       data: { tenantName: this.tenant().name },
+      width: '480px',
     });
     const month: string | undefined = await firstValueFrom(dialog.afterClosed());
     if (!month) {

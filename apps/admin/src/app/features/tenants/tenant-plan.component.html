@@ -1,64 +1,84 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>Plan &amp; billing</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    @let s = tenant().subscription;
-    <dl data-testid="tenant-plan">
-      <dt>Plan</dt>
-      <dd>
-        <strong>{{ s.plan?.name ?? 'No plan' }}</strong>
-        @if (s.plan) {
-          <span class="sub"> ({{ s.plan.code }})</span>
-        }
-      </dd>
-      <dt>Subscription</dt>
-      <dd>
-        <ww-status-chip [status]="s.status" />
-        @if (s.status === 'trialing' && s.trial_ends_at) {
-          <span class="sub"> until {{ s.trial_ends_at | date: 'mediumDate' }}</span>
-        }
-      </dd>
-      @if (s.started_at) {
-        <dt>Since</dt>
-        <dd>{{ s.started_at | date: 'mediumDate' }}</dd>
-      }
-      <dt>Connectors</dt>
-      <dd [class.over]="isOver(s.usage.connectors, s.usage.connector_limit)">
-        {{ s.usage.connectors | limit: s.usage.connector_limit }}
-        <span class="sub">({{ s.usage.ac_connectors }} AC, {{ s.usage.dc_connectors }} DC)</span>
-      </dd>
-      <dt>Users</dt>
-      <dd [class.over]="isOver(s.usage.users, s.usage.user_limit)">
-        {{ s.usage.users | limit: s.usage.user_limit }}
-      </dd>
-      <dt>Sites · chargers</dt>
-      <dd>{{ s.usage.sites }} · {{ s.usage.chargers }}</dd>
-      <dt>Last session</dt>
-      <dd>{{ (s.usage.last_session_at | date: 'medium') ?? 'none yet' }}</dd>
-      <dt>Billing contact</dt>
-      <dd>
-        {{ s.billing_name || '—' }}
-        @if (s.billing_email) {
-          <div class="sub">{{ s.billing_email }}</div>
-        }
-        @if (s.billing_reference) {
-          <div class="sub">Ref. {{ s.billing_reference }}</div>
-        }
-      </dd>
-      <dt>Tax on invoices</dt>
-      <dd data-testid="tax-rate">{{ s.tax_rate_bps / 100 }} %</dd>
+@let s = tenant().subscription;
+<section class="ww-card" aria-labelledby="plan-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="plan-title">Plan and billing</h2>
+      <p>What the tenant pays Wattwisely for, and how much of it they use</p>
+    </div>
+    @if (staff.can('tenants:write') && tenant().status !== 'cancelled') {
+      <button mat-button class="ww-small" (click)="change()" data-testid="change-plan">
+        <mat-icon svgIcon="pencil" />
+        Change
+      </button>
+    }
+  </div>
+  <div class="ww-card-body">
+    <dl class="ww-kv" data-testid="tenant-plan">
+      <div>
+        <dt>Plan</dt>
+        <dd>
+          {{ s.plan?.name ?? 'No plan' }}
+          @if (s.plan) {
+            <span class="ww-faint mono">{{ s.plan.code }}</span>
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Subscription</dt>
+        <dd>
+          <ww-status-chip [status]="s.status" />
+          @if (s.status === 'trialing' && s.trial_ends_at) {
+            <span class="faint"> until {{ s.trial_ends_at | date: 'd MMM y' }}</span>
+          } @else if (s.started_at) {
+            <span class="faint"> since {{ s.started_at | date: 'd MMM y' }}</span>
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Connectors</dt>
+        <dd [class.over]="isOver(s.usage.connectors, s.usage.connector_limit)">
+          {{ s.usage.connectors | limit: s.usage.connector_limit }}
+          <span class="faint"
+            >({{ s.usage.ac_connectors }} AC, {{ s.usage.dc_connectors }} DC)</span
+          >
+        </dd>
+      </div>
+      <div>
+        <dt>Users</dt>
+        <dd [class.over]="isOver(s.usage.users, s.usage.user_limit)">
+          {{ s.usage.users | limit: s.usage.user_limit }}
+        </dd>
+      </div>
+      <div>
+        <dt>Sites · chargers</dt>
+        <dd>{{ s.usage.sites }} · {{ s.usage.chargers }}</dd>
+      </div>
+      <div>
+        <dt>Last session</dt>
+        <dd>{{ (s.usage.last_session_at | date: 'd MMM y, HH:mm') ?? 'None yet' }}</dd>
+      </div>
+      <div>
+        <dt>Billing contact</dt>
+        <dd>
+          {{ s.billing_name || '–' }}
+          @if (s.billing_email) {
+            <span class="extra faint">{{ s.billing_email }}</span>
+          }
+          @if (s.billing_reference) {
+            <span class="extra faint">Ref. {{ s.billing_reference }}</span>
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Tax on invoices</dt>
+        <dd data-testid="tax-rate">{{ s.tax_rate_bps / 100 }} %</dd>
+      </div>
       @if (s.notes) {
-        <dt>Staff notes</dt>
-        <dd class="notes">{{ s.notes }}</dd>
+        <div class="wide">
+          <dt>Staff notes, never shown to the tenant</dt>
+          <dd class="notes">{{ s.notes }}</dd>
+        </div>
       }
     </dl>
-  </mat-card-content>
-  @if (staff.can('tenants:write') && tenant().status !== 'cancelled') {
-    <mat-card-actions align="end">
-      <button mat-button (click)="change()" data-testid="change-plan">
-        Change plan &amp; billing
-      </button>
-    </mat-card-actions>
-  }
-</mat-card>
+  </div>
+</section>

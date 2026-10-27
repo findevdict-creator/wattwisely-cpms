@@ -1,11 +1,16 @@
-.filter {
-  width: 420px;
+ww-page-header {
+  margin-bottom: 16px;
 }
 
-.entries {
-  max-width: 1100px;
+.tenant {
+  width: 360px;
+  max-width: 100%;
 }
 
-.more {
-  margin-top: 16px;
+.scroll {
+  overflow-x: auto;
+}
+
+.nowrap {
+  white-space: nowrap;
 }

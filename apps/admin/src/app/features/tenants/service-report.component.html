@@ -1,98 +1,127 @@
-<a [routerLink]="['/tenants', id()]" class="back"><mat-icon svgIcon="arrow-left" /> Tenant</a>
-
-<div class="title">
-  <h1>Service report</h1>
-  <mat-form-field appearance="outline" subscriptSizing="dynamic">
-    <mat-label>Month</mat-label>
+<ww-page-header
+  heading="Service report"
+  [backLink]="['/tenants', id()]"
+  [backLabel]="tenantName() || 'Tenant'"
+>
+  @if (report(); as r) {
+    <p wwSubtitle class="ww-page-subtitle">
+      {{ monthLabel(r.month) }}{{ r.is_complete ? '' : ', so far' }}. Generated
+      {{ r.generated_at | date: 'd MMM y, HH:mm' }}. {{ r.actions_by_wattwisely }}
+      {{ r.actions_by_wattwisely === 1 ? 'action' : 'actions' }} by Managed operators.
+    </p>
+  }
+  <label class="ww-field month">
     <input
-      matInput
       type="month"
+      aria-label="Month"
       [(ngModel)]="month"
       [max]="latest"
       (change)="load()"
       data-testid="report-month"
     />
-  </mat-form-field>
-</div>
+  </label>
+</ww-page-header>
 
 @if (report(); as r) {
-  <p class="sub">
-    {{ r.month }}
-    @if (!r.is_complete) {
-      , so far
-    }
-    . Generated {{ r.generated_at | date: 'medium' }}. {{ r.actions_by_wattwisely }} action(s) by
-    Managed operators.
-  </p>
-  <div class="totals" data-testid="report-totals">
-    <div>
-      <strong>{{ r.totals.sessions }}</strong> sessions
-    </div>
-    <div>
-      <strong>{{ r.totals.energy_kwh }}</strong> kWh
-    </div>
-    <div>
-      <strong>{{ r.totals.revenue | money: r.currency }}</strong> revenue
-    </div>
-    <div>
-      <strong>{{ r.refunds.total | money: r.currency }}</strong> refunded ({{ r.refunds.count }})
-    </div>
-    <div>
-      <strong>{{ r.totals.faults }}</strong> faults
-    </div>
+  <div class="figures" data-testid="report-totals">
+    <ww-kpi-card label="Sessions" [value]="'' + r.totals.sessions" />
+    <ww-kpi-card label="Energy" [value]="kwh(r.totals.energy_kwh)" />
+    <ww-kpi-card label="Revenue" [value]="money(r.totals.revenue, r.currency)" />
+    <ww-kpi-card
+      label="Refunded"
+      [value]="money(r.refunds.total, r.currency)"
+      [foot]="r.refunds.count + (r.refunds.count === 1 ? ' refund' : ' refunds')"
+    />
+    <ww-kpi-card label="Faults" [value]="'' + r.totals.faults" [isAlarm]="r.totals.faults > 0" />
   </div>
 
-  <table mat-table [dataSource]="r.chargers" class="chargers" data-testid="report-chargers">
-    <ng-container matColumnDef="charger">
-      <th mat-header-cell *matHeaderCellDef>Charger</th>
-      <td mat-cell *matCellDef="let row">
-        {{ row.ocpp_identity }} <span class="sub">{{ row.site_name }}</span>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="sessions">
-      <th mat-header-cell *matHeaderCellDef>Sessions</th>
-      <td mat-cell *matCellDef="let row">{{ row.sessions }}</td>
-    </ng-container>
-    <ng-container matColumnDef="energy">
-      <th mat-header-cell *matHeaderCellDef>kWh</th>
-      <td mat-cell *matCellDef="let row">{{ row.energy_kwh }}</td>
-    </ng-container>
-    <ng-container matColumnDef="revenue">
-      <th mat-header-cell *matHeaderCellDef>Revenue</th>
-      <td mat-cell *matCellDef="let row">{{ row.revenue | money: r.currency }}</td>
-    </ng-container>
-    <ng-container matColumnDef="boots">
-      <th mat-header-cell *matHeaderCellDef>Restarts</th>
-      <td mat-cell *matCellDef="let row">{{ row.boots }}</td>
-    </ng-container>
-    <ng-container matColumnDef="faults">
-      <th mat-header-cell *matHeaderCellDef>Faults</th>
-      <td mat-cell *matCellDef="let row">{{ row.faults }}</td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
+  <section class="ww-card" aria-labelledby="chargers-title">
+    <div class="ww-card-head line">
+      <div class="titles">
+        <h2 id="chargers-title">Chargers</h2>
+        <p>Every charger the tenant had in the month</p>
+      </div>
+    </div>
+    <div class="scroll">
+      <table mat-table [dataSource]="r.chargers" data-testid="report-chargers">
+        <ng-container matColumnDef="charger">
+          <th mat-header-cell *matHeaderCellDef>Charger</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="ww-two">
+              <b class="mono">{{ row.ocpp_identity }}</b>
+              <span>{{ row.site_name }}</span>
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="sessions">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">Sessions</th>
+          <td mat-cell *matCellDef="let row" class="ww-num">{{ row.sessions }}</td>
+        </ng-container>
+        <ng-container matColumnDef="energy">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">kWh</th>
+          <td mat-cell *matCellDef="let row" class="ww-num">{{ row.energy_kwh }}</td>
+        </ng-container>
+        <ng-container matColumnDef="revenue">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">Revenue</th>
+          <td mat-cell *matCellDef="let row" class="ww-num">
+            {{ row.revenue | money: r.currency }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="boots">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">Restarts</th>
+          <td mat-cell *matCellDef="let row" class="ww-num">{{ row.boots }}</td>
+        </ng-container>
+        <ng-container matColumnDef="faults">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">Faults</th>
+          <td mat-cell *matCellDef="let row" class="ww-num">
+            @if (row.faults > 0) {
+              <span class="ww-chip danger">{{ row.faults }}</span>
+            } @else {
+              0
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+    @if (r.chargers.length === 0) {
+      <div class="ww-card-body">
+        <p class="hint">No chargers were installed in this month.</p>
+      </div>
+    }
+  </section>
 
-  <h2>Tariff changes</h2>
-  @if (r.tariff_changes.length === 0) {
-    <p class="sub">None in this month.</p>
-  } @else {
-    <ul data-testid="report-tariff-changes">
-      @for (change of r.tariff_changes; track $index) {
-        <li>
-          {{ change.occurred_at | date: 'mediumDate' }}: {{ change.tariff_name ?? 'a tariff' }},
-          <code>{{ change.action }}</code> by {{ change.actor_label }}
-          @if (change.is_by_wattwisely) {
-            (Wattwisely)
+  <section class="ww-card" aria-labelledby="changes-title">
+    <div class="ww-card-head line">
+      <div class="titles"><h2 id="changes-title">Tariff changes</h2></div>
+    </div>
+    <div class="ww-card-body">
+      @if (r.tariff_changes.length === 0) {
+        <p class="hint">None in this month.</p>
+      } @else {
+        <div data-testid="report-tariff-changes">
+          @for (change of r.tariff_changes; track $index) {
+            <div class="ww-list-item">
+              <span class="when">{{ change.occurred_at | date: 'd MMM' }}</span>
+              <span class="ww-grow">
+                {{ change.tariff_name ?? 'A tariff' }},
+                <span class="mono">{{ change.action }}</span> by {{ change.actor_label }}
+              </span>
+              @if (change.is_by_wattwisely) {
+                <span class="ww-chip info">Wattwisely</span>
+              }
+            </div>
           }
-        </li>
+        </div>
       }
-    </ul>
-  }
+    </div>
+  </section>
+
   @for (limitation of r.limitations; track limitation) {
-    <p class="sub">{{ limitation }}</p>
+    <p class="hint">{{ limitation }}</p>
   }
 }
 @if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
+  <div class="notice danger" role="alert">{{ error() }}</div>
 }

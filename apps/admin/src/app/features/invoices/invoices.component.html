@@ -1,89 +1,120 @@
-<div class="title">
-  <h1>Invoices</h1>
-</div>
-<p class="hint">
-  The worker drafts last month's invoice for every tenant on the 1st. Check a draft, then issue it;
-  a tenant sees it under Settings, Invoices once issued. To draft one by hand, open the tenant.
-</p>
+<ww-page-header
+  heading="Invoices"
+  subtitle="What Wattwisely bills each tenant every month. The worker drafts last month's on the 1st; check a draft, then issue it."
+/>
 
-@if (filter().tenant_id) {
-  <p class="hint">Only one tenant's invoices. <a routerLink="/invoices">Show every tenant</a></p>
-}
-
-<div class="filters">
-  <mat-form-field appearance="outline">
-    <mat-label>State</mat-label>
-    <mat-select [value]="filter().status" (valueChange)="change({ status: $event })">
-      <mat-option value="">Any</mat-option>
-      @for (status of statuses; track status) {
-        <mat-option [value]="status"><ww-status-chip [status]="status" /></mat-option>
+<section class="ww-card">
+  <div class="ww-toolbar">
+    <mat-select
+      class="ww-field month"
+      [value]="filter().month"
+      (valueChange)="change({ month: $event })"
+      aria-label="Month"
+    >
+      <mat-option value="">All months</mat-option>
+      @for (month of months; track month.key) {
+        <mat-option [value]="month.key">{{ month.label }}</mat-option>
       }
     </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Month</mat-label>
-    <input
-      matInput
-      type="month"
-      [value]="filter().month"
-      (change)="change({ month: month.value })"
-      #month
-    />
-  </mat-form-field>
-</div>
-
-<table mat-table [dataSource]="invoices()" class="invoices" data-testid="invoices">
-  <ng-container matColumnDef="invoice">
-    <th mat-header-cell *matHeaderCellDef>Invoice</th>
-    <td mat-cell *matCellDef="let invoice">
-      <a class="name" [routerLink]="['/invoices', invoice.id]">
-        {{ invoice.number ?? 'Draft' }}
+    <mat-select
+      class="ww-field status"
+      [value]="filter().status"
+      (valueChange)="change({ status: $event })"
+      aria-label="State"
+    >
+      <mat-option value="">All states</mat-option>
+      @for (status of statuses; track status) {
+        <mat-option [value]="status">{{ labels[status] }}</mat-option>
+      }
+    </mat-select>
+    @if (filter().tenant_id) {
+      <span class="ww-chip info">One tenant only</span>
+      <a mat-button class="ww-small" routerLink="/invoices" (click)="change({ tenant_id: '' })">
+        Show every tenant
       </a>
-      <div class="sub">{{ invoice.month_label }}</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="tenant">
-    <th mat-header-cell *matHeaderCellDef>Tenant</th>
-    <td mat-cell *matCellDef="let invoice">
-      <a [routerLink]="['/tenants', invoice.tenant_id]">{{ invoice.tenant_name }}</a>
-      <div class="sub">{{ invoice.tenant_slug }}</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>State</th>
-    <td mat-cell *matCellDef="let invoice"><ww-status-chip [status]="statusOf(invoice)" /></td>
-  </ng-container>
-  <ng-container matColumnDef="total">
-    <th mat-header-cell *matHeaderCellDef class="amount">Total</th>
-    <td mat-cell *matCellDef="let invoice" class="amount">
-      {{ invoice.total | money: invoice.currency }}
-      @if (invoice.tax_amount) {
-        <div class="sub">incl. tax {{ invoice.tax_amount | money: invoice.currency }}</div>
-      }
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="due">
-    <th mat-header-cell *matHeaderCellDef>Due · paid</th>
-    <td mat-cell *matCellDef="let invoice">
-      @if (invoice.paid_at) {
-        paid {{ invoice.paid_at | date: 'mediumDate' }}
-      } @else if (invoice.due_at) {
-        {{ invoice.due_at | date: 'mediumDate' }}
-      } @else {
-        <span class="sub">not issued</span>
-      }
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
+    }
+  </div>
 
-@if (!invoices().length && !error()) {
-  <p class="empty">No invoices match.</p>
-}
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
-@if (nextCursor()) {
-  <button mat-stroked-button class="more" (click)="load(nextCursor())">Show more</button>
-}
+  <div class="scroll">
+    <table mat-table [dataSource]="invoices()" data-testid="invoices">
+      <ng-container matColumnDef="invoice">
+        <th mat-header-cell *matHeaderCellDef>Invoice</th>
+        <td mat-cell *matCellDef="let invoice">
+          <span class="ww-two">
+            <b>
+              <a [routerLink]="['/invoices', invoice.id]" [class.mono]="invoice.number">
+                {{ invoice.number ?? 'Draft' }}
+              </a>
+            </b>
+            <span>{{ invoice.month_label }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="tenant">
+        <th mat-header-cell *matHeaderCellDef>Tenant</th>
+        <td mat-cell *matCellDef="let invoice">
+          <span class="ww-two">
+            <b
+              ><a [routerLink]="['/tenants', invoice.tenant_id]">{{ invoice.tenant_name }}</a></b
+            >
+            <span>{{ invoice.tenant_slug }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="due">
+        <th mat-header-cell *matHeaderCellDef>Due · paid</th>
+        <td mat-cell *matCellDef="let invoice" class="nowrap">
+          @if (invoice.paid_at) {
+            Paid {{ invoice.paid_at | date: 'd MMM y' }}
+          } @else if (invoice.due_at) {
+            Due {{ invoice.due_at | date: 'd MMM y' }}
+          } @else {
+            <span class="ww-faint">Not issued</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Total</th>
+        <td mat-cell *matCellDef="let invoice" class="ww-num">
+          <span class="ww-two">
+            <b>{{ invoice.total | money: invoice.currency }}</b>
+            @if (invoice.tax_amount) {
+              <span>incl. tax {{ invoice.tax_amount | money: invoice.currency }}</span>
+            }
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>State</th>
+        <td mat-cell *matCellDef="let invoice"><ww-status-chip [status]="statusOf(invoice)" /></td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
+
+  @if (!invoices().length && isLoaded() && !error()) {
+    <ww-empty-state
+      icon="receipt-text"
+      heading="No invoices match"
+      text="Try another month or state. To draft one by hand, open the tenant."
+    />
+  }
+  @if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  }
+  @if (invoices().length) {
+    <div class="ww-card-foot">
+      <span>A tenant sees an invoice under Settings, Invoices once it is issued.</span>
+      <span class="ww-spacer"></span>
+      <span>Showing {{ invoices().length }}</span>
+      @if (nextCursor()) {
+        <button mat-stroked-button class="ww-small" (click)="load(nextCursor())">
+          Show more invoices
+        </button>
+      }
+    </div>
+  }
+</section>
