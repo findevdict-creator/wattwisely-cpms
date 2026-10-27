@@ -1,26 +1,40 @@
 .card {
-  padding: 12px 16px;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 8px;
-  background: var(--mat-sys-surface-container-low);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .line {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 40px;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .label {
-  width: 110px;
-  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+// The value in a box of its own, with a way to copy it.
+.box {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 40px;
+  padding-left: 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface);
 }
 
 code {
   flex: 1;
   word-break: break-all;
   font-size: 14px;
+}
+
+.hint {
+  margin: 0;
 }
 
 .warning {

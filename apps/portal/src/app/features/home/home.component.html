@@ -12,7 +12,7 @@
     }
   </p>
   @if (permissions.can('reports:read')) {
-    <div class="seg" role="group" aria-label="Period">
+    <div class="ww-seg" role="group" aria-label="Period">
       @for (option of periods; track option.key) {
         <button
           type="button"
@@ -27,7 +27,7 @@
     </div>
     @if (store.sites().length > 1) {
       <mat-select
-        class="site"
+        class="ww-field site"
         [value]="store.siteId()"
         (selectionChange)="store.chooseSite($event.value)"
         aria-label="Site"
@@ -51,7 +51,7 @@
 }
 
 @if (permissions.can('reports:read')) {
-  <div class="kpis" data-testid="overview">
+  <div class="ww-kpis" data-testid="overview">
     <ww-kpi-card
       label="Energy delivered"
       [value]="figures().energy"

@@ -1,0 +1,97 @@
+<section class="ww-card" aria-labelledby="cards-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="cards-title">RFID cards</h2>
+      <p>{{ countOf(driver().cards.length) }}</p>
+    </div>
+    @if (permissions.canChange('drivers:write')) {
+      <button mat-button class="ww-small" (click)="addCard()" data-testid="add-card">
+        <mat-icon svgIcon="plus" />
+        Add card
+      </button>
+    }
+  </div>
+  <div class="ww-card-body flush">
+    @if (driver().cards.length === 0) {
+      <ww-empty-state
+        icon="credit-card"
+        heading="No card yet"
+        text="Register the tag printed on the card, or the one the charger logged, and the chargers accept it."
+        data-testid="no-cards"
+      />
+    } @else {
+      <table mat-table [dataSource]="driver().cards" data-testid="cards">
+        <ng-container matColumnDef="card">
+          <th mat-header-cell *matHeaderCellDef>Card</th>
+          <td mat-cell *matCellDef="let card">
+            <div class="ww-two">
+              <b>{{ card.label || 'No label' }}</b>
+              <span class="mono">{{ card.id_tag }}</span>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="payment">
+          <th mat-header-cell *matHeaderCellDef>Paying</th>
+          <td mat-cell *matCellDef="let card" data-testid="card-payment-mode">
+            {{ cardPaymentLabel(card.payment_mode) }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="expires">
+          <th mat-header-cell *matHeaderCellDef>Valid until</th>
+          <td mat-cell *matCellDef="let card">
+            {{ (card.expires_at | date: 'd MMM y') || 'No end date' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="last_used">
+          <th mat-header-cell *matHeaderCellDef>Last used</th>
+          <td mat-cell *matCellDef="let card">{{ lastUsedOf(card) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let card">
+            <ww-status-chip kind="card" [status]="card.status" />
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef><span class="ww-faint">Actions</span></th>
+          <td mat-cell *matCellDef="let card" class="actions">
+            @if (permissions.canChange('drivers:write')) {
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="paying"
+                aria-label="Who pays with this card"
+                data-testid="card-payment-menu"
+              >
+                <mat-icon svgIcon="banknote" />
+              </button>
+              <mat-menu #paying="matMenu">
+                @for (mode of paymentModes; track mode) {
+                  <button
+                    mat-menu-item
+                    (click)="setCardPaymentMode(card, mode)"
+                    [disabled]="mode === card.payment_mode"
+                  >
+                    {{ cardPaymentLabel(mode) }}
+                  </button>
+                }
+              </mat-menu>
+              <button mat-icon-button [matMenuTriggerFor]="status" aria-label="Block or reactivate">
+                <mat-icon svgIcon="ellipsis-vertical" />
+              </button>
+              <mat-menu #status="matMenu">
+                @if (card.status === 'active') {
+                  <button mat-menu-item (click)="setCardStatus(card, 'blocked')">Block card</button>
+                  <button mat-menu-item (click)="setCardStatus(card, 'lost')">Report lost</button>
+                } @else {
+                  <button mat-menu-item (click)="setCardStatus(card, 'active')">Reactivate</button>
+                }
+              </mat-menu>
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    }
+  </div>
+</section>

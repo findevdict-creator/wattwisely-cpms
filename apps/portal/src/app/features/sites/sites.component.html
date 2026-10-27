@@ -1,79 +1,150 @@
-<header class="title">
-  <h1>Sites</h1>
+<ww-page-header heading="Sites" [subtitle]="summary()">
+  <div class="ww-seg" role="group" aria-label="Show sites as">
+    <button
+      type="button"
+      [class.on]="view() === 'map'"
+      [attr.aria-pressed]="view() === 'map'"
+      (click)="view.set('map')"
+      data-testid="view-map"
+    >
+      Map
+    </button>
+    <button
+      type="button"
+      [class.on]="view() === 'list'"
+      [attr.aria-pressed]="view() === 'list'"
+      (click)="view.set('list')"
+      data-testid="view-list"
+    >
+      List
+    </button>
+  </div>
   @if (permissions.canChange('sites:write')) {
     <button mat-flat-button (click)="add()" data-testid="add-site">
-      <mat-icon svgIcon="map-pin-plus" />
+      <mat-icon svgIcon="plus" />
       Add site
     </button>
   }
-</header>
+</ww-page-header>
 
-<div class="filters">
-  <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-    <mat-icon matPrefix svgIcon="search" />
-    <mat-label>Search by name or address</mat-label>
-    <input matInput #query (keyup.enter)="search(query.value)" data-testid="sites-search" />
-  </mat-form-field>
-  <mat-form-field appearance="outline" subscriptSizing="dynamic">
-    <mat-label>Status</mat-label>
-    <mat-select value="" (valueChange)="filterBy('status', $event)">
-      <mat-option value="">Any</mat-option>
-      <mat-option value="ok">OK</mat-option>
-      <mat-option value="problem">Problem</mat-option>
-      <mat-option value="offline">Offline</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline" subscriptSizing="dynamic">
-    <mat-label>Visibility</mat-label>
-    <mat-select value="" (valueChange)="filterBy('visibility', $event)">
-      <mat-option value="">Any</mat-option>
-      <mat-option value="public">Public</mat-option>
-      <mat-option value="private">Private</mat-option>
-    </mat-select>
-  </mat-form-field>
+<div class="ww-toolbar filters">
+  <label class="ww-field search">
+    <mat-icon svgIcon="search" />
+    <input
+      #query
+      type="search"
+      placeholder="Search site or address"
+      aria-label="Search sites"
+      (keyup.enter)="search(query.value)"
+      (search)="search(query.value)"
+      data-testid="sites-search"
+    />
+  </label>
+  <mat-select
+    class="ww-field visibility"
+    value=""
+    (valueChange)="filterBy('visibility', $event)"
+    aria-label="Visibility"
+  >
+    <mat-option value="">Public and private</mat-option>
+    <mat-option value="public">Public</mat-option>
+    <mat-option value="private">Private</mat-option>
+  </mat-select>
+  <mat-select
+    class="ww-field status"
+    value=""
+    (valueChange)="filterBy('status', $event)"
+    aria-label="Status"
+  >
+    <mat-option value="">All statuses</mat-option>
+    <mat-option value="ok">OK</mat-option>
+    <mat-option value="problem">Problem</mat-option>
+    <mat-option value="offline">Offline</mat-option>
+  </mat-select>
 </div>
 
-<table mat-table [dataSource]="store.sites()" class="sites" data-testid="sites">
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef>Site</th>
-    <td mat-cell *matCellDef="let site">
-      <a [routerLink]="['/sites', site.id]" class="name">{{ site.name }}</a>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="address">
-    <th mat-header-cell *matHeaderCellDef>Address</th>
-    <td mat-cell *matCellDef="let site">{{ addressOf(site) }}</td>
-  </ng-container>
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>Status</th>
-    <td mat-cell *matCellDef="let site"><ww-status-chip kind="site" [status]="site.status" /></td>
-  </ng-container>
-  <ng-container matColumnDef="chargers">
-    <th mat-header-cell *matHeaderCellDef>Chargers</th>
-    <td mat-cell *matCellDef="let site">{{ site.charger_count }}</td>
-  </ng-container>
-  <ng-container matColumnDef="connectors">
-    <th mat-header-cell *matHeaderCellDef>Connectors free</th>
-    <td mat-cell *matCellDef="let site">
-      {{ site.available_connector_count }} of {{ site.connector_count }}
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="visibility">
-    <th mat-header-cell *matHeaderCellDef>Visibility</th>
-    <td mat-cell *matCellDef="let site">
-      {{ site.visibility === 'public' ? 'Public' : 'Private' }}
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
-
 @if (!store.isLoading() && store.sites().length === 0) {
-  <p class="empty">
+  <section class="ww-card">
     @if (store.filter().q || store.filter().status || store.filter().visibility) {
-      No site matches these filters.
+      <ww-empty-state icon="search" heading="No site matches these filters" />
     } @else {
-      No sites yet. Add your first site to start registering chargers.
+      <ww-empty-state
+        icon="map-pin"
+        heading="No sites yet"
+        text="Add your first site to start registering chargers."
+      />
     }
-  </p>
+  </section>
+} @else if (view() === 'map') {
+  <div class="map-view">
+    <section class="ww-card map-card" aria-label="Map of sites">
+      <ww-site-map [sites]="store.sites()" [height]="600" [hasLegend]="true" />
+    </section>
+    <div class="tiles" data-testid="sites">
+      @for (site of store.sites(); track site.id) {
+        <a class="ww-tile" [routerLink]="['/sites', site.id]">
+          <span class="line">
+            <span class="ww-two ww-grow">
+              <b>{{ site.name }}</b>
+              <span>{{ site.address.line1 }} · {{ site.visibility }}</span>
+            </span>
+            <span class="ww-chip {{ chipOf(site).tone }}">{{ chipOf(site).label }}</span>
+          </span>
+          <span class="line">
+            <span class="ww-progress ww-grow"><i [style.width.%]="freeShare(site)"></i></span>
+            <span class="caption">
+              @if (site.status === 'offline') {
+                Offline
+              } @else {
+                {{ site.available_connector_count }} of {{ site.connector_count }} connectors free
+              }
+            </span>
+          </span>
+        </a>
+      }
+    </div>
+  </div>
+} @else {
+  <section class="ww-card">
+    <div class="ww-card-body flush">
+      <table mat-table [dataSource]="store.sites()" data-testid="sites">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Site</th>
+          <td mat-cell *matCellDef="let site">
+            <div class="ww-two">
+              <a [routerLink]="['/sites', site.id]" class="name">{{ site.name }}</a>
+              <span>{{ addressOf(site) }}</span>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let site">
+            <span class="ww-chip {{ chipOf(site).tone }}">{{ chipOf(site).label }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="chargers">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">Chargers</th>
+          <td mat-cell *matCellDef="let site" class="ww-num">{{ site.charger_count }}</td>
+        </ng-container>
+        <ng-container matColumnDef="connectors">
+          <th mat-header-cell *matHeaderCellDef>Connectors free</th>
+          <td mat-cell *matCellDef="let site">
+            <span class="line">
+              <span class="ww-progress bar"><i [style.width.%]="freeShare(site)"></i></span>
+              {{ site.available_connector_count }} of {{ site.connector_count }}
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="visibility">
+          <th mat-header-cell *matHeaderCellDef>Visibility</th>
+          <td mat-cell *matCellDef="let site">
+            {{ site.visibility === 'public' ? 'Public' : 'Private' }}
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+  </section>
 }

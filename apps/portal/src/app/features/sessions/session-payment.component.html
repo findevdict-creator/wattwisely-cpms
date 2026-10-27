@@ -1,58 +1,63 @@
-<mat-card appearance="outlined" data-testid="session-payment">
-  <mat-card-header>
-    <mat-card-title>
-      Payment
-      <ww-status-chip kind="payment" [status]="payment().status" />
-    </mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <dl>
-      <dt>Card</dt>
-      <dd>
-        @if (payment().card_last4) {
-          {{ payment().card_brand }} •••• {{ payment().card_last4 }}
-        } @else {
-          Not confirmed yet
-        }
-      </dd>
-      <dt>Hold</dt>
-      <dd>{{ payment().hold_amount | money: payment().currency }}</dd>
-      <dt>Taken</dt>
-      <dd data-testid="payment-taken">
-        {{ payment().captured_amount | money: payment().currency }}
-      </dd>
-      @if (payment().refunded_amount > 0) {
+<section class="ww-card" aria-labelledby="payment-title" data-testid="session-payment">
+  <div class="ww-card-head">
+    <div class="titles"><h2 id="payment-title">Payment</h2></div>
+    <ww-status-chip kind="payment" [status]="payment().status" />
+  </div>
+  <div class="ww-card-body">
+    <dl class="ww-kv">
+      <div>
+        <dt>Taken</dt>
+        <dd data-testid="payment-taken">
+          {{ payment().captured_amount | money: payment().currency }}
+        </dd>
+      </div>
+      <div>
         <dt>Refunded</dt>
         <dd>{{ payment().refunded_amount | money: payment().currency }}</dd>
-      }
+      </div>
+      <div>
+        <dt>Card</dt>
+        <dd>
+          @if (payment().card_last4) {
+            {{ brandOf(payment().card_brand) }} •• {{ payment().card_last4 }}
+          } @else {
+            Not confirmed yet
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Hold</dt>
+        <dd>{{ payment().hold_amount | money: payment().currency }}</dd>
+      </div>
       @if (payment().failure_message) {
-        <dt>Problem</dt>
-        <dd>{{ payment().failure_message }}</dd>
+        <div class="wide">
+          <dt>Problem</dt>
+          <dd>{{ payment().failure_message }}</dd>
+        </div>
       }
       @for (flag of payment().review_flags; track flag) {
-        <dt>Check</dt>
-        <dd>{{ flagLabel(flag) }}</dd>
+        <div class="wide">
+          <dt>Check</dt>
+          <dd>{{ flagLabel(flag) }}</dd>
+        </div>
       }
     </dl>
     @if (payment().refunds.length > 0) {
-      <h3>Refunds</h3>
-      <ul class="refunds">
+      <div class="refunds">
+        <span class="ww-overline">Refunds</span>
         @for (refund of payment().refunds; track refund.id) {
-          <li>
-            {{ refund.amount | money: refund.currency }} · {{ refund.reason }} ·
-            <ww-status-chip kind="refund" [status]="refund.status" />
-            <span class="hint">
-              {{ refund.requested_at | zonedTime: timeZone() : true }} by
-              {{ refund.requested_by_label }}
+          <div class="ww-list-item">
+            <span class="ww-two ww-grow">
+              <b>{{ refund.amount | money: refund.currency }} · {{ refund.reason }}</b>
+              <span>
+                {{ refund.requested_at | zonedTime: timeZone() : true }} by
+                {{ refund.requested_by_label }}
+              </span>
             </span>
-          </li>
+            <ww-status-chip kind="refund" [status]="refund.status" />
+          </div>
         }
-      </ul>
+      </div>
     }
-  </mat-card-content>
-  @if (canRefund()) {
-    <mat-card-actions align="end">
-      <button mat-stroked-button (click)="refund()" data-testid="refund">Refund</button>
-    </mat-card-actions>
-  }
-</mat-card>
+  </div>
+</section>

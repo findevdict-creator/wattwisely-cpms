@@ -1,17 +1,17 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { AccessGroupsApiService } from '../../core/api/access-groups-api.service';
 import { AccessGroup, Driver } from '../../core/api/models/driver';
 import { PermissionsService } from '../../core/permissions/permissions.service';
+import { DurationLabel } from '../../shared/duration-label';
+import { PaymentModeLabels } from '../../shared/payment-mode-labels';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { DriverDialogComponent } from './driver-dialog.component';
 import { DriversStore } from './drivers.store';
@@ -20,13 +20,12 @@ import { DriversStore } from './drivers.store';
 @Component({
   selector: 'ww-drivers',
   imports: [
-    DatePipe,
+    EmptyStateComponent,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatSelectModule,
     MatTableModule,
+    PageHeaderComponent,
     RouterLink,
     StatusChipComponent,
   ],
@@ -35,13 +34,31 @@ import { DriversStore } from './drivers.store';
   styleUrl: './drivers.component.scss',
 })
 export class DriversComponent implements OnInit {
+  static readonly TABS = [
+    { value: '', label: 'All' },
+    { value: 'active', label: 'Active' },
+    { value: 'blocked', label: 'Blocked' },
+  ];
+
   protected readonly store = inject(DriversStore);
   protected readonly permissions = inject(PermissionsService);
   private readonly groupsApi = inject(AccessGroupsApiService);
   private readonly dialog = inject(MatDialog);
 
+  protected readonly tabs = DriversComponent.TABS;
   protected readonly groups = signal<AccessGroup[]>([]);
-  protected readonly columns = ['name', 'reference', 'cards', 'groups', 'last_session', 'status'];
+  protected readonly columns = [
+    'name',
+    'reference',
+    'groups',
+    'cards',
+    'paying',
+    'last_session',
+    'status',
+  ];
+  protected readonly hasHiddenDetails = computed(() =>
+    this.store.drivers().some((driver) => driver.is_personal_data_hidden),
+  );
 
   ngOnInit(): void {
     void this.store.load();
@@ -67,7 +84,19 @@ export class DriversComponent implements OnInit {
     }
   }
 
-  protected groupNames(driver: Driver): string {
-    return driver.groups.map((group) => group.name).join(', ');
+  /** The line under the name: the e-mail, or why there is none. */
+  protected contactOf(driver: Driver): string {
+    if (driver.is_personal_data_hidden) {
+      return 'Details hidden';
+    }
+    return driver.email ?? 'No e-mail';
+  }
+
+  protected payingOf(driver: Driver): string {
+    return PaymentModeLabels.short(driver.payment_mode);
+  }
+
+  protected lastChargeOf(driver: Driver): string {
+    return DurationLabel.ago(driver.last_session_at);
   }
 }

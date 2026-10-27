@@ -22,24 +22,25 @@ import { DriverPaymentMode, RfidCard } from '../../core/api/models/driver';
     ReactiveFormsModule,
   ],
   template: `
-    <h2 mat-dialog-title>Register card</h2>
+    <h2 mat-dialog-title>Register a card</h2>
     <mat-dialog-content>
+      <p class="lead">Once registered, the chargers accept the card for this driver.</p>
       <form [formGroup]="form" (ngSubmit)="save()">
-        <mat-form-field appearance="outline" class="wide">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Tag</mat-label>
           <input matInput formControlName="idTag" maxlength="20" data-testid="card-tag" />
           <mat-hint>What the charger reads from the card, up to 20 characters</mat-hint>
           <mat-error>Letters, digits and *_=:+|@.- only, up to 20</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="wide">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Label (optional)</mat-label>
           <input matInput formControlName="label" maxlength="100" />
         </mat-form-field>
-        <mat-form-field appearance="outline" class="wide">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Valid until (optional)</mat-label>
           <input matInput formControlName="expiresOn" type="date" />
         </mat-form-field>
-        <mat-form-field appearance="outline" class="wide">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Paying</mat-label>
           <mat-select formControlName="paymentMode" data-testid="card-payment-mode">
             <mat-option value="inherit">As the driver</mat-option>
@@ -61,9 +62,15 @@ import { DriverPaymentMode, RfidCard } from '../../core/api/models/driver';
     </mat-dialog-actions>
   `,
   styles: `
-    .wide {
-      width: 100%;
-      margin-top: 8px;
+    .lead {
+      margin: 0;
+      color: var(--mat-sys-on-surface-variant);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-top: 8px;
     }
   `,
 })

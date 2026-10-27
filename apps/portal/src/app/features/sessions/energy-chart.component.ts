@@ -23,6 +23,7 @@ import { EnergyChartPath } from './energy-chart-path';
           [attr.y2]="box.height - box.padding"
           class="axis"
         />
+        <path [attr.d]="area()" class="area" />
         <path [attr.d]="path()" class="line" />
         <text [attr.x]="box.padding" y="14" class="label">
           {{ maxKwh() | number: '1.0-2' }} kWh
@@ -45,11 +46,14 @@ import { EnergyChartPath } from './energy-chart-path';
   `,
   styles: `
     .chart {
+      display: block;
       width: 100%;
-      max-width: 640px;
     }
     .axis {
       stroke: var(--mat-sys-outline-variant);
+    }
+    .area {
+      fill: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
     }
     .line {
       fill: none;
@@ -68,5 +72,12 @@ export class EnergyChartComponent {
 
   protected readonly box = { width: 640, height: 200, padding: 28 };
   protected readonly path = computed(() => EnergyChartPath.of(this.readings(), this.box));
+  protected readonly area = computed(() => {
+    const { width, height, padding } = this.box;
+    const bottom = height - padding;
+    return this.path()
+      ? `${this.path()} L${width - padding},${bottom} L${padding},${bottom} Z`
+      : '';
+  });
   protected readonly maxKwh = computed(() => EnergyChartPath.maxWh(this.readings()) / 1000);
 }

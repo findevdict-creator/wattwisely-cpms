@@ -1,0 +1,224 @@
+// Controls of the approved screens that are smaller than Material's: the filter row over a
+// list, its 36px boxes, the segmented switch, progress bars, tiles and the line under a table.
+
+// Filters over a list, in a card or on their own; .ww-spacer pushes what follows to the right.
+.ww-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 20px;
+
+  .ww-spacer {
+    flex: 1;
+  }
+}
+
+// A 36px box around a search input, or on a mat-select: an icon in front, no floating label.
+.ww-field {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: 400 14px/20px var(--ww-font);
+
+  &:focus-within,
+  &.mat-focused {
+    border-color: var(--mat-sys-primary);
+    box-shadow: 0 0 0 1px var(--mat-sys-primary);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+  }
+
+  > .mat-icon {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .mat-mdc-select-trigger {
+    flex: 1;
+  }
+}
+
+mat-select.ww-field {
+  display: inline-flex;
+  --mat-select-trigger-text-size: 14px;
+  --mat-select-trigger-text-line-height: 20px;
+}
+
+// Two to five choices side by side, one of them on.
+.ww-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface-variant);
+
+  button {
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font: 500 13px/18px var(--ww-font);
+    color: var(--mat-sys-on-surface-variant);
+    cursor: pointer;
+  }
+
+  .on {
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--ww-ink) 6%, transparent);
+  }
+}
+
+// A thin bar; the <i> inside is as wide as the share. .warn and .danger change its color.
+.ww-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--mat-sys-surface-variant);
+
+  > i {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--mat-sys-primary);
+  }
+
+  &.warn > i {
+    background: var(--ww-warning);
+  }
+
+  &.danger > i {
+    background: var(--ww-danger);
+  }
+}
+
+// A small card in a list of cards, such as a site next to the map; .on marks the chosen one.
+.ww-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-lg);
+  background: var(--mat-sys-surface);
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &.on {
+    border-color: var(--mat-sys-primary);
+  }
+
+  &.on {
+    box-shadow: 0 0 0 1px var(--mat-sys-primary);
+  }
+}
+
+// The line under a table in a card: what is shown on the left, paging on the right.
+.ww-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 20px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--mat-sys-on-surface-variant);
+
+  .ww-spacer {
+    flex: 1;
+  }
+}
+
+// Numbers in a table line up on the right; .ww-faint for a dash where there is nothing.
+.mat-mdc-header-cell.ww-num,
+.mat-mdc-cell.ww-num {
+  text-align: right;
+}
+
+.ww-faint {
+  color: var(--mat-sys-outline);
+}
+
+// Three or four figures side by side, two below 1000px and one on a phone.
+.ww-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+
+  &.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 999px) {
+    &,
+    &.three {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 479px) {
+    &,
+    &.three {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+// Two columns: the main one, and a narrower one beside it that drops below on smaller screens.
+.ww-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+
+  > .ww-main {
+    display: flex;
+    flex: 999 1 520px;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  > .ww-side {
+    display: flex;
+    flex: 1 1 340px;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    max-width: 420px;
+  }
+
+  @media (max-width: 899px) {
+    > .ww-side {
+      max-width: none;
+    }
+  }
+}
+
+// An outlined button for a step that takes something away, such as blocking a driver.
+.mat-mdc-outlined-button.ww-danger {
+  --mat-button-outlined-label-text-color: var(--ww-danger-text);
+  --mat-button-outlined-outline-color: color-mix(in srgb, var(--ww-danger) 40%, transparent);
+  --mat-button-outlined-state-layer-color: var(--ww-danger);
+}

@@ -8,7 +8,7 @@
     <div class="codes">
       @for (code of codes; track code.connector_id) {
         <div class="code" [attr.data-testid]="'qr-' + code.label">
-          <div class="label">Plug {{ code.label }}</div>
+          <div class="label">Scan to charge · Plug {{ code.label }}</div>
           <div class="drawing" [innerHTML]="code.drawing"></div>
           <div class="url">{{ code.url }}</div>
         </div>

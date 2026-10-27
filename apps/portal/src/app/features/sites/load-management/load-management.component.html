@@ -1,168 +1,225 @@
-<a [routerLink]="['/sites', id()]" class="back">
-  <mat-icon inline svgIcon="arrow-left" />
-  Back to the site
-</a>
-<header class="title">
-  <h1>Load management</h1>
-  <button mat-button (click)="refresh()" data-testid="refresh-load">
+<ww-page-header
+  heading="Load management"
+  [backLink]="['/sites', id()]"
+  [backLabel]="siteName() || 'Site'"
+>
+  @if (view(); as view) {
+    <span wwTitleExtra class="ww-chip {{ view.policy.is_enabled ? 'ok' : 'neutral' }}">
+      {{ view.policy.is_enabled ? 'On' : 'Off' }}
+    </span>
+  }
+  <p wwSubtitle class="ww-page-subtitle">
+    Shares the site's grid limit among the cars that are charging.
+    @if (view()?.policy?.updated_at; as savedAt) {
+      Version {{ view()?.policy?.version }}, saved {{ savedAt | date: 'd MMM, HH:mm' }}.
+    }
+    @if (isLocked()) {
+      <span data-testid="load-locked">
+        Load management is an add-on. Ask Wattwisely to add it to your plan.
+      </span>
+    }
+  </p>
+  <button mat-stroked-button (click)="refresh()" data-testid="refresh-load">
     <mat-icon svgIcon="refresh-cw" />
     Refresh
   </button>
-</header>
-<p class="hint lead">
-  Keep the whole site under the power your supply allows. Every charger gets a cap; chargers with a
-  car on them share the cap, idle ones keep a small reserve so a car can start, and the caps are
-  shared out again within seconds of a car plugging in or out.
-  @if (isLocked()) {
-    <span data-testid="load-locked">
-      Load management is an add-on. Ask Wattwisely to add it to your plan.
-    </span>
+  @if (canWrite() && view()) {
+    <button
+      mat-flat-button
+      type="button"
+      (click)="save()"
+      [disabled]="!form().isValid() || isSaving()"
+      data-testid="save-load"
+    >
+      <mat-icon svgIcon="check" />
+      Save and apply
+    </button>
   }
-</p>
+</ww-page-header>
 
 @if (view(); as view) {
-  <form [formGroup]="form().policy" (ngSubmit)="save()" class="policy" data-testid="load-policy">
-    <mat-card appearance="outlined">
-      <mat-card-content>
-        <mat-slide-toggle formControlName="is_enabled" data-testid="load-enabled">
-          Cap this site
-        </mat-slide-toggle>
-        <div class="fields">
-          <mat-form-field appearance="outline">
-            <mat-label>Site limit</mat-label>
-            <input
-              matInput
-              type="number"
-              step="0.1"
-              formControlName="limit_kw"
-              data-testid="limit-kw"
-            />
-            <span matTextSuffix>kW</span>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Minimum per charging car</mat-label>
-            <input
-              matInput
-              type="number"
-              step="0.1"
-              formControlName="min_power_kw"
-              data-testid="min-kw"
-            />
-            <span matTextSuffix>kW</span>
-            <mat-hint>Below about 4 kW most cars stop charging.</mat-hint>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Sharing</mat-label>
-            <mat-select formControlName="strategy" data-testid="strategy">
-              @for (strategy of strategies; track strategy.value) {
-                <mat-option [value]="strategy.value">{{ strategy.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-        @for (strategy of strategies; track strategy.value) {
-          @if (strategy.value === form().policy.controls.strategy.value) {
-            <p class="hint">{{ strategy.hint }}</p>
-          }
-        }
-        @if (form().isMinimumAboveLimit()) {
-          <p class="error">The minimum per car cannot be more than the site limit.</p>
-        }
-        <p class="totals" data-testid="load-totals">
-          Caps handed out: <strong>{{ view.allocated_kw }} kW</strong> of
-          {{ view.policy.limit_kw }} kW · {{ view.charging_count }} charging
-          @if (view.policy.updated_at) {
-            · saved {{ view.policy.updated_at | date: 'medium' }}
-          }
-        </p>
-      </mat-card-content>
-    </mat-card>
+  @if (figures(); as figures) {
+    <div class="ww-kpis" data-testid="load-totals">
+      <ww-kpi-card
+        label="In use now"
+        [value]="view.allocated_kw + ' kW'"
+        [foot]="'of a ' + view.policy.limit_kw + ' kW site limit'"
+      />
+      <ww-kpi-card
+        label="Cars charging"
+        [value]="'' + view.charging_count"
+        [foot]="figures.waiting"
+      />
+      <ww-kpi-card label="Headroom" [value]="figures.headroom + ' kW'" [foot]="figures.room" />
+      <ww-kpi-card
+        label="Caps applied"
+        [value]="figures.applied"
+        [foot]="figures.unconfirmed || 'Every charger confirmed'"
+        [trend]="figures.unconfirmed ? 'down' : 'up'"
+        [icon]="figures.unconfirmed ? 'triangle-alert' : 'circle-check'"
+      />
+    </div>
+  }
 
-    <h2>Chargers</h2>
-    <table mat-table [dataSource]="view.chargers" class="chargers" data-testid="load-chargers">
-      <ng-container matColumnDef="charger">
-        <th mat-header-cell *matHeaderCellDef>Charger</th>
-        <td mat-cell *matCellDef="let charger">
-          <a [routerLink]="['/chargers', charger.id]" class="name">{{ charger.identity }}</a>
-          <ww-status-chip [status]="charger.status" />
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="priority">
-        <th mat-header-cell *matHeaderCellDef>Priority</th>
-        <td mat-cell *matCellDef="let charger; let i = index">
-          <input
-            matInput
-            type="number"
-            min="1"
-            max="10"
-            class="cell-input"
-            [formControl]="row(i).controls.priority"
-            [readonly]="!canWrite()"
-            matTooltip="10 is served first, 1 last"
-            [attr.data-testid]="'priority-' + charger.identity"
-          />
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="max_power">
-        <th mat-header-cell *matHeaderCellDef>Charger ceiling</th>
-        <td mat-cell *matCellDef="let charger; let i = index">
+  <div class="ww-columns" data-testid="load-policy">
+    <section class="ww-side ww-card" [formGroup]="form().policy" aria-labelledby="policy-title">
+      <div class="ww-card-head line">
+        <div class="titles"><h2 id="policy-title">Policy</h2></div>
+        <mat-slide-toggle
+          formControlName="is_enabled"
+          aria-label="Cap this site"
+          data-testid="load-enabled"
+        />
+      </div>
+      <div class="ww-card-body policy">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Site limit</mat-label>
           <input
             matInput
             type="number"
             step="0.1"
-            class="cell-input"
-            [formControl]="row(i).controls.max_power_kw"
-            [readonly]="!canWrite()"
-            [placeholder]="
-              charger.connectors_max_kw ? charger.connectors_max_kw + ' (plugs)' : 'none'
-            "
+            formControlName="limit_kw"
+            data-testid="limit-kw"
           />
-          kW
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="allocated">
-        <th mat-header-cell *matHeaderCellDef>Cap now</th>
-        <td mat-cell *matCellDef="let charger">
-          @if (charger.allocated_kw !== null) {
-            <strong>{{ charger.allocated_kw }} kW</strong>
-            <span class="description">{{ reasonOf(charger) }}</span>
-          } @else {
-            —
-          }
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="state">
-        <th mat-header-cell *matHeaderCellDef>Charger says</th>
-        <td mat-cell *matCellDef="let charger" [class.failing]="charger.last_error">
-          {{ stateOf(charger) }}
-          @if (charger.applied_at && !charger.last_error) {
-            <span class="description">{{ charger.applied_at | date: 'medium' }}</span>
-          }
-          @if (!charger.is_online) {
-            <span class="description">Offline: the cap goes when it is back.</span>
-          }
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns"></tr>
-    </table>
-    @if (view.chargers.length === 0) {
-      <p class="hint">No chargers on this site yet.</p>
-    }
-
-    @if (canWrite()) {
-      <div class="actions">
-        <button
-          mat-flat-button
-          type="submit"
-          [disabled]="!form().isValid() || isSaving()"
-          data-testid="save-load"
-        >
-          Save
-        </button>
+          <span matTextSuffix>kW</span>
+          <mat-hint>From the grid connection agreement.</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Minimum per charging car</mat-label>
+          <input
+            matInput
+            type="number"
+            step="0.1"
+            formControlName="min_power_kw"
+            data-testid="min-kw"
+          />
+          <span matTextSuffix>kW</span>
+          <mat-hint>Below about 4 kW most cars stop charging.</mat-hint>
+        </mat-form-field>
+        @if (form().isMinimumAboveLimit()) {
+          <p class="error">The minimum per car cannot be more than the site limit.</p>
+        }
+        <div class="sharing">
+          <span class="label" id="sharing-label">Sharing</span>
+          <mat-radio-group
+            formControlName="strategy"
+            aria-labelledby="sharing-label"
+            data-testid="strategy"
+          >
+            @for (strategy of strategies; track strategy.value) {
+              <mat-radio-button [value]="strategy.value">
+                {{ strategy.label }}
+                <span class="hint">{{ strategy.hint }}</span>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+        <p class="notice info has-icon">
+          <mat-icon svgIcon="info" />
+          <span
+            >Chargers get their new cap within seconds. A charger that is offline gets it when it is
+            back.</span
+          >
+        </p>
       </div>
-    }
-  </form>
+    </section>
+
+    <section class="ww-main ww-card chargers" aria-labelledby="chargers-title">
+      <div class="ww-card-head line">
+        <div class="titles">
+          <h2 id="chargers-title">Chargers</h2>
+          <p>The cap each charger holds right now</p>
+        </div>
+      </div>
+      <div class="ww-card-body flush">
+        <table mat-table [dataSource]="view.chargers" data-testid="load-chargers">
+          <ng-container matColumnDef="charger">
+            <th mat-header-cell *matHeaderCellDef>Charger</th>
+            <td mat-cell *matCellDef="let charger">
+              <a [routerLink]="['/chargers', charger.id]" class="mono">{{ charger.identity }}</a>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let charger">
+              <ww-status-chip [status]="charger.status" />
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="priority">
+            <th mat-header-cell *matHeaderCellDef>Priority</th>
+            <td mat-cell *matCellDef="let charger; let i = index">
+              <input
+                type="number"
+                min="1"
+                max="10"
+                class="cell-input"
+                [formControl]="row(i).controls.priority"
+                [readonly]="!canWrite()"
+                matTooltip="10 is served first, 1 last"
+                [attr.aria-label]="'Priority of ' + charger.identity"
+                [attr.data-testid]="'priority-' + charger.identity"
+              />
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="max_power">
+            <th mat-header-cell *matHeaderCellDef>Max power</th>
+            <td mat-cell *matCellDef="let charger; let i = index">
+              <span class="line">
+                <input
+                  type="number"
+                  step="0.1"
+                  class="cell-input"
+                  [formControl]="row(i).controls.max_power_kw"
+                  [readonly]="!canWrite()"
+                  [attr.aria-label]="'Max power of ' + charger.identity + ', kW'"
+                  [placeholder]="
+                    charger.connectors_max_kw ? '' + charger.connectors_max_kw : 'none'
+                  "
+                />
+                kW
+              </span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="allocated">
+            <th mat-header-cell *matHeaderCellDef class="cap">Cap now</th>
+            <td mat-cell *matCellDef="let charger">
+              @if (charger.allocated_kw !== null) {
+                <span class="line">
+                  <span
+                    class="ww-progress ww-grow {{ charger.reason === 'minimum' ? 'warn' : '' }}"
+                  >
+                    <i [style.width.%]="shareOf(charger)"></i>
+                  </span>
+                  <b>{{ charger.allocated_kw }} kW</b>
+                </span>
+                <span class="description">{{ reasonOf(charger) }}</span>
+              } @else {
+                <span class="ww-faint">–</span>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="state">
+            <th mat-header-cell *matHeaderCellDef>Charger says</th>
+            <td mat-cell *matCellDef="let charger">
+              @if (charger.last_error) {
+                <span class="ww-chip danger">{{ stateOf(charger) }}</span>
+              } @else {
+                {{ stateOf(charger) }}
+              }
+              @if (!charger.is_online) {
+                <span class="description">Offline: the cap goes when it is back.</span>
+              }
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+        @if (view.chargers.length === 0) {
+          <ww-empty-state icon="plug-zap" heading="No chargers on this site yet" />
+        }
+      </div>
+    </section>
+  </div>
 }
 @if (error()) {
   <p class="error" role="alert">{{ error() }}</p>

@@ -1,20 +1,21 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject, input } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router, RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { CommandsApiService } from '../../core/api/commands-api.service';
 import { Charger, Connector } from '../../core/api/models/charger';
 import { ChargerEvent } from '../../core/api/models/charger-event';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog.component';
+import { DurationLabel } from '../../shared/duration-label';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { ChargerActivityComponent } from './charger-activity.component';
 import { ChargerActivityStore } from './charger-activity.store';
+import { ChargerDetailsComponent } from './charger-details.component';
 import { ChargerStore } from './charger.store';
 import { ConnectorCardComponent } from './connector-card.component';
 import { ConnectorDialogComponent } from './connector-dialog.component';
@@ -31,12 +32,13 @@ import { SetupCardComponent } from './setup-card.component';
   selector: 'ww-charger',
   imports: [
     ChargerActivityComponent,
+    ChargerDetailsComponent,
     ConnectorCardComponent,
-    DatePipe,
+    EmptyStateComponent,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatMenuModule,
+    PageHeaderComponent,
     RouterLink,
     SetupCardComponent,
     StatusChipComponent,
@@ -53,6 +55,14 @@ export class ChargerComponent implements OnInit, OnDestroy {
   private readonly commandsApi = inject(CommandsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+
+  protected readonly tabs = [
+    { key: 'messages', label: 'Message log' },
+    { key: 'commands', label: 'Commands' },
+    { key: 'details', label: 'Details' },
+  ];
+  protected readonly shownTab = signal('messages');
+  protected readonly facts = computed(() => ChargerComponent.factsOf(this.store.charger()));
 
   ngOnInit(): void {
     void this.store.load(this.id());
@@ -152,5 +162,21 @@ export class ChargerComponent implements OnInit, OnDestroy {
   private async confirm(data: ConfirmDialogData): Promise<boolean> {
     const dialog = this.dialog.open(ConfirmDialogComponent, { data });
     return (await firstValueFrom(dialog.afterClosed())) === true;
+  }
+
+  /** "Alpitronic HYC300 · firmware 1.8.4 · OCPP 2.0.1 · password · last seen now". */
+  private static factsOf(charger: Charger | null): string {
+    if (!charger) {
+      return '';
+    }
+    return [
+      [charger.vendor, charger.model].filter(Boolean).join(' ') || 'Model not known yet',
+      charger.firmware_version ? `firmware ${charger.firmware_version}` : '',
+      charger.ocpp_version ? `OCPP ${charger.ocpp_version}` : '',
+      charger.auth_mode === 'password' ? 'password' : 'no password',
+      `last seen ${DurationLabel.ago(charger.last_seen_at)}`,
+    ]
+      .filter(Boolean)
+      .join(' · ');
   }
 }

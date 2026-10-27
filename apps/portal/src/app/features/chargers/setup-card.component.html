@@ -1,34 +1,42 @@
 <div class="card" data-testid="setup-card">
   <div class="line">
     <span class="label">OCPP address</span>
-    <code data-testid="setup-url">{{ setup().ocpp_url }}</code>
-    <button mat-icon-button (click)="copy('Address', setup().ocpp_url)" aria-label="Copy address">
-      <mat-icon svgIcon="copy" />
-    </button>
+    <div class="box">
+      <code data-testid="setup-url">{{ setup().ocpp_url }}</code>
+      <button mat-icon-button (click)="copy('Address', setup().ocpp_url)" aria-label="Copy address">
+        <mat-icon svgIcon="copy" />
+      </button>
+    </div>
   </div>
   @if (setup().ocpp_plain_url; as plainUrl) {
     <div class="line">
       <span class="label">Without TLS</span>
-      <code>{{ plainUrl }}</code>
-      <button mat-icon-button (click)="copy('Address', plainUrl)" aria-label="Copy plain address">
-        <mat-icon svgIcon="copy" />
-      </button>
+      <div class="box">
+        <code>{{ plainUrl }}</code>
+        <button mat-icon-button (click)="copy('Address', plainUrl)" aria-label="Copy plain address">
+          <mat-icon svgIcon="copy" />
+        </button>
+      </div>
     </div>
   }
   <div class="line">
     <span class="label">Charger ID</span>
-    <code data-testid="setup-identity">{{ setup().identity }}</code>
-    <button mat-icon-button (click)="copy('Charger ID', setup().identity)" aria-label="Copy ID">
-      <mat-icon svgIcon="copy" />
-    </button>
+    <div class="box">
+      <code data-testid="setup-identity">{{ setup().identity }}</code>
+      <button mat-icon-button (click)="copy('Charger ID', setup().identity)" aria-label="Copy ID">
+        <mat-icon svgIcon="copy" />
+      </button>
+    </div>
   </div>
   @if (setup().password; as password) {
     <div class="line">
       <span class="label">Password</span>
-      <code data-testid="setup-password">{{ password }}</code>
-      <button mat-icon-button (click)="copy('Password', password)" aria-label="Copy password">
-        <mat-icon svgIcon="copy" />
-      </button>
+      <div class="box">
+        <code data-testid="setup-password">{{ password }}</code>
+        <button mat-icon-button (click)="copy('Password', password)" aria-label="Copy password">
+          <mat-icon svgIcon="copy" />
+        </button>
+      </div>
     </div>
     <p class="hint warning">
       Shown once. Copy it into the charger now; later you can only set a new one.
