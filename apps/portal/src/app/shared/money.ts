@@ -17,6 +17,14 @@ export class Money {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(major);
   }
 
+  /** "£" for GBP, the sign that goes in front of an amount field. */
+  static symbol(currency: string): string {
+    const parts = new Intl.NumberFormat(undefined, { style: 'currency', currency }).formatToParts(
+      0,
+    );
+    return parts.find((part) => part.type === 'currency')?.value ?? currency;
+  }
+
   /** 880 as "8.80", for an input field. */
   static toText(amount: number | null, currency: string): string {
     return amount === null

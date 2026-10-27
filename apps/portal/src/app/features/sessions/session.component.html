@@ -1,131 +1,159 @@
 @if (store.session(); as session) {
-  <header class="title">
-    <div>
-      <a routerLink="/sessions" class="back"><mat-icon svgIcon="arrow-left" /> Sessions</a>
-      <h1>
-        {{ session.site_name }} · {{ session.charger_identity }} · {{ session.connector_label }}
-        <ww-status-chip kind="session" [status]="session.status" />
-      </h1>
-      <p class="hint">
-        {{ session.started_at | zonedTime: session.time_zone : true }} ({{ session.time_zone }})
-      </p>
-    </div>
+  <ww-page-header [heading]="titleOf(session)" backLink="/sessions" backLabel="Sessions">
+    <ww-status-chip wwTitleExtra kind="session" [status]="session.status" />
+    <p wwSubtitle class="ww-page-subtitle">
+      {{ session.started_at | zonedTime: session.time_zone : true }}
+      @if (session.ended_at) {
+        to {{ session.ended_at | zonedTime: session.time_zone }}
+      }
+      · <a [routerLink]="['/sites', session.site_id]">{{ session.site_name }}</a
+      >, connector
+      {{ session.connector_label }}
+      @if (session.driver_id) {
+        · <a [routerLink]="['/drivers', session.driver_id]">{{ session.driver_name }}</a>
+      }
+    </p>
     @if (!store.isEnded() && permissions.canChange('sessions:close_stuck')) {
       <button mat-stroked-button (click)="close()" data-testid="close-session">
         Close session
       </button>
     }
-  </header>
+    @if (canRefund()) {
+      <button mat-flat-button (click)="refund()" data-testid="refund">
+        <mat-icon svgIcon="undo-2" />
+        Refund
+      </button>
+    }
+  </ww-page-header>
 
   @if (session.review_flags.length > 0) {
-    <div class="flags" role="status" data-testid="review-flags">
+    <p class="notice warn has-icon" role="status" data-testid="review-flags">
       <mat-icon svgIcon="flag" />
-      Check before charging the driver:
-      @for (flag of session.review_flags; track flag; let last = $last) {
-        {{ flagLabel(flag) }}{{ last ? '.' : ',' }}
-      }
-    </div>
+      <span>
+        Check before charging the driver:
+        @for (flag of session.review_flags; track flag; let last = $last) {
+          {{ flagLabel(flag) }}{{ last ? '.' : ',' }}
+        }
+      </span>
+    </p>
   }
 
-  <div class="cards">
-    <mat-card appearance="outlined">
-      <mat-card-header><mat-card-title>Charge</mat-card-title></mat-card-header>
-      <mat-card-content>
-        <dl>
-          <dt>Energy</dt>
-          <dd>{{ session.energy_wh / 1000 | number: '1.0-3' }} kWh</dd>
-          <dt>Stopped</dt>
-          <dd>{{ (session.ended_at | zonedTime: session.time_zone : true) || 'Not yet' }}</dd>
-          <dt>Car left</dt>
-          <dd>{{ (session.unplugged_at | zonedTime: session.time_zone : true) || 'Not yet' }}</dd>
-          <dt>Card or token</dt>
-          <dd>
-            {{ session.id_tag }}
-            @if (session.driver_id) {
-              · <a [routerLink]="['/drivers', session.driver_id]">{{ session.driver_name }}</a>
-            }
-          </dd>
-          @if (session.start_source) {
-            <dt>Started by</dt>
-            <dd data-testid="start-source">{{ startSource(session.start_source) }}</dd>
-          }
-          @if (session.payment_rule; as rule) {
-            <dt>Who pays</dt>
-            <dd data-testid="payment-rule">{{ rule.words }}</dd>
-          }
-          <dt>Transaction</dt>
-          <dd>{{ session.ocpp_transaction_id ?? 'Not started by the charger yet' }}</dd>
-          @if (session.stop_reason) {
-            <dt>Stop reason</dt>
-            <dd>{{ session.stop_reason }}</dd>
-          }
-          @if (session.failure_reason) {
-            <dt>Failed because</dt>
-            <dd>{{ failureLabel(session.failure_reason) }}</dd>
-          }
-        </dl>
-      </mat-card-content>
-    </mat-card>
-    <mat-card appearance="outlined">
-      <mat-card-header><mat-card-title>Price</mat-card-title></mat-card-header>
-      <mat-card-content>
-        <dl>
-          <dt>Tariff</dt>
-          <dd>
-            @if (session.tariff; as tariff) {
-              <a [routerLink]="['/tariffs', tariff.id]">{{ tariff.name }}</a
-              >, prices version
-              {{ tariff.version_number }}
-            } @else {
-              None: the site had no tariff
-            }
-          </dd>
-          <dt>{{ session.is_priced ? 'Total' : 'Cost so far' }}</dt>
-          <dd data-testid="session-total">
-            {{ session.gross_amount | money: session.currency }}
-          </dd>
-          @if (session.priced_at) {
-            <dt>Priced</dt>
-            <dd>
-              {{ session.priced_at | zonedTime: session.time_zone : true }}, engine
-              {{ session.pricing_engine_version }}
-            </dd>
-          }
-        </dl>
-      </mat-card-content>
-    </mat-card>
-    @if (session.payment; as payment) {
-      <ww-session-payment
-        [payment]="payment"
-        [timeZone]="session.time_zone"
-        (refunded)="reload()"
-      />
-    }
+  <div class="ww-kpis">
+    <ww-kpi-card label="Energy" [value]="figures().energy.value" [foot]="figures().energy.foot" />
+    <ww-kpi-card
+      label="Duration"
+      [value]="figures().duration.value"
+      [foot]="figures().duration.foot"
+    />
+    <ww-kpi-card label="Peak power" [value]="figures().power.value" [foot]="figures().power.foot" />
+    <ww-kpi-card
+      [label]="session.is_priced ? 'Total, tax incl.' : 'Cost so far'"
+      [value]="figures().total.value"
+      [foot]="figures().total.foot"
+      data-testid="session-total"
+    />
   </div>
 
-  @if (session.is_priced && session.currency) {
-    <h2>Receipt</h2>
-    <ww-receipt
-      [lines]="session.lines"
-      [currency]="session.currency"
-      [timeZone]="session.time_zone"
-      [totals]="{ net: session.net_amount, tax: session.tax_amount, gross: session.gross_amount }"
-    />
-  }
+  <div class="ww-columns">
+    <div class="ww-main">
+      <section class="ww-card" aria-labelledby="energy-title">
+        <div class="ww-card-head">
+          <div class="titles">
+            <h2 id="energy-title">Energy</h2>
+            <p>kWh delivered, from the charger's meter values</p>
+          </div>
+        </div>
+        <div class="ww-card-body">
+          <ww-energy-chart [readings]="store.readings()" [timeZone]="session.time_zone" />
+        </div>
+      </section>
 
-  <h2>Energy</h2>
-  <ww-energy-chart [readings]="store.readings()" [timeZone]="session.time_zone" />
+      <section class="ww-card" aria-labelledby="timeline-title">
+        <div class="ww-card-head">
+          <div class="titles"><h2 id="timeline-title">Timeline</h2></div>
+        </div>
+        <div class="ww-card-body steps" data-testid="timeline">
+          @for (change of session.state_changes; track $index) {
+            <div class="ww-list-item">
+              <span class="dot {{ toneOf(change.to_status) }}"></span>
+              <span class="ww-grow">
+                <b>{{ stateLabel(change.to_status) }}</b>
+                <span class="hint"> · {{ change.event }}</span>
+              </span>
+              <span class="hint">{{ change.occurred_at | zonedTime: session.time_zone }}</span>
+            </div>
+          }
+        </div>
+      </section>
 
-  <h2>Timeline</h2>
-  <ol class="timeline" data-testid="timeline">
-    @for (change of session.state_changes; track $index) {
-      <li>
-        <span class="when">{{ change.occurred_at | zonedTime: session.time_zone : true }}</span>
-        {{ stateLabel(change.to_status) }}
-        <span class="hint">({{ change.event }})</span>
-      </li>
-    }
-  </ol>
+      @if (session.is_priced && session.currency) {
+        <section class="ww-card" aria-labelledby="receipt-title">
+          <div class="ww-card-head">
+            <div class="titles"><h2 id="receipt-title">Receipt</h2></div>
+          </div>
+          <div class="ww-card-body flush">
+            <ww-receipt
+              [lines]="session.lines"
+              [currency]="session.currency"
+              [timeZone]="session.time_zone"
+              [totals]="{
+                net: session.net_amount,
+                tax: session.tax_amount,
+                gross: session.gross_amount,
+              }"
+            />
+          </div>
+        </section>
+      }
+    </div>
+
+    <div class="ww-side">
+      <section class="ww-card" aria-labelledby="price-title">
+        <div class="ww-card-head">
+          <div class="titles">
+            <h2 id="price-title">Price</h2>
+            <p>
+              @if (session.tariff; as tariff) {
+                Tariff
+                <a [routerLink]="['/tariffs', tariff.id]">{{ tariff.name }}</a
+                >, version
+                {{ tariff.version_number }}
+              } @else {
+                No tariff: the site had none
+              }
+            </p>
+          </div>
+        </div>
+        <div class="ww-card-body">
+          <dl class="ww-kv">
+            <div>
+              <dt>{{ session.is_priced ? 'Total' : 'Cost so far' }}</dt>
+              <dd>{{ session.gross_amount | money: session.currency }}</dd>
+            </div>
+            <div>
+              <dt>Of which tax</dt>
+              <dd>{{ session.tax_amount | money: session.currency }}</dd>
+            </div>
+            @if (session.priced_at) {
+              <div class="wide">
+                <dt>Priced</dt>
+                <dd>
+                  {{ session.priced_at | zonedTime: session.time_zone : true }}, engine
+                  {{ session.pricing_engine_version }}
+                </dd>
+              </div>
+            }
+          </dl>
+        </div>
+      </section>
+
+      @if (session.payment; as payment) {
+        <ww-session-payment [payment]="payment" [timeZone]="session.time_zone" />
+      }
+
+      <ww-session-charger [session]="session" />
+    </div>
+  </div>
 }
 @if (error()) {
   <p class="error" role="alert">{{ error() }}</p>

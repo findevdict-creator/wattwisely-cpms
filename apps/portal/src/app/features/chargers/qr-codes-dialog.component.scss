@@ -4,21 +4,30 @@
   gap: 16px;
 }
 
+// Each code as its sticker: the plug over the code, the address under it.
 .code {
-  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 200px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-xl);
   text-align: center;
 }
 
 .label {
-  font-weight: 500;
-  margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .drawing {
   width: 160px;
   height: 160px;
   margin: 0 auto;
-  background: white;
+  border-radius: 8px;
+  background: var(--ww-white);
 
   ::ng-deep svg {
     width: 100%;

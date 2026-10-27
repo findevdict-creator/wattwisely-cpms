@@ -1,231 +1,120 @@
 @if (driver(); as driver) {
-  <header class="title">
-    <div>
-      <a routerLink="/drivers" class="back"><mat-icon svgIcon="arrow-left" /> Drivers</a>
-      <h1>
-        {{ driver.name }}
-        <ww-status-chip kind="driver" [status]="driver.status" />
-      </h1>
-    </div>
-    <div class="actions">
-      @if (permissions.canChange('drivers:write')) {
-        <button mat-flat-button (click)="addCard()" data-testid="add-card">
-          <mat-icon svgIcon="credit-card" />
-          Register card
-        </button>
+  <ww-page-header [heading]="driver.name" backLink="/drivers" backLabel="Drivers">
+    <ww-status-chip wwTitleExtra kind="driver" [status]="driver.status" />
+    <p wwSubtitle class="ww-page-subtitle">
+      @for (fact of factsOf(driver); track $index) {
+        {{ fact }} ·
       }
-      @if (
-        permissions.canChange('drivers:write') ||
-        permissions.canChange('drivers:block') ||
-        permissions.canChange('drivers:delete')
-      ) {
-        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Driver actions">
-          <mat-icon svgIcon="ellipsis-vertical" />
-        </button>
-        <mat-menu #menu="matMenu">
-          @if (permissions.canChange('drivers:write')) {
-            <button mat-menu-item (click)="edit()" data-testid="edit-driver">Edit driver</button>
-          }
-          @if (permissions.canChange('drivers:block') && driver.status === 'active') {
-            <button mat-menu-item (click)="block()" data-testid="block-driver">Block driver</button>
-          }
-          @if (permissions.canChange('drivers:block') && driver.status === 'blocked') {
-            <button mat-menu-item (click)="unblock()" data-testid="unblock-driver">
-              Unblock driver
-            </button>
-          }
-          @if (permissions.canChange('drivers:delete')) {
-            <button mat-menu-item (click)="remove()" data-testid="delete-driver">
-              Delete driver
-            </button>
-          }
-        </mat-menu>
-      }
-    </div>
-  </header>
+      driver since {{ driver.created_at | date: 'd MMM y' }}
+    </p>
+    @if (permissions.canChange('drivers:write')) {
+      <button mat-stroked-button (click)="edit()" data-testid="edit-driver">
+        <mat-icon svgIcon="pencil" />
+        Edit
+      </button>
+    }
+    @if (permissions.canChange('drivers:block') && driver.status === 'active') {
+      <button mat-stroked-button class="ww-danger" (click)="block()" data-testid="block-driver">
+        <mat-icon svgIcon="ban" />
+        Block
+      </button>
+    }
+    @if (permissions.canChange('drivers:block') && driver.status === 'blocked') {
+      <button mat-stroked-button (click)="unblock()" data-testid="unblock-driver">
+        <mat-icon svgIcon="lock-open" />
+        Unblock
+      </button>
+    }
+    @if (permissions.canChange('drivers:delete')) {
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More for this driver">
+        <mat-icon svgIcon="ellipsis-vertical" />
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="remove()" data-testid="delete-driver">Delete driver</button>
+      </mat-menu>
+    }
+  </ww-page-header>
 
   @if (driver.status === 'blocked') {
-    <p class="blocked" role="status" data-testid="blocked-note">
-      Blocked by {{ driver.blocked_by || 'staff' }} on {{ driver.blocked_at | date: 'medium' }}.
-      @if (driver.block_reason) {
-        “{{ driver.block_reason }}”
-      }
-      Every card of this driver is refused at the chargers.
-    </p>
-  }
-
-  <div class="cards">
-    <mat-card appearance="outlined">
-      <mat-card-header><mat-card-title>Details</mat-card-title></mat-card-header>
-      <mat-card-content>
-        <dl>
-          <dt>E-mail</dt>
-          <dd data-testid="driver-email">
-            @if (driver.is_personal_data_hidden) {
-              <span class="hint">Hidden: you cannot see personal data</span>
-            } @else {
-              {{ driver.email || '—' }}
-            }
-          </dd>
-          <dt>Phone</dt>
-          <dd>
-            @if (driver.is_personal_data_hidden) {
-              <span class="hint">Hidden</span>
-            } @else {
-              {{ driver.phone || '—' }}
-            }
-          </dd>
-          <dt>Reference</dt>
-          <dd>{{ driver.reference || '—' }}</dd>
-          <dt>Paying</dt>
-          <dd data-testid="driver-payment-mode">{{ driverPaymentLabel(driver.payment_mode) }}</dd>
-          <dt>Notes</dt>
-          <dd>{{ driver.notes || '—' }}</dd>
-          <dt>Added</dt>
-          <dd>{{ driver.created_at | date: 'mediumDate' }}</dd>
-        </dl>
-      </mat-card-content>
-    </mat-card>
-    <mat-card appearance="outlined">
-      <mat-card-header><mat-card-title>Access groups</mat-card-title></mat-card-header>
-      <mat-card-content>
-        @if (driver.groups.length === 0) {
-          <p class="hint">
-            In no group: the driver's cards work at public sites only.
-            <a routerLink="/drivers/groups">Access groups</a> open private sites.
-          </p>
-        } @else {
-          <ul class="groups">
-            @for (group of driver.groups; track group.id) {
-              <li>{{ group.name }}</li>
-            }
-          </ul>
+    <p class="notice danger has-icon" role="status" data-testid="blocked-note">
+      <mat-icon svgIcon="ban" />
+      <span>
+        <b>Blocked</b> by {{ driver.blocked_by || 'staff' }} on
+        {{ driver.blocked_at | date: 'd MMM y, HH:mm' }}.
+        @if (driver.block_reason) {
+          “{{ driver.block_reason }}”
         }
-      </mat-card-content>
-    </mat-card>
-    <ww-driver-account-card [driver]="driver" (changed)="load()" />
-  </div>
-
-  <h2>RFID cards</h2>
-  @if (driver.cards.length === 0) {
-    <p class="empty" data-testid="no-cards">
-      No card yet. Register the tag printed on the card, or the one the charger logged, and the
-      chargers accept it.
+        Every card of this driver is refused at the chargers.
+      </span>
     </p>
-  } @else {
-    <table mat-table [dataSource]="driver.cards" class="table" data-testid="cards">
-      <ng-container matColumnDef="id_tag">
-        <th mat-header-cell *matHeaderCellDef>Tag</th>
-        <td mat-cell *matCellDef="let card">
-          <code>{{ card.id_tag }}</code>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="label">
-        <th mat-header-cell *matHeaderCellDef>Label</th>
-        <td mat-cell *matCellDef="let card">{{ card.label || '—' }}</td>
-      </ng-container>
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let card">
-          <ww-status-chip kind="card" [status]="card.status" />
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="payment">
-        <th mat-header-cell *matHeaderCellDef>Paying</th>
-        <td mat-cell *matCellDef="let card" data-testid="card-payment-mode">
-          {{ cardPaymentLabel(card.payment_mode) }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="expires">
-        <th mat-header-cell *matHeaderCellDef>Valid until</th>
-        <td mat-cell *matCellDef="let card">
-          {{ (card.expires_at | date: 'mediumDate') || 'No end date' }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="last_used">
-        <th mat-header-cell *matHeaderCellDef>Last used</th>
-        <td mat-cell *matCellDef="let card">
-          {{ (card.last_used_at | date: 'medium') || 'Never' }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let card" class="row-actions">
-          @if (permissions.canChange('drivers:write')) {
-            @if (card.status === 'active') {
-              <button mat-button (click)="setCardStatus(card, 'blocked')">Block</button>
-              <button mat-button (click)="setCardStatus(card, 'lost')">Lost</button>
-            } @else {
-              <button mat-button (click)="setCardStatus(card, 'active')">Reactivate</button>
-            }
-            <button
-              mat-icon-button
-              [matMenuTriggerFor]="paying"
-              aria-label="Who pays with this card"
-              data-testid="card-payment-menu"
-            >
-              <mat-icon svgIcon="banknote" />
-            </button>
-            <mat-menu #paying="matMenu">
-              @for (mode of paymentModes; track mode) {
-                <button
-                  mat-menu-item
-                  (click)="setCardPaymentMode(card, mode)"
-                  [disabled]="mode === card.payment_mode"
-                >
-                  {{ cardPaymentLabel(mode) }}
-                </button>
-              }
-            </mat-menu>
-          }
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="cardColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: cardColumns"></tr>
-    </table>
   }
 
-  @if (permissions.can('sessions:read')) {
-    <h2>Recent charges</h2>
-    @if (sessions().length === 0) {
-      <p class="empty">No charge with this driver's cards yet.</p>
-    } @else {
-      <table mat-table [dataSource]="sessions()" class="table" data-testid="driver-sessions">
-        <ng-container matColumnDef="started_at">
-          <th mat-header-cell *matHeaderCellDef>Started</th>
-          <td mat-cell *matCellDef="let session">
-            <a [routerLink]="['/sessions', session.id]">{{
-              session.started_at | date: 'medium'
-            }}</a>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="where">
-          <th mat-header-cell *matHeaderCellDef>Where</th>
-          <td mat-cell *matCellDef="let session">
-            {{ session.site_name }} · {{ session.charger_identity }} · {{ session.connector_label }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let session">
-            <ww-status-chip kind="session" [status]="session.status" />
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="energy">
-          <th mat-header-cell *matHeaderCellDef>Energy</th>
-          <td mat-cell *matCellDef="let session">{{ session.energy_wh / 1000 }} kWh</td>
-        </ng-container>
-        <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
-          <td mat-cell *matCellDef="let session">
-            {{ session.gross_amount | money: session.currency }}
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="sessionColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: sessionColumns"></tr>
-      </table>
-    }
-  }
+  <div class="ww-columns">
+    <div class="ww-main">
+      <ww-driver-cards [driver]="driver" (changed)="load()" />
+      @if (permissions.can('sessions:read')) {
+        <ww-driver-charges [driverId]="driver.id" />
+      }
+    </div>
+
+    <div class="ww-side">
+      <section class="ww-card" aria-labelledby="profile-title">
+        <div class="ww-card-head">
+          <div class="titles"><h2 id="profile-title">Profile</h2></div>
+        </div>
+        <div class="ww-card-body">
+          <dl class="ww-kv">
+            <div class="wide">
+              <dt>E-mail</dt>
+              <dd data-testid="driver-email">
+                @if (driver.is_personal_data_hidden) {
+                  <span class="ww-faint">Hidden: your role cannot read personal data</span>
+                } @else {
+                  {{ driver.email || '–' }}
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Phone</dt>
+              <dd>
+                @if (driver.is_personal_data_hidden) {
+                  <span class="ww-faint">Hidden</span>
+                } @else {
+                  {{ driver.phone || '–' }}
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>Reference</dt>
+              <dd>{{ driver.reference || '–' }}</dd>
+            </div>
+            <div class="wide">
+              <dt>Paying</dt>
+              <dd data-testid="driver-payment-mode">
+                {{ driverPaymentLabel(driver.payment_mode) }}
+              </dd>
+            </div>
+            <div class="wide">
+              <dt>Access groups</dt>
+              <dd>
+                @for (group of driver.groups; track group.id; let last = $last) {
+                  <a routerLink="/drivers/groups">{{ group.name }}</a
+                  >{{ last ? '' : ', ' }}
+                } @empty {
+                  <span class="ww-faint">None: public sites only</span>
+                }
+              </dd>
+            </div>
+            <div class="wide">
+              <dt>Notes</dt>
+              <dd>{{ driver.notes || '–' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+      <ww-driver-account-card [driver]="driver" (changed)="load()" />
+    </div>
+  </div>
 }
 @if (error()) {
   <p class="error" role="alert">{{ error() }}</p>

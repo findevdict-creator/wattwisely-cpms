@@ -1,36 +1,42 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { KpiCardComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { SessionDetail } from '../../core/api/models/session';
 import { MoneyPipe } from '../../shared/money.pipe';
-import { StartSourceWords } from '../../shared/start-source-words';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { StatusLabels } from '../../shared/status-labels';
 import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
+import { RefundDialogComponent } from '../payments/refund-dialog.component';
 import { EnergyChartComponent } from './energy-chart.component';
 import { ReceiptComponent } from './receipt.component';
+import { SessionChargerComponent } from './session-charger.component';
+import { SessionFigures } from './session-figures';
 import { SessionPaymentComponent } from './session-payment.component';
 import { SessionStore } from './session.store';
 
-/** One session: where and when, the receipt, the card payment, the energy chart and the timeline. */
+/**
+ * One session: its figures, the energy chart, the timeline and the receipt, with the price, the
+ * card payment and the charger beside them.
+ */
 @Component({
   selector: 'ww-session',
   imports: [
-    DecimalPipe,
     EnergyChartComponent,
+    KpiCardComponent,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MoneyPipe,
+    PageHeaderComponent,
     ReceiptComponent,
     RouterLink,
+    SessionChargerComponent,
     SessionPaymentComponent,
     StatusChipComponent,
     ZonedTimePipe,
@@ -47,9 +53,16 @@ export class SessionComponent implements OnInit {
 
   protected readonly error = signal('');
   protected readonly flagLabel = StatusLabels.reviewFlag;
-  protected readonly failureLabel = StatusLabels.failure;
   protected readonly stateLabel = StatusLabels.session;
-  protected readonly startSource = StartSourceWords.of;
+  protected readonly figures = computed(() => {
+    const session = this.store.session() as SessionDetail;
+    return {
+      energy: SessionFigures.energy(session),
+      duration: SessionFigures.duration(session),
+      power: SessionFigures.power(session, this.store.readings()),
+      total: SessionFigures.total(session),
+    };
+  });
 
   ngOnInit(): void {
     void this.start();
@@ -74,6 +87,33 @@ export class SessionComponent implements OnInit {
       await this.store.close(this.id());
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
+    }
+  }
+
+  /** "Session 8812", by the charger's transaction number when there is one. */
+  protected titleOf(session: SessionDetail): string {
+    return session.ocpp_transaction_id ? `Session ${session.ocpp_transaction_id}` : 'Session';
+  }
+
+  /** The dot in front of a step of the timeline. */
+  protected toneOf(status: string): string {
+    return ['idle', 'suspended'].includes(status) ? 'warn' : StatusLabels.toneOf(status);
+  }
+
+  protected canRefund(): boolean {
+    const payment = this.store.session()?.payment;
+    return (
+      !!payment &&
+      SessionPaymentComponent.REFUNDABLE.includes(payment.status) &&
+      this.permissions.canChange('payments:refund')
+    );
+  }
+
+  protected async refund(): Promise<void> {
+    const data = this.store.session()?.payment;
+    const dialog = this.dialog.open(RefundDialogComponent, { data, width: '480px' });
+    if (await firstValueFrom(dialog.afterClosed())) {
+      await this.reload();
     }
   }
 

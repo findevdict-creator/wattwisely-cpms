@@ -1,7 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -20,26 +19,21 @@ import { InviteDriverDialogComponent } from './invite-driver-dialog.component';
  */
 @Component({
   selector: 'ww-driver-account-card',
-  imports: [DatePipe, MatButtonModule, MatCardModule, MatIconModule],
+  imports: [DatePipe, MatButtonModule, MatIconModule],
   templateUrl: './driver-account-card.component.html',
   styles: `
-    dl {
-      display: grid;
-      grid-template-columns: max-content 1fr;
-      gap: 8px 24px;
-      margin: 0 0 12px;
+    .ww-card-body {
+      gap: 12px;
     }
-    dt {
-      color: var(--mat-sys-on-surface-variant);
-    }
-    dd {
+    .ww-kv,
+    .hint {
       margin: 0;
     }
     .state {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 0 0 12px;
+      margin: 0;
       font-weight: 500;
     }
     .expired {
@@ -51,6 +45,7 @@ import { InviteDriverDialogComponent } from './invite-driver-dialog.component';
       gap: 8px;
     }
     .hint {
+      font-size: 13px;
       color: var(--mat-sys-on-surface-variant);
     }
   `,
@@ -60,6 +55,18 @@ export class DriverAccountCardComponent {
   readonly changed = output<void>();
 
   protected readonly permissions = inject(PermissionsService);
+  protected readonly chip = computed(() => {
+    const account = this.driver().account;
+    if (account.status === 'linked') {
+      return { tone: 'ok', label: 'Linked' };
+    }
+    if (account.status === 'invited') {
+      return account.is_invitation_expired
+        ? { tone: 'warn', label: 'Invitation expired' }
+        : { tone: 'info', label: 'Invited' };
+    }
+    return { tone: 'neutral', label: 'Not invited' };
+  });
   private readonly driversApi = inject(DriversApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);

@@ -3,9 +3,14 @@
   flex-direction: column;
 }
 
+.lead {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
 h3 {
   margin: 8px 0;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 

@@ -1,32 +1,24 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { Router, RouterLink } from '@angular/router';
+import { PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { DriversApiService } from '../../core/api/drivers-api.service';
-import {
-  DriverDetail,
-  DriverPaymentMode,
-  RfidCard,
-  RfidCardStatus,
-} from '../../core/api/models/driver';
-import { Session } from '../../core/api/models/session';
-import { SessionsApiService } from '../../core/api/sessions-api.service';
+import { DriverDetail } from '../../core/api/models/driver';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
-import { MoneyPipe } from '../../shared/money.pipe';
 import { PaymentModeLabels } from '../../shared/payment-mode-labels';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { BlockDriverDialogComponent } from './block-driver-dialog.component';
-import { CardDialogComponent } from './card-dialog.component';
 import { DriverAccountCardComponent } from './driver-account-card.component';
+import { DriverCardsComponent } from './driver-cards.component';
+import { DriverChargesComponent } from './driver-charges.component';
 import { DriverDialogComponent } from './driver-dialog.component';
 
 /**
@@ -38,12 +30,12 @@ import { DriverDialogComponent } from './driver-dialog.component';
   imports: [
     DatePipe,
     DriverAccountCardComponent,
+    DriverCardsComponent,
+    DriverChargesComponent,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatMenuModule,
-    MatTableModule,
-    MoneyPipe,
+    PageHeaderComponent,
     RouterLink,
     StatusChipComponent,
   ],
@@ -54,25 +46,12 @@ export class DriverComponent implements OnInit {
   readonly id = input.required<string>();
   protected readonly permissions = inject(PermissionsService);
   private readonly driversApi = inject(DriversApiService);
-  private readonly sessionsApi = inject(SessionsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
   protected readonly driver = signal<DriverDetail | null>(null);
-  protected readonly sessions = signal<Session[]>([]);
   protected readonly error = signal('');
-  protected readonly cardColumns = [
-    'id_tag',
-    'label',
-    'status',
-    'payment',
-    'expires',
-    'last_used',
-    'actions',
-  ];
-  protected readonly paymentModes: DriverPaymentMode[] = ['inherit', 'pay', 'free'];
-  protected readonly sessionColumns = ['started_at', 'where', 'status', 'energy', 'amount'];
 
   ngOnInit(): void {
     void this.load();
@@ -86,40 +65,14 @@ export class DriverComponent implements OnInit {
     }
   }
 
-  protected async addCard(): Promise<void> {
-    const dialog = this.dialog.open(CardDialogComponent, { data: this.id(), width: '480px' });
-    if (await firstValueFrom(dialog.afterClosed())) {
-      this.tell('Card registered.');
-      await this.load();
-    }
-  }
-
-  protected async setCardStatus(card: RfidCard, status: RfidCardStatus): Promise<void> {
-    try {
-      await firstValueFrom(this.driversApi.setCardStatus(card, status));
-      this.tell(`Card ${card.id_tag} is now ${status}.`);
-      await this.load();
-    } catch (error) {
-      this.tell(ApiProblem.from(error).detail);
-    }
-  }
-
-  protected async setCardPaymentMode(card: RfidCard, mode: DriverPaymentMode): Promise<void> {
-    try {
-      await firstValueFrom(this.driversApi.setCardPaymentMode(card, mode));
-      this.tell(`Card ${card.id_tag}: ${PaymentModeLabels.card(mode).toLowerCase()}.`);
-      await this.load();
-    } catch (error) {
-      this.tell(ApiProblem.from(error).detail);
-    }
+  /** What the subtitle tells before the date: the e-mail and the reference, when there are. */
+  protected factsOf(driver: DriverDetail): string[] {
+    const email = driver.is_personal_data_hidden ? '' : (driver.email ?? '');
+    return [email, driver.reference ? `reference ${driver.reference}` : ''].filter((part) => part);
   }
 
   protected driverPaymentLabel(mode: string): string {
     return PaymentModeLabels.driver(mode);
-  }
-
-  protected cardPaymentLabel(mode: string): string {
-    return PaymentModeLabels.card(mode);
   }
 
   protected async block(): Promise<void> {
@@ -168,10 +121,6 @@ export class DriverComponent implements OnInit {
   protected async load(): Promise<void> {
     try {
       this.driver.set(await firstValueFrom(this.driversApi.get(this.id())));
-      if (this.permissions.can('sessions:read')) {
-        const page = await firstValueFrom(this.sessionsApi.list({ driver_id: this.id() }));
-        this.sessions.set(page.items);
-      }
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     }

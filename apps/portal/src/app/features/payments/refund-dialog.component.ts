@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
@@ -17,38 +18,51 @@ import { Money } from '../../shared/money';
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     ReactiveFormsModule,
   ],
   template: `
     <h2 mat-dialog-title>Refund the driver</h2>
-    <mat-dialog-content [formGroup]="form">
-      <p>
-        Up to {{ available }} can still be refunded. Refunds above {{ limit }} wait for a second
-        person's approval.
-      </p>
+    <mat-dialog-content [formGroup]="form" class="content">
+      <p class="lead">Up to {{ available }} can be refunded to {{ card }}.</p>
       <mat-form-field appearance="outline">
-        <mat-label>Amount in {{ payment.currency }}</mat-label>
+        <mat-label>Amount</mat-label>
+        <span matTextPrefix>{{ symbol }}&nbsp;</span>
         <input matInput formControlName="amount" inputmode="decimal" data-testid="refund-amount" />
+        <mat-hint>Use {{ available }} for a full refund.</mat-hint>
       </mat-form-field>
-      <mat-form-field appearance="outline" class="wide">
-        <mat-label>Reason (the driver sees it)</mat-label>
+      <mat-form-field appearance="outline">
+        <mat-label>Reason, the driver sees it</mat-label>
         <input matInput formControlName="reason" maxlength="200" data-testid="refund-reason" />
       </mat-form-field>
+      <p class="notice info has-icon">
+        <mat-icon svgIcon="info" />
+        <span>Refunds over {{ limit }} wait for a second person's approval.</span>
+      </p>
       @if (error()) {
         <p class="error" role="alert">{{ error() }}</p>
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="null">Keep</button>
+      <button mat-button [mat-dialog-close]="null">Cancel</button>
       <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="confirm">
-        Refund
+        {{ buttonLabel() }}
       </button>
     </mat-dialog-actions>
   `,
   styles: `
-    .wide {
-      width: 100%;
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .lead,
+    .notice {
+      margin: 0;
+    }
+    .lead {
+      color: var(--mat-sys-on-surface-variant);
     }
   `,
 })
@@ -73,10 +87,20 @@ export class RefundDialogComponent {
     (this.payment.captured_amount ?? 0) - this.payment.refunded_amount,
     this.payment.currency,
   );
+  protected readonly card = this.payment.card_last4
+    ? `the card ending ${this.payment.card_last4}`
+    : 'the card';
+  protected readonly symbol = Money.symbol(this.payment.currency);
   protected readonly limit = Money.format(
     RefundDialogComponent.APPROVAL_LIMIT,
     this.payment.currency,
   );
+
+  /** "Refund £4.40" once the amount reads as money. */
+  protected buttonLabel(): string {
+    const amount = Money.fromText(this.form.controls.amount.value, this.payment.currency);
+    return amount ? `Refund ${Money.format(amount, this.payment.currency)}` : 'Refund';
+  }
 
   protected async save(): Promise<void> {
     this.form.markAllAsTouched();

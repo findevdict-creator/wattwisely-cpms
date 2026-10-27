@@ -1,112 +1,174 @@
-<header class="title">
-  <h1>Sessions</h1>
+<ww-page-header heading="Sessions" [subtitle]="summary">
   @if (permissions.can('sessions:export')) {
     <button mat-stroked-button (click)="store.export()" data-testid="export-sessions">
       <mat-icon svgIcon="download" />
       Export CSV
     </button>
   }
-</header>
+</ww-page-header>
 
 @if (store.notice()) {
-  <p class="notice" role="status" data-testid="export-notice">
-    {{ store.notice() }} <a routerLink="/reports">Go to Reports</a>
+  <p class="notice info has-icon" role="status" data-testid="export-notice">
+    <mat-icon svgIcon="info" />
+    <span>{{ store.notice() }} <a routerLink="/reports">Go to Reports</a></span>
   </p>
 }
 
-<div class="filters">
-  @if (sites().length > 0) {
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Site</mat-label>
-      <mat-select value="" (valueChange)="filterBy('site_id', $event)">
+<section class="ww-card">
+  <div class="ww-toolbar">
+    <mat-select
+      class="ww-field period"
+      value=""
+      (valueChange)="choosePeriod($event)"
+      aria-label="Dates"
+      data-testid="session-dates"
+    >
+      <mat-option value="">Any date</mat-option>
+      @for (option of periods; track option.key) {
+        <mat-option [value]="option.key">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+    @if (sites().length > 0) {
+      <mat-select
+        class="ww-field site"
+        value=""
+        (valueChange)="filterBy('site_id', $event)"
+        aria-label="Site"
+      >
         <mat-option value="">All sites</mat-option>
         @for (site of sites(); track site.id) {
           <mat-option [value]="site.id">{{ site.name }}</mat-option>
         }
       </mat-select>
-    </mat-form-field>
-  }
-  <mat-form-field appearance="outline" subscriptSizing="dynamic">
-    <mat-label>Status</mat-label>
-    <mat-select value="" (valueChange)="filterBy('status', $event)" data-testid="session-status">
-      <mat-option value="">Any</mat-option>
+    }
+    <mat-select
+      class="ww-field status"
+      value=""
+      (valueChange)="filterBy('status', $event)"
+      aria-label="Status"
+      data-testid="session-status"
+    >
+      <mat-option value="">All statuses</mat-option>
       @for (option of statusFilters; track option.value) {
         <mat-option [value]="option.value">{{ option.label }}</mat-option>
       }
     </mat-select>
-  </mat-form-field>
-  <mat-slide-toggle (change)="filterBy('needs_review', $event.checked)">
-    Needs a look
-  </mat-slide-toggle>
-</div>
+    <mat-slide-toggle (change)="filterBy('needs_review', $event.checked)">
+      Needs a look
+    </mat-slide-toggle>
+    @if (scopeLabel()) {
+      <span class="ww-spacer"></span>
+      <span
+        class="ww-chip info"
+        [attr.data-testid]="scope().charger_id ? 'charger-filter' : 'driver-filter'"
+        >{{ scopeLabel() }}</span
+      >
+      <button mat-button (click)="showAll()">Show all</button>
+    }
+  </div>
 
-<table mat-table [dataSource]="store.sessions()" class="sessions" data-testid="sessions">
-  <ng-container matColumnDef="started_at">
-    <th mat-header-cell *matHeaderCellDef>Started</th>
-    <td mat-cell *matCellDef="let session">
-      <a [routerLink]="['/sessions', session.id]" class="name">
-        {{ session.started_at | date: 'medium' }}
-      </a>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="where">
-    <th mat-header-cell *matHeaderCellDef>Where</th>
-    <td mat-cell *matCellDef="let session">
-      {{ session.site_name }} · {{ session.charger_identity }} · {{ session.connector_label }}
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>Status</th>
-    <td mat-cell *matCellDef="let session">
-      <ww-status-chip kind="session" [status]="session.status" />
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="energy">
-    <th mat-header-cell *matHeaderCellDef>Energy</th>
-    <td mat-cell *matCellDef="let session">{{ session.energy_wh / 1000 | number: '1.0-2' }} kWh</td>
-  </ng-container>
-  <ng-container matColumnDef="amount">
-    <th mat-header-cell *matHeaderCellDef>Amount</th>
-    <td mat-cell *matCellDef="let session">
-      {{ session.gross_amount | money: session.currency }}
-      @if (session.gross_amount !== null && !session.is_priced) {
-        <span class="hint">so far</span>
-      }
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="payment">
-    <th mat-header-cell *matHeaderCellDef>Payment</th>
-    <td mat-cell *matCellDef="let session">
-      @if (session.payment_status) {
-        <ww-status-chip kind="payment" [status]="session.payment_status" />
-      } @else if (session.driver_id) {
-        <a [routerLink]="['/drivers', session.driver_id]">{{ session.driver_name }}</a>
-      } @else {
-        <span class="hint">{{ session.is_paid ? 'Card' : 'RFID or free' }}</span>
-      }
-      @if (session.payment_rule; as rule) {
-        <div class="hint" data-testid="payment-rule">{{ rule.words }}</div>
-      }
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="flags">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let session">
-      @if (session.review_flags.length > 0) {
-        <mat-icon class="flag" [matTooltip]="flagsOf(session.review_flags)" svgIcon="flag" />
-      }
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
+  <div class="ww-card-body flush">
+    <table mat-table [dataSource]="store.sessions()" data-testid="sessions">
+      <ng-container matColumnDef="started_at">
+        <th mat-header-cell *matHeaderCellDef>Started</th>
+        <td mat-cell *matCellDef="let session">
+          <a [routerLink]="['/sessions', session.id]" class="nowrap">
+            {{ session.started_at | date: 'd MMM, HH:mm' }}
+          </a>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="where">
+        <th mat-header-cell *matHeaderCellDef>Site · connector</th>
+        <td mat-cell *matCellDef="let session">
+          <div class="ww-two">
+            <b>{{ session.site_name }} · {{ session.connector_label }}</b>
+            <span class="mono">{{ session.charger_identity }}</span>
+          </div>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="driver">
+        <th mat-header-cell *matHeaderCellDef>Driver</th>
+        <td mat-cell *matCellDef="let session">
+          @if (session.driver_id) {
+            <a [routerLink]="['/drivers', session.driver_id]">{{ session.driver_name }}</a>
+          } @else {
+            {{ session.is_paid ? 'Guest, card' : 'RFID or free' }}
+          }
+          @if (session.payment_rule; as rule) {
+            <div class="hint" data-testid="payment-rule">{{ rule.words }}</div>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="energy">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Energy</th>
+        <td mat-cell *matCellDef="let session" class="ww-num nowrap">
+          {{ session.energy_wh / 1000 | number: '1.1-1' }} kWh
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Duration</th>
+        <td mat-cell *matCellDef="let session" class="ww-num nowrap">{{ durationOf(session) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Total</th>
+        <td mat-cell *matCellDef="let session" class="ww-num nowrap">
+          {{ session.gross_amount | money: session.currency }}
+          @if (session.gross_amount !== null && !session.is_priced) {
+            <div class="hint">so far</div>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="payment">
+        <th mat-header-cell *matHeaderCellDef>Payment</th>
+        <td mat-cell *matCellDef="let session">
+          @if (session.payment_status) {
+            <ww-status-chip kind="payment" [status]="session.payment_status" />
+          } @else {
+            <span class="ww-faint">–</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let session">
+          <ww-status-chip kind="session" [status]="session.status" />
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="flags">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="cdk-visually-hidden">Needs a look</span>
+        </th>
+        <td mat-cell *matCellDef="let session">
+          @if (session.review_flags.length > 0) {
+            <mat-icon
+              class="flag"
+              [matTooltip]="flagsOf(session.review_flags)"
+              [attr.aria-label]="flagsOf(session.review_flags)"
+              svgIcon="flag"
+            />
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+    @if (store.sessions().length === 0 && !store.isLoading() && !store.error()) {
+      <ww-empty-state icon="battery-charging" heading="No sessions match" />
+    }
+    @if (store.error()) {
+      <p class="error" role="alert">{{ store.error() }}</p>
+    }
+  </div>
 
-@if (store.sessions().length === 0 && !store.isLoading() && !store.error()) {
-  <p class="empty">No sessions match.</p>
-}
-@if (store.error()) {
-  <p class="error" role="alert">{{ store.error() }}</p>
-}
-@if (store.nextCursor()) {
-  <button mat-stroked-button class="more" (click)="store.loadMore()">Show older sessions</button>
-}
+  @if (store.sessions().length > 0) {
+    <div class="ww-card-foot">
+      <span>Showing {{ store.sessions().length }}, newest first</span>
+      <span class="ww-spacer"></span>
+      @if (store.nextCursor()) {
+        <button mat-stroked-button class="ww-small" (click)="store.loadMore()">
+          Show older sessions
+        </button>
+      }
+    </div>
+  }
+</section>

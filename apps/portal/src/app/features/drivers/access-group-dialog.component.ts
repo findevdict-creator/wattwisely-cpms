@@ -31,13 +31,15 @@ import { AccessGroupForm } from './access-group-form';
   ],
   templateUrl: './access-group-dialog.component.html',
   styles: `
-    .wide {
-      width: 100%;
-      margin-top: 8px;
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-top: 8px;
     }
     .hint {
+      margin: 0 0 8px;
       color: var(--mat-sys-on-surface-variant);
-      margin-top: 0;
     }
   `,
 })

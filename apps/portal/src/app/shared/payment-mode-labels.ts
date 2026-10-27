@@ -12,11 +12,33 @@ export class PaymentModeLabels {
     free: 'Free',
   };
 
+  /** The short form for a table column. */
+  static readonly SHORT: Record<string, string> = {
+    inherit: 'As groups say',
+    pay: 'Paid by driver',
+    free: 'Free, you pay',
+  };
+
+  /** A group that inherits asks the operator, who always says paid. */
+  static readonly GROUP: Record<string, string> = {
+    inherit: 'Your standard: paid',
+    pay: 'Paid by driver',
+    free: 'Free, you pay',
+  };
+
   static driver(mode: string): string {
     return PaymentModeLabels.DRIVER[mode] ?? mode;
   }
 
   static card(mode: string): string {
     return PaymentModeLabels.CARD[mode] ?? mode;
+  }
+
+  static short(mode: string): string {
+    return PaymentModeLabels.SHORT[mode] ?? mode;
+  }
+
+  static group(mode: string): string {
+    return PaymentModeLabels.GROUP[mode] ?? mode;
   }
 }

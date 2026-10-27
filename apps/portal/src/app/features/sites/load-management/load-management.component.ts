@@ -1,23 +1,25 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
+import { EmptyStateComponent, KpiCardComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../../core/api/api-problem';
 import { LoadManagementApiService } from '../../../core/api/load-management-api.service';
 import { LoadCharger, LoadManagement } from '../../../core/api/models/load-management';
+import { SitesApiService } from '../../../core/api/sites-api.service';
 import { PermissionsService } from '../../../core/permissions/permissions.service';
 import { StatusChipComponent } from '../../../shared/status-chip.component';
+import { LoadFigures } from './load-figures';
 import { LoadChargerGroup, LoadManagementForm } from './load-management-form';
 
 /** A site's load management (module 17): the cap, how it is shared, and what each charger holds. */
@@ -25,16 +27,18 @@ import { LoadChargerGroup, LoadManagementForm } from './load-management-form';
   selector: 'ww-load-management',
   imports: [
     DatePipe,
+    EmptyStateComponent,
+    KpiCardComponent,
     ReactiveFormsModule,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule,
+    MatRadioModule,
     MatSlideToggleModule,
     MatTableModule,
     MatTooltipModule,
+    PageHeaderComponent,
     RouterLink,
     StatusChipComponent,
   ],
@@ -53,17 +57,24 @@ export class LoadManagementComponent implements OnInit {
   readonly id = input.required<string>();
   protected readonly permissions = inject(PermissionsService);
   private readonly api = inject(LoadManagementApiService);
+  private readonly sitesApi = inject(SitesApiService);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly columns = ['charger', 'priority', 'max_power', 'allocated', 'state'];
+  protected readonly columns = ['charger', 'status', 'priority', 'max_power', 'allocated', 'state'];
   protected readonly strategies = LoadManagementForm.STRATEGIES;
   protected readonly view = signal<LoadManagement | null>(null);
   protected readonly form = signal<LoadManagementForm>(new LoadManagementForm());
   protected readonly isSaving = signal(false);
   protected readonly error = signal('');
+  protected readonly siteName = signal('');
+  protected readonly figures = computed(() => {
+    const view = this.view();
+    return view ? LoadFigures.of(view) : null;
+  });
 
   ngOnInit(): void {
     void this.load();
+    void this.loadSiteName();
   }
 
   protected isLocked(): boolean {
@@ -76,6 +87,10 @@ export class LoadManagementComponent implements OnInit {
 
   protected row(index: number): LoadChargerGroup {
     return this.form().chargers.at(index);
+  }
+
+  protected shareOf(charger: LoadCharger): number {
+    return LoadFigures.shareOf(charger, this.view()?.policy.limit_kw ?? 0);
   }
 
   protected reasonOf(charger: LoadCharger): string {
@@ -126,6 +141,15 @@ export class LoadManagementComponent implements OnInit {
       this.apply(await firstValueFrom(this.api.get(this.id())));
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
+    }
+  }
+
+  /** The site's name, for the way back. */
+  private async loadSiteName(): Promise<void> {
+    try {
+      this.siteName.set((await firstValueFrom(this.sitesApi.get(this.id()))).name);
+    } catch {
+      this.siteName.set('');
     }
   }
 
