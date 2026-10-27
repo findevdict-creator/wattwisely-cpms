@@ -1,0 +1,21 @@
+{
+  "title": "MeterValuesRequest",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "evseId": {
+      "type": "integer"
+    },
+    "meterValue": {
+      "type": "array",
+      "items": {
+        "$ref": "MeterValue"
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": ["evseId", "meterValue"]
+}

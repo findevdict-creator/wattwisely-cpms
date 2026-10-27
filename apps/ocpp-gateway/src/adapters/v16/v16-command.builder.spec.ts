@@ -45,6 +45,38 @@ describe('V16CommandBuilder', () => {
     });
   });
 
+  it('turns a power cap into a ChargePointMaxProfile on the whole charger, and its removal into a clear by id', () => {
+    expect(
+      V16CommandBuilder.toCall(
+        command('set_charging_profile', { profile_id: 1700, limit_w: 7400 }),
+      ),
+    ).toEqual({
+      action: 'SetChargingProfile',
+      payload: {
+        connectorId: 0,
+        csChargingProfiles: {
+          chargingProfileId: 1700,
+          stackLevel: 0,
+          chargingProfilePurpose: 'ChargePointMaxProfile',
+          chargingProfileKind: 'Absolute',
+          chargingSchedule: {
+            chargingRateUnit: 'W',
+            chargingSchedulePeriod: [{ startPeriod: 0, limit: 7400 }],
+          },
+        },
+      },
+    });
+    expect(
+      V16CommandBuilder.toCall(command('clear_charging_profile', { profile_id: 1700 })),
+    ).toEqual({
+      action: 'ClearChargingProfile',
+      payload: { id: 1700, connectorId: 0, chargingProfilePurpose: 'ChargePointMaxProfile' },
+    });
+    expect(
+      V16CommandBuilder.toOutcome({ kind: 'result', payload: { status: 'Unknown' } }),
+    ).toMatchObject({ status: 'accepted' });
+  });
+
   it('reads the charger reply as accepted, rejected, failed or timed out', () => {
     expect(
       V16CommandBuilder.toOutcome({ kind: 'result', payload: { status: 'Accepted' } }),

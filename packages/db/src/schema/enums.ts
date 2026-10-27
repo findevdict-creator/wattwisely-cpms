@@ -9,7 +9,8 @@ export const membershipStatus = pgEnum('membership_status', ['invited', 'active'
 /**
  * Who did something recorded in the audit log. platform: Wattwisely staff acting from the
  * admin console (module 9); support: staff inside a tenant under time-limited support access;
- * managed: Wattwisely staff working inside a managed tenant as its Managed operator (module 10).
+ * managed: Wattwisely staff working inside a managed tenant as its Managed operator (module 10);
+ * driver: a driver acting from the driver app on their own link to the tenant (module 19).
  */
 export const auditActorType = pgEnum('audit_actor_type', [
   'user',
@@ -18,6 +19,7 @@ export const auditActorType = pgEnum('audit_actor_type', [
   'system',
   'platform',
   'managed',
+  'driver',
 ]);
 
 /** public: any driver or guest may charge. private: only the tenant's own drivers (story AST-04). */
@@ -68,13 +70,18 @@ export const connectorStatus = pgEnum('connector_status', [
   'unknown',
 ]);
 
-/** What the platform can ask a charger to do (OCPP gateway design, "Commands"). */
+/**
+ * What the platform can ask a charger to do (OCPP gateway design, "Commands"). The two
+ * charging profile commands are the worker's, for load management (module 17).
+ */
 export const chargerCommandAction = pgEnum('charger_command_action', [
   'remote_start',
   'remote_stop',
   'reset',
   'unlock',
   'change_availability',
+  'set_charging_profile',
+  'clear_charging_profile',
 ]);
 
 /**
@@ -274,6 +281,30 @@ export const driverStatus = pgEnum('driver_status', ['active', 'blocked']);
 export const rfidCardStatus = pgEnum('rfid_card_status', ['active', 'blocked', 'lost']);
 
 /**
+ * Whether a session started by a card, a driver or a driver group is paid (module 19).
+ * inherit: ask the next level (card, driver, groups, then the tenant, which always says pay);
+ * pay: a hold on the holder's saved card before the charge; free: no payment, the operator
+ * settles with the driver another way. Nothing is free unless an admin marked it so.
+ */
+export const driverPaymentMode = pgEnum('driver_payment_mode', ['inherit', 'pay', 'free']);
+
+/**
+ * How a session was started (module 19): with an RFID card at the charger, by a guest paying
+ * on the QR page (or from a chat, module 17), by a driver logged into the app, or by staff
+ * from the portal. Empty on sessions from before module 19 and on unknown tags let through on a bench.
+ */
+export const sessionStartSource = pgEnum('session_start_source', [
+  'rfid_card',
+  'guest_card',
+  'chat',
+  'account',
+  'staff',
+]);
+
+/** A saved card (module 19): usable, or removed by the driver (the row stays for old payments). */
+export const paymentMethodStatus = pgEnum('payment_method_status', ['active', 'removed']);
+
+/**
  * An invoice from Wattwisely to a tenant (module 15): drafted by the worker or staff and
  * still editable, issued with its number and sent, paid, or void (a mistake, replaced by
  * another invoice). Overdue is not a status: an issued invoice is overdue once its due date passed.
@@ -293,4 +324,37 @@ export const invoiceLineKind = pgEnum('invoice_line_kind', [
   'managed_service',
   'revenue_share',
   'adjustment',
+]);
+
+/**
+ * A webhook delivery (module 16): pending until the endpoint answers 2xx (tried again with a
+ * growing wait after each failure), delivered, or failed once the last try is used up.
+ */
+export const webhookDeliveryStatus = pgEnum('webhook_delivery_status', [
+  'pending',
+  'delivered',
+  'failed',
+]);
+
+/**
+ * How a site's power cap is shared among its charging chargers (module 17, load management):
+ * equally, or by each charger's priority, the most important first.
+ */
+export const loadStrategy = pgEnum('load_strategy', ['equal_share', 'priority']);
+
+/** The messaging apps drivers can charge from (module 17). WhatsApp Business is the first. */
+export const messagingProvider = pgEnum('messaging_provider', ['whatsapp']);
+
+/** Which way a chat message went: in from the driver, out from the platform. */
+export const messagingDirection = pgEnum('messaging_direction', ['in', 'out']);
+
+/**
+ * An outbound chat message's life (module 17): pending until the worker sent it, sent, or failed
+ * after the last try. An inbound message is `received`.
+ */
+export const messagingMessageStatus = pgEnum('messaging_message_status', [
+  'pending',
+  'sent',
+  'failed',
+  'received',
 ]);

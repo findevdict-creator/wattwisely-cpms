@@ -4,5 +4,7 @@ export * from './command-catalog';
 export * from './command-payload';
 export * from './connector-label';
 export * from './notify-channels';
+export * from './ocpp-version';
 export * from './ocpp16-status';
+export * from './ocpp201-status';
 export * from './remote-start-tag';

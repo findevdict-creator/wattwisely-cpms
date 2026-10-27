@@ -10,7 +10,7 @@ import {
   PublicConnector,
 } from '../../payments/public/charge-place.lookup';
 import { CurrentBandFinder } from './current-band.finder';
-import { PublicPlaceDto } from './dto/public-place.dto';
+import { PublicPlaceDto, PublicPlaceView } from './dto/public-place.dto';
 import { PublicTariffDto } from './dto/public-tariff.dto';
 import { PlaceAvailability, PlaceAvailabilityPolicy } from './place-availability';
 import { PlaceSiteLookup } from './place-site.lookup';
@@ -38,6 +38,16 @@ export class PlaceDescriber {
     ocppConnectorId: number | null,
     holdAmount: number | null,
   ): Promise<PublicPlaceDto> {
+    return new PublicPlaceDto(await this.view(tx, charger, ocppConnectorId, holdAmount));
+  }
+
+  /** The same, before it is shaped for the page: the driver app adds its own access block (module 19). */
+  async view(
+    tx: Transaction,
+    charger: PublicCharger,
+    ocppConnectorId: number | null,
+    holdAmount: number | null,
+  ): Promise<PublicPlaceView> {
     const record = await this.chargers.findById(tx, charger.id);
     const connector =
       ocppConnectorId === null
@@ -48,7 +58,7 @@ export class PlaceDescriber {
       throw PaymentErrors.connectorNotFound();
     }
     const tariff = await this.tariffs.forCharger(tx, charger.id);
-    return new PublicPlaceDto({
+    return {
       site,
       charger: record,
       connector,
@@ -57,7 +67,7 @@ export class PlaceDescriber {
       holdAmount,
       tariff: tariff ? PlaceDescriber.tariffDto(tariff, new Date()) : null,
       brand: await this.brands.current(tx, charger.tenantId),
-    });
+    };
   }
 
   private async availabilityOf(

@@ -1,0 +1,36 @@
+{
+  "title": "RequestStartTransactionResponse",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Accepted", "Rejected"]
+    },
+    "statusInfo": {
+      "type": "object",
+      "properties": {
+        "customData": {
+          "type": "object"
+        },
+        "reasonCode": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "additionalInfo": {
+          "type": "string",
+          "maxLength": 512
+        }
+      },
+      "required": ["reasonCode"]
+    },
+    "transactionId": {
+      "type": "string",
+      "maxLength": 36
+    }
+  },
+  "additionalProperties": false,
+  "required": ["status"]
+}

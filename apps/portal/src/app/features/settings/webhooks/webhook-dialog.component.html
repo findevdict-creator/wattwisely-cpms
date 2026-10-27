@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ isEditing ? 'Change webhook' : 'New webhook' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form.fields" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>URL</mat-label>
+      <input
+        matInput
+        formControlName="url"
+        placeholder="https://"
+        maxlength="2000"
+        data-testid="webhook-url"
+      />
+      <mat-hint
+        >An https address on the public internet. Each event is POSTed there as JSON.</mat-hint
+      >
+      @if (form.fields.controls.url.hasError('https')) {
+        <mat-error>The URL must start with https://</mat-error>
+      } @else if (form.fields.controls.url.hasError('url')) {
+        <mat-error>That is not a URL</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Description (optional)</mat-label>
+      <input matInput formControlName="description" maxlength="300" />
+    </mat-form-field>
+  </form>
+
+  <h3>Events to send</h3>
+  <div class="permissions">
+    @for (eventType of data.eventTypes; track eventType.key) {
+      <mat-checkbox
+        [checked]="form.has(eventType.key)"
+        (change)="form.set(eventType.key, $event.checked)"
+        [attr.data-event-type]="eventType.key"
+      >
+        {{ eventType.label }}
+        <span class="key">{{ eventType.key }}</span>
+        <span class="description">{{ eventType.description }}</span>
+      </mat-checkbox>
+    }
+  </div>
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null">Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-webhook">
+    {{ isEditing ? 'Save' : 'Add webhook' }}
+  </button>
+</mat-dialog-actions>

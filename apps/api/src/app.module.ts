@@ -12,12 +12,16 @@ import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { BrandingModule } from './modules/branding/branding.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
+import { DriverAppModule } from './modules/driver-app/driver-app.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
+import { LoadManagementModule } from './modules/load-management/load-management.module';
 import { ManagedModule } from './modules/managed/managed.module';
 import { MeModule } from './modules/me/me.module';
+import { MessagingModule } from './modules/messaging/messaging.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -55,6 +59,7 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     SessionsModule,
     PaymentsModule,
     DriversModule,
+    DriverAppModule,
     PlansModule,
     SubscriptionModule,
     ManagedModule,
@@ -63,6 +68,9 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     ReportsModule,
     AdminModule,
     InvoicesModule,
+    IntegrationsModule,
+    LoadManagementModule,
+    MessagingModule,
   ],
 })
 export class AppModule {}

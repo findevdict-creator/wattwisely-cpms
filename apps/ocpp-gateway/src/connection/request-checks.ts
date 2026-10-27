@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { ChargerIdentity } from '../storage/charger-identity';
 import { ChargerAuthCheck } from './checks/charger-auth.check';
 import { RateLimitCheck } from './checks/rate-limit.check';
@@ -21,9 +22,11 @@ export class RequestChecks {
     this.rateLimit.check(request);
   }
 
-  run(request: UpgradeRequest, charger: ChargerIdentity): void {
+  /** Returns the OCPP version the connection will speak. */
+  run(request: UpgradeRequest, charger: ChargerIdentity): OcppVersion {
     this.transport.check(request, charger);
-    this.version.check(request, charger);
+    const version = this.version.check(request, charger);
     this.auth.check(request, charger);
+    return version;
   }
 }

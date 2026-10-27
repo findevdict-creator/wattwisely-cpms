@@ -4,12 +4,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { DriversApiService } from '../../core/api/drivers-api.service';
-import { RfidCard } from '../../core/api/models/driver';
+import { DriverPaymentMode, RfidCard } from '../../core/api/models/driver';
 
-/** Registers an RFID card for a driver (story DRV-03). Closes with the new card. */
+/** Registers an RFID card for a driver (story DRV-03), and who pays with it (module 19). Closes with the new card. */
 @Component({
   selector: 'ww-card-dialog',
   imports: [
@@ -17,6 +18,7 @@ import { RfidCard } from '../../core/api/models/driver';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     ReactiveFormsModule,
   ],
   template: `
@@ -36,6 +38,15 @@ import { RfidCard } from '../../core/api/models/driver';
         <mat-form-field appearance="outline" class="wide">
           <mat-label>Valid until (optional)</mat-label>
           <input matInput formControlName="expiresOn" type="date" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="wide">
+          <mat-label>Paying</mat-label>
+          <mat-select formControlName="paymentMode" data-testid="card-payment-mode">
+            <mat-option value="inherit">As the driver</mat-option>
+            <mat-option value="pay">Always paid by the driver</mat-option>
+            <mat-option value="free">Free: you pay for its charges</mat-option>
+          </mat-select>
+          <mat-hint>A pool card without a driver login can be free</mat-hint>
         </mat-form-field>
       </form>
       @if (error()) {
@@ -70,6 +81,7 @@ export class CardDialogComponent {
     }),
     label: new FormControl('', { nonNullable: true }),
     expiresOn: new FormControl('', { nonNullable: true }),
+    paymentMode: new FormControl<DriverPaymentMode>('inherit', { nonNullable: true }),
   });
   protected readonly error = signal('');
   protected readonly isSaving = signal(false);
@@ -89,6 +101,7 @@ export class CardDialogComponent {
           expires_at: value.expiresOn
             ? new Date(`${value.expiresOn}T23:59:59`).toISOString()
             : null,
+          payment_mode: value.paymentMode,
         }),
       );
       this.dialogRef.close(card);

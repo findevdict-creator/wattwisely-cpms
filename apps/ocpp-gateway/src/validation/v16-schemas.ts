@@ -3,6 +3,7 @@ import authorizeResponse from './schemas/v16/AuthorizeResponse.json';
 import bootNotification from './schemas/v16/BootNotification.json';
 import bootNotificationResponse from './schemas/v16/BootNotificationResponse.json';
 import changeAvailabilityResponse from './schemas/v16/ChangeAvailabilityResponse.json';
+import clearChargingProfileResponse from './schemas/v16/ClearChargingProfileResponse.json';
 import heartbeat from './schemas/v16/Heartbeat.json';
 import heartbeatResponse from './schemas/v16/HeartbeatResponse.json';
 import idTagInfo from './schemas/v16/IdTagInfo.json';
@@ -12,6 +13,7 @@ import meterValuesResponse from './schemas/v16/MeterValuesResponse.json';
 import remoteStartTransactionResponse from './schemas/v16/RemoteStartTransactionResponse.json';
 import remoteStopTransactionResponse from './schemas/v16/RemoteStopTransactionResponse.json';
 import resetResponse from './schemas/v16/ResetResponse.json';
+import setChargingProfileResponse from './schemas/v16/SetChargingProfileResponse.json';
 import startTransaction from './schemas/v16/StartTransaction.json';
 import startTransactionResponse from './schemas/v16/StartTransactionResponse.json';
 import statusNotification from './schemas/v16/StatusNotification.json';
@@ -38,6 +40,7 @@ export class V16Schemas {
     BootNotification: bootNotification,
     BootNotificationResponse: bootNotificationResponse,
     ChangeAvailabilityResponse: changeAvailabilityResponse,
+    ClearChargingProfileResponse: clearChargingProfileResponse,
     Heartbeat: heartbeat,
     HeartbeatResponse: heartbeatResponse,
     MeterValues: meterValues,
@@ -45,6 +48,7 @@ export class V16Schemas {
     RemoteStartTransactionResponse: remoteStartTransactionResponse,
     RemoteStopTransactionResponse: remoteStopTransactionResponse,
     ResetResponse: resetResponse,
+    SetChargingProfileResponse: setChargingProfileResponse,
     StartTransaction: startTransaction,
     StartTransactionResponse: startTransactionResponse,
     StatusNotification: statusNotification,

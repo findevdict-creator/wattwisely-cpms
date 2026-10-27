@@ -1,4 +1,16 @@
-import { and, asc, desc, eq, inArray, isNotNull, lte, or, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  lte,
+  notExists,
+  notInArray,
+  or,
+  sql,
+} from 'drizzle-orm';
 import { chargingSessions, payments, Transaction } from '@wattwisely/db';
 import { NewPayment, PaymentRow, PaymentStatuses } from './payment-rows';
 
@@ -50,6 +62,36 @@ export class PaymentStore {
       .update(payments)
       .set({ ...changes, updatedAt: new Date() })
       .where(eq(payments.id, id));
+  }
+
+  /**
+   * Paid sessions started with a card at the charger (module 19) that have no hold yet: the
+   * worker takes it from the holder's saved card. Oldest first; sessions that never started
+   * are left out, and so are sessions older than a week, whose card hold could not be
+   * captured any more.
+   */
+  async sessionIdsAwaitingHold(tx: Transaction, now: Date, limit = PaymentStore.BATCH) {
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const rows = await tx
+      .select({ id: chargingSessions.id })
+      .from(chargingSessions)
+      .where(
+        and(
+          eq(chargingSessions.isPaid, true),
+          eq(chargingSessions.startSource, 'rfid_card'),
+          notInArray(chargingSessions.status, ['not_started', 'failed']),
+          sql`${chargingSessions.startedAt} > ${weekAgo}`,
+          notExists(
+            tx
+              .select({ one: sql`1` })
+              .from(payments)
+              .where(eq(payments.sessionId, chargingSessions.id)),
+          ),
+        ),
+      )
+      .orderBy(asc(chargingSessions.startedAt))
+      .limit(limit);
+    return rows.map((row) => row.id);
   }
 
   /**

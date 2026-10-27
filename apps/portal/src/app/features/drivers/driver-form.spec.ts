@@ -17,6 +17,15 @@ describe('DriverForm', () => {
     active_card_count: 1,
     last_session_at: null,
     groups: [{ id: 'g1', name: 'Depot staff' }],
+    payment_mode: 'free',
+    account: {
+      status: 'none',
+      email: null,
+      invited_at: null,
+      invitation_expires_at: null,
+      is_invitation_expired: false,
+      linked_at: null,
+    },
     is_personal_data_hidden: false,
     version: 1,
     created_at: '2026-10-01T00:00:00Z',
@@ -41,6 +50,7 @@ describe('DriverForm', () => {
       reference: ' EMP-42 ',
       notes: '',
       groupIds: ['g1'],
+      paymentMode: 'inherit',
     });
 
     expect(form.toInput()).toEqual({
@@ -50,6 +60,7 @@ describe('DriverForm', () => {
       reference: 'EMP-42',
       notes: '',
       group_ids: ['g1'],
+      payment_mode: 'inherit',
     });
   });
 
@@ -63,6 +74,7 @@ describe('DriverForm', () => {
       reference: 'EMP-42',
       notes: '',
       groupIds: ['g1'],
+      paymentMode: 'free',
     });
   });
 });

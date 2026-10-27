@@ -1,12 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { OcppCallError } from '../../transport/ocpp-call-error';
+import { SchemaValidator } from '../../validation/schema-validator';
+import { V16Schemas } from '../../validation/v16-schemas';
 import { ActionHandler } from '../action-handler';
+import { OcppAdapter } from '../ocpp-adapter';
 import { V16_HANDLERS } from './v16-handlers.token';
 
-/** Finds the handler for an OCPP 1.6 action. OCPP 2.0.1 gets its own adapter in M2. */
+/** OCPP 1.6J: the handlers for what a charge point sends and the schemas its payloads must match. */
 @Injectable()
-export class V16Adapter {
+export class V16Adapter implements OcppAdapter {
+  readonly version: OcppVersion = '1.6';
+
   private readonly handlers = new Map<string, ActionHandler>();
+  private readonly validator = new SchemaValidator(V16Schemas.SHARED, V16Schemas.MESSAGES);
 
   constructor(@Inject(V16_HANDLERS) handlers: ActionHandler[]) {
     for (const handler of handlers) {
@@ -24,5 +31,9 @@ export class V16Adapter {
       throw new OcppCallError('NotImplemented', `${action} is not supported.`);
     }
     return handler;
+  }
+
+  validate(action: string, payload: unknown): void {
+    this.validator.validate(action, payload);
   }
 }

@@ -18,4 +18,14 @@ export class UpdateCardRequestDto {
   @IsOptional()
   @IsDateString()
   readonly expires_at?: string | null;
+
+  @ApiProperty({
+    required: false,
+    enum: ['inherit', 'pay', 'free'],
+    description:
+      'Whether a session this card starts is paid; free only for a card you settle another way',
+  })
+  @IsOptional()
+  @IsIn(['inherit', 'pay', 'free'])
+  readonly payment_mode?: 'inherit' | 'pay' | 'free';
 }

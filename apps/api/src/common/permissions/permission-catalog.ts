@@ -35,7 +35,12 @@ export class PermissionCatalog {
       label: 'Manage the payment account',
       isReadOnly: false,
     },
-    { key: 'api_keys:manage', area: 'settings', label: 'Manage API keys', isReadOnly: false },
+    {
+      key: 'api_keys:manage',
+      area: 'settings',
+      label: 'Manage API keys and webhooks',
+      isReadOnly: false,
+    },
     { key: 'sites:read', area: 'sites', label: 'See sites', isReadOnly: true },
     { key: 'sites:write', area: 'sites', label: 'Create and edit sites', isReadOnly: false },
     { key: 'sites:delete', area: 'sites', label: 'Delete sites', isReadOnly: false },
@@ -107,7 +112,13 @@ export class PermissionCatalog {
     {
       key: 'drivers:write',
       area: 'drivers',
-      label: 'Invite and edit drivers and groups',
+      label: 'Add and edit drivers, cards and groups',
+      isReadOnly: false,
+    },
+    {
+      key: 'drivers:invite',
+      area: 'drivers',
+      label: 'Invite drivers to the app and unlink their logins',
       isReadOnly: false,
     },
     {
