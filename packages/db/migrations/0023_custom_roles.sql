@@ -1,0 +1,8 @@
+ALTER TABLE "roles" ADD COLUMN "created_by" uuid;--> statement-breakpoint
+ALTER TABLE "roles" ADD COLUMN "updated_by" uuid;--> statement-breakpoint
+ALTER TABLE "roles" ADD COLUMN "version" integer DEFAULT 1 NOT NULL;--> statement-breakpoint
+ALTER TABLE "roles" ADD CONSTRAINT "roles_created_by_user_accounts_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user_accounts"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "roles" ADD CONSTRAINT "roles_updated_by_user_accounts_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user_accounts"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "roles_tenant_name_unique" ON "roles" USING btree ("tenant_id",lower("name")) WHERE "roles"."tenant_id" is not null;--> statement-breakpoint
+CREATE POLICY "roles_tenant_changes" ON "roles" AS PERMISSIVE FOR ALL TO "wattwisely_app" USING (not "roles"."is_system" and "roles"."tenant_id" = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (not "roles"."is_system" and "roles"."tenant_id" = nullif(current_setting('app.tenant_id', true), '')::uuid);--> statement-breakpoint
+CREATE POLICY "role_permissions_tenant_changes" ON "role_permissions" AS PERMISSIVE FOR ALL TO "wattwisely_app" USING ("role_permissions"."tenant_id" = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK ("role_permissions"."tenant_id" = nullif(current_setting('app.tenant_id', true), '')::uuid);

@@ -27,7 +27,7 @@ import { TariffProposalComponent } from './features/tariffs/proposals/tariff-pro
 import { TariffProposalsComponent } from './features/tariffs/proposals/tariff-proposals.component';
 import { TariffComponent } from './features/tariffs/tariff.component';
 import { TariffsComponent } from './features/tariffs/tariffs.component';
-import { TeamComponent } from './features/team/team.component';
+import { TEAM_ROUTES } from './features/team/team.routes';
 import { TenantPickerComponent } from './features/tenant-picker/tenant-picker.component';
 import { ShellComponent } from './layout/shell.component';
 
@@ -182,12 +182,7 @@ export const APP_ROUTES: Routes = [
             canActivate: [PermissionGuard],
             data: { permission: 'settings:read' },
           },
-          {
-            path: 'team',
-            component: TeamComponent,
-            canActivate: [PermissionGuard],
-            data: { permission: 'team:read' },
-          },
+          ...TEAM_ROUTES,
           {
             path: 'audit-log',
             component: AuditLogComponent,

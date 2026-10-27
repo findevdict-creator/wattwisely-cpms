@@ -20,6 +20,7 @@
 #   Drivers of Acme Charging (module 13): Dana Driver with card DEMO-CARD-1 (the finished session is hers) in the
 #     "Depot staff" access group that opens the private Depot North; Priya Patel with a lost card and its replacement;
 #     Ben Blocked, blocked with every card refused. A simulator that authorises with DEMO-CARD-1 is accepted
+#   Custom role of Acme Charging (module 14): "Depot supervisor", held by nobody yet, under Team > Roles and permissions
 #
 # Every user is asked to set up an authenticator app at first login (two-factor is required).
 source "$(dirname "$0")/lib/common.sh"
@@ -238,6 +239,18 @@ INSERT INTO access_group_members (tenant_id, group_id, driver_id) VALUES
 ON CONFLICT DO NOTHING;
 UPDATE charging_sessions SET driver_id = '01900000-0000-7000-8000-000000007001', rfid_card_id = '01900000-0000-7000-8000-000000008001'
   WHERE id = '01900000-0000-7000-8000-000000005001' AND driver_id IS NULL;
+-- Module 14: a custom role of Acme Charging (its Growth plan includes custom roles). Nobody holds it, so it can be
+-- given, changed and deleted from the matrix. Volt Hotels is on Starter and sees the five built-in roles only.
+INSERT INTO roles (id, tenant_id, key, name, description, is_system) VALUES
+  ('01900000-0000-7000-8000-00000000e001', '01900000-0000-7000-8000-00000000a001', NULL, 'Depot supervisor',
+   'Runs the depot: commands chargers, keeps the driver list, acknowledges alerts.', false)
+ON CONFLICT DO NOTHING;
+INSERT INTO role_permissions (id, role_id, tenant_id, permission_key)
+SELECT gen_random_uuid(), '01900000-0000-7000-8000-00000000e001', '01900000-0000-7000-8000-00000000a001', key FROM unnest(ARRAY[
+    'sites:read', 'chargers:read', 'chargers:command', 'sessions:read', 'drivers:read', 'drivers:write',
+    'alerts:read', 'alerts:acknowledge'
+]) AS key
+ON CONFLICT DO NOTHING;
 INSERT INTO report_schedules (id, tenant_id, name, frequency, group_by, recipients, time_zone, next_run_at)
 VALUES ('01900000-0000-7000-8000-000000006001', '01900000-0000-7000-8000-00000000a001', 'Weekly usage',
   'weekly', 'site', '["owner@acme.test"]', 'Europe/London',
@@ -262,4 +275,5 @@ info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL
 info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_HOST) as admin@wattwisely.test or support@wattwisely.test"
 info "Volt Hotels is managed by Wattwisely: support@wattwisely.test works in it as Managed operator, multi@demo.test approves its tariff changes"
 info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted, DEMO-CARD-4 is blocked"
+info "Roles (module 14): owner@acme.test shapes the Depot supervisor role under Team > Roles and permissions; multi@demo.test sees Volt Hotels' built-in roles only (Starter plan)"
 info "Drivers see plug A of the Riverside charger at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/c/WW-7KQ4M2XR9T/1 (the QR code on the charger page); it shows as offline until a charger or the simulator connects with that identity"

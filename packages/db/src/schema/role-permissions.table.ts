@@ -25,5 +25,12 @@ export const rolePermissions = pgTable(
       to: RowLevelSecurity.APP_ROLE,
       using: sql`${table.tenantId} is null or ${RowLevelSecurity.isCurrentTenant(table.tenantId)}`,
     }),
+    /** The permissions of a tenant's own custom roles are replaced as a whole (module 14). */
+    pgPolicy('role_permissions_tenant_changes', {
+      for: 'all',
+      to: RowLevelSecurity.APP_ROLE,
+      using: RowLevelSecurity.isCurrentTenant(table.tenantId),
+      withCheck: RowLevelSecurity.isCurrentTenant(table.tenantId),
+    }),
   ],
 );

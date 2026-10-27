@@ -1,11 +1,17 @@
 <header class="title">
   <h1>Team</h1>
-  @if (permissions.canChange('team:manage')) {
-    <button mat-flat-button (click)="invite()" data-testid="invite">
-      <mat-icon>person_add</mat-icon>
-      Invite
-    </button>
-  }
+  <div class="title-actions">
+    <a mat-stroked-button routerLink="/team/roles" data-testid="roles">
+      <mat-icon>verified_user</mat-icon>
+      Roles and permissions
+    </a>
+    @if (permissions.canChange('team:manage')) {
+      <button mat-flat-button (click)="invite()" data-testid="invite">
+        <mat-icon>person_add</mat-icon>
+        Invite
+      </button>
+    }
+  </div>
 </header>
 
 <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">

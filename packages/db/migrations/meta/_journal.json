@@ -162,6 +162,20 @@
       "when": 1792861954572,
       "tag": "0022_drivers_access_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792864476502,
+      "tag": "0023_custom_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792864488807,
+      "tag": "0024_custom_roles_grants",
+      "breakpoints": true
     }
   ]
 }

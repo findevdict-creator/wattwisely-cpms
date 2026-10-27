@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>{{ data.role ? 'Edit role' : 'New role' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form.fields" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" maxlength="60" data-testid="role-name" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Description (optional)</mat-label>
+      <input matInput formControlName="description" maxlength="300" />
+      <mat-hint>Shown to whoever gives the role</mat-hint>
+    </mat-form-field>
+  </form>
+  <mat-form-field appearance="outline" class="wide" subscriptSizing="dynamic">
+    <mat-label>Start from</mat-label>
+    <mat-select (valueChange)="copyFrom($event)" data-testid="copy-from">
+      @for (role of data.roles; track role.id) {
+        <mat-option [value]="role.id">{{ role.name }}</mat-option>
+      }
+    </mat-select>
+    <mat-hint>Copies that role's permissions below, to add to or take from</mat-hint>
+  </mat-form-field>
+
+  <h3>Permissions</h3>
+  @for (group of groups; track group.module) {
+    @let keys = keysOf(group);
+    <section class="group" [attr.data-module]="group.module">
+      <mat-checkbox
+        class="group-title"
+        [checked]="form.hasAll(keys)"
+        [indeterminate]="!form.hasAll(keys) && form.hasSome(keys)"
+        (change)="form.setAll(keys, $event.checked)"
+      >
+        {{ group.name }}
+        @if (group.isLocked) {
+          <mat-icon
+            class="lock"
+            inline
+            matTooltip="Not in your plan: these permissions do nothing until Wattwisely adds the module"
+          >
+            lock
+          </mat-icon>
+        }
+      </mat-checkbox>
+      <div class="permissions">
+        @for (permission of group.permissions; track permission.key) {
+          <mat-checkbox
+            [checked]="form.has(permission.key)"
+            (change)="form.set(permission.key, $event.checked)"
+            [attr.data-permission]="permission.key"
+          >
+            {{ permission.label }}
+            <span class="key">{{ permission.key }}</span>
+          </mat-checkbox>
+        }
+      </div>
+    </section>
+  }
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null">Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-role">
+    {{ data.role ? 'Save' : 'Create role' }}
+  </button>
+</mat-dialog-actions>
