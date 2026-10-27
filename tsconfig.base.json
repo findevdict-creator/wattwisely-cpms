@@ -36,7 +36,9 @@
       "@wattwisely/webhooks": ["./packages/webhooks/src/index.ts"],
       "@wattwisely/load-management": ["./packages/load-management/src/index.ts"],
       "@wattwisely/messaging": ["./packages/messaging/src/index.ts"],
-      "@wattwisely/messaging/testing": ["./packages/messaging/src/testing/index.ts"]
+      "@wattwisely/messaging/testing": ["./packages/messaging/src/testing/index.ts"],
+      "@wattwisely/theme": ["./packages/theme/src/index.ts"],
+      "@wattwisely/ui": ["./packages/ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

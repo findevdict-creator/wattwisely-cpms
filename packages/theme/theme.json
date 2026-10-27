@@ -1,0 +1,118 @@
+{
+  "name": "Wattwisely",
+  "version": 3,
+  "source": "Approved 2026-10-27 (color scheme page v5). Matches the driver app design in Figma, section 7 'Mobile app · design system'; chip and notice colors read from its screens.",
+  "howToEdit": "Change a hex value in palette and every role and status that names it follows; a role or status can also take a hex value directly. Then run `npx nx run theme:generate` and commit theme.json with the files it writes. Light mode only. The *Text colors are the darker shade of each hue, for small text on the soft backgrounds (WCAG AA).",
+  "fontFamily": "Inter",
+  "palette": {
+    "ink": "#0F172A",
+    "text2": "#475569",
+    "muted": "#94A3B8",
+    "line": "#E2E8F0",
+    "surface": "#F1F5F9",
+    "background": "#F8FAFC",
+    "white": "#FFFFFF",
+    "brand": "#16A34A",
+    "brandDark": "#15803D",
+    "brandSoft": "#DCFCE7",
+    "warning": "#D97706",
+    "warningSoft": "#FEF3C7",
+    "warningText": "#B45309",
+    "danger": "#DC2626",
+    "dangerSoft": "#FEE2E2",
+    "dangerText": "#B91C1C",
+    "info": "#2563EB",
+    "infoSoft": "#DBEAFE",
+    "infoText": "#1D4ED8"
+  },
+  "roles": {
+    "primary": "brand",
+    "onPrimary": "white",
+    "primaryContainer": "brandSoft",
+    "onPrimaryContainer": "brandDark",
+    "inversePrimary": "brandSoft",
+    "secondary": "ink",
+    "onSecondary": "white",
+    "secondaryContainer": "surface",
+    "onSecondaryContainer": "ink",
+    "tertiary": "info",
+    "onTertiary": "white",
+    "tertiaryContainer": "infoSoft",
+    "onTertiaryContainer": "infoText",
+    "error": "danger",
+    "onError": "white",
+    "errorContainer": "dangerSoft",
+    "onErrorContainer": "dangerText",
+    "background": "background",
+    "onBackground": "ink",
+    "surface": "white",
+    "onSurface": "ink",
+    "surfaceVariant": "surface",
+    "onSurfaceVariant": "text2",
+    "surfaceDim": "line",
+    "surfaceBright": "white",
+    "surfaceContainerLowest": "white",
+    "surfaceContainerLow": "white",
+    "surfaceContainer": "white",
+    "surfaceContainerHigh": "surface",
+    "surfaceContainerHighest": "line",
+    "outline": "muted",
+    "outlineVariant": "line",
+    "inverseSurface": "ink",
+    "inverseOnSurface": "background",
+    "shadow": "ink",
+    "scrim": "ink",
+    "link": "brandDark"
+  },
+  "status": {
+    "available": {
+      "background": "brandSoft",
+      "text": "brandDark"
+    },
+    "charging": {
+      "background": "brandSoft",
+      "text": "brandDark",
+      "dot": "brand"
+    },
+    "preparing": {
+      "background": "infoSoft",
+      "text": "infoText"
+    },
+    "inUse": {
+      "background": "warningSoft",
+      "text": "warningText"
+    },
+    "suspended": {
+      "background": "warningSoft",
+      "text": "warningText"
+    },
+    "finishing": {
+      "background": "infoSoft",
+      "text": "infoText"
+    },
+    "reserved": {
+      "background": "infoSoft",
+      "text": "infoText"
+    },
+    "unavailable": {
+      "background": "surface",
+      "text": "text2"
+    },
+    "offline": {
+      "background": "surface",
+      "text": "text2"
+    },
+    "faulted": {
+      "background": "dangerSoft",
+      "text": "dangerText"
+    },
+    "blocked": {
+      "background": "dangerSoft",
+      "text": "dangerText"
+    },
+    "default": {
+      "background": "ink",
+      "text": "white"
+    }
+  }
+}

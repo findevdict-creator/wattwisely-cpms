@@ -1,0 +1,158 @@
+@use '@angular/material' as mat;
+
+// Angular Material, themed from theme.json. mat.theme writes every --mat-sys-* token from a
+// green palette; tokens.css then sets the ones theme.json names on :root, which wins over html,
+// so a color changed in theme.json reaches every component. The overrides give the components
+// the shapes, weights and borders of the approved screens.
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$green-palette,
+        tertiary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: (
+        plain-family: var(--ww-font),
+        brand-family: var(--ww-font),
+        bold-weight: 600,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
+      density: 0,
+    )
+  );
+
+  @include mat.button-overrides(
+    (
+      filled-container-shape: var(--ww-radius-md),
+      outlined-container-shape: var(--ww-radius-md),
+      text-container-shape: var(--ww-radius-md),
+      tonal-container-shape: var(--ww-radius-md),
+      protected-container-shape: var(--ww-radius-md),
+      filled-label-text-weight: 600,
+      outlined-label-text-weight: 600,
+      text-label-text-weight: 600,
+      tonal-label-text-weight: 600,
+      protected-label-text-weight: 600,
+      outlined-outline-color: var(--mat-sys-outline-variant),
+      outlined-label-text-color: var(--mat-sys-on-surface),
+      text-label-text-color: var(--ww-link),
+      protected-container-elevation-shadow: none,
+    )
+  );
+
+  @include mat.icon-button-overrides(
+    (
+      container-shape: var(--ww-radius-md),
+      icon-color: var(--mat-sys-on-surface-variant),
+    )
+  );
+
+  @include mat.card-overrides(
+    (
+      outlined-container-shape: var(--ww-radius-lg),
+      outlined-container-color: var(--mat-sys-surface),
+      outlined-outline-color: var(--mat-sys-outline-variant),
+      title-text-size: 17px,
+      title-text-line-height: 24px,
+      title-text-weight: 600,
+      subtitle-text-size: 13px,
+      subtitle-text-line-height: 18px,
+      subtitle-text-color: var(--mat-sys-on-surface-variant),
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: var(--ww-radius-md),
+      outlined-outline-color: var(--mat-sys-outline-variant),
+      outlined-hover-outline-color: var(--mat-sys-outline),
+      container-height: 48px,
+      container-vertical-padding: 12px,
+    )
+  );
+
+  @include mat.select-overrides(
+    (
+      panel-background-color: var(--mat-sys-surface),
+    )
+  );
+
+  @include mat.table-overrides(
+    (
+      background-color: var(--mat-sys-surface),
+      header-headline-color: var(--mat-sys-on-surface-variant),
+      header-headline-size: 13px,
+      header-headline-weight: 500,
+      header-container-height: 44px,
+      row-item-outline-color: var(--mat-sys-outline-variant),
+      row-item-container-height: 56px,
+    )
+  );
+
+  @include mat.chips-overrides(
+    (
+      container-shape-radius: 999px,
+      outline-color: var(--mat-sys-outline-variant),
+      label-text-weight: 500,
+    )
+  );
+
+  @include mat.dialog-overrides(
+    (
+      container-shape: var(--ww-radius-xl),
+      container-color: var(--mat-sys-surface),
+      subhead-size: 17px,
+      subhead-line-height: 24px,
+      subhead-weight: 600,
+    )
+  );
+
+  @include mat.menu-overrides(
+    (
+      container-shape: var(--ww-radius-md),
+      container-color: var(--mat-sys-surface),
+    )
+  );
+
+  @include mat.tabs-overrides(
+    (
+      divider-color: var(--mat-sys-outline-variant),
+      label-text-weight: 500,
+      inactive-label-text-color: var(--mat-sys-on-surface-variant),
+      active-label-text-color: var(--mat-sys-on-surface),
+    )
+  );
+
+  @include mat.sidenav-overrides(
+    (
+      container-shape: 0,
+      container-background-color: var(--mat-sys-surface),
+      content-background-color: var(--mat-sys-background),
+    )
+  );
+
+  @include mat.toolbar-overrides(
+    (
+      container-background-color: var(--mat-sys-surface),
+    )
+  );
+}
+
+// Table headers sit on the page background, as in the screens; no token covers it. Two classes,
+// to beat Material's own `background: inherit`; the header cells inherit from the row.
+.mat-mdc-table .mat-mdc-header-row {
+  background: var(--mat-sys-background);
+}
+
+// Room under a card's title, so a field's floating label does not touch it.
+.mat-mdc-card-header + .mat-mdc-card-content {
+  padding-top: 12px;
+}
+
+// Lucide draws with a 2px stroke at 24px; a little lighter reads better at Material's sizes.
+.mat-icon svg {
+  stroke-width: 1.75;
+}

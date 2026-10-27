@@ -1,0 +1,42 @@
+// A status as a soft pill: ok, live (with a dot, for a charge in progress), info, warn, danger,
+// neutral or dark. The status chip components pick the tone; the colors are theme.json's.
+.ww-chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font: 500 12px/16px var(--ww-font);
+  white-space: nowrap;
+  background: var(--ww-surface);
+  color: var(--ww-text2);
+
+  &.ok,
+  &.live {
+    background: var(--ww-status-available-background);
+    color: var(--ww-status-available-text);
+  }
+  &.live::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ww-status-charging-dot);
+  }
+  &.info {
+    background: var(--ww-status-preparing-background);
+    color: var(--ww-status-preparing-text);
+  }
+  &.warn {
+    background: var(--ww-status-in-use-background);
+    color: var(--ww-status-in-use-text);
+  }
+  &.danger {
+    background: var(--ww-status-faulted-background);
+    color: var(--ww-status-faulted-text);
+  }
+  &.dark {
+    background: var(--ww-status-default-background);
+    color: var(--ww-status-default-text);
+  }
+}
