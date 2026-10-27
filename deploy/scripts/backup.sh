@@ -21,11 +21,14 @@ backup_database() {
     die "The dump of $1 cannot be read back. The backup in $TARGET is incomplete."
 }
 
+# The archive comes back through stdout rather than a bind mount, so no host path goes to Docker.
+# MSYS_NO_PATHCONV keeps Git Bash on Windows from rewriting the container path /data into a
+# Windows path; elsewhere it does nothing.
 backup_volume() {
   local volume="$1"
   info "Volume $volume"
-  docker run --rm -v "wattwisely_${volume}:/data:ro" -v "$TARGET:/backup" alpine:3.22 \
-    tar czf "/backup/${volume}.tar.gz" -C /data .
+  MSYS_NO_PATHCONV=1 docker run --rm -v "wattwisely_${volume}:/data:ro" alpine:3.22 \
+    tar czf - -C /data . >"$TARGET/${volume}.tar.gz"
 }
 
 write_checksums() {
