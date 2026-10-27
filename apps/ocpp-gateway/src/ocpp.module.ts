@@ -2,16 +2,32 @@ import { Module } from '@nestjs/common';
 import { SessionTransitions, TariffVersionStore } from '@wattwisely/session-engine';
 import { CardAccessRepository } from './access/card-access.repository';
 import { ActionHandler } from './adapters/action-handler';
+import { AdapterRegistry } from './adapters/adapter-registry';
+import { BootRecorder } from './adapters/boot-recorder';
+import { CommandTranslators } from './adapters/command-translators';
+import { HeartbeatHandler } from './adapters/heartbeat.handler';
 import { V16Adapter } from './adapters/v16/v16-adapter';
 import { V16AuthorizeHandler } from './adapters/v16/v16-authorize.handler';
 import { V16BootNotificationHandler } from './adapters/v16/v16-boot-notification.handler';
-import { BootRecorder } from './adapters/v16/boot-recorder';
+import { V16CommandTranslator } from './adapters/v16/v16-command.translator';
 import { V16_HANDLERS } from './adapters/v16/v16-handlers.token';
-import { V16HeartbeatHandler } from './adapters/v16/v16-heartbeat.handler';
 import { V16MeterValuesHandler } from './adapters/v16/v16-meter-values.handler';
 import { V16StartTransactionHandler } from './adapters/v16/v16-start-transaction.handler';
 import { V16StatusNotificationHandler } from './adapters/v16/v16-status-notification.handler';
 import { V16StopTransactionHandler } from './adapters/v16/v16-stop-transaction.handler';
+import { V201Adapter } from './adapters/v201/v201-adapter';
+import { V201AuthorizeHandler } from './adapters/v201/v201-authorize.handler';
+import { V201BootNotificationHandler } from './adapters/v201/v201-boot-notification.handler';
+import { V201ChargingStateApplier } from './adapters/v201/v201-charging-state.applier';
+import { V201CommandTranslator } from './adapters/v201/v201-command.translator';
+import { V201_HANDLERS } from './adapters/v201/v201-handlers.token';
+import { V201MeterValuesHandler } from './adapters/v201/v201-meter-values.handler';
+import { V201StatusNotificationHandler } from './adapters/v201/v201-status-notification.handler';
+import { V201TransactionEnder } from './adapters/v201/v201-transaction-ender';
+import { V201TransactionEventHandler } from './adapters/v201/v201-transaction-event.handler';
+import { V201TransactionStarter } from './adapters/v201/v201-transaction-starter';
+import { V201TransactionSteps } from './adapters/v201/v201-transaction-steps';
+import { V201TransactionUpdater } from './adapters/v201/v201-transaction-updater';
 import { CommandDispatcher } from './commands/command-dispatcher';
 import { CommandListener } from './commands/command-listener';
 import { CommandSender } from './commands/command-sender';
@@ -53,11 +69,10 @@ import { SessionsRepository } from './storage/sessions.repository';
 import { CallProcessor } from './transport/call-processor';
 import { FrameLogger } from './transport/frame-logger';
 import { MessagePipeline } from './transport/message-pipeline';
-import { SchemaValidator } from './validation/schema-validator';
 
-const HANDLERS = [
+const V16_HANDLER_CLASSES = [
   V16BootNotificationHandler,
-  V16HeartbeatHandler,
+  HeartbeatHandler,
   V16StatusNotificationHandler,
   V16AuthorizeHandler,
   V16StartTransactionHandler,
@@ -65,7 +80,19 @@ const HANDLERS = [
   V16MeterValuesHandler,
 ];
 
-/** Everything between a charger's socket and the database: checks, pipeline, handlers, commands. */
+const V201_HANDLER_CLASSES = [
+  V201BootNotificationHandler,
+  HeartbeatHandler,
+  V201StatusNotificationHandler,
+  V201AuthorizeHandler,
+  V201TransactionEventHandler,
+  V201MeterValuesHandler,
+];
+
+/**
+ * Everything between a charger's socket and the database: checks, pipeline, the handlers
+ * of both OCPP versions (module 18 added 2.0.1), commands.
+ */
 @Module({
   providers: [
     // Storage and events
@@ -105,18 +132,33 @@ const HANDLERS = [
     OcppRoute,
     GatewayMetrics,
     // Messages
-    SchemaValidator,
     FrameLogger,
     CallProcessor,
     MessagePipeline,
     BootRecorder,
-    ...HANDLERS,
+    ...V16_HANDLER_CLASSES,
     {
       provide: V16_HANDLERS,
       useFactory: (...handlers: ActionHandler[]) => handlers,
-      inject: HANDLERS,
+      inject: V16_HANDLER_CLASSES,
     },
     V16Adapter,
+    V201TransactionStarter,
+    V201TransactionUpdater,
+    V201TransactionEnder,
+    V201ChargingStateApplier,
+    V201TransactionSteps,
+    ...V201_HANDLER_CLASSES.filter((handler) => handler !== HeartbeatHandler),
+    {
+      provide: V201_HANDLERS,
+      useFactory: (...handlers: ActionHandler[]) => handlers,
+      inject: V201_HANDLER_CLASSES,
+    },
+    V201Adapter,
+    AdapterRegistry,
+    V16CommandTranslator,
+    V201CommandTranslator,
+    CommandTranslators,
     // Who may charge
     CardAccessRepository,
     IssuedTagRegistry,

@@ -53,4 +53,16 @@ describe('OcppFrameCodec', () => {
       '[4,"9","GenericError","x",{"f":1}]',
     );
   });
+
+  it('spells the two renamed error codes the way the charger version does', () => {
+    const formation = new OcppCallError('FormationViolation', 'x');
+    expect(OcppFrameCodec.encodeError('9', formation, '1.6')).toContain('"FormationViolation"');
+    expect(OcppFrameCodec.encodeError('9', formation, '2.0.1')).toContain('"FormatViolation"');
+    expect(new OcppCallError('OccurenceConstraintViolation', 'x').codeFor('2.0.1')).toBe(
+      'OccurrenceConstraintViolation',
+    );
+    expect(new OcppCallError('TypeConstraintViolation', 'x').codeFor('2.0.1')).toBe(
+      'TypeConstraintViolation',
+    );
+  });
 });

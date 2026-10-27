@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, TransactionRunner } from '@wattwisely/db';
-import { ChargerConnection } from '../../connection/charger-connection';
-import { GatewayChargersRepository } from '../../storage/gateway-chargers.repository';
-import { ActionHandler, HandlerResult } from '../action-handler';
+import { ChargerConnection } from '../connection/charger-connection';
+import { GatewayChargersRepository } from '../storage/gateway-chargers.repository';
+import { ActionHandler, HandlerResult } from './action-handler';
 
-/** Heartbeat: a sign of life and the charger's way to sync its clock. */
+/** Heartbeat: a sign of life and the charger's way to sync its clock. The same in 1.6 and 2.0.1. */
 @Injectable()
-export class V16HeartbeatHandler implements ActionHandler {
+export class HeartbeatHandler implements ActionHandler {
   readonly action = 'Heartbeat';
 
   constructor(

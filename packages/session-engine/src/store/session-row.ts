@@ -10,6 +10,8 @@ export interface SessionRow {
   connectorId: string;
   /** Empty until the charger starts the transaction (a paid session waits for it). */
   ocppTransactionId: number | null;
+  /** The transaction id a 2.0.1 charger chose (module 18); null on 1.6. */
+  ocppTransactionRef: string | null;
   idTag: string;
   status: SessionState;
   timeZone: string;
@@ -38,6 +40,7 @@ export class SessionColumns {
     chargerId: chargingSessions.chargerId,
     connectorId: chargingSessions.connectorId,
     ocppTransactionId: chargingSessions.ocppTransactionId,
+    ocppTransactionRef: chargingSessions.ocppTransactionRef,
     idTag: chargingSessions.idTag,
     status: chargingSessions.status,
     timeZone: chargingSessions.timeZone,

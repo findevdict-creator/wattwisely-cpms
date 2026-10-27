@@ -49,6 +49,12 @@ export const chargingSessions = pgTable(
     connectorId: uuid('connector_id').notNull(),
     /** The transactionId the charger and the platform both use for this session; empty until the charger starts it. */
     ocppTransactionId: integer('ocpp_transaction_id'),
+    /**
+     * OCPP 2.0.1 (module 18): the transactionId the charger chose, a string of up to 36
+     * characters, which is how RequestStopTransaction and resent events name the session.
+     * The platform still numbers the session from the sequence above; this stays empty on 1.6.
+     */
+    ocppTransactionRef: text('ocpp_transaction_ref'),
     /** The idTag that started it: an RFID card or a token the platform issued for a remote start. */
     idTag: text('id_tag').notNull(),
     /** The driver and the card behind the idTag, when the tag was a registered card (module 13). */
@@ -104,6 +110,12 @@ export const chargingSessions = pgTable(
       table.tenantId,
       table.chargerId,
       table.ocppTransactionId,
+    ),
+    // The same for a 2.0.1 charger's own transaction id (nulls, the 1.6 sessions, never clash).
+    unique('charging_sessions_transaction_ref_unique').on(
+      table.tenantId,
+      table.chargerId,
+      table.ocppTransactionRef,
     ),
     index('charging_sessions_connector_idx').on(table.tenantId, table.connectorId, table.status),
     index('charging_sessions_started_idx').on(table.tenantId, table.startedAt),

@@ -79,6 +79,17 @@ export class CommandCatalog {
     clear_charging_profile: 'ClearChargingProfile',
   };
 
+  /** The OCPP 2.0.1 action each command becomes on the wire (module 18). */
+  static readonly OCPP201_ACTIONS: Record<CommandAction, string> = {
+    remote_start: 'RequestStartTransaction',
+    remote_stop: 'RequestStopTransaction',
+    reset: 'Reset',
+    unlock: 'UnlockConnector',
+    change_availability: 'ChangeAvailability',
+    set_charging_profile: 'SetChargingProfile',
+    clear_charging_profile: 'ClearChargingProfile',
+  };
+
   static isQueueable(action: CommandAction): boolean {
     return CommandCatalog.QUEUEABLE.includes(action);
   }

@@ -1,8 +1,8 @@
-import { V16MeterReader } from './v16-meter-reader';
+import { MeterReader } from './meter-reader';
 
-describe('V16MeterReader', () => {
+describe('MeterReader', () => {
   it('takes the cumulative energy in Wh, converting kWh, and the power and SoC', () => {
-    const [reading] = V16MeterReader.read([
+    const [reading] = MeterReader.read([
       {
         timestamp: '2026-01-01T10:00:00Z',
         sampledValue: [
@@ -23,7 +23,7 @@ describe('V16MeterReader', () => {
   });
 
   it('treats a sample without a measurand as the energy register, in Wh', () => {
-    const [reading] = V16MeterReader.read([
+    const [reading] = MeterReader.read([
       { timestamp: '2026-01-01T10:00:00Z', sampledValue: [{ value: '500' }] },
     ]);
     expect(reading).toMatchObject({ energyWh: 500, powerW: null, socPercent: null });
@@ -31,7 +31,7 @@ describe('V16MeterReader', () => {
 
   it('prefers the total over per-phase values, and sums phases when there is no total', () => {
     const energy = 'Energy.Active.Import.Register';
-    const [withTotal] = V16MeterReader.read([
+    const [withTotal] = MeterReader.read([
       {
         timestamp: '2026-01-01T10:00:00Z',
         sampledValue: [
@@ -42,7 +42,7 @@ describe('V16MeterReader', () => {
       },
     ]);
     expect(withTotal.energyWh).toBe(250);
-    const [phasesOnly] = V16MeterReader.read([
+    const [phasesOnly] = MeterReader.read([
       {
         timestamp: '2026-01-01T10:00:00Z',
         sampledValue: [
@@ -56,7 +56,7 @@ describe('V16MeterReader', () => {
   });
 
   it('finds the latest energy reading in time order', () => {
-    const readings = V16MeterReader.read([
+    const readings = MeterReader.read([
       { timestamp: '2026-01-01T10:05:00Z', sampledValue: [{ value: '900' }] },
       { timestamp: '2026-01-01T10:00:00Z', sampledValue: [{ value: '800' }] },
       {
@@ -64,7 +64,9 @@ describe('V16MeterReader', () => {
         sampledValue: [{ value: '7000', measurand: 'Power.Active.Import' }],
       },
     ]);
-    expect(V16MeterReader.latestEnergyWh(readings)).toBe(900);
-    expect(V16MeterReader.latestEnergyWh([])).toBeNull();
+    expect(MeterReader.latestEnergyWh(readings)).toBe(900);
+    expect(MeterReader.latestEnergyWh([])).toBeNull();
+    expect(MeterReader.earliestEnergy(readings)).toMatchObject({ meterWh: 800 });
+    expect(MeterReader.earliestEnergy([])).toBeNull();
   });
 });
