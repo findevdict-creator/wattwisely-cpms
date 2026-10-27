@@ -17,6 +17,7 @@ export class RuntimeConfigLoader {
       json['keycloakClientId'],
     );
     config.adminUrl = json['adminUrl'] ?? '';
+    config.helpUrl = json['helpUrl'] ?? '';
     return config;
   }
 }

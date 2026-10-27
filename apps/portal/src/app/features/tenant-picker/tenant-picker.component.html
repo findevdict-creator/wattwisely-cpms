@@ -1,12 +1,34 @@
-<mat-card appearance="outlined" class="card">
-  <mat-card-header>
-    <mat-card-title>Choose a workspace</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <mat-action-list data-testid="tenant-picker">
-      @for (tenant of tenantContext.tenants(); track tenant.id) {
-        <button mat-list-item (click)="open(tenant)">{{ tenant.name }}</button>
-      }
-    </mat-action-list>
-  </mat-card-content>
-</mat-card>
+<ww-auth-page heading="Choose a workspace" [subtitle]="subtitle()" width="480px">
+  <div class="list" data-testid="tenant-picker">
+    @for (tenant of tenantContext.tenants(); track tenant.id) {
+      <button
+        type="button"
+        class="workspace"
+        [class.last]="tenant.id === lastTenantId"
+        (click)="open(tenant)"
+      >
+        <span class="ww-avatar l square" [style.background]="initials.toneOf(tenant.id)">{{
+          initials.of(tenant.name)
+        }}</span>
+        <span class="ww-two ww-grow">
+          <b>{{ tenant.name }}</b>
+          @if (tenant.status !== 'active') {
+            <span>{{ tenant.status === 'trial' ? 'On trial' : 'Suspended' }}</span>
+          }
+        </span>
+        @if (tenant.id === lastTenantId) {
+          <span class="ww-chip ok">Last used</span>
+        } @else {
+          <mat-icon svgIcon="chevron-right" />
+        }
+      </button>
+    }
+  </div>
+  <p class="hint">
+    Don't see your company? Ask its Owner to invite {{ tenantContext.me()?.email }}.
+  </p>
+  <p wwAuthFoot class="hint foot">
+    Signed in as {{ tenantContext.me()?.name || tenantContext.me()?.email }} ·
+    <button type="button" class="link" (click)="logout()">Log out</button>
+  </p>
+</ww-auth-page>

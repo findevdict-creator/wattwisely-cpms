@@ -1,12 +1,12 @@
-<mat-card appearance="outlined" class="card" data-testid="no-workspace">
-  <mat-card-header>
-    <mat-card-title>No workspace yet</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <p>Your login works, but you are not a member of any company on Wattwisely yet.</p>
-    <p>Ask your company's owner to invite you, or contact Wattwisely support.</p>
-  </mat-card-content>
-  <mat-card-actions>
-    <button mat-stroked-button (click)="logout()">Log out</button>
-  </mat-card-actions>
-</mat-card>
+<ww-auth-page
+  heading="No workspace yet"
+  subtitle="Your login works, but you are not a member of any company on Wattwisely yet."
+>
+  <div class="notice neutral" data-testid="no-workspace">
+    Ask your company's Owner to invite {{ email() || 'you' }}, or contact Wattwisely support.
+  </div>
+  <button mat-stroked-button class="wide" (click)="logout()">
+    <mat-icon svgIcon="log-out" />
+    Log out
+  </button>
+</ww-auth-page>

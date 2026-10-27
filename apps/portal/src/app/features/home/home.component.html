@@ -1,24 +1,106 @@
-<h1>Welcome{{ tenantContext.me()?.name ? ', ' + tenantContext.me()?.name : '' }}</h1>
+<ww-page-header [heading]="greeting()">
+  <p wwSubtitle class="ww-page-subtitle">
+    <span data-testid="api-tenant">{{
+      tenantFromApi()?.name ?? tenantContext.currentTenant()?.name
+    }}</span>
+    · <span data-testid="my-roles">{{ permissions.roleNames().join(', ') }}</span>
+    @if (store.overview(); as overview) {
+      · {{ overview.chargers }} {{ overview.chargers === 1 ? 'charger' : 'chargers' }}
+      @if (store.sites().length > 0) {
+        on {{ store.sites().length }} {{ store.sites().length === 1 ? 'site' : 'sites' }}
+      }
+    }
+  </p>
+  @if (permissions.can('reports:read')) {
+    <div class="seg" role="group" aria-label="Period">
+      @for (option of periods; track option.key) {
+        <button
+          type="button"
+          [class.on]="store.period() === option.key"
+          [attr.aria-pressed]="store.period() === option.key"
+          [attr.data-testid]="'period-' + option.key"
+          (click)="store.choosePeriod(option.key)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+    @if (store.sites().length > 1) {
+      <mat-select
+        class="site"
+        [value]="store.siteId()"
+        (selectionChange)="store.chooseSite($event.value)"
+        aria-label="Site"
+        data-testid="home-site"
+      >
+        <mat-option value="">All sites</mat-option>
+        @for (site of store.sites(); track site.id) {
+          <mat-option [value]="site.id">{{ site.name }}</mat-option>
+        }
+      </mat-select>
+    }
+    <button mat-stroked-button (click)="download()" data-testid="home-export">
+      <mat-icon svgIcon="download" />
+      Export
+    </button>
+  }
+</ww-page-header>
 
-@if (permissions.can('reports:read')) {
-  <ww-home-overview />
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
 }
 
-<mat-card appearance="outlined" class="card">
-  <mat-card-header>
-    <mat-card-title>You are signed in</mat-card-title>
-    <mat-card-subtitle>Answered by the API after checking your Keycloak token</mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content>
-    <dl>
-      <dt>E-mail</dt>
-      <dd data-testid="me-email">{{ tenantContext.me()?.email }}</dd>
-      <dt>Working in tenant</dt>
-      <dd data-testid="api-tenant">{{ tenantFromApi()?.name ?? 'Loading…' }}</dd>
-      <dt>Your roles here</dt>
-      <dd data-testid="my-roles">{{ permissions.roleNames().join(', ') }}</dd>
-      <dt>Tenants you can switch to</dt>
-      <dd>{{ tenantContext.tenants().length }}</dd>
-    </dl>
-  </mat-card-content>
-</mat-card>
+@if (permissions.can('reports:read')) {
+  <div class="kpis" data-testid="overview">
+    <ww-kpi-card
+      label="Energy delivered"
+      [value]="figures().energy"
+      [foot]="figures().energyChange.text"
+      [trend]="figures().energyChange.trend"
+    />
+    <ww-kpi-card
+      label="Sessions"
+      [value]="figures().sessions"
+      [foot]="figures().sessionsChange.text"
+      [trend]="figures().sessionsChange.trend"
+      link="/sessions"
+    />
+    <ww-kpi-card
+      label="Revenue"
+      [value]="figures().revenue"
+      [foot]="figures().revenueChange.text"
+      [trend]="figures().revenueChange.trend"
+    />
+    <ww-kpi-card
+      data-testid="tile-online"
+      label="Chargers online"
+      [value]="online()"
+      [foot]="offline().text"
+      [trend]="offline().trend"
+      [icon]="offline().icon"
+      link="/chargers"
+    />
+  </div>
+}
+
+<div class="cards">
+  @if (permissions.can('sites:read')) {
+    <ww-fleet-card
+      class="wide"
+      [sites]="store.sites()"
+      [chargingNow]="store.overview()?.sessions_active ?? null"
+    />
+  }
+  @if (permissions.can('alerts:read')) {
+    <ww-open-alerts-card class="narrow" [alerts]="store.openAlerts()" [count]="alertBadge.open()" />
+  }
+</div>
+
+@if (permissions.can('reports:read')) {
+  <div class="cards">
+    <ww-energy-chart class="half" [days]="store.days()" />
+    @if (store.current(); as report) {
+      <ww-busiest-sites class="half" [report]="report" [period]="figures().periodWords" />
+    }
+  </div>
+}

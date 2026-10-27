@@ -1,0 +1,158 @@
+@if (alert(); as alert) {
+  <ww-page-header
+    [heading]="alert.title"
+    [subtitle]="'Raised ' + days.dayAndTime(alert.began_at) + ' at ' + alert.site_name"
+    backLink="/alerts"
+    backLabel="Alerts"
+  >
+    <span wwTitleExtra class="ww-chip {{ states[alert.status].tone }}" data-testid="alert-status">{{
+      states[alert.status].label
+    }}</span>
+    @if (alert.session_id) {
+      <a mat-stroked-button [routerLink]="['/sessions', alert.session_id]">Open session</a>
+    }
+    @if (alert.status === 'open' && permissions.canChange('alerts:acknowledge')) {
+      <button mat-flat-button (click)="acknowledge(alert)" data-testid="acknowledge">
+        <mat-icon svgIcon="check" />
+        Acknowledge
+      </button>
+    }
+  </ww-page-header>
+
+  <div class="columns">
+    <div class="main">
+      <section class="ww-card" aria-labelledby="what">
+        <div class="ww-card-head">
+          <div class="titles"><h2 id="what">What happened</h2></div>
+        </div>
+        <div class="ww-card-body">
+          <dl class="ww-kv">
+            <div>
+              <dt>Type</dt>
+              <dd>{{ label(alert) }}</dd>
+            </div>
+            <div>
+              <dt>Charger</dt>
+              <dd>
+                <a class="mono" [routerLink]="['/chargers', alert.charger_id]">{{
+                  alert.charger_identity
+                }}</a>
+              </dd>
+            </div>
+            @if (connector(); as connector) {
+              <div>
+                <dt>Connector</dt>
+                <dd>{{ describe(connector) }}</dd>
+              </div>
+            }
+            <div>
+              <dt>Site</dt>
+              <dd>
+                <a [routerLink]="['/sites', alert.site_id]">{{ alert.site_name }}</a>
+              </dd>
+            </div>
+            <div>
+              <dt>Raised</dt>
+              <dd>{{ days.dayAndTime(alert.began_at) }}</dd>
+            </div>
+            <div>
+              <dt>Last seen</dt>
+              <dd>{{ days.dayAndTime(alert.last_seen_at) }}</dd>
+            </div>
+            @if (alert.session_id) {
+              <div>
+                <dt>Session at the time</dt>
+                <dd><a [routerLink]="['/sessions', alert.session_id]">Open the session</a></dd>
+              </div>
+            }
+          </dl>
+        </div>
+      </section>
+
+      <section class="ww-card" aria-labelledby="timeline">
+        <div class="ww-card-head">
+          <div class="titles"><h2 id="timeline">Timeline</h2></div>
+        </div>
+        <div class="ww-card-body steps">
+          @for (step of timeline(); track step.title) {
+            <div class="ww-list-item step">
+              <span class="ww-avatar icon"><mat-icon [svgIcon]="step.icon" /></span>
+              <div class="ww-two ww-grow">
+                <b>{{ step.title }}</b>
+                @if (step.text) {
+                  <span class="text">{{ step.text }}</span>
+                }
+              </div>
+              <span class="hint">{{ days.dayAndTime(step.at) }}</span>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="side">
+      @if (charger(); as charger) {
+        <section class="ww-card" aria-labelledby="charger" data-testid="alert-charger">
+          <div class="ww-card-head">
+            <div class="titles">
+              <h2 id="charger">Charger {{ charger.ocpp_identity }}</h2>
+            </div>
+            <ww-status-chip [status]="charger.status" />
+          </div>
+          <div class="ww-card-body">
+            <dl class="ww-kv">
+              <div>
+                <dt>Model</dt>
+                <dd>{{ [charger.vendor, charger.model].join(' ').trim() || '—' }}</dd>
+              </div>
+              <div>
+                <dt>Firmware</dt>
+                <dd>{{ charger.firmware_version || '—' }}</dd>
+              </div>
+              <div>
+                <dt>Last heard from</dt>
+                <dd>
+                  {{ charger.last_seen_at ? days.dayAndTime(charger.last_seen_at) : 'Never' }}
+                </dd>
+              </div>
+              <div>
+                <dt>Connectors</dt>
+                <dd>
+                  @for (connector of charger.connectors; track connector.id; let last = $last) {
+                    {{ connector.label }} {{ statusWord(connector.status) }}{{ last ? '' : ' · ' }}
+                  }
+                </dd>
+              </div>
+            </dl>
+            <a mat-stroked-button class="block" [routerLink]="['/chargers', charger.id]">
+              <mat-icon svgIcon="external-link" />
+              Open charger
+            </a>
+          </div>
+        </section>
+      }
+      @if (alert.acknowledged_at) {
+        <section class="ww-card" aria-labelledby="on-it">
+          <div class="ww-card-head">
+            <div class="titles"><h2 id="on-it">Who is on it</h2></div>
+          </div>
+          <div class="ww-card-body">
+            <div class="person">
+              <span class="ww-avatar">{{ initials(alert.acknowledged_by) }}</span>
+              <div class="ww-two">
+                <b>{{ alert.acknowledged_by }}</b>
+                <span>Acknowledged {{ days.dayAndTime(alert.acknowledged_at) }}</span>
+              </div>
+            </div>
+            @if (alert.acknowledge_note) {
+              <p class="note">“{{ alert.acknowledge_note }}”</p>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </div>
+} @else if (error()) {
+  <ww-page-header heading="Alert" backLink="/alerts" backLabel="Alerts" />
+  <p class="error" role="alert">{{ error() }}</p>
+}

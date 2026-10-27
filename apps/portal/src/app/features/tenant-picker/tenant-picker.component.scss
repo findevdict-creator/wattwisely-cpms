@@ -1,4 +1,62 @@
-.card {
-  max-width: 480px;
-  margin: 64px auto;
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+ww-auth-page {
+  min-height: 100vh;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.workspace {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &.last {
+    border-color: var(--mat-sys-primary);
+  }
+
+  &.last {
+    box-shadow: 0 0 0 1px var(--mat-sys-primary);
+  }
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .ww-avatar {
+    color: var(--ww-white);
+  }
+}
+
+.hint {
+  margin: 0;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  color: var(--ww-link);
+  cursor: pointer;
 }

@@ -1,0 +1,72 @@
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.main,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.main {
+  flex: 999 1 520px;
+}
+
+.side {
+  flex: 1 1 340px;
+}
+
+.steps {
+  gap: 0;
+  padding-top: 4px;
+}
+
+.step {
+  align-items: flex-start;
+}
+
+.icon {
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.text {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.hint {
+  white-space: nowrap;
+}
+
+.mono {
+  font-size: 13px;
+}
+
+.block {
+  width: 100%;
+}
+
+.person {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.note {
+  margin: 0;
+  font-style: italic;
+  color: var(--mat-sys-on-surface-variant);
+}
