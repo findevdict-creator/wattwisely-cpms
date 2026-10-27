@@ -1,0 +1,39 @@
+{
+  "title": "BootNotificationResponse",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "currentTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "interval": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Accepted", "Pending", "Rejected"]
+    },
+    "statusInfo": {
+      "type": "object",
+      "properties": {
+        "customData": {
+          "type": "object"
+        },
+        "reasonCode": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "additionalInfo": {
+          "type": "string",
+          "maxLength": 512
+        }
+      },
+      "required": ["reasonCode"]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["currentTime", "interval", "status"]
+}

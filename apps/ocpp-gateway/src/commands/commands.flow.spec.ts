@@ -149,4 +149,51 @@ import { TestGateway } from '../testing/test-gateway';
     );
     await charger.close();
   });
+
+  it('sends load management’s power cap as a SetChargingProfile and takes it off with ClearChargingProfile', async () => {
+    const chargerId = await gateway.data.charger(acme, site, 'WW-CAP');
+    const charger = await connectAndBoot('WW-CAP');
+    const cap = await gateway.queueCommand({
+      tenantId: acme,
+      chargerId,
+      action: 'set_charging_profile',
+      payload: { profile_id: 1700, limit_w: 7400 },
+    });
+    const setCall = await charger.nextCall();
+    expect(setCall).toMatchObject({
+      action: 'SetChargingProfile',
+      payload: {
+        connectorId: 0,
+        csChargingProfiles: {
+          chargingProfileId: 1700,
+          chargingProfilePurpose: 'ChargePointMaxProfile',
+          chargingSchedule: { chargingSchedulePeriod: [{ startPeriod: 0, limit: 7400 }] },
+        },
+      },
+    });
+    charger.reply(setCall, { status: 'Accepted' });
+    expect(
+      await gateway.eventually(
+        `select status from charger_commands where id = $1 and status = 'accepted'`,
+        [cap],
+      ),
+    ).toEqual({ status: 'accepted' });
+
+    const clear = await gateway.queueCommand({
+      tenantId: acme,
+      chargerId,
+      action: 'clear_charging_profile',
+      payload: { profile_id: 1700 },
+    });
+    const clearCall = await charger.nextCall();
+    expect(clearCall).toMatchObject({ action: 'ClearChargingProfile', payload: { id: 1700 } });
+    charger.reply(clearCall, { status: 'Unknown' });
+    expect(
+      await gateway.eventually(
+        `select status from charger_commands where id = $1 and status = 'accepted'`,
+        [clear],
+      ),
+    ).toEqual({ status: 'accepted' });
+    await charger.close();
+  });
 });

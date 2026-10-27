@@ -122,6 +122,8 @@ export class StatusLabels {
     reset: 'Reset',
     unlock: 'Unlock connector',
     change_availability: 'Change availability',
+    set_charging_profile: 'Set power cap',
+    clear_charging_profile: 'Remove power cap',
   };
 
   /** Which statuses get which colour; anything else is quiet. */

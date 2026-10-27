@@ -5,10 +5,12 @@ export class SimOptions {
   static readonly USAGE = [
     'Usage: npm run sim -- --identity <id> [--url ws://localhost:3100/ocpp] [--password <pw>]',
     '                      [--connectors 2] [--power 7400] [--vendor Wattwisely] [--model Simulator]',
-    '                      [--serial <serial>] [--meter 10] [--tag <idTag>]',
+    '                      [--serial <serial>] [--meter 10] [--tag <idTag>] [--ocpp 1.6|2.0.1]',
     '',
-    'Simulates an OCPP 1.6J charge point: boots, sends heartbeats and connector status, and',
-    'answers RemoteStart/RemoteStop/Reset/UnlockConnector/ChangeAvailability from the platform.',
+    'Simulates a charge point: boots, sends heartbeats and connector status, and answers',
+    'remote start/stop, Reset, UnlockConnector and ChangeAvailability from the platform. It',
+    'speaks OCPP 1.6J unless --ocpp 2.0.1 makes it a 2.0.1 charging station (one EVSE per',
+    'connector).',
     'With --tag it holds that RFID card against connector 1 once booted: Authorize, then a',
     'charge when the platform accepts the card.',
   ].join('\n');
@@ -26,6 +28,8 @@ export class SimOptions {
   meterIntervalS = 10;
   /** An RFID tag to present at connector 1 after booting. */
   tag: string | undefined;
+  /** The OCPP version to offer the gateway. */
+  ocpp: '1.6' | '2.0.1' = '1.6';
 
   static readonly FLAGS = {
     url: { type: 'string' },
@@ -38,6 +42,7 @@ export class SimOptions {
     serial: { type: 'string' },
     meter: { type: 'string' },
     tag: { type: 'string' },
+    ocpp: { type: 'string' },
     help: { type: 'boolean', short: 'h' },
   } as const;
 
@@ -58,6 +63,15 @@ export class SimOptions {
     options.serial = values.serial;
     options.meterIntervalS = Number(values.meter ?? options.meterIntervalS);
     options.tag = values.tag;
+    options.ocpp = SimOptions.versionOf(values.ocpp);
     return options;
+  }
+
+  private static versionOf(value: string | undefined): '1.6' | '2.0.1' {
+    if (value === undefined || value === '1.6' || value === '2.0.1') {
+      return value ?? '1.6';
+    }
+    process.stdout.write(`--ocpp must be 1.6 or 2.0.1, not ${value}\n`);
+    process.exit(2);
   }
 }

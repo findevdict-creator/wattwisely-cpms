@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseSession, TransactionRunner, UuidV7 } from '@wattwisely/db';
-import { CommandAction, CommandCatalog } from '@wattwisely/ocpp-contracts';
+import { CommandCatalog, StaffCommandAction } from '@wattwisely/ocpp-contracts';
 import { PageRequest } from '../../../common/paging/page-request';
 import { SitePermissionChecker } from '../../../common/permissions/site-permission.checker';
 import { RequestAuth } from '../../../common/request/request-auth';
@@ -32,7 +32,7 @@ export class ChargerCommandsService {
   async send(
     auth: RequestAuth,
     chargerId: string,
-    action: CommandAction,
+    action: StaffCommandAction,
     body: CommandRequest,
   ): Promise<CommandDto> {
     const access = auth.requireAccess();

@@ -2,8 +2,11 @@
 export interface AuditLogEntry {
   id: string;
   occurred_at: string;
-  /** 'managed': a Wattwisely staff member working in the company as its Managed operator. */
-  actor_type: 'user' | 'api_key' | 'support' | 'system' | 'platform' | 'managed';
+  /**
+   * 'managed': a Wattwisely staff member working in the company as its Managed operator.
+   * 'driver': a driver acting from the driver app on their own link to the company (module 19).
+   */
+  actor_type: 'user' | 'api_key' | 'support' | 'system' | 'platform' | 'managed' | 'driver';
   actor_id: string | null;
   actor_label: string;
   action: string;

@@ -9,3 +9,5 @@ export * from './test-notifications';
 export * from './test-drivers';
 export * from './test-billing';
 export * from './test-integrations';
+export * from './test-addons';
+export * from './test-saved-cards';

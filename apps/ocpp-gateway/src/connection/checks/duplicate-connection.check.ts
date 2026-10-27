@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { GatewayConfig } from '../../config/gateway.config';
 import { ChargerIdentity } from '../../storage/charger-identity';
 import { ConnectionRegistry } from '../connection-registry';
@@ -23,11 +24,16 @@ export class DuplicateConnectionCheck {
   ) {}
 
   /** Returns the id of the lease the new connection now holds. */
-  async check(charger: ChargerIdentity, remoteIp: string): Promise<string> {
+  async check(
+    charger: ChargerIdentity,
+    newcomer: { remoteIp: string; version: OcppVersion },
+  ): Promise<string> {
     const existing = this.registry.find(charger.id);
     if (existing) {
       if (await existing.ping(this.config.pingTimeoutMs)) {
-        this.logger.warn(`Duplicate connection refused for ${charger.identity} from ${remoteIp}`);
+        this.logger.warn(
+          `Duplicate connection refused for ${charger.identity} from ${newcomer.remoteIp}`,
+        );
         throw new UpgradeRefusal(409, 'already_connected');
       }
       this.registry.remove(existing);
@@ -35,7 +41,7 @@ export class DuplicateConnectionCheck {
       existing.close(1001, 'Replaced by a new connection');
     }
     const connectionId = randomUUID();
-    if (!(await this.lease.acquire(charger, connectionId, remoteIp))) {
+    if (!(await this.lease.acquire(charger, { connectionId, ...newcomer }))) {
       throw new UpgradeRefusal(409, 'already_connected');
     }
     return connectionId;

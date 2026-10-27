@@ -33,6 +33,8 @@ export class TransactionRunner {
       set_config('app.charger_identity', ${session.chargerIdentity ?? ''}, true),
       set_config('app.provider_account_id', ${session.providerAccountId ?? ''}, true),
       set_config('app.api_key_hash', ${session.apiKeyHash ?? ''}, true),
+      set_config('app.messaging_phone_number_id', ${session.messagingPhoneNumberId ?? ''}, true),
+      set_config('app.driver_account_id', ${session.driverAccountId ?? ''}, true),
       set_config('app.platform_access', ${session.isPlatformAccess ? 'true' : ''}, true)`);
   }
 }

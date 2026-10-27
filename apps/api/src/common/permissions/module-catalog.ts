@@ -50,6 +50,7 @@ export class ModuleCatalog {
       'drivers:read',
       'drivers:read_personal',
       'drivers:write',
+      'drivers:invite',
       'drivers:block',
       'drivers:delete',
     ]),

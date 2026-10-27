@@ -21,8 +21,8 @@ export class UpgradeGuard {
   async check(request: UpgradeRequest): Promise<AcceptedUpgrade> {
     this.checks.countAttempt(request);
     const charger = await this.exists.find(request);
-    this.checks.run(request, charger);
-    const connectionId = await this.duplicate.check(charger, request.ip);
-    return { charger, connectionId, remoteIp: request.ip };
+    const version = this.checks.run(request, charger);
+    const connectionId = await this.duplicate.check(charger, { remoteIp: request.ip, version });
+    return { charger, connectionId, remoteIp: request.ip, version };
   }
 }

@@ -1,3 +1,4 @@
+import { OcppVersion } from '@wattwisely/ocpp-contracts';
 import { ChargerIdentity } from '../storage/charger-identity';
 
 /** What the checks established about a connection that may go ahead. */
@@ -6,4 +7,6 @@ export interface AcceptedUpgrade {
   /** Random per socket; the lease row carries it so a stale row never passes for a live one. */
   connectionId: string;
   remoteIp: string;
+  /** The OCPP version the socket speaks, settled from the subprotocols the charger offered. */
+  version: OcppVersion;
 }

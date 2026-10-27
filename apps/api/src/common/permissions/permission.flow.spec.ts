@@ -33,6 +33,7 @@ class RouteDeclarations {
     return Boolean(
       read(RouteAccess.PUBLIC_KEY) ||
       read(RouteAccess.WITHOUT_TENANT_KEY) ||
+      read(RouteAccess.DRIVER_KEY) ||
       permission === RouteAccess.ANY_MEMBER ||
       PermissionCatalog.isKnown(permission) ||
       PlatformPermissionCatalog.isKnown(read(RouteAccess.PLATFORM_KEY) ?? ''),

@@ -9,9 +9,18 @@ import { ProblemException } from '../problem/problem.exception';
  */
 export class IfMatchReader {
   static read(_data: unknown, context: ExecutionContext): number {
+    return IfMatchReader.readFrom(context, 1);
+  }
+
+  /** For settings that may not exist yet: `If-Match: 0` says "I saw none" (module 17). */
+  static readAllowingNew(_data: unknown, context: ExecutionContext): number {
+    return IfMatchReader.readFrom(context, 0);
+  }
+
+  private static readFrom(context: ExecutionContext, lowest: number): number {
     const header = context.switchToHttp().getRequest<FastifyRequest>().headers['if-match'];
     const version = Number(String(header ?? '').replace(/^(W\/)?"|"$/g, ''));
-    if (!header || !Number.isInteger(version) || version < 1) {
+    if (!header || !Number.isInteger(version) || version < lowest) {
       throw new ProblemException(
         HttpStatus.PRECONDITION_REQUIRED,
         'version_required',
@@ -24,3 +33,6 @@ export class IfMatchReader {
 
 /** Controller parameter decorator: `update(@IfMatch() version: number)`. */
 export const IfMatch = createParamDecorator(IfMatchReader.read);
+
+/** The same, accepting 0 for a row that does not exist yet. */
+export const IfMatchAllowingNew = createParamDecorator(IfMatchReader.readAllowingNew);

@@ -14,6 +14,16 @@ export class DriverSnapshot {
       notes: driver.notes,
       status: driver.status,
       block_reason: driver.blockReason,
+      payment_mode: driver.paymentMode,
+      account: DriverSnapshot.accountStatusOf(driver),
     };
+  }
+
+  /** none, invited or linked: what the driver's page shows about their login (module 19). */
+  static accountStatusOf(driver: DriverRecord): 'none' | 'invited' | 'linked' {
+    if (driver.driverAccountId) {
+      return 'linked';
+    }
+    return driver.invitation ? 'invited' : 'none';
   }
 }

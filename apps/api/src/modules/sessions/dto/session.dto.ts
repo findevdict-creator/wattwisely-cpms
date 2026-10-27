@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { SessionStates } from '@wattwisely/session-engine';
 import { SessionRecord } from '../session-record';
+import { SessionPaymentRuleDto } from './session-payment-rule.dto';
 
 /** A session as GET /v1/sessions lists it. Amounts are minor units of `currency`. */
 export class SessionDto {
@@ -79,6 +80,20 @@ export class SessionDto {
   @ApiProperty({ nullable: true, description: 'Where the card payment stands, when there is one' })
   readonly payment_status: string | null;
 
+  @ApiProperty({
+    nullable: true,
+    enum: ['rfid_card', 'guest_card', 'chat', 'account', 'staff'],
+    description: 'How it was started (module 19); null on older sessions',
+  })
+  readonly start_source: string | null;
+
+  @ApiProperty({
+    type: SessionPaymentRuleDto,
+    nullable: true,
+    description: 'Who pays, and who decided',
+  })
+  readonly payment_rule: SessionPaymentRuleDto | null;
+
   constructor(session: SessionRecord) {
     this.id = session.id;
     this.status = session.status;
@@ -104,5 +119,7 @@ export class SessionDto {
     this.failure_reason = session.failureReason;
     this.is_paid = session.isPaid;
     this.payment_status = session.paymentStatus;
+    this.start_source = session.startSource;
+    this.payment_rule = session.paymentRule ? new SessionPaymentRuleDto(session.paymentRule) : null;
   }
 }
