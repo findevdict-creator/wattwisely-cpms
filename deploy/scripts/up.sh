@@ -64,6 +64,7 @@ ensure_database_secrets
 compose up -d --no-build postgres
 wait_for_service postgres
 ensure_database_roles
+ensure_keycloak_database
 run_migrations
 compose up -d --no-build
 

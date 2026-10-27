@@ -1,0 +1,25 @@
+# Fails a pull request whose head branch is not named NN-module/<slug>.
+# The rules are in CLAUDE.md. Tags (module-NN) mark module boundaries and are not branches.
+name: Branch name
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Head branch is NN-module/<slug>
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the head branch name
+        env:
+          HEAD: ${{ github.head_ref }}
+        run: |
+          if [[ ! "$HEAD" =~ ^[0-9]{2}-module/[a-z0-9][a-z0-9-]*$ ]]; then
+            echo "::error::Branch '$HEAD' must be named NN-module/<kebab-slug>, for example 12-module/hardening-operations. See CLAUDE.md."
+            exit 1
+          fi
+          echo "Branch '$HEAD' follows the convention."
