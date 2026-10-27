@@ -12,6 +12,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HealthModule } from './modules/health/health.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
+import { ManagedModule } from './modules/managed/managed.module';
 import { MeModule } from './modules/me/me.module';
 import { OcppModule } from './modules/ocpp/ocpp.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -48,6 +49,7 @@ import { TenancyModule } from './modules/tenancy/tenancy.module';
     DriversModule,
     PlansModule,
     SubscriptionModule,
+    ManagedModule,
     AdminModule,
   ],
 })

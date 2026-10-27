@@ -177,6 +177,31 @@ ON CONFLICT (tenant_id) DO NOTHING;
 INSERT INTO tenant_entitlements (id, tenant_id, feature_key, source, note) VALUES
   ('01900000-0000-7000-8000-000000009101', '01900000-0000-7000-8000-00000000a001', 'load_management', 'addon', 'Demo add-on')
 ON CONFLICT (tenant_id, feature_key) DO NOTHING;
+-- Module 10: Wattwisely runs Volt Hotels' charging. Its Owner (Mia) accepted the managed service; Sam Support
+-- is the account manager and works in the tenant as its Managed operator (the reserved role from migration 0016).
+INSERT INTO managed_services (id, tenant_id, status, account_manager_id, is_tariff_approval_required,
+  agreement_reference, offered_by, offered_at, accepted_by, accepted_at)
+SELECT '01900000-0000-7000-8000-00000000a101', '01900000-0000-7000-8000-00000000a002', 'active', s.id, true,
+  'MSA-DEMO-001', ad.id, now() - interval '20 days', o.id, now() - interval '19 days'
+FROM platform_staff s
+JOIN user_accounts a ON a.id = s.user_account_id AND lower(a.email) = 'support@wattwisely.test'
+JOIN user_accounts ad ON lower(ad.email) = 'admin@wattwisely.test'
+JOIN user_accounts o ON lower(o.email) = 'multi@demo.test'
+WHERE NOT EXISTS (SELECT 1 FROM managed_services WHERE tenant_id = '01900000-0000-7000-8000-00000000a002');
+WITH operator AS (
+  INSERT INTO tenant_memberships (id, tenant_id, user_account_id, status, joined_at)
+  SELECT '01900000-0000-7000-8000-00000000a102', '01900000-0000-7000-8000-00000000a002', a.id, 'active', now()
+  FROM user_accounts a WHERE lower(a.email) = 'support@wattwisely.test'
+  ON CONFLICT (tenant_id, user_account_id) DO NOTHING
+  RETURNING id, tenant_id, user_account_id
+), granted AS (
+  INSERT INTO membership_roles (id, tenant_id, membership_id, role_id)
+  SELECT gen_random_uuid(), tenant_id, id, '00000000-0000-7000-8000-000000000006' FROM operator
+)
+INSERT INTO managed_operators (id, tenant_id, managed_service_id, user_account_id, membership_id, assigned_by)
+SELECT gen_random_uuid(), operator.tenant_id, '01900000-0000-7000-8000-00000000a101', operator.user_account_id,
+  operator.id, ad.id
+FROM operator JOIN user_accounts ad ON lower(ad.email) = 'admin@wattwisely.test';
 SQL
 }
 
@@ -194,4 +219,5 @@ seed_database
 
 info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL_HOST) with password $DEMO_PASSWORD"
 info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_HOST) as admin@wattwisely.test or support@wattwisely.test"
+info "Volt Hotels is managed by Wattwisely: support@wattwisely.test works in it as Managed operator, multi@demo.test approves its tariff changes"
 info "Drivers see plug A of the Riverside charger at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/c/WW-7KQ4M2XR9T/1 (the QR code on the charger page); it shows as offline until a charger or the simulator connects with that identity"

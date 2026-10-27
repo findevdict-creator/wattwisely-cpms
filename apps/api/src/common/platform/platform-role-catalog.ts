@@ -39,10 +39,12 @@ export class PlatformRoleCatalog {
     {
       key: 'support',
       name: 'Support',
-      description: 'Helps tenants: edits their details and modules, invites Owners.',
+      description:
+        'Helps tenants: edits their details and modules, invites Owners, runs managed tenants.',
       permissionKeys: [
         'tenants:read',
         'tenants:write',
+        'tenants:manage_service',
         'plans:read',
         'staff:read',
         'platform_audit:read',

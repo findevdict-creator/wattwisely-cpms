@@ -14,6 +14,15 @@ import {
 
 /** Query of GET /v1/audit-log (API Design, Audit log). Newest entries first. */
 export class ListAuditLogQueryDto {
+  static readonly ACTOR_TYPES = [
+    'user',
+    'api_key',
+    'support',
+    'system',
+    'platform',
+    'managed',
+  ] as const;
+
   @ApiProperty({ required: false, default: 25, maximum: 100 })
   @IsOptional()
   @Type(() => Number)
@@ -37,10 +46,10 @@ export class ListAuditLogQueryDto {
   @MaxLength(500)
   readonly action?: string;
 
-  @ApiProperty({ required: false, enum: ['user', 'api_key', 'support', 'system', 'platform'] })
+  @ApiProperty({ required: false, enum: ListAuditLogQueryDto.ACTOR_TYPES })
   @IsOptional()
-  @IsIn(['user', 'api_key', 'support', 'system', 'platform'])
-  readonly actor_type?: 'user' | 'api_key' | 'support' | 'system' | 'platform';
+  @IsIn(ListAuditLogQueryDto.ACTOR_TYPES)
+  readonly actor_type?: (typeof ListAuditLogQueryDto.ACTOR_TYPES)[number];
 
   @ApiProperty({ required: false })
   @IsOptional()

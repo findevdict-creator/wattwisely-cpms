@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TenantAccess } from '../../../common/tenant/tenant-access';
+import { ManagedServiceSummaryDto } from '../../managed/dto/managed-service-summary.dto';
 import { GrantedPermissionDto } from './granted-permission.dto';
 import { HeldRoleDto } from './held-role.dto';
 import { MyPlanDto } from './my-plan.dto';
@@ -32,7 +33,15 @@ export class MyPermissionsDto {
   })
   readonly locked_modules: string[];
 
-  constructor(access: TenantAccess) {
+  @ApiProperty({
+    type: ManagedServiceSummaryDto,
+    nullable: true,
+    description:
+      'The managed service agreement that is pending, active or ending; null for a self-serve tenant',
+  })
+  readonly managed_service: ManagedServiceSummaryDto | null;
+
+  constructor(access: TenantAccess, managedService: ManagedServiceSummaryDto | null) {
     this.tenant_id = access.tenant.id;
     this.is_read_only = access.tenant.isSuspended;
     this.roles = access.grants.map((grant) => new HeldRoleDto(grant));
@@ -41,5 +50,6 @@ export class MyPermissionsDto {
       .map((key) => new GrantedPermissionDto(key, access.permissions.scopeFor(key)));
     this.plan = access.entitlements.plan ? new MyPlanDto(access.entitlements.plan) : null;
     this.locked_modules = access.entitlements.lockedModuleKeys();
+    this.managed_service = managedService;
   }
 }

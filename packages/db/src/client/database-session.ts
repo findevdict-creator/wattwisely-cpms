@@ -65,6 +65,19 @@ export class DatabaseSession {
     return new DatabaseSession({ tenantId, userAccountId, isPlatformAccess: true });
   }
 
+  /**
+   * The worker acting for the platform inside one tenant, with nobody logged in (module 10):
+   * ending a managed service on its date removes the staff memberships the tenant cannot touch.
+   */
+  static forSystemInTenant(tenantId: string): DatabaseSession {
+    return new DatabaseSession({ tenantId, isPlatformAccess: true });
+  }
+
+  /** The worker reading across tenants what only platform access may see, e.g. the agreements due to end. */
+  static forSystem(): DatabaseSession {
+    return new DatabaseSession({ isPlatformAccess: true });
+  }
+
   /** Global tables only (tenants, user_accounts): every tenant-owned row stays hidden. */
   static anonymous(): DatabaseSession {
     return new DatabaseSession();

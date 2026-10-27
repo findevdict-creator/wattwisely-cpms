@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuditLogModule } from '../audit-log/audit-log.module';
+import { ManagedModule } from '../managed/managed.module';
 import { PlansModule } from '../plans/plans.module';
 import { SubscriptionModule } from '../subscription/subscription.module';
 import { TeamModule } from '../team/team.module';
@@ -32,7 +33,7 @@ import { TenantPlanWriter } from './tenants/tenant-plan.writer';
  * the plans module. Every route here is marked RouteAccess.platform().
  */
 @Module({
-  imports: [PlansModule, SubscriptionModule, TeamModule, AuditLogModule],
+  imports: [PlansModule, SubscriptionModule, TeamModule, AuditLogModule, ManagedModule],
   controllers: [
     AdminTenantsController,
     AdminTenantPlanController,

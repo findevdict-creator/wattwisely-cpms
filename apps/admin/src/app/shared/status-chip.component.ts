@@ -43,12 +43,18 @@ export class StatusChipComponent {
     cancelled: 'Cancelled',
     invited: 'Invited',
     none: 'No plan',
+    pending_acceptance: 'Offered',
+    ending: 'Ending',
+    ended: 'Ended',
+    withdrawn: 'Withdrawn',
   };
   static readonly TONES: Record<string, string> = {
     active: 'good',
     trial: 'busy',
     trialing: 'busy',
     invited: 'busy',
+    pending_acceptance: 'busy',
+    ending: 'warn',
     past_due: 'warn',
     suspended: 'bad',
     cancelled: 'neutral',

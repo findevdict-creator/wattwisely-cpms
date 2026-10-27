@@ -1,5 +1,19 @@
 <h1>Audit log</h1>
 
+@if (permissions.managedService()) {
+  <mat-button-toggle-group
+    [value]="actorType() ?? ''"
+    (change)="show($event.value)"
+    aria-label="Whose actions"
+    class="toggle"
+  >
+    <mat-button-toggle value="">Everyone</mat-button-toggle>
+    <mat-button-toggle value="managed" data-testid="audit-wattwisely"
+      >Wattwisely only</mat-button-toggle
+    >
+  </mat-button-toggle-group>
+}
+
 <table mat-table [dataSource]="entries()" class="entries" data-testid="audit-log">
   <ng-container matColumnDef="occurred_at">
     <th mat-header-cell *matHeaderCellDef>When</th>
@@ -7,7 +21,12 @@
   </ng-container>
   <ng-container matColumnDef="actor">
     <th mat-header-cell *matHeaderCellDef>Who</th>
-    <td mat-cell *matCellDef="let entry">{{ entry.actor_label }}</td>
+    <td mat-cell *matCellDef="let entry">
+      {{ entry.actor_label }}
+      @if (entry.actor_type === 'managed') {
+        <mat-chip class="wattwisely" data-testid="actor-wattwisely">Wattwisely</mat-chip>
+      }
+    </td>
   </ng-container>
   <ng-container matColumnDef="action">
     <th mat-header-cell *matHeaderCellDef>What</th>

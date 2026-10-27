@@ -16,7 +16,7 @@ export class MyPermissionsController {
   constructor(private readonly meService: MeService) {}
 
   @Get()
-  permissions(@CurrentAuth() auth: RequestAuth): MyPermissionsDto {
+  permissions(@CurrentAuth() auth: RequestAuth): Promise<MyPermissionsDto> {
     return this.meService.describePermissions(auth.requireAccess());
   }
 }

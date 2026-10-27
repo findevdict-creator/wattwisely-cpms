@@ -4,6 +4,7 @@ import { PlatformAccessResolver } from '../../common/platform/platform-access.re
 import { RequestAuth } from '../../common/request/request-auth';
 import { TenantAccessRepository } from '../../common/tenant/tenant-access.repository';
 import { TenantAccess } from '../../common/tenant/tenant-access';
+import { ManagedServiceLookup } from '../managed/managed-service.lookup';
 import { MeResponseDto } from './dto/me-response.dto';
 import { MyPermissionsDto } from './dto/my-permissions.dto';
 
@@ -14,6 +15,7 @@ export class MeService {
     private readonly transactionRunner: TransactionRunner,
     private readonly tenantAccess: TenantAccessRepository,
     private readonly platformAccess: PlatformAccessResolver,
+    private readonly managed: ManagedServiceLookup,
   ) {}
 
   async describe(auth: RequestAuth): Promise<MeResponseDto> {
@@ -32,7 +34,7 @@ export class MeService {
     );
   }
 
-  describePermissions(access: TenantAccess): MyPermissionsDto {
-    return new MyPermissionsDto(access);
+  async describePermissions(access: TenantAccess): Promise<MyPermissionsDto> {
+    return new MyPermissionsDto(access, await this.managed.summaryFor(access));
   }
 }

@@ -1,6 +1,12 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
-import { TestData, TestDatabase, TestPayments, TestPlatform } from '@wattwisely/db/testing';
+import {
+  TestData,
+  TestDatabase,
+  TestManaged,
+  TestPayments,
+  TestPlatform,
+} from '@wattwisely/db/testing';
 import { PAYMENT_GATEWAY } from '@wattwisely/payments';
 import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ApiServer } from '../api.server';
@@ -36,6 +42,7 @@ export class TestApi {
   data!: TestData;
   payments!: TestPayments;
   platform!: TestPlatform;
+  managed!: TestManaged;
   app!: NestFastifyApplication;
 
   async start(): Promise<this> {
@@ -44,6 +51,7 @@ export class TestApi {
     this.data = new TestData(this.database);
     this.payments = new TestPayments(this.data);
     this.platform = new TestPlatform(this.data);
+    this.managed = new TestManaged(this.data);
     Object.assign(process.env, TestApi.environment(this.database));
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(KeycloakKeySetProvider)

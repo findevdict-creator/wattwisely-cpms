@@ -30,3 +30,6 @@ export * from './tenant-subscriptions.table';
 export * from './tenant-entitlements.table';
 export * from './platform-staff.table';
 export * from './platform-tenant-overview.view';
+export * from './managed-services.table';
+export * from './managed-operators.table';
+export * from './tariff-proposals.table';

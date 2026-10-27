@@ -1,0 +1,61 @@
+<header class="title">
+  <div>
+    <a routerLink="/tariffs" class="back"><mat-icon>arrow_back</mat-icon> Tariffs</a>
+    <h1>Proposed changes</h1>
+  </div>
+</header>
+<p class="hint lead">
+  Tariff changes Wattwisely proposed. An Owner approves or rejects each one; nothing changes until
+  it is approved.
+</p>
+
+<mat-button-toggle-group
+  [value]="scope()"
+  (change)="show($event.value)"
+  aria-label="Which proposals"
+  class="toggle"
+>
+  <mat-button-toggle value="open">Waiting for approval</mat-button-toggle>
+  <mat-button-toggle value="all">All</mat-button-toggle>
+</mat-button-toggle-group>
+
+<table mat-table [dataSource]="proposals()" class="proposals" data-testid="tariff-proposals">
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>Tariff</th>
+    <td mat-cell *matCellDef="let proposal">
+      <a [routerLink]="['/tariffs/proposals', proposal.id]" class="name">{{ proposal.name }}</a>
+      <div class="hint">{{ proposal.tariff_id ? 'New prices' : 'New tariff' }}</div>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="proposed">
+    <th mat-header-cell *matHeaderCellDef>Proposed</th>
+    <td mat-cell *matCellDef="let proposal">
+      {{ proposal.proposed_at | date: 'mediumDate' }} by {{ proposal.proposed_by }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let proposal">
+      <ww-status-chip [status]="proposal.status" kind="proposal" />
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="decided">
+    <th mat-header-cell *matHeaderCellDef>Decided</th>
+    <td mat-cell *matCellDef="let proposal">
+      @if (proposal.decided_at) {
+        {{ proposal.decided_at | date: 'mediumDate' }} by {{ proposal.decided_by }}
+      }
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+@if (proposals().length === 0 && !error()) {
+  <p class="empty">
+    {{ scope() === 'open' ? 'Nothing is waiting for approval.' : 'No proposals yet.' }}
+  </p>
+}
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}

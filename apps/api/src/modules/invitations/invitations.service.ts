@@ -63,11 +63,12 @@ export class InvitationsService {
   }
 
   private static tenantOf(invitation: InvitationRecord): TenantSummary {
-    return new TenantSummary(
-      invitation.tenantId,
-      invitation.tenantSlug,
-      invitation.tenantName,
-      invitation.tenantStatus,
-    );
+    return new TenantSummary({
+      id: invitation.tenantId,
+      slug: invitation.tenantSlug,
+      name: invitation.tenantName,
+      status: invitation.tenantStatus,
+      serviceTier: 'self_serve',
+    });
   }
 }
