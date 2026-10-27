@@ -24,11 +24,14 @@ restore_settings() {
   return 0
 }
 
+# The archive goes in through stdin rather than a bind mount, so no host path goes to Docker.
+# MSYS_NO_PATHCONV keeps Git Bash on Windows from rewriting the container path /data into a
+# Windows path; elsewhere it does nothing.
 restore_volume() {
   local volume="$1"
   info "Volume $volume"
-  docker run --rm -v "wattwisely_${volume}:/data" -v "$SOURCE:/backup:ro" alpine:3.22 \
-    sh -c "rm -rf /data/* /data/..?* /data/.[!.]* 2>/dev/null; tar xzf /backup/${volume}.tar.gz -C /data"
+  MSYS_NO_PATHCONV=1 docker run --rm -i -v "wattwisely_${volume}:/data" alpine:3.22 \
+    sh -c 'rm -rf /data/* /data/..?* /data/.[!.]* 2>/dev/null; tar xzf - -C /data' <"$SOURCE/${volume}.tar.gz"
 }
 
 restore_database() {
@@ -44,6 +47,7 @@ restore_volume object-storage-data
 compose up -d postgres
 wait_for_service postgres
 ensure_database_roles
+ensure_keycloak_database
 restore_database wattwisely wattwisely_migrator
 restore_database keycloak keycloak
 info "Starting everything again"
