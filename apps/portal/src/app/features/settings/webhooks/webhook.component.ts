@@ -8,12 +8,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { EmptyStateComponent } from '@wattwisely/ui';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../../core/api/api-problem';
 import { IntegrationsApiService } from '../../../core/api/integrations-api.service';
 import { WebhookDelivery, WebhookEndpoint } from '../../../core/api/models/webhook';
 import { PermissionsService } from '../../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog.component';
+import { DayLabel } from '../../../shared/day-label';
 import { StatusChipComponent } from '../../../shared/status-chip.component';
 import { WebhookDialogComponent, WebhookDialogData } from './webhook-dialog.component';
 
@@ -27,6 +29,7 @@ import { WebhookDialogComponent, WebhookDialogData } from './webhook-dialog.comp
     MatTableModule,
     MatTooltipModule,
     RouterLink,
+    EmptyStateComponent,
     StatusChipComponent,
   ],
   templateUrl: './webhook.component.html',
@@ -41,7 +44,7 @@ export class WebhookComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly clipboard = inject(Clipboard);
 
-  protected readonly columns = ['event', 'status', 'attempts', 'last_attempt', 'result'];
+  protected readonly columns = ['time', 'event', 'status', 'result', 'attempts'];
   protected readonly endpoint = signal<WebhookEndpoint | null>(null);
   protected readonly deliveries = signal<WebhookDelivery[]>([]);
   protected readonly isSecretShown = signal(false);
@@ -63,10 +66,15 @@ export class WebhookComponent implements OnInit {
   }
 
   protected resultOf(delivery: WebhookDelivery): string {
-    if (delivery.last_status_code !== null) {
-      return `HTTP ${delivery.last_status_code}`;
-    }
-    return delivery.last_error ?? '';
+    const parts = [
+      delivery.last_status_code === null ? '' : `HTTP ${delivery.last_status_code}`,
+      delivery.last_error ?? '',
+    ];
+    return parts.filter(Boolean).join(' · ') || '—';
+  }
+
+  protected dayOf(delivery: WebhookDelivery): string {
+    return DayLabel.day(delivery.created_at);
   }
 
   protected async edit(endpoint: WebhookEndpoint): Promise<void> {

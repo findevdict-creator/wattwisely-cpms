@@ -2,7 +2,9 @@
   <thead>
     <tr>
       <th>Item</th>
-      <th>When</th>
+      @if (!isCompact()) {
+        <th>When</th>
+      }
       <th class="number">Quantity</th>
       <th class="number">Unit price</th>
       <th class="number">Amount</th>
@@ -12,11 +14,13 @@
     @for (line of lines(); track $index) {
       <tr>
         <td>{{ labelOf(line) }}</td>
-        <td>
-          @if (line.from && line.to) {
-            {{ line.from | zonedTime: timeZone() }} to {{ line.to | zonedTime: timeZone() }}
-          }
-        </td>
+        @if (!isCompact()) {
+          <td>
+            @if (line.from && line.to) {
+              {{ line.from | zonedTime: timeZone() }} to {{ line.to | zonedTime: timeZone() }}
+            }
+          </td>
+        }
         <td class="number">
           @switch (line.unit) {
             @case ('wh') {
@@ -32,17 +36,17 @@
       </tr>
     } @empty {
       <tr>
-        <td colspan="5" class="hint">Nothing to charge.</td>
+        <td [attr.colspan]="isCompact() ? 4 : 5" class="hint">Nothing to charge.</td>
       </tr>
     }
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="4">Of which tax</td>
+      <td [attr.colspan]="isCompact() ? 3 : 4">Of which tax</td>
       <td class="number">{{ totals().tax | money: currency() }}</td>
     </tr>
     <tr class="grand">
-      <td colspan="4">Total</td>
+      <td [attr.colspan]="isCompact() ? 3 : 4">Total</td>
       <td class="number" data-testid="receipt-total">{{ totals().gross | money: currency() }}</td>
     </tr>
   </tfoot>

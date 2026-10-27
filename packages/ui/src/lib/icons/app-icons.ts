@@ -1,4 +1,5 @@
 import {
+  Archive,
   ArrowLeft,
   ArrowLeftRight,
   Ban,
@@ -100,6 +101,7 @@ import {
  */
 export class AppIcons {
   static readonly SVG: Readonly<Record<string, string>> = {
+    archive: Archive,
     'arrow-left': ArrowLeft,
     'arrow-left-right': ArrowLeftRight,
     ban: Ban,

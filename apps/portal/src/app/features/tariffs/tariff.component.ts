@@ -2,19 +2,20 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { TariffBandsComponent } from './tariff-bands.component';
+import { TariffDriverViewComponent } from './tariff-driver-view.component';
 import { TariffEditorStore } from './tariff-editor.store';
 import { TariffPreviewComponent } from './tariff-preview.component';
 
@@ -24,14 +25,14 @@ import { TariffPreviewComponent } from './tariff-preview.component';
   imports: [
     DatePipe,
     MatButtonModule,
-    MatCardModule,
     MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    PageHeaderComponent,
     ReactiveFormsModule,
-    RouterLink,
     TariffBandsComponent,
+    TariffDriverViewComponent,
     TariffPreviewComponent,
   ],
   providers: [TariffEditorStore],
@@ -54,6 +55,13 @@ export class TariffComponent implements OnInit {
   );
   /** A Managed operator's change goes to the Owner as a proposal instead of applying. */
   protected readonly isProposal = computed(() => this.permissions.mustProposeTariffs());
+  protected readonly saveLabel = computed(() => {
+    const tariff = this.store.tariff();
+    if (this.isProposal()) {
+      return 'Propose to the Owner';
+    }
+    return tariff ? `Save as version ${tariff.current_version.number + 1}` : 'Create tariff';
+  });
 
   ngOnInit(): void {
     const id = this.id();

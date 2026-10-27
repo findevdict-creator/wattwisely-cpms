@@ -1,10 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { ManagedServiceApiService } from '../../core/api/managed-service-api.service';
@@ -12,6 +13,7 @@ import { ManagedNoticeRequest, ManagedService } from '../../core/api/models/mana
 import { SubscriptionApiService } from '../../core/api/subscription-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { Initials } from '../../shared/initials';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { ManagedNoticeDialogComponent } from './managed-notice-dialog.component';
@@ -27,9 +29,10 @@ import { ServiceReportComponent } from './service-report.component';
   imports: [
     DatePipe,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
+    MatTableModule,
     MoneyPipe,
+    RouterLink,
     ServiceReportComponent,
     StatusChipComponent,
   ],
@@ -38,6 +41,8 @@ import { ServiceReportComponent } from './service-report.component';
 })
 export class ManagedServiceComponent implements OnInit {
   private readonly managedApi = inject(ManagedServiceApiService);
+  protected readonly operatorColumns = ['name', 'email', 'since'];
+  protected readonly initialsOf = Initials.of;
   private readonly subscriptionApi = inject(SubscriptionApiService);
   protected readonly permissions = inject(PermissionsService);
   private readonly dialog = inject(MatDialog);

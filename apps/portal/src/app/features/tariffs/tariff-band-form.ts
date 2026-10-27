@@ -36,6 +36,22 @@ export class TariffBandForm {
     idle_fee_per_minute: '0',
   };
 
+  /** "every day", "Mon–Fri", or "Sat, Sun" */
+  static daysText(days: Weekday[]): string {
+    const indexes = TariffBandForm.WEEKDAYS.map((day, index) =>
+      days.includes(day.key) ? index : -1,
+    ).filter((index) => index >= 0);
+    if (indexes.length === 7) {
+      return 'every day';
+    }
+    const label = (index: number) => TariffBandForm.WEEKDAYS[index].label;
+    const first = indexes[0] ?? 0;
+    const isRun = indexes.length > 2 && indexes[indexes.length - 1] === first + indexes.length - 1;
+    return isRun
+      ? `${label(first)}–${label(indexes[indexes.length - 1])}`
+      : indexes.map(label).join(', ');
+  }
+
   static create(band: TariffBand = TariffBandForm.ALL_DAY): TariffBandControls {
     const price = (value: string) =>
       new FormControl(value, {

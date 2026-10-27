@@ -1,19 +1,42 @@
 @let p = prices();
-<dl>
-  <dt>Tax</dt>
-  <dd>{{ p.tax_rate }}%, {{ p.is_tax_included ? 'included in the prices' : 'added on top' }}</dd>
-  <dt>Start fee</dt>
-  <dd>{{ p.start_fee | money: currency() }}</dd>
-  <dt>Minimum price</dt>
-  <dd>{{ p.minimum_price === null ? 'None' : (p.minimum_price | money: currency()) }}</dd>
-  <dt>Maximum price</dt>
-  <dd>{{ p.maximum_price === null ? 'None' : (p.maximum_price | money: currency()) }}</dd>
-  <dt>Idle</dt>
-  <dd>
-    {{ p.idle_grace_minutes }} free minutes,
-    {{ p.idle_fee_cap === null ? 'no cap' : 'capped at ' + (p.idle_fee_cap | money: currency()) }}
-  </dd>
-  <dt>No energy</dt>
-  <dd>{{ p.is_free_without_energy ? 'Costs nothing' : 'Charged as usual' }}</dd>
-</dl>
-<ww-tariff-bands [bands]="bands()" [currency]="currency()" [isEditable]="false" />
+<section class="ww-card" aria-labelledby="fees-title">
+  <div class="ww-card-head">
+    <div class="titles">
+      <h2 id="fees-title">Fees and limits</h2>
+      <p>As proposed</p>
+    </div>
+  </div>
+  <div class="ww-card-body">
+    <dl class="ww-kv">
+      <div>
+        <dt>Tax</dt>
+        <dd>{{ p.tax_rate | number: '1.0-2' }}%, {{ p.is_tax_included ? 'included' : 'added' }}</dd>
+      </div>
+      <div>
+        <dt>Start fee</dt>
+        <dd>{{ p.start_fee ? (p.start_fee | money: currency()) : 'None' }}</dd>
+      </div>
+      <div>
+        <dt>Minimum price</dt>
+        <dd>{{ p.minimum_price === null ? 'None' : (p.minimum_price | money: currency()) }}</dd>
+      </div>
+      <div>
+        <dt>Maximum price</dt>
+        <dd>{{ p.maximum_price === null ? 'None' : (p.maximum_price | money: currency()) }}</dd>
+      </div>
+      <div class="wide">
+        <dt>Idle fee</dt>
+        <dd>
+          After {{ p.idle_grace_minutes }} free minutes,
+          {{
+            p.idle_fee_cap === null ? 'no cap' : 'capped at ' + (p.idle_fee_cap | money: currency())
+          }}
+        </dd>
+      </div>
+      <div class="wide">
+        <dt>No energy delivered</dt>
+        <dd>{{ p.is_free_without_energy ? 'Costs nothing' : 'Charged as usual' }}</dd>
+      </div>
+    </dl>
+  </div>
+</section>

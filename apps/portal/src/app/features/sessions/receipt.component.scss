@@ -1,6 +1,5 @@
 .receipt {
   width: 100%;
-  min-width: 520px;
   border-collapse: collapse;
 
   th,
@@ -21,12 +20,14 @@
   }
 
   th {
+    white-space: nowrap;
     font-weight: 500;
     font-size: 13px;
     color: var(--mat-sys-on-surface-variant);
   }
 
   .number {
+    white-space: nowrap;
     text-align: right;
     font-variant-numeric: tabular-nums;
   }

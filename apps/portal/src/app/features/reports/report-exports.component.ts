@@ -3,6 +3,7 @@ import { Component, DestroyRef, OnInit, inject, input, signal } from '@angular/c
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { EmptyStateComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { ReportExport } from '../../core/api/models/report';
@@ -16,7 +17,14 @@ import { FileDownload } from '../../shared/file-download';
  */
 @Component({
   selector: 'ww-report-exports',
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, MatTableModule],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    EmptyStateComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatTableModule,
+  ],
   templateUrl: './report-exports.component.html',
   styleUrl: './report-exports.component.scss',
 })

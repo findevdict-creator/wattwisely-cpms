@@ -1,115 +1,186 @@
 @let form = store.form();
 @let tariff = store.tariff();
-<header class="title">
-  <div>
-    <a routerLink="/tariffs" class="back"><mat-icon svgIcon="arrow-left" /> Tariffs</a>
-    <h1>{{ tariff?.name ?? 'New tariff' }}</h1>
-    @if (tariff) {
-      <p class="hint">
-        Used by {{ tariff.site_count }} site(s). Prices version {{ tariff.current_version.number }}.
-        @if (tariff.status === 'archived') {
-          Archived.
-        }
-      </p>
-    }
-  </div>
-  @if (tariff && tariff.status === 'active' && permissions.canChange('tariffs:delete')) {
-    <button mat-stroked-button (click)="archive()" data-testid="archive-tariff">Archive</button>
-  }
-</header>
-
-<mat-card appearance="outlined" class="section">
-  <mat-card-content [formGroup]="form.fields">
-    <div class="row">
-      <mat-form-field appearance="outline" class="wide">
-        <mat-label>Name</mat-label>
-        <input matInput formControlName="name" data-testid="tariff-name" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Currency</mat-label>
-        <input matInput formControlName="currency" maxlength="3" />
-      </mat-form-field>
-    </div>
-    <div class="row">
-      <mat-form-field appearance="outline">
-        <mat-label>Tax rate (%)</mat-label>
-        <input matInput formControlName="taxRate" />
-      </mat-form-field>
-      <mat-checkbox formControlName="isTaxIncluded">Prices include tax</mat-checkbox>
-    </div>
-    <div class="row">
-      <mat-form-field appearance="outline">
-        <mat-label>Start fee</mat-label>
-        <input matInput formControlName="startFee" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Minimum price</mat-label>
-        <input matInput formControlName="minimumPrice" placeholder="None" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Maximum price</mat-label>
-        <input matInput formControlName="maximumPrice" placeholder="None" />
-      </mat-form-field>
-    </div>
-    <div class="row">
-      <mat-form-field appearance="outline">
-        <mat-label>Free idle minutes</mat-label>
-        <input matInput type="number" formControlName="idleGraceMinutes" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Idle fee cap</mat-label>
-        <input matInput formControlName="idleFeeCap" placeholder="None" />
-      </mat-form-field>
-    </div>
-    <mat-checkbox formControlName="isFreeWithoutEnergy">
-      A session that delivers no energy costs nothing
-    </mat-checkbox>
-  </mat-card-content>
-</mat-card>
-
-<h2>Bands</h2>
-<ww-tariff-bands [bands]="form.bands" [currency]="form.currency" [isEditable]="isEditable()" />
-
-@if (isEditable()) {
-  <mat-form-field appearance="outline" class="note" [formGroup]="form.fields">
-    <mat-label>
+<ww-page-header [heading]="tariff?.name ?? 'New tariff'" backLink="/tariffs" backLabel="Tariffs">
+  @if (tariff) {
+    <span wwTitleExtra class="ww-chip {{ tariff.status === 'archived' ? 'neutral' : 'ok' }}">
       {{
-        isProposal()
-          ? 'Why the prices change (shown to the Owner)'
-          : 'Why the prices change (shown in the history)'
+        tariff.status === 'archived'
+          ? 'Archived'
+          : 'Version ' + tariff.current_version.number + ' in force'
       }}
-    </mat-label>
-    <input matInput formControlName="note" />
-  </mat-form-field>
-}
-@if (isEditable() && isProposal()) {
-  <p class="hint" data-testid="proposal-hint">
-    This company approves tariff changes itself: saving sends your change to its Owner as a
-    proposal, and the prices apply once it is approved.
+    </span>
+  }
+  @if (tariff) {
+    <p wwSubtitle class="ww-page-subtitle">
+      Used at {{ tariff.site_count }} {{ tariff.site_count === 1 ? 'site' : 'sites' }}.
+      @if (isEditable()) {
+        Saving makes version {{ tariff.current_version.number + 1 }}; sessions already running keep
+        version {{ tariff.current_version.number }}.
+      }
+    </p>
+  } @else {
+    <p wwSubtitle class="ww-page-subtitle">
+      Set the prices, then try a session on the right before you create it.
+    </p>
+  }
+  @if (tariff && tariff.status === 'active' && permissions.canChange('tariffs:delete')) {
+    <button mat-stroked-button (click)="archive()" data-testid="archive-tariff">
+      <mat-icon svgIcon="archive" />
+      Archive
+    </button>
+  }
+  @if (isEditable()) {
+    <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-tariff">
+      <mat-icon svgIcon="check" />
+      {{ saveLabel() }}
+    </button>
+  }
+</ww-page-header>
+
+@if (error()) {
+  <p class="notice danger has-icon" role="alert" data-testid="tariff-error">
+    <mat-icon svgIcon="circle-alert" />
+    <span>{{ error() }}</span>
   </p>
 }
-@if (error()) {
-  <p class="error" role="alert" data-testid="tariff-error">{{ error() }}</p>
-}
-@if (isEditable()) {
-  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-tariff">
-    {{ isProposal() ? 'Propose to the Owner' : tariff ? 'Save' : 'Create tariff' }}
-  </button>
-}
 
-<h2>Preview</h2>
-<ww-tariff-preview [form]="form" />
+<div class="ww-columns">
+  <div class="ww-main" [formGroup]="form.fields">
+    <section class="ww-card" aria-labelledby="base-title">
+      <div class="ww-card-head">
+        <div class="titles">
+          <h2 id="base-title">Name and prices per session</h2>
+          <p>Prices are in {{ form.currency }}, with up to three decimals</p>
+        </div>
+      </div>
+      <div class="ww-card-body">
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="two">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" data-testid="tariff-name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Currency</mat-label>
+            <input matInput formControlName="currency" maxlength="3" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Start fee</mat-label>
+            <input matInput formControlName="startFee" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Minimum price</mat-label>
+            <input matInput formControlName="minimumPrice" placeholder="None" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Maximum price</mat-label>
+            <input matInput formControlName="maximumPrice" placeholder="None" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Tax rate</mat-label>
+            <input matInput formControlName="taxRate" />
+            <span matTextSuffix>%</span>
+          </mat-form-field>
+        </div>
+        <div class="checks">
+          <mat-checkbox formControlName="isTaxIncluded">Prices include tax</mat-checkbox>
+          <mat-checkbox formControlName="isFreeWithoutEnergy">
+            Free if no energy was delivered
+          </mat-checkbox>
+        </div>
+      </div>
+    </section>
 
-@if (store.versions().length > 0) {
-  <h2>Price history</h2>
-  <ul class="versions">
-    @for (version of store.versions(); track version.id) {
-      <li>
-        Version {{ version.number }}, {{ version.created_at | date: 'medium' }}
-        @if (version.note) {
-          · {{ version.note }}
-        }
-      </li>
+    <section class="ww-card" aria-labelledby="windows-title">
+      <div class="ww-card-head">
+        <div class="titles">
+          <h2 id="windows-title">Time windows</h2>
+          <p>Each window has its own prices; times are local to each site</p>
+        </div>
+      </div>
+      <ww-tariff-bands
+        [bands]="form.bands"
+        [currency]="form.currency"
+        [isEditable]="isEditable()"
+      />
+    </section>
+
+    <section class="ww-card" aria-labelledby="idle-title">
+      <div class="ww-card-head">
+        <div class="titles">
+          <h2 id="idle-title">Idle fee</h2>
+          <p>For cars left plugged in after charging ends; the price per minute is per window</p>
+        </div>
+      </div>
+      <div class="ww-card-body">
+        <div class="grid">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Starts after</mat-label>
+            <input matInput type="number" formControlName="idleGraceMinutes" />
+            <span matTextSuffix>min</span>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Cap</mat-label>
+            <input matInput formControlName="idleFeeCap" placeholder="None" />
+          </mat-form-field>
+        </div>
+      </div>
+    </section>
+
+    @if (isEditable()) {
+      <section class="ww-card" aria-labelledby="note-title">
+        <div class="ww-card-head">
+          <div class="titles">
+            <h2 id="note-title">Why the prices change</h2>
+            <p>{{ isProposal() ? 'Shown to the Owner' : 'Shown in the price history' }}</p>
+          </div>
+        </div>
+        <div class="ww-card-body">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Note, optional</mat-label>
+            <input matInput formControlName="note" />
+          </mat-form-field>
+          @if (isProposal()) {
+            <p class="notice info has-icon" data-testid="proposal-hint">
+              <mat-icon svgIcon="info" />
+              <span>
+                This company approves tariff changes itself: saving sends your change to its Owner
+                as a proposal, and the prices apply once it is approved.
+              </span>
+            </p>
+          }
+        </div>
+      </section>
     }
-  </ul>
-}
+  </div>
+
+  <div class="ww-side">
+    <ww-tariff-driver-view [form]="form" />
+    <section class="ww-card" aria-labelledby="try-title">
+      <div class="ww-card-head">
+        <div class="titles">
+          <h2 id="try-title">Try a session</h2>
+          <p>Priced by the same engine as real sessions</p>
+        </div>
+      </div>
+      <div class="ww-card-body">
+        <ww-tariff-preview [form]="form" />
+      </div>
+    </section>
+    @if (store.versions().length > 0) {
+      <section class="ww-card" aria-labelledby="history-title">
+        <div class="ww-card-head">
+          <div class="titles"><h2 id="history-title">Price history</h2></div>
+        </div>
+        <div class="ww-card-body versions">
+          @for (version of store.versions(); track version.id) {
+            <div class="ww-list-item">
+              <span class="ww-chip neutral">v{{ version.number }}</span>
+              <span class="ww-grow">{{ version.note || 'No note' }}</span>
+              <span class="ww-faint">{{ version.created_at | date: 'd MMM y' }}</span>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</div>

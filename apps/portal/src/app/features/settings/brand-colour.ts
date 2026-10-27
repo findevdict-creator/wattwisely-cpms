@@ -24,6 +24,27 @@ export class BrandColour {
     return isLightText ? PlatformColours.WHITE : PlatformColours.INK;
   }
 
+  /** The WCAG 2 contrast of text on a background, from 1 to 21. */
+  static contrast(background: string, text: string): number {
+    const [light, dark] = [BrandColour.luminance(background), BrandColour.luminance(text)].sort(
+      (a, b) => b - a,
+    );
+    return (light + 0.05) / (dark + 0.05);
+  }
+
+  /** A warning when the text on the main colour is too faint for small print, or ''. */
+  static contrastNote(background: string, text: string): string {
+    const ratio = BrandColour.contrast(background, text);
+    if (ratio >= 4.5) {
+      return '';
+    }
+    const words = BrandColour.normalise(text) === PlatformColours.WHITE ? 'White' : 'Dark';
+    return (
+      `${words} text on this colour is ${ratio.toFixed(1)} to 1: fine for large buttons, ` +
+      'too faint for small text (4.5 to 1 is needed).'
+    );
+  }
+
   private static luminance(hex: string): number {
     const digits = BrandColour.normalise(hex)?.slice(1) ?? '000000';
     const [red, green, blue] = [0, 2, 4].map((start) => {

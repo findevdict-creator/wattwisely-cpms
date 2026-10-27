@@ -38,49 +38,73 @@ export const SETTINGS_ROUTES: Routes = [
         path: 'branding',
         component: BrandingComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'settings:read' },
+        data: {
+          permission: 'settings:read',
+          subtitle: 'How your company looks to drivers: the connector page, receipts and e-mails',
+        },
       },
       {
         path: 'alert-routing',
         component: AlertRoutingComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'settings:read' },
+        data: {
+          permission: 'settings:read',
+          subtitle: 'Who hears about a problem, how, and when to stay quiet',
+        },
       },
       {
         path: 'plan',
         component: PlanComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'settings:read' },
+        data: {
+          permission: 'settings:read',
+          subtitle: 'What your plan includes, what it costs and how much of it you use',
+        },
       },
       {
         path: 'managed-service',
         component: ManagedServiceComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'settings:read' },
+        data: {
+          permission: 'settings:read',
+          subtitle: 'What Wattwisely runs for you, and how each month went',
+        },
       },
       {
         path: 'api-keys',
         component: ApiKeysComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'api_keys:manage' },
+        data: {
+          permission: 'api_keys:manage',
+          subtitle: 'Keys for your own systems to call the Wattwisely API',
+        },
       },
       {
         path: 'webhooks',
         component: WebhooksComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'api_keys:manage' },
+        data: {
+          permission: 'api_keys:manage',
+          subtitle: 'Events sent to your own systems the moment they happen',
+        },
       },
       {
         path: 'webhooks/:id',
         component: WebhookComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'api_keys:manage' },
+        data: {
+          permission: 'api_keys:manage',
+          subtitle: 'Events sent to your own systems the moment they happen',
+        },
       },
       {
         path: 'messaging',
         component: MessagingComponent,
         canActivate: [PermissionGuard],
-        data: { permission: 'messaging:manage' },
+        data: {
+          permission: 'messaging:manage',
+          subtitle: 'Drivers find a charger, start and pay from WhatsApp',
+        },
       },
     ],
   },

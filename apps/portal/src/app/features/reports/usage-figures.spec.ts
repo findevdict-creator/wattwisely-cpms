@@ -1,3 +1,4 @@
+import { UsageRow } from '../../core/api/models/report';
 import { UsageFigures } from './usage-figures';
 
 describe('UsageFigures', () => {
@@ -14,5 +15,18 @@ describe('UsageFigures', () => {
     ]);
     expect(text).toContain('8.80');
     expect(text).toContain(' + ');
+  });
+
+  it('puts the busiest and the least online first, and colors uptime', () => {
+    const row = (id: string, utilisation: number, uptime: number) =>
+      ({ id, utilisation_percent: utilisation, uptime_percent: uptime }) as UsageRow;
+    const rows = [row('a', 10, 99.5), row('b', 30, 95), row('c', 20, 98)];
+    expect(UsageFigures.busiest(rows).map((each) => each.id)).toEqual(['b', 'c', 'a']);
+    expect(UsageFigures.leastOnline(rows, 2).map((each) => each.id)).toEqual(['b', 'c']);
+    expect([99.5, 98, 95].map((percent) => UsageFigures.uptimeTone(percent))).toEqual([
+      '',
+      'warn',
+      'danger',
+    ]);
   });
 });

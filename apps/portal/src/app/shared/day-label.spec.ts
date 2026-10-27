@@ -18,4 +18,10 @@ describe('DayLabel', () => {
       /^Today, .*\d\d.\d\d/,
     );
   });
+
+  it('writes today and yesterday in lower case inside a sentence', () => {
+    expect(DayLabel.inSentence(new Date(2026, 9, 27, 8).toISOString(), now)).toBe('today');
+    expect(DayLabel.inSentence(new Date(2026, 9, 26, 8).toISOString(), now)).toBe('yesterday');
+    expect(DayLabel.inSentence(new Date(2026, 9, 20, 8).toISOString(), now)).toMatch(/20/);
+  });
 });

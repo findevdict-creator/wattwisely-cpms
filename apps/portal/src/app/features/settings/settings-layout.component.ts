@@ -1,35 +1,51 @@
 import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
+import { PageHeaderComponent } from '@wattwisely/ui';
+import { filter, map, startWith } from 'rxjs';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { SettingsMenu } from '../../layout/settings-menu';
 
-/** Settings: the menu of settings pages on the left (SettingsMenu), the page on the right. */
+/**
+ * Settings: one title over the menu of settings pages on the left (SettingsMenu) and the page on
+ * the right; the line under the title is the page's own, from its route's data.
+ */
 @Component({
   selector: 'ww-settings-layout',
-  imports: [MatIconModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [MatIconModule, PageHeaderComponent, RouterLink, RouterLinkActive, RouterOutlet],
   template: `
-    <nav class="menu" aria-label="Settings">
-      @for (group of groups(); track group.heading) {
-        <span class="ww-overline group">{{ group.heading }}</span>
-        @for (item of group.items; track item.testId) {
-          <a
-            class="nav"
-            [routerLink]="item.link"
-            routerLinkActive="on"
-            ariaCurrentWhenActive="page"
-            [attr.data-testid]="item.testId"
-          >
-            <mat-icon [svgIcon]="item.icon" />
-            {{ item.label }}
-          </a>
+    <ww-page-header heading="Settings" [subtitle]="subtitle()" />
+    <div class="body">
+      <nav class="menu" aria-label="Settings">
+        @for (group of groups(); track group.heading) {
+          <span class="ww-overline group">{{ group.heading }}</span>
+          @for (item of group.items; track item.testId) {
+            <a
+              class="nav"
+              [routerLink]="item.link"
+              routerLinkActive="on"
+              ariaCurrentWhenActive="page"
+              [attr.data-testid]="item.testId"
+            >
+              <mat-icon [svgIcon]="item.icon" />
+              {{ item.label }}
+            </a>
+          }
         }
-      }
-    </nav>
-    <div class="page"><router-outlet /></div>
+      </nav>
+      <div class="page"><router-outlet /></div>
+    </div>
   `,
   styles: `
-    :host {
+    .body {
       display: flex;
       flex-wrap: wrap;
       gap: 32px;
@@ -82,5 +98,15 @@ import { SettingsMenu } from '../../layout/settings-menu';
 })
 export class SettingsLayoutComponent {
   private readonly permissions = inject(PermissionsService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   protected readonly groups = computed(() => SettingsMenu.groups(this.permissions));
+  protected readonly subtitle = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      startWith(null),
+      map((): string => this.route.snapshot.firstChild?.data['subtitle'] ?? ''),
+    ),
+    { initialValue: '' },
+  );
 }

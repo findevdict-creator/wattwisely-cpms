@@ -1,63 +1,99 @@
-<header class="title">
-  <h1>Webhooks</h1>
-  @if (canManage()) {
-    <button mat-flat-button (click)="add()" data-testid="add-webhook">
-      <mat-icon svgIcon="plus" />
-      New webhook
-    </button>
-  }
-</header>
-<p class="hint lead">
-  A webhook tells a system of yours when something happens here: a session starts, ends or fails, an
-  alert opens or closes. Each event is POSTed to your URL as JSON, signed with the endpoint's
-  secret, and retried for up to a day when your side does not answer.
-  @if (isLocked()) {
-    <span data-testid="webhooks-locked">
+@if (isLocked()) {
+  <div class="notice warn has-icon" data-testid="webhooks-locked">
+    <mat-icon svgIcon="lock" />
+    <span>
       API keys and webhooks come with the Growth and Enterprise plans. Ask Wattwisely to add them.
     </span>
-  }
-</p>
+  </div>
+}
 
-@if (endpoints().length) {
-  <table mat-table [dataSource]="endpoints()" class="endpoints" data-testid="webhooks">
-    <ng-container matColumnDef="url">
-      <th mat-header-cell *matHeaderCellDef>Endpoint</th>
-      <td mat-cell *matCellDef="let endpoint">
-        <a [routerLink]="['/settings/webhooks', endpoint.id]" class="url">{{ endpoint.url }}</a>
-        @if (endpoint.description) {
-          <span class="description">{{ endpoint.description }}</span>
-        }
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="events">
-      <th mat-header-cell *matHeaderCellDef>Events</th>
-      <td mat-cell *matCellDef="let endpoint">
-        <code>{{ endpoint.event_types.join(', ') }}</code>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="last_delivery">
-      <th mat-header-cell *matHeaderCellDef>Last delivery</th>
-      <td mat-cell *matCellDef="let endpoint">
-        {{ endpoint.last_delivery_at ? (endpoint.last_delivery_at | date: 'medium') : 'none yet' }}
-        @if (endpoint.failure_count > 0) {
-          <span class="description failing">{{ endpoint.failure_count }} failed in a row</span>
-        }
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>State</th>
-      <td mat-cell *matCellDef="let endpoint">
-        <ww-status-chip [status]="statusOf(endpoint)" kind="webhook" />
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
-} @else if (isLoaded() && !error() && !isLocked()) {
-  <p class="hint" data-testid="no-webhooks">
-    No webhooks yet. Add one to be told when sessions and alerts change.
-  </p>
-}
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
+<section class="ww-card" aria-labelledby="webhooks-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="webhooks-title">Webhooks</h2>
+      <p>Each event is posted as JSON, signed with the endpoint's secret, and retried for a day</p>
+    </div>
+    @if (canManage()) {
+      <button mat-flat-button class="ww-small" (click)="add()" data-testid="add-webhook">
+        <mat-icon svgIcon="plus" />
+        Add endpoint
+      </button>
+    }
+  </div>
+
+  @if (endpoints().length) {
+    <div class="scroll">
+      <table mat-table [dataSource]="endpoints()" data-testid="webhooks">
+        <ng-container matColumnDef="url">
+          <th mat-header-cell *matHeaderCellDef>Endpoint</th>
+          <td mat-cell *matCellDef="let endpoint">
+            <span class="ww-two">
+              <a [routerLink]="['/settings/webhooks', endpoint.id]" class="mono url">
+                {{ endpoint.url }}
+              </a>
+              @if (endpoint.description) {
+                <span>{{ endpoint.description }}</span>
+              }
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="events">
+          <th mat-header-cell *matHeaderCellDef>Events</th>
+          <td mat-cell *matCellDef="let endpoint">
+            <span class="mono events" [matTooltip]="endpoint.event_types.join(', ')">
+              {{ eventsOf(endpoint) }}
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>State</th>
+          <td mat-cell *matCellDef="let endpoint">
+            <ww-status-chip [status]="statusOf(endpoint)" kind="webhook" />
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="last_delivery">
+          <th mat-header-cell *matHeaderCellDef class="when">Last delivery</th>
+          <td mat-cell *matCellDef="let endpoint">
+            <span class="ww-two">
+              <b class="plain">{{ lastDeliveryOf(endpoint) }}</b>
+              @if (endpoint.failure_count > 0) {
+                <span class="failing when">{{ endpoint.failure_count }} failed in a row</span>
+              }
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="open">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let endpoint" class="open">
+            <a
+              mat-icon-button
+              [routerLink]="['/settings/webhooks', endpoint.id]"
+              [attr.aria-label]="'Open ' + endpoint.url"
+            >
+              <mat-icon svgIcon="chevron-right" />
+            </a>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+  } @else if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  } @else if (isLoaded() && !isLocked()) {
+    <ww-empty-state
+      icon="webhook"
+      heading="No webhooks yet"
+      text="Add one to be told when sessions and alerts change."
+      data-testid="no-webhooks"
+    />
+  }
+  <div class="ww-card-foot">
+    <span>
+      Your system hears when a session starts, ends or fails and when an alert opens or closes. Open
+      an endpoint for its secret and its recent deliveries.
+    </span>
+  </div>
+</section>
