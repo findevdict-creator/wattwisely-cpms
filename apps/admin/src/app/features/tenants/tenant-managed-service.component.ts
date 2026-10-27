@@ -13,6 +13,7 @@ import { Tenant } from '../../core/api/models/tenant';
 import { StaffContextService } from '../../core/staff/staff-context.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog.component';
 import { PromptDialogComponent } from '../../shared/prompt-dialog.component';
+import { MoneyPipe } from '../../shared/money.pipe';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { AssignOperatorDialogComponent } from './assign-operator-dialog.component';
 import { ManagedServiceDialogComponent } from './managed-service-dialog.component';
@@ -31,6 +32,7 @@ import { ManagedServiceStore } from './managed-service.store';
     MatIconModule,
     MatListModule,
     MatMenuModule,
+    MoneyPipe,
     RouterLink,
     StatusChipComponent,
   ],
@@ -47,6 +49,8 @@ export class TenantManagedServiceComponent implements OnInit {
   protected readonly canManage = computed(
     () => this.staff.can('tenants:manage_service') && this.tenant().status !== 'cancelled',
   );
+  /** The fee is in the plan's currency. */
+  protected readonly currency = computed(() => this.tenant().subscription.plan?.currency ?? 'USD');
   /** An agreement that is offered or in force; a new one can be offered otherwise. */
   protected readonly isLive = computed(() => {
     const status = this.store.service()?.status;
@@ -128,7 +132,11 @@ export class TenantManagedServiceComponent implements OnInit {
 
   private async askTerms(isEdit: boolean) {
     const dialog = this.dialog.open(ManagedServiceDialogComponent, {
-      data: { tenantName: this.tenant().name, service: isEdit ? this.store.current() : null },
+      data: {
+        tenantName: this.tenant().name,
+        service: isEdit ? this.store.current() : null,
+        currency: this.tenant().subscription.plan?.currency ?? 'USD',
+      },
       width: '560px',
     });
     return firstValueFrom(dialog.afterClosed());

@@ -10,11 +10,14 @@ import { firstValueFrom } from 'rxjs';
 import { ManagedService, ManagedServiceTerms } from '../../core/api/models/managed-service';
 import { StaffMember } from '../../core/api/models/staff';
 import { StaffApiService } from '../../core/api/staff-api.service';
+import { Money } from '../../shared/money';
 
 /** The agreement to edit, or null to offer a new one. */
 export interface ManagedServiceDialogData {
   tenantName: string;
   service: ManagedService | null;
+  /** The plan's currency, which the fee is in. */
+  currency: string;
 }
 
 /** The terms of a managed service agreement: account manager, approval rule, reference, notes. */
@@ -52,6 +55,14 @@ export interface ManagedServiceDialogData {
         Tariff changes by Managed operators need the Owner's approval
       </mat-checkbox>
       <mat-form-field appearance="outline">
+        <mat-label>Monthly fee ({{ currency }})</mat-label>
+        <input matInput formControlName="monthly_fee" data-testid="monthly-fee" />
+        <mat-hint>Invoiced with the plan each month; 0 for none</mat-hint>
+        @if (form.controls.monthly_fee.dirty && fee() === null) {
+          <mat-error>An amount such as 250.00</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
         <mat-label>Agreement reference</mat-label>
         <input matInput formControlName="agreement_reference" data-testid="agreement-reference" />
       </mat-form-field>
@@ -64,7 +75,7 @@ export interface ManagedServiceDialogData {
       <button mat-button mat-dialog-close>Cancel</button>
       <button
         mat-flat-button
-        [disabled]="form.invalid"
+        [disabled]="form.invalid || fee() === null"
         (click)="save()"
         data-testid="save-managed-service"
       >
@@ -82,17 +93,30 @@ export interface ManagedServiceDialogData {
   `,
 })
 export class ManagedServiceDialogComponent implements OnInit {
+  private static readonly BLANK: ManagedServiceDefaults = {
+    account_manager: null,
+    is_tariff_approval_required: true,
+    monthly_fee: 0,
+    agreement_reference: '',
+    notes: '',
+  };
+
   protected readonly data = inject<ManagedServiceDialogData>(MAT_DIALOG_DATA);
   private readonly dialogRef =
     inject<MatDialogRef<ManagedServiceDialogComponent, ManagedServiceTerms>>(MatDialogRef);
   private readonly staffApi = inject(StaffApiService);
 
+  protected readonly currency = this.data.currency;
   protected readonly staff = signal<StaffMember[]>([]);
+  /** The agreement to edit, or what a new offer starts from. */
+  private readonly initial: ManagedServiceDefaults =
+    this.data.service ?? ManagedServiceDialogComponent.BLANK;
   protected readonly form = inject(FormBuilder).nonNullable.group({
-    account_manager_id: [this.data.service?.account_manager?.staff_id ?? '', Validators.required],
-    is_tariff_approval_required: [this.data.service?.is_tariff_approval_required ?? true],
-    agreement_reference: [this.data.service?.agreement_reference ?? '', Validators.maxLength(100)],
-    notes: [this.data.service?.notes ?? '', Validators.maxLength(2000)],
+    account_manager_id: [this.initial.account_manager?.staff_id ?? '', Validators.required],
+    is_tariff_approval_required: [this.initial.is_tariff_approval_required],
+    monthly_fee: [Money.toText(this.initial.monthly_fee, this.currency)],
+    agreement_reference: [this.initial.agreement_reference, Validators.maxLength(100)],
+    notes: [this.initial.notes ?? '', Validators.maxLength(2000)],
   });
 
   async ngOnInit(): Promise<void> {
@@ -100,12 +124,28 @@ export class ManagedServiceDialogComponent implements OnInit {
     this.staff.set(members.filter((member) => !member.removed_at));
   }
 
+  /** The fee in minor units; null while the text is not an amount. */
+  protected fee(): number | null {
+    return Money.fromText(this.form.controls.monthly_fee.value, this.currency);
+  }
+
   protected save(): void {
     const value = this.form.getRawValue();
     this.dialogRef.close({
       ...value,
+      monthly_fee: this.fee() ?? 0,
       agreement_reference: value.agreement_reference.trim(),
       notes: value.notes.trim(),
     });
   }
 }
+
+/** The terms the dialog starts from. */
+type ManagedServiceDefaults = Pick<
+  ManagedService,
+  | 'account_manager'
+  | 'is_tariff_approval_required'
+  | 'monthly_fee'
+  | 'agreement_reference'
+  | 'notes'
+>;

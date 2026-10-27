@@ -1,0 +1,44 @@
+<mat-card data-testid="tenant-invoices-card">
+  <mat-card-header>
+    <mat-card-title>Invoices</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (shown().length) {
+      <mat-list data-testid="tenant-invoices">
+        @for (invoice of shown(); track invoice.id) {
+          <mat-list-item>
+            <a matListItemTitle [routerLink]="['/invoices', invoice.id]">
+              {{ invoice.number ?? 'Draft' }} · {{ invoice.month_label }}
+            </a>
+            <span matListItemLine>
+              {{ invoice.total | money: invoice.currency }}
+              @if (invoice.paid_at) {
+                · paid {{ invoice.paid_at | date: 'mediumDate' }}
+              } @else if (invoice.due_at) {
+                · due {{ invoice.due_at | date: 'mediumDate' }}
+              }
+            </span>
+            <ww-status-chip matListItemMeta [status]="statusOf(invoice)" />
+          </mat-list-item>
+        }
+      </mat-list>
+    } @else if (isLoaded() && !error()) {
+      <p class="empty">
+        No invoices yet. The worker drafts the first one on the 1st of next month.
+      </p>
+    }
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+  </mat-card-content>
+  <mat-card-actions align="end">
+    @if (invoices().length > shown().length) {
+      <a mat-button [routerLink]="['/invoices']" [queryParams]="{ tenant_id: tenant().id }">
+        All {{ invoices().length }}
+      </a>
+    }
+    @if (canDraft()) {
+      <button mat-button (click)="draft()" data-testid="draft-invoice">Draft an invoice</button>
+    }
+  </mat-card-actions>
+</mat-card>

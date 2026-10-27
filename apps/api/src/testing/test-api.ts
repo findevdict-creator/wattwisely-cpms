@@ -1,6 +1,7 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import {
+  TestBilling,
   TestData,
   TestDatabase,
   TestManaged,
@@ -47,6 +48,8 @@ export class TestApi {
   payments!: TestPayments;
   platform!: TestPlatform;
   managed!: TestManaged;
+  /** Module 15's invoices and lines. */
+  billing!: TestBilling;
   notifications!: TestNotifications;
   app!: NestFastifyApplication;
 
@@ -58,6 +61,7 @@ export class TestApi {
     this.payments = new TestPayments(this.data);
     this.platform = new TestPlatform(this.data);
     this.managed = new TestManaged(this.data);
+    this.billing = new TestBilling(this.data);
     this.notifications = new TestNotifications(this.data);
     Object.assign(process.env, TestApi.environment(this.database), environment);
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })

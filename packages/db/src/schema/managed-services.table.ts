@@ -1,5 +1,7 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   index,
   integer,
   pgPolicy,
@@ -34,6 +36,11 @@ export const managedServices = pgTable(
     accountManagerId: uuid('account_manager_id').notNull(),
     /** When the agreement says so, a Managed operator's tariff change waits for the Owner (story MGT-03). */
     isTariffApprovalRequired: boolean('is_tariff_approval_required').notNull().default(true),
+    /**
+     * What the tenant pays Wattwisely for the service each month (module 15), in minor units
+     * of its plan's currency. Invoiced with the plan fees, prorated by the days in force.
+     */
+    monthlyFee: integer('monthly_fee').notNull().default(0),
     /** The contract's reference, shown to the tenant. */
     agreementReference: text('agreement_reference').notNull().default(''),
     /** Staff notes, never shown to the tenant. */
@@ -51,6 +58,7 @@ export const managedServices = pgTable(
     ...Timestamps.columns(),
   },
   (table) => [
+    check('managed_services_fee_positive', sql`${table.monthlyFee} >= 0`),
     index('managed_services_tenant_idx').on(table.tenantId, table.status),
     index('managed_services_ends_at_idx').on(table.endsAt),
     pgPolicy('managed_services_tenant_read', {

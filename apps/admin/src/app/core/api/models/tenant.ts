@@ -34,6 +34,8 @@ export interface Subscription {
   billing_email: string | null;
   billing_name: string | null;
   billing_reference: string | null;
+  /** Tax on invoices in basis points: 2000 is 20 %. */
+  tax_rate_bps: number;
   notes?: string;
   version: number | null;
   usage: PlanUsage;
@@ -114,6 +116,7 @@ export interface SetSubscriptionRequest {
   billing_email?: string | null;
   billing_name?: string | null;
   billing_reference?: string | null;
+  tax_rate_bps?: number;
   notes?: string;
 }
 

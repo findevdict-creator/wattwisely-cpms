@@ -2,6 +2,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Client } from 'pg';
 import {
+  TestBilling,
   TestData,
   TestDatabase,
   TestManaged,
@@ -33,6 +34,7 @@ export class TestWorker {
     SESSION_START_TIMEOUT_INTERVAL_MS: '3600000',
     PAYMENT_WEBHOOK_RETRY_INTERVAL_MS: '3600000',
     MANAGED_SERVICE_END_INTERVAL_MS: '3600000',
+    INVOICE_INTERVAL_MS: '3600000',
     ALERT_SCAN_INTERVAL_MS: '3600000',
     SESSION_NOTIFY_INTERVAL_MS: '3600000',
     NOTIFICATION_SEND_INTERVAL_MS: '3600000',
@@ -56,6 +58,7 @@ export class TestWorker {
   managed!: TestManaged;
   notifications!: TestNotifications;
   platform!: TestPlatform;
+  billing!: TestBilling;
   /** Every e-mail the worker sent. */
   readonly mail = new RecordingMailSender();
   /** The payment provider in memory the jobs talk to. */
@@ -79,6 +82,7 @@ export class TestWorker {
     this.managed = new TestManaged(this.data);
     this.notifications = new TestNotifications(this.data);
     this.platform = new TestPlatform(this.data);
+    this.billing = new TestBilling(this.data);
     Object.assign(process.env, TestWorker.INTERVALS, TestWorker.MAIL, {
       PORT: '3299',
       DATABASE_URL: this.database.urlFor('wattwisely_app'),

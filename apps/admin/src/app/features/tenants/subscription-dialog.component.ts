@@ -52,6 +52,10 @@ export class SubscriptionDialogComponent implements OnInit {
     billing_name: [this.tenant.subscription.billing_name ?? '', Validators.maxLength(120)],
     billing_email: [this.tenant.subscription.billing_email ?? '', Validators.email],
     billing_reference: [this.tenant.subscription.billing_reference ?? '', Validators.maxLength(60)],
+    tax_rate: [
+      this.tenant.subscription.tax_rate_bps / 100,
+      [Validators.min(0), Validators.max(100)],
+    ],
     notes: [this.tenant.subscription.notes ?? '', Validators.maxLength(2000)],
   });
 
@@ -67,7 +71,7 @@ export class SubscriptionDialogComponent implements OnInit {
 
   protected save(): void {
     if (this.form.invalid) {
-      this.error.set('Choose a plan and check the billing e-mail.');
+      this.error.set('Choose a plan and check the billing e-mail and the tax rate.');
       return;
     }
     const value = this.form.getRawValue();
@@ -79,6 +83,7 @@ export class SubscriptionDialogComponent implements OnInit {
       billing_name: value.billing_name.trim() || null,
       billing_email: value.billing_email.trim() || null,
       billing_reference: value.billing_reference.trim() || null,
+      tax_rate_bps: Math.round(Number(value.tax_rate) * 100),
       notes: value.notes.trim(),
     });
   }

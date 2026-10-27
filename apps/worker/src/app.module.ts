@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AlertsModule } from './alerts/alerts.module';
+import { BillingJobsModule } from './billing/billing-jobs.module';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { DriverMailModule } from './driver-mail/driver-mail.module';
@@ -16,7 +17,7 @@ import { FileStorageModule } from './storage/file-storage.module';
 
 /**
  * Wires the worker together: settings, the database, e-mail, object storage, metrics, the
- * session, payment, managed service, alert, notification and report jobs, the retention and
+ * session, payment, managed service, billing (module 15), alert, notification and report jobs, the retention and
  * queue count jobs (module 12), and health checks.
  */
 @Module({
@@ -29,6 +30,7 @@ import { FileStorageModule } from './storage/file-storage.module';
     SessionJobsModule,
     PaymentJobsModule,
     ManagedJobsModule,
+    BillingJobsModule,
     NotificationsModule,
     AlertsModule,
     DriverMailModule,

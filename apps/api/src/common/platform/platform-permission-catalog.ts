@@ -28,6 +28,8 @@ export class PlatformPermissionCatalog {
     { key: 'staff:read', label: 'See Wattwisely staff and their roles' },
     { key: 'staff:manage', label: 'Add, change and remove Wattwisely staff' },
     { key: 'platform_audit:read', label: "Read every tenant's audit log" },
+    { key: 'billing:read', label: 'See every tenant’s invoices' },
+    { key: 'billing:write', label: 'Draft, change, issue, settle and void invoices' },
   ] as const satisfies readonly PlatformPermissionDefinition[];
 
   static isKnown(key: string): key is PlatformPermissionKey {

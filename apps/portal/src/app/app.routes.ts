@@ -15,10 +15,6 @@ import { InvitationComponent } from './features/invitation/invitation.component'
 import { NoWorkspaceComponent } from './features/no-workspace/no-workspace.component';
 import { PaymentsComponent } from './features/payments/payments.component';
 import { ReportsComponent } from './features/reports/reports.component';
-import { AlertRoutingComponent } from './features/settings/alert-routing/alert-routing.component';
-import { BrandingComponent } from './features/settings/branding.component';
-import { ManagedServiceComponent } from './features/settings/managed-service.component';
-import { PlanComponent } from './features/settings/plan.component';
 import { SessionComponent } from './features/sessions/session.component';
 import { SessionsComponent } from './features/sessions/sessions.component';
 import { SiteComponent } from './features/sites/site.component';
@@ -27,6 +23,7 @@ import { TariffProposalComponent } from './features/tariffs/proposals/tariff-pro
 import { TariffProposalsComponent } from './features/tariffs/proposals/tariff-proposals.component';
 import { TariffComponent } from './features/tariffs/tariff.component';
 import { TariffsComponent } from './features/tariffs/tariffs.component';
+import { SETTINGS_ROUTES } from './features/settings/settings.routes';
 import { TEAM_ROUTES } from './features/team/team.routes';
 import { TenantPickerComponent } from './features/tenant-picker/tenant-picker.component';
 import { ShellComponent } from './layout/shell.component';
@@ -158,30 +155,7 @@ export const APP_ROUTES: Routes = [
             canActivate: [PermissionGuard],
             data: { permission: ['payments:read', 'settings:payments'] },
           },
-          {
-            path: 'settings/branding',
-            component: BrandingComponent,
-            canActivate: [PermissionGuard],
-            data: { permission: 'settings:read' },
-          },
-          {
-            path: 'settings/alert-routing',
-            component: AlertRoutingComponent,
-            canActivate: [PermissionGuard],
-            data: { permission: 'settings:read' },
-          },
-          {
-            path: 'settings/plan',
-            component: PlanComponent,
-            canActivate: [PermissionGuard],
-            data: { permission: 'settings:read' },
-          },
-          {
-            path: 'settings/managed-service',
-            component: ManagedServiceComponent,
-            canActivate: [PermissionGuard],
-            data: { permission: 'settings:read' },
-          },
+          ...SETTINGS_ROUTES,
           ...TEAM_ROUTES,
           {
             path: 'audit-log',

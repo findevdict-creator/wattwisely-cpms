@@ -25,6 +25,12 @@ export class ManagedServiceDto {
   @ApiProperty({ description: "A Managed operator's tariff change waits for the Owner" })
   readonly is_tariff_approval_required: boolean;
 
+  @ApiProperty({
+    description:
+      'The monthly fee in minor units of the plan currency; invoiced with the plan (module 15)',
+  })
+  readonly monthly_fee: number;
+
   @ApiProperty({ description: "The contract's reference" })
   readonly agreement_reference: string;
 
@@ -64,6 +70,7 @@ export class ManagedServiceDto {
       ? new AccountManagerDto(record.accountManager)
       : null;
     this.is_tariff_approval_required = record.isTariffApprovalRequired;
+    this.monthly_fee = record.monthlyFee;
     this.agreement_reference = record.agreementReference;
     this.notes = options.isStaffView ? record.notes : null;
     this.offered_at = record.offeredAt.toISOString();

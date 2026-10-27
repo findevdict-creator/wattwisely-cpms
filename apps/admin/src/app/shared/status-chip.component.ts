@@ -47,6 +47,11 @@ export class StatusChipComponent {
     ending: 'Ending',
     ended: 'Ended',
     withdrawn: 'Withdrawn',
+    draft: 'Draft',
+    issued: 'Issued',
+    overdue: 'Overdue',
+    paid: 'Paid',
+    void: 'Void',
   };
   static readonly TONES: Record<string, string> = {
     active: 'good',
@@ -58,6 +63,9 @@ export class StatusChipComponent {
     past_due: 'warn',
     suspended: 'bad',
     cancelled: 'neutral',
+    issued: 'busy',
+    overdue: 'warn',
+    paid: 'good',
   };
 
   readonly status = input.required<string | null>();

@@ -1,6 +1,15 @@
 import { UuidV7 } from '../client/uuid-v7';
 import { TestData, TestPerson } from './test-data';
 
+/** What else a test subscription can say. */
+export interface SubscriptionOptions {
+  startedAt?: Date;
+  trialEndsAt?: Date;
+  taxRateBps?: number;
+  billingEmail?: string;
+  billingName?: string;
+}
+
 /**
  * The admin console's rows for tests (module 9): Wattwisely staff, each tenant's plan and
  * the modules it has beyond the plan. Plans and add-ons themselves come from migration 0014.
@@ -25,12 +34,29 @@ export class TestPlatform {
     return id;
   }
 
-  /** Puts the tenant on a plan. */
-  async subscription(tenantId: string, planId: string, status = 'active'): Promise<string> {
+  /** Puts the tenant on a plan; since now unless `startedAt` says otherwise (module 15 bills from then). */
+  async subscription(
+    tenantId: string,
+    planId: string,
+    status = 'active',
+    options: SubscriptionOptions = {},
+  ): Promise<string> {
     const id = UuidV7.create();
     await this.data.sql(
-      'insert into tenant_subscriptions (id, tenant_id, plan_id, status) values ($1, $2, $3, $4)',
-      [id, tenantId, planId, status],
+      `insert into tenant_subscriptions (id, tenant_id, plan_id, status, started_at, trial_ends_at,
+         tax_rate_bps, billing_email, billing_name)
+       values ($1, $2, $3, $4, coalesce($5, now()), $6, $7, $8, $9)`,
+      [
+        id,
+        tenantId,
+        planId,
+        status,
+        options.startedAt ?? null,
+        options.trialEndsAt ?? null,
+        options.taxRateBps ?? 0,
+        options.billingEmail ?? null,
+        options.billingName ?? null,
+      ],
     );
     return id;
   }

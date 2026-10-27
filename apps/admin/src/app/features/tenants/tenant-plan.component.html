@@ -46,6 +46,8 @@
           <div class="sub">Ref. {{ s.billing_reference }}</div>
         }
       </dd>
+      <dt>Tax on invoices</dt>
+      <dd data-testid="tax-rate">{{ s.tax_rate_bps / 100 }} %</dd>
       @if (s.notes) {
         <dt>Staff notes</dt>
         <dd class="notes">{{ s.notes }}</dd>

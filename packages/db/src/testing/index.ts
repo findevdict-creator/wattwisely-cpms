@@ -7,3 +7,4 @@ export * from './test-platform';
 export * from './test-managed';
 export * from './test-notifications';
 export * from './test-drivers';
+export * from './test-billing';

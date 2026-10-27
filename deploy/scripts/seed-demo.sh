@@ -176,9 +176,11 @@ SELECT gen_random_uuid(), a.id, s.role::platform_role
 FROM (VALUES ('admin@wattwisely.test', 'admin'), ('support@wattwisely.test', 'support')) AS s (email, role)
 JOIN user_accounts a ON lower(a.email) = s.email
 ON CONFLICT (user_account_id) DO NOTHING;
-INSERT INTO tenant_subscriptions (id, tenant_id, plan_id, status, billing_email, billing_name) VALUES
-  ('01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000a001', '00000000-0000-7000-8000-000000000103', 'active', 'accounts@acme.test', 'Acme Charging Ltd'),
-  ('01900000-0000-7000-8000-000000009002', '01900000-0000-7000-8000-00000000a002', '00000000-0000-7000-8000-000000000102', 'active', NULL, NULL)
+-- Module 15: both plans started three months ago, so the worker drafts last month's invoices in full;
+-- Acme pays 20 % tax on them, Volt Hotels none.
+INSERT INTO tenant_subscriptions (id, tenant_id, plan_id, status, billing_email, billing_name, started_at, tax_rate_bps) VALUES
+  ('01900000-0000-7000-8000-000000009001', '01900000-0000-7000-8000-00000000a001', '00000000-0000-7000-8000-000000000103', 'active', 'accounts@acme.test', 'Acme Charging Ltd', now() - interval '3 months', 2000),
+  ('01900000-0000-7000-8000-000000009002', '01900000-0000-7000-8000-00000000a002', '00000000-0000-7000-8000-000000000102', 'active', NULL, NULL, now() - interval '3 months', 0)
 ON CONFLICT (tenant_id) DO NOTHING;
 INSERT INTO tenant_entitlements (id, tenant_id, feature_key, source, note) VALUES
   ('01900000-0000-7000-8000-000000009101', '01900000-0000-7000-8000-00000000a001', 'load_management', 'addon', 'Demo add-on')
@@ -186,9 +188,9 @@ ON CONFLICT (tenant_id, feature_key) DO NOTHING;
 -- Module 10: Wattwisely runs Volt Hotels' charging. Its Owner (Mia) accepted the managed service; Sam Support
 -- is the account manager and works in the tenant as its Managed operator (the reserved role from migration 0016).
 INSERT INTO managed_services (id, tenant_id, status, account_manager_id, is_tariff_approval_required,
-  agreement_reference, offered_by, offered_at, accepted_by, accepted_at)
+  monthly_fee, agreement_reference, offered_by, offered_at, accepted_by, accepted_at)
 SELECT '01900000-0000-7000-8000-00000000a101', '01900000-0000-7000-8000-00000000a002', 'active', s.id, true,
-  'MSA-DEMO-001', ad.id, now() - interval '20 days', o.id, now() - interval '19 days'
+  25000, 'MSA-DEMO-001', ad.id, now() - interval '3 months', o.id, now() - interval '3 months'
 FROM platform_staff s
 JOIN user_accounts a ON a.id = s.user_account_id AND lower(a.email) = 'support@wattwisely.test'
 JOIN user_accounts ad ON lower(ad.email) = 'admin@wattwisely.test'
@@ -275,5 +277,6 @@ info "Demo data ready. Log in at $(env_value PUBLIC_SCHEME)://$(env_value PORTAL
 info "Wattwisely staff log in at $(env_value PUBLIC_SCHEME)://$(env_value ADMIN_HOST) as admin@wattwisely.test or support@wattwisely.test"
 info "Volt Hotels is managed by Wattwisely: support@wattwisely.test works in it as Managed operator, multi@demo.test approves its tariff changes"
 info "Drivers (module 13): owner@acme.test sees Dana Driver, Priya Patel and Ben Blocked under Drivers; a simulator authorising with DEMO-CARD-1 at Riverside is accepted, DEMO-CARD-4 is blocked"
+info "Invoices (module 15): within an hour the worker drafts last month's invoices; admin@wattwisely.test checks and issues them under Invoices in the console, owner@acme.test and multi@demo.test read theirs under Settings > Invoices"
 info "Roles (module 14): owner@acme.test shapes the Depot supervisor role under Team > Roles and permissions; multi@demo.test sees Volt Hotels' built-in roles only (Starter plan)"
 info "Drivers see plug A of the Riverside charger at $(env_value PUBLIC_SCHEME)://$(env_value DRIVER_HOST)/c/WW-7KQ4M2XR9T/1 (the QR code on the charger page); it shows as offline until a charger or the simulator connects with that identity"

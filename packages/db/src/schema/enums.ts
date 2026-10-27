@@ -272,3 +272,25 @@ export const driverStatus = pgEnum('driver_status', ['active', 'blocked']);
  * A blocked or lost card answers Blocked at the charger; an expired one answers Expired.
  */
 export const rfidCardStatus = pgEnum('rfid_card_status', ['active', 'blocked', 'lost']);
+
+/**
+ * An invoice from Wattwisely to a tenant (module 15): drafted by the worker or staff and
+ * still editable, issued with its number and sent, paid, or void (a mistake, replaced by
+ * another invoice). Overdue is not a status: an issued invoice is overdue once its due date passed.
+ */
+export const invoiceStatus = pgEnum('invoice_status', ['draft', 'issued', 'paid', 'void']);
+
+/**
+ * What an invoice line charges for: the plan's monthly fee, its AC and DC connector fees,
+ * an add-on, the managed service fee, the plan's share of charging revenue, or an
+ * adjustment Wattwisely staff typed (a discount, a credit, a one-off).
+ */
+export const invoiceLineKind = pgEnum('invoice_line_kind', [
+  'platform_fee',
+  'ac_connector_fee',
+  'dc_connector_fee',
+  'addon',
+  'managed_service',
+  'revenue_share',
+  'adjustment',
+]);

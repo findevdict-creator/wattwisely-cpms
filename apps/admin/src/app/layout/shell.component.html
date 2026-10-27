@@ -45,6 +45,17 @@
           <span matListItemTitle>Staff</span>
         </a>
       }
+      @if (staff.can('billing:read')) {
+        <a
+          mat-list-item
+          routerLink="/invoices"
+          routerLinkActive="active"
+          data-testid="nav-invoices"
+        >
+          <mat-icon matListItemIcon>receipt_long</mat-icon>
+          <span matListItemTitle>Invoices</span>
+        </a>
+      }
       @if (staff.can('platform_audit:read')) {
         <a mat-list-item routerLink="/audit-log" routerLinkActive="active">
           <mat-icon matListItemIcon>history</mat-icon>

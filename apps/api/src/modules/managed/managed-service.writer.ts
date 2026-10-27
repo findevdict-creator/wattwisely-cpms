@@ -108,6 +108,7 @@ export class ManagedServiceWriter {
       tenantId,
       accountManagerId: staff.staffId,
       isTariffApprovalRequired: terms.is_tariff_approval_required ?? true,
+      monthlyFee: terms.monthly_fee ?? 0,
       agreementReference: terms.agreement_reference?.trim() ?? '',
       notes: terms.notes?.trim() ?? '',
       offeredBy: auth.requireAccount().id,
