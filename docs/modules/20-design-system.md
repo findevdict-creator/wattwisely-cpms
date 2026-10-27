@@ -48,8 +48,8 @@ packages/theme/theme.json                 palette, roles, status chips
 ## How to change a color
 
 1. Edit a hex value in the `palette` of `packages/theme/theme.json`. Every role and status that names it follows. A role or a status can also take a hex value of its own.
-2. Run `npx nx run theme:generate`. It rewrites `tokens.css` and `platform-colours.ts`.
-3. Commit theme.json with the two files. If you forget step 2, `theme-files.spec.ts` fails in `nx run-many -t test` and names the stale file.
+2. Run `npx nx run theme:generate`. It rewrites `tokens.css` and `platform-colours.ts`, and since module 21 the Keycloak theme's `tokens.css`, `mark.svg` and `theme-colours.ftl`.
+3. Commit theme.json with the files it wrote. If you forget step 2, `theme-files.spec.ts` fails in `nx run-many -t test` and names the stale file.
 
 The `*Text` colors (`brandDark`, `warningText`, `dangerText`, `infoText`) are the darker shade of each hue, for small text on the soft backgrounds (WCAG AA). Light mode only.
 

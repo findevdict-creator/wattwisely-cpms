@@ -1,0 +1,227 @@
+/*
+ * Fields, buttons and notices on Keycloak's pages, as packages/ui draws them in the apps:
+ * 48px fields and buttons with 10px corners, labels above, notices on soft backgrounds.
+ */
+.pf-v5-c-form {
+  --pf-v5-c-form--GridGap: 16px;
+  --pf-v5-c-form__group--m-action--MarginTop: 4px;
+}
+
+.pf-v5-c-form__label,
+.pf-v5-c-form__label-text {
+  color: var(--mat-sys-on-surface-variant);
+  font: 500 13px/18px var(--ww-font);
+}
+
+/* Every field of these forms is required; the screens mark none of them. */
+.pf-v5-c-form__label-required,
+.pf-v5-c-login__main-body > div:has(> .subtitle .pf-v5-c-form__label-required) {
+  display: none;
+}
+
+.pf-v5-c-form-control {
+  --pf-v5-c-form-control--FontSize: 15px;
+  --pf-v5-c-form-control--LineHeight: 20px;
+  --pf-v5-c-form-control--PaddingTop: 13px;
+  --pf-v5-c-form-control--PaddingBottom: 13px;
+  --pf-v5-c-form-control--inset--base: 12px;
+  border-radius: var(--ww-radius-md);
+}
+
+.pf-v5-c-form-control::before {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+}
+
+.pf-v5-c-form-control::after {
+  border: 0;
+}
+
+.pf-v5-c-form-control:hover::before {
+  border-color: var(--mat-sys-outline);
+}
+
+.pf-v5-c-form-control:focus-within::before {
+  border: 2px solid var(--mat-sys-primary);
+}
+
+.pf-v5-c-form-control.pf-m-error::before {
+  border-color: var(--mat-sys-error);
+}
+
+.pf-v5-c-form-control > input:focus,
+.pf-v5-c-form-control > select:focus {
+  outline: 0;
+}
+
+.pf-v5-c-form-control.pf-m-readonly {
+  background: var(--mat-sys-surface-variant);
+}
+
+#otp,
+#totp {
+  font-family: var(--ww-mono);
+  letter-spacing: 0.2em;
+}
+
+/* The eye button sits inside the password field, as in the screens. */
+.pf-v5-c-input-group:has([data-password-toggle]) {
+  position: relative;
+}
+
+.pf-v5-c-input-group:has([data-password-toggle]) > .pf-v5-c-input-group__item:last-child {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 6px;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.pf-v5-c-input-group:has([data-password-toggle]) .pf-v5-c-form-control > input {
+  padding-inline-end: 44px;
+}
+
+/* Other buttons next to a field (start again, copy): a square beside it. */
+.pf-v5-c-input-group {
+  gap: 8px;
+}
+
+.pf-v5-c-input-group > .pf-v5-c-input-group__item {
+  margin: 0;
+}
+
+.pf-v5-c-button.pf-m-control {
+  min-width: 48px;
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.pf-v5-c-button.pf-m-control::after {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+}
+
+.pf-v5-c-button.pf-m-control[data-password-toggle] {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--ww-radius-md);
+  background: transparent;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.pf-v5-c-button.pf-m-control[data-password-toggle]::after {
+  border: 0;
+}
+
+.pf-v5-c-helper-text__item-text {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.pf-v5-c-helper-text__item-text.pf-m-error {
+  color: var(--mat-sys-on-error-container);
+}
+
+.pf-v5-c-form__helper-text {
+  margin-top: 6px;
+}
+
+.pf-v5-c-check__input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--mat-sys-primary);
+}
+
+.pf-v5-c-check__label {
+  font-size: 14px;
+}
+
+/* Primary and secondary buttons, 48px, as the apps' large buttons. */
+.pf-v5-c-button {
+  --pf-v5-c-button--BorderRadius: var(--ww-radius-md);
+  --pf-v5-c-button--after--BorderRadius: var(--ww-radius-md);
+  --pf-v5-c-button--FontWeight: 600;
+  --pf-v5-c-button--FontSize: 15px;
+  --pf-v5-c-button--LineHeight: 20px;
+  --pf-v5-c-button--PaddingTop: 14px;
+  --pf-v5-c-button--PaddingBottom: 14px;
+  --pf-v5-c-button--PaddingLeft: 20px;
+  --pf-v5-c-button--PaddingRight: 20px;
+  --pf-v5-c-button--m-primary--BackgroundColor: var(--mat-sys-primary);
+  --pf-v5-c-button--m-primary--Color: var(--mat-sys-on-primary);
+  --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--ww-hover-primary);
+  --pf-v5-c-button--m-primary--hover--Color: var(--mat-sys-on-primary);
+  --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--ww-hover-primary);
+  --pf-v5-c-button--m-primary--focus--Color: var(--mat-sys-on-primary);
+  --pf-v5-c-button--m-primary--active--BackgroundColor: var(--ww-hover-primary);
+  --pf-v5-c-button--m-primary--active--Color: var(--mat-sys-on-primary);
+  --pf-v5-c-button--m-secondary--BackgroundColor: var(--mat-sys-surface);
+  --pf-v5-c-button--m-secondary--Color: var(--mat-sys-on-surface);
+  --pf-v5-c-button--m-secondary--after--BorderColor: var(--mat-sys-outline-variant);
+  --pf-v5-c-button--m-secondary--hover--Color: var(--mat-sys-on-surface);
+  --pf-v5-c-button--m-secondary--hover--after--BorderColor: var(--mat-sys-outline);
+  --pf-v5-c-button--m-secondary--focus--Color: var(--mat-sys-on-surface);
+  --pf-v5-c-button--m-secondary--active--Color: var(--mat-sys-on-surface);
+  --pf-v5-c-button--m-link--Color: var(--ww-link);
+  --pf-v5-c-button--m-link--hover--Color: var(--ww-link);
+  /* Material's hover: the text color at 8% over the button. */
+  --ww-hover-primary: color-mix(in srgb, var(--mat-sys-primary) 92%, var(--mat-sys-on-primary));
+}
+
+.pf-v5-c-form__actions {
+  gap: 12px;
+  margin: 0;
+}
+
+.pf-v5-c-form__actions > * {
+  margin: 0;
+}
+
+/* Notices: Keycloak's alerts as the apps' .notice. */
+.pf-v5-c-alert {
+  --pf-v5-c-alert--m-inline--m-danger--BackgroundColor: var(--mat-sys-error-container);
+  --pf-v5-c-alert--m-danger__icon--Color: var(--mat-sys-on-error-container);
+  --pf-v5-c-alert--m-danger__title--Color: var(--mat-sys-on-error-container);
+  --pf-v5-c-alert--m-inline--m-warning--BackgroundColor: var(--ww-warning-soft);
+  --pf-v5-c-alert--m-warning__icon--Color: var(--ww-warning-text);
+  --pf-v5-c-alert--m-warning__title--Color: var(--ww-warning-text);
+  --pf-v5-c-alert--m-inline--m-success--BackgroundColor: var(--ww-brand-soft);
+  --pf-v5-c-alert--m-success__icon--Color: var(--ww-brand-dark);
+  --pf-v5-c-alert--m-success__title--Color: var(--ww-brand-dark);
+  --pf-v5-c-alert--m-inline--m-info--BackgroundColor: var(--ww-info-soft);
+  --pf-v5-c-alert--m-info__icon--Color: var(--ww-info-text);
+  --pf-v5-c-alert--m-info__title--Color: var(--ww-info-text);
+  --pf-v5-c-alert__title--FontWeight: 400;
+}
+
+.pf-v5-c-alert.pf-m-inline {
+  margin: 0 !important;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--ww-radius-md);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* Two-step set-up: the key, the code and the list of apps. */
+#kc-totp-secret-key {
+  display: inline-block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-variant);
+  font-family: var(--ww-mono);
+  font-size: 13px;
+}
+
+#kc-totp-settings > li + li {
+  margin-top: 12px;
+}
+
+.kc-qr-code img {
+  border: 1px solid var(--mat-sys-outline-variant);
+  box-shadow: none;
+}

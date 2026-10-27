@@ -1,5 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { MailColoursFtl } from './mail-colours-ftl';
+import { MarkSvg } from './mark-svg';
 import { PlatformColoursSource } from './platform-colours-source';
 import { ThemeDefinition } from './theme-definition';
 import { TokensCss } from './tokens-css';
@@ -12,6 +14,11 @@ export class ThemeFiles {
   static readonly THEME = 'packages/theme/theme.json';
   static readonly TOKENS_CSS = 'packages/theme/src/tokens.css';
   static readonly PLATFORM_COLOURS = 'packages/theme/src/platform-colours.ts';
+  /** Keycloak's login and e-mail theme (deploy/keycloak/themes/wattwisely). */
+  static readonly KEYCLOAK = 'deploy/keycloak/themes/wattwisely';
+  static readonly KEYCLOAK_TOKENS_CSS = `${ThemeFiles.KEYCLOAK}/login/resources/css/tokens.css`;
+  static readonly KEYCLOAK_MARK = `${ThemeFiles.KEYCLOAK}/login/resources/img/mark.svg`;
+  static readonly KEYCLOAK_MAIL_COLOURS = `${ThemeFiles.KEYCLOAK}/email/html/theme-colours.ftl`;
 
   constructor(private readonly root: string) {}
 
@@ -25,6 +32,9 @@ export class ThemeFiles {
     return new Map([
       [ThemeFiles.TOKENS_CSS, TokensCss.render(theme)],
       [ThemeFiles.PLATFORM_COLOURS, PlatformColoursSource.render(theme)],
+      [ThemeFiles.KEYCLOAK_TOKENS_CSS, TokensCss.render(theme)],
+      [ThemeFiles.KEYCLOAK_MARK, MarkSvg.render(theme)],
+      [ThemeFiles.KEYCLOAK_MAIL_COLOURS, MailColoursFtl.render(theme)],
     ]);
   }
 

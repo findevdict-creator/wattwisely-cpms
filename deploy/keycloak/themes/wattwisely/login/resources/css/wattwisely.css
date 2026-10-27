@@ -1,0 +1,214 @@
+/*
+ * Keycloak's keycloak.v2 pages (PatternFly v5) in the platform's look, as the approved sign-in
+ * screens draw them: the mark and the name above a white card, 48px fields and buttons, notices
+ * on soft backgrounds. Every color is a variable from tokens.css, which theme.json generates;
+ * the radii are packages/ui's.
+ */
+:root {
+  --ww-radius-sm: 6px;
+  --ww-radius-md: 10px;
+  --ww-radius-lg: 12px;
+  --ww-radius-xl: 16px;
+  --ww-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* keycloak.v2's background picture and the bar on top of its card. */
+  --keycloak-bg-logo-url: none;
+  --keycloak-card-top-color: transparent;
+
+  --pf-v5-global--FontFamily--text: var(--ww-font);
+  --pf-v5-global--FontFamily--text--vf: var(--ww-font);
+  --pf-v5-global--FontFamily--heading: var(--ww-font);
+  --pf-v5-global--FontFamily--heading--vf: var(--ww-font);
+  --pf-v5-global--FontFamily--monospace: var(--ww-mono);
+  --pf-v5-global--FontFamily--monospace--vf: var(--ww-mono);
+  --pf-v5-global--Color--100: var(--mat-sys-on-surface);
+  --pf-v5-global--Color--200: var(--mat-sys-on-surface-variant);
+  --pf-v5-global--BackgroundColor--100: var(--mat-sys-surface);
+  --pf-v5-global--BackgroundColor--light-100: var(--mat-sys-surface);
+  --pf-v5-global--BackgroundColor--200: var(--mat-sys-background);
+  --pf-v5-global--BorderColor--100: var(--mat-sys-outline-variant);
+  --pf-v5-global--BorderColor--200: var(--mat-sys-outline);
+  --pf-v5-global--BorderColor--300: var(--mat-sys-outline-variant);
+  --pf-v5-global--primary-color--100: var(--mat-sys-primary);
+  --pf-v5-global--primary-color--200: var(--mat-sys-on-primary-container);
+  --pf-v5-global--link--Color: var(--ww-link);
+  --pf-v5-global--link--Color--hover: var(--ww-link);
+  --pf-v5-global--link--Color--dark: var(--ww-link);
+  --pf-v5-global--link--Color--dark--hover: var(--ww-link);
+  --pf-v5-global--success-color--100: var(--ww-brand);
+  --pf-v5-global--success-color--200: var(--ww-brand-dark);
+  --pf-v5-global--info-color--100: var(--ww-info);
+  --pf-v5-global--info-color--200: var(--ww-info-text);
+  --pf-v5-global--warning-color--100: var(--ww-warning);
+  --pf-v5-global--warning-color--200: var(--ww-warning-text);
+  --pf-v5-global--danger-color--100: var(--mat-sys-error);
+  --pf-v5-global--danger-color--200: var(--mat-sys-on-error-container);
+  --pf-v5-global--disabled-color--300: var(--mat-sys-surface-variant);
+}
+
+.login-pf,
+.login-pf body {
+  background: var(--mat-sys-background);
+}
+
+.login-pf body {
+  color: var(--mat-sys-on-surface);
+  font: 400 14px/20px var(--ww-font);
+}
+
+a:not(.pf-v5-c-button) {
+  color: var(--ww-link);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+a:not(.pf-v5-c-button):hover {
+  color: var(--ww-link);
+  text-decoration: underline;
+}
+
+/* The page: the mark and the name, the card, the line under it. */
+.pf-v5-c-login {
+  /* PatternFly pads the card's last part by this much. */
+  --pf-v5-c-login__main-footer--PaddingBottom: 0;
+  padding: 48px 24px;
+}
+
+.pf-v5-c-login__container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  max-width: 400px;
+  padding: 0;
+}
+
+.login-pf body[data-page-id='login-login-config-totp'] .pf-v5-c-login__container {
+  max-width: 480px;
+}
+
+.pf-v5-c-login__header {
+  margin: 0;
+  padding: 0;
+}
+
+#kc-header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--mat-sys-on-surface) !important;
+  font: 600 17px/24px var(--ww-font);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.ww-mark {
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+
+.pf-v5-c-login__main {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+  padding: 32px;
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-xl);
+  box-shadow: none;
+}
+
+.pf-v5-c-login__main-header,
+.pf-v5-c-login__main-body,
+.pf-v5-c-login__main-footer {
+  padding: 0;
+  border: 0;
+}
+
+.pf-v5-c-login__main-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ww-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#kc-page-title {
+  margin: 0;
+  color: var(--mat-sys-on-surface);
+  font: 600 22px/28px var(--ww-font);
+}
+
+.ww-subtitle {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.ww-footer {
+  padding: 0;
+  color: var(--mat-sys-outline);
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.ww-footer:not(:has(p)) {
+  display: none;
+}
+
+/* "New to Wattwisely? Create an account" and the other lines under a form. */
+.pf-v5-c-login__main-footer-band,
+.pf-v5-c-login__main-footer-band:first-child {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.pf-v5-c-login__main-footer-band-item {
+  padding: 0;
+}
+
+.instruction {
+  margin: 0;
+}
+
+/* On a phone the page is the card, as in the driver app's screens. */
+@media (max-width: 575px) {
+  .login-pf,
+  .login-pf body {
+    background: var(--mat-sys-surface);
+  }
+
+  .pf-v5-c-login {
+    align-items: flex-start;
+    padding: 24px 20px;
+  }
+
+  #kc-header-wrapper {
+    justify-content: flex-start;
+  }
+
+  .pf-v5-c-login__main {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  #kc-page-title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+}
