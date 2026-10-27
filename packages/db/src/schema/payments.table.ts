@@ -14,6 +14,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { chargingSessions } from './charging-sessions.table';
+import { paymentMethods } from './payment-methods.table';
 import { paymentStatus, paymentType } from './enums';
 import { RowLevelSecurity } from './row-level-security';
 import { Timestamps } from './timestamps';
@@ -46,6 +47,8 @@ export const payments = pgTable(
     providerPaymentId: text('provider_payment_id').notNull(),
     cardBrand: text('card_brand'),
     cardLast4: text('card_last4'),
+    /** The saved card the hold was taken from (module 19); null when the driver typed a card on the page. */
+    paymentMethodId: uuid('payment_method_id').references(() => paymentMethods.id),
     /** The provider's decline code and sentence, when the card refused the hold or the capture. */
     failureCode: text('failure_code'),
     failureMessage: text('failure_message'),

@@ -41,4 +41,10 @@ export class RetentionPeriods {
   @Min(7)
   @Max(3650)
   webhookEventsDays!: number;
+
+  /** Delivered and failed webhook deliveries to a tenant's endpoints (RETENTION_WEBHOOK_DELIVERIES_DAYS, module 16). */
+  @IsInt()
+  @Min(1)
+  @Max(3650)
+  webhookDeliveriesDays!: number;
 }

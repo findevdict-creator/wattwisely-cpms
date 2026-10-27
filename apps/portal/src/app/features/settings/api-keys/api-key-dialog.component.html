@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>New API key</h2>
+<mat-dialog-content>
+  <form [formGroup]="form.fields" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" maxlength="60" data-testid="key-name" />
+      <mat-hint>Which system uses it, e.g. "Fleet sync"</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Description (optional)</mat-label>
+      <input matInput formControlName="description" maxlength="300" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="wide">
+      <mat-label>Expires on (optional)</mat-label>
+      <input matInput type="date" formControlName="expiresOn" data-testid="key-expires" />
+      <mat-hint>Leave empty for a key that works until it is revoked</mat-hint>
+    </mat-form-field>
+  </form>
+
+  <h3>What the key may do</h3>
+  <p class="hint">
+    Only what you may do yourself for the whole company can go on a key. A key can never manage API
+    keys.
+  </p>
+  @for (group of groups; track group.module) {
+    @let keys = keysOf(group);
+    <section class="group" [attr.data-module]="group.module">
+      <mat-checkbox
+        class="group-title"
+        [checked]="form.hasAll(keys)"
+        [indeterminate]="!form.hasAll(keys) && form.hasSome(keys)"
+        (change)="form.setAll(keys, $event.checked)"
+      >
+        {{ group.name }}
+        @if (group.isLocked) {
+          <mat-icon
+            class="lock"
+            inline
+            matTooltip="Not in your plan: these permissions do nothing until Wattwisely adds the module"
+          >
+            lock
+          </mat-icon>
+        }
+      </mat-checkbox>
+      <div class="permissions">
+        @for (permission of group.permissions; track permission.key) {
+          <mat-checkbox
+            [checked]="form.has(permission.key)"
+            (change)="form.set(permission.key, $event.checked)"
+            [attr.data-permission]="permission.key"
+          >
+            {{ permission.label }}
+            <span class="key">{{ permission.key }}</span>
+          </mat-checkbox>
+        }
+      </div>
+    </section>
+  }
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null">Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving()" data-testid="save-key">
+    Create key
+  </button>
+</mat-dialog-actions>

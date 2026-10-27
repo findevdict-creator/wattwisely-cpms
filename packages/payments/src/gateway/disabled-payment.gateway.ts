@@ -50,6 +50,26 @@ export class DisabledPaymentGateway implements PaymentGateway {
     return Promise.reject(PaymentGatewayError.unavailable());
   }
 
+  createCustomer(): Promise<never> {
+    return Promise.reject(PaymentGatewayError.unavailable());
+  }
+
+  createCardSetup(): Promise<never> {
+    return Promise.reject(PaymentGatewayError.unavailable());
+  }
+
+  getCardSetup(): Promise<never> {
+    return Promise.reject(PaymentGatewayError.unavailable());
+  }
+
+  detachCard(): Promise<never> {
+    return Promise.reject(PaymentGatewayError.unavailable());
+  }
+
+  createSavedCardHold(): Promise<never> {
+    return Promise.reject(PaymentGatewayError.unavailable());
+  }
+
   parseWebhook(): ReceivedEvent {
     throw PaymentGatewayError.unavailable();
   }

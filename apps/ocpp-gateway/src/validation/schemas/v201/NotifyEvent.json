@@ -1,0 +1,28 @@
+{
+  "title": "NotifyEventRequest",
+  "type": "object",
+  "properties": {
+    "customData": {
+      "type": "object"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tbc": {
+      "type": "boolean"
+    },
+    "seqNo": {
+      "type": "integer"
+    },
+    "eventData": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": ["generatedAt", "seqNo", "eventData"]
+}
