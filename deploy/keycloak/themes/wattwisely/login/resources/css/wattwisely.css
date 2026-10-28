@@ -1,6 +1,6 @@
 /*
  * Keycloak's keycloak.v2 pages (PatternFly v5) in the platform's look, as the approved sign-in
- * screens draw them: the mark and the name above a white card, 48px fields and buttons, notices
+ * screens draw them: the logo above a white card, 48px fields and buttons, notices
  * on soft backgrounds. Every color is a variable from tokens.css, which theme.json generates;
  * the radii are packages/ui's.
  */
@@ -67,7 +67,7 @@ a:not(.pf-v5-c-button):hover {
   text-decoration: underline;
 }
 
-/* The page: the mark and the name, the card, the line under it. */
+/* The page: the logo, the card, the line under it. */
 .pf-v5-c-login {
   /* PatternFly pads the card's last part by this much. */
   --pf-v5-c-login__main-footer--PaddingBottom: 0;
@@ -105,9 +105,9 @@ a:not(.pf-v5-c-button):hover {
   text-transform: none;
 }
 
-.ww-mark {
-  width: 32px;
-  height: 32px;
+.ww-logo {
+  width: auto;
+  height: 40px;
   flex: none;
 }
 

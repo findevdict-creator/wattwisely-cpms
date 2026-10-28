@@ -19,5 +19,6 @@
 <#assign info = "#2563eb">
 <#assign infoSoft = "#dbeafe">
 <#assign infoText = "#1d4ed8">
+<#assign logo = "#0e7490">
 <#assign primary = "#16a34a">
 <#assign onPrimary = "#ffffff">

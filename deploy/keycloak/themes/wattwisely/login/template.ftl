@@ -155,9 +155,9 @@
 <div class="${properties.kcLogin!}">
   <div class="${properties.kcLoginContainer!}">
     <header id="kc-header" class="pf-v5-c-login__header">
-      <#-- Wattwisely: the logo mark before the name. -->
+      <#-- Wattwisely: the logo, the mark and the name, in place of the realm's name. -->
       <div id="kc-header-wrapper"
-              class="pf-v5-c-brand"><img class="ww-mark" src="${url.resourcesPath}/img/mark.svg" alt="" width="32" height="32"/>${kcSanitize(msg("loginTitleHtml",(realm.displayNameHtml!'')))?no_esc}</div>
+              class="pf-v5-c-brand"><img class="ww-logo" src="${url.resourcesPath}/img/logo.svg" alt="${realm.displayName!'Wattwisely'}" width="167" height="40"/></div>
     </header>
     <main class="${properties.kcLoginMain!}">
       <div class="${properties.kcLoginMainHeader!}">

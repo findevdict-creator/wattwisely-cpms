@@ -18,7 +18,12 @@ export class ThemeFiles {
   static readonly KEYCLOAK = 'deploy/keycloak/themes/wattwisely';
   static readonly KEYCLOAK_TOKENS_CSS = `${ThemeFiles.KEYCLOAK}/login/resources/css/tokens.css`;
   static readonly KEYCLOAK_MARK = `${ThemeFiles.KEYCLOAK}/login/resources/img/mark.svg`;
+  static readonly KEYCLOAK_LOGO = `${ThemeFiles.KEYCLOAK}/login/resources/img/logo.svg`;
   static readonly KEYCLOAK_MAIL_COLOURS = `${ThemeFiles.KEYCLOAK}/email/html/theme-colours.ftl`;
+  /** The browser tab's icon in each app; the PNG and ICO sizes beside it are the brand files. */
+  static readonly FAVICONS = ['portal', 'admin', 'driver'].map(
+    (app) => `apps/${app}/public/favicon.svg`,
+  );
 
   constructor(private readonly root: string) {}
 
@@ -34,7 +39,9 @@ export class ThemeFiles {
       [ThemeFiles.PLATFORM_COLOURS, PlatformColoursSource.render(theme)],
       [ThemeFiles.KEYCLOAK_TOKENS_CSS, TokensCss.render(theme)],
       [ThemeFiles.KEYCLOAK_MARK, MarkSvg.render(theme)],
+      [ThemeFiles.KEYCLOAK_LOGO, MarkSvg.renderLockup(theme)],
       [ThemeFiles.KEYCLOAK_MAIL_COLOURS, MailColoursFtl.render(theme)],
+      ...ThemeFiles.FAVICONS.map((path): [string, string] => [path, MarkSvg.render(theme)]),
     ]);
   }
 

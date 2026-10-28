@@ -22,6 +22,7 @@ export class PlatformColours {
   static readonly INFO = '#2563eb';
   static readonly INFO_SOFT = '#dbeafe';
   static readonly INFO_TEXT = '#1d4ed8';
+  static readonly LOGO = '#0e7490';
   /** The brand of a tenant that chose no colors: primary, the text on it, the accent. */
   static readonly PRIMARY = '#16a34a';
   static readonly ON_PRIMARY = '#ffffff';

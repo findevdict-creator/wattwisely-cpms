@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Wattwisely">
+  <!-- Generated from packages/theme/theme.json by `npx nx run theme:generate`. Do not edit. -->
+  <path d="M46.78 13.09A24 24 0 1 1 17.22 13.09" fill="none" stroke="#0e7490" stroke-width="6"/>
+  <path d="M20 27L26 43L32 23L38 43L44 27" fill="none" stroke="#0e7490" stroke-width="6" stroke-linejoin="miter" stroke-miterlimit="6"/>
+</svg>

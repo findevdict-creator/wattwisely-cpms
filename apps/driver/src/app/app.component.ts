@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { LogoComponent } from '@wattwisely/ui';
 import { DriverAuthService } from './core/auth/driver-auth.service';
 import { BrandTheme } from './core/branding/brand-theme';
 import { BrandService } from './core/branding/brand.service';
@@ -13,16 +14,16 @@ import { Initials } from './shared/initials';
  */
 @Component({
   selector: 'ww-root',
-  imports: [MatIconModule, RouterLink, RouterOutlet],
+  imports: [LogoComponent, MatIconModule, RouterLink, RouterOutlet],
   template: `
     <header class="bar">
       <a routerLink="/" class="brand" aria-label="Home" data-testid="brand">
         @if (brandService.brand().logo_url; as logoUrl) {
           <img class="logo" [src]="logoUrl" [alt]="brandService.brand().name" />
         } @else {
-          <span class="initials">
+          <span class="initials" [class.platform]="isPlatform()">
             @if (isPlatform()) {
-              <mat-icon svgIcon="zap" />
+              <ww-logo isMarkOnly aria-hidden="true" />
             } @else {
               {{ initials() }}
             }
@@ -44,7 +45,7 @@ import { Initials } from './shared/initials';
       <router-outlet />
     </main>
     <footer class="powered-by" data-testid="powered-by">
-      <mat-icon svgIcon="zap" />
+      <ww-logo isMarkOnly aria-hidden="true" />
       Powered by {{ brandService.brand().platform_name }}
     </footer>
   `,
@@ -83,9 +84,11 @@ import { Initials } from './shared/initials';
       background: var(--ww-ink);
       color: var(--ww-white);
     }
-    .initials .mat-icon {
-      width: 16px;
-      height: 16px;
+    .initials.platform {
+      background: var(--ww-white);
+    }
+    .initials ww-logo {
+      height: 18px;
     }
     .logo {
       height: 32px;
@@ -126,9 +129,9 @@ import { Initials } from './shared/initials';
       font-weight: 500;
       color: var(--mat-sys-outline);
     }
-    .powered-by .mat-icon {
-      width: 14px;
-      height: 14px;
+    .powered-by ww-logo {
+      height: 12px;
+      color: inherit;
     }
   `,
 })
@@ -136,7 +139,7 @@ export class AppComponent {
   protected readonly brandService = inject(BrandService);
   protected readonly auth = inject(DriverAuthService);
 
-  /** The platform's own pages show its bolt; an operator without a logo shows its initials. */
+  /** The platform's own pages show its mark; an operator without a logo shows its initials. */
   protected readonly isPlatform = computed(
     () => this.brandService.brand().name === BrandTheme.PLATFORM.name,
   );

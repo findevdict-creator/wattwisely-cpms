@@ -1,39 +1,48 @@
-import { Component, input } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, booleanAttribute, input } from '@angular/core';
+import { BrandMark } from '@wattwisely/theme';
 
-/** The Wattwisely mark, a bolt on the brand green, and the name beside it where there is room. */
+/**
+ * The Wattwisely logo in its own teal (`--ww-logo`): the mark and the name, or the mark alone
+ * where there is no room for the name. It is drawn inline from BrandMark's paths, so it needs no
+ * file and takes its color from theme.json. It is cut to the ring, so its height is the ring's and
+ * its edges are the drawing's. Give the host a height or a color to change them.
+ */
 @Component({
   selector: 'ww-logo',
-  imports: [MatIconModule],
-  template: `<span class="mark"><mat-icon svgIcon="zap" /></span>
-    @if (!isMarkOnly()) {
-      {{ name() }}
-    }`,
+  host: { role: 'img', '[attr.aria-label]': 'name()' },
+  template: `
+    <svg [attr.viewBox]="isMarkOnly() ? brand.MARK_CROP : brand.LOCKUP_CROP" aria-hidden="true">
+      <g
+        [attr.transform]="isMarkOnly() ? null : brand.LOCKUP_MARK_TRANSFORM"
+        fill="none"
+        stroke="currentColor"
+        [attr.stroke-width]="brand.STROKE_WIDTH"
+      >
+        <path [attr.d]="brand.RING" />
+        <path [attr.d]="brand.W" stroke-linejoin="miter" stroke-miterlimit="6" />
+      </g>
+      @if (!isMarkOnly()) {
+        <path [attr.d]="brand.NAME" fill="currentColor" />
+      }
+    </svg>
+  `,
   styles: `
     :host {
-      display: inline-flex;
-      gap: 10px;
-      align-items: center;
-      font: 600 17px/24px var(--ww-font);
-      color: var(--mat-sys-on-surface);
+      display: inline-block;
+      height: 28px;
+      color: var(--ww-logo);
     }
-    .mark {
-      display: grid;
-      place-items: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--mat-sys-primary);
-      color: var(--mat-sys-on-primary);
-    }
-    mat-icon {
-      width: 20px;
-      height: 20px;
+    svg {
+      display: block;
+      width: auto;
+      height: 100%;
     }
   `,
 })
 export class LogoComponent {
+  protected readonly brand = BrandMark;
+  /** What a screen reader says for it. */
   readonly name = input('Wattwisely');
   /** In the collapsed side menu, where there is room for the mark alone. */
-  readonly isMarkOnly = input(false);
+  readonly isMarkOnly = input(false, { transform: booleanAttribute });
 }
