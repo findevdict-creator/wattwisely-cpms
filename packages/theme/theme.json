@@ -1,7 +1,7 @@
 {
   "name": "Wattwisely",
-  "version": 3,
-  "source": "Approved 2026-10-27 (color scheme page v5). Matches the driver app design in Figma, section 7 'Mobile app · design system'; chip and notice colors read from its screens.",
+  "version": 4,
+  "source": "Approved 2026-10-27 (color scheme page v5), with the brand moved to the logo's teal on 2026-10-28: buttons, links and highlights in teal, charger states that mean ready (available, charging) and other good news in green. Matches the driver app design in Figma, section 7 'Mobile app · design system'; chip and notice colors read from its screens.",
   "howToEdit": "Change a hex value in palette and every role and status that names it follows; a role or status can also take a hex value directly. Then run `npx nx run theme:generate` and commit theme.json with the files it writes. Light mode only. The *Text colors are the darker shade of each hue, for small text on the soft backgrounds (WCAG AA).",
   "fontFamily": "Inter",
   "palette": {
@@ -12,9 +12,12 @@
     "surface": "#F1F5F9",
     "background": "#F8FAFC",
     "white": "#FFFFFF",
-    "brand": "#16A34A",
-    "brandDark": "#15803D",
-    "brandSoft": "#DCFCE7",
+    "brand": "#0E7490",
+    "brandDark": "#155E75",
+    "brandSoft": "#CFFAFE",
+    "success": "#16A34A",
+    "successSoft": "#DCFCE7",
+    "successText": "#15803D",
     "warning": "#D97706",
     "warningSoft": "#FEF3C7",
     "warningText": "#B45309",
@@ -67,13 +70,13 @@
   },
   "status": {
     "available": {
-      "background": "brandSoft",
-      "text": "brandDark"
+      "background": "successSoft",
+      "text": "successText"
     },
     "charging": {
-      "background": "brandSoft",
-      "text": "brandDark",
-      "dot": "brand"
+      "background": "successSoft",
+      "text": "successText",
+      "dot": "success"
     },
     "preparing": {
       "background": "infoSoft",

@@ -78,7 +78,7 @@ export type KpiTrend = 'up' | 'down' | 'none';
       color: var(--mat-sys-on-surface-variant);
     }
     .foot.up {
-      color: var(--ww-brand-dark);
+      color: var(--ww-success-text);
     }
     .foot.down {
       color: var(--ww-danger-text);

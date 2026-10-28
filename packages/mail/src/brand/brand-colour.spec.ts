@@ -15,11 +15,11 @@ describe('BrandColour', () => {
     expect(BrandColour.textOn('#ffffff')).toBe('#0f172a');
     expect(BrandColour.textOn('#ffeb3b')).toBe('#0f172a');
     expect(BrandColour.textOn('#1976d2')).toBe('#ffffff');
+    expect(BrandColour.textOn('#16a34a')).toBe('#0f172a');
   });
 
-  it('keeps white text on the platform green, which the contrast rule alone would not pick', () => {
-    expect(BrandColour.textOn('#16a34a')).toBe('#0f172a');
-    expect(BrandColour.onPrimary('#16A34A')).toBe('#ffffff');
+  it('puts white text on the platform teal, as theme.json says', () => {
+    expect(BrandColour.onPrimary('#0E7490')).toBe('#ffffff');
     expect(BrandColour.onPrimary('#fff176')).toBe('#0f172a');
   });
 

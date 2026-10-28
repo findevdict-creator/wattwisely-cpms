@@ -189,9 +189,9 @@
   --pf-v5-c-alert--m-inline--m-warning--BackgroundColor: var(--ww-warning-soft);
   --pf-v5-c-alert--m-warning__icon--Color: var(--ww-warning-text);
   --pf-v5-c-alert--m-warning__title--Color: var(--ww-warning-text);
-  --pf-v5-c-alert--m-inline--m-success--BackgroundColor: var(--ww-brand-soft);
-  --pf-v5-c-alert--m-success__icon--Color: var(--ww-brand-dark);
-  --pf-v5-c-alert--m-success__title--Color: var(--ww-brand-dark);
+  --pf-v5-c-alert--m-inline--m-success--BackgroundColor: var(--ww-success-soft);
+  --pf-v5-c-alert--m-success__icon--Color: var(--ww-success-text);
+  --pf-v5-c-alert--m-success__title--Color: var(--ww-success-text);
   --pf-v5-c-alert--m-inline--m-info--BackgroundColor: var(--ww-info-soft);
   --pf-v5-c-alert--m-info__icon--Color: var(--ww-info-text);
   --pf-v5-c-alert--m-info__title--Color: var(--ww-info-text);

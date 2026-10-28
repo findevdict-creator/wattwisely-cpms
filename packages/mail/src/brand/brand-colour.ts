@@ -20,7 +20,7 @@ export class BrandColour {
   }
 
   /**
-   * The text on a brand's primary colour: white on the platform's own green, as theme.json
+   * The text on a brand's primary colour: white on the platform's own teal, as theme.json
    * says, and otherwise whichever of white and ink contrasts more with the colour.
    */
   static onPrimary(hex: string): string {
