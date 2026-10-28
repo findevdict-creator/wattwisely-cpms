@@ -1,9 +1,10 @@
-import { Component, inject, input, output, viewChild } from '@angular/core';
+import { Component, computed, inject, input, output, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth/auth.service';
 import { RuntimeConfig } from '../core/config/runtime-config';
@@ -22,6 +23,7 @@ import { QuietHoursDialogComponent } from './quiet-hours-dialog.component';
     MatDividerModule,
     MatIconModule,
     MatMenuModule,
+    MatTooltipModule,
     NotificationBellComponent,
     RouterLink,
   ],
@@ -33,6 +35,12 @@ export class TopBarComponent {
   /** On a narrow screen the side menu hides and a button here opens it. */
   readonly isNarrow = input(false);
   readonly menuOpened = output();
+  /** On a wide screen the same button collapses the side menu to its icons, and expands it. */
+  readonly isMenuCollapsed = input(false);
+  readonly menuToggled = output();
+  protected readonly toggleLabel = computed(() =>
+    this.isMenuCollapsed() ? 'Expand the menu' : 'Collapse the menu',
+  );
 
   protected readonly tenantContext = inject(TenantContextService);
   protected readonly permissions = inject(PermissionsService);

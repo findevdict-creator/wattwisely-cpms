@@ -3,6 +3,7 @@ import { Component, DestroyRef, OnInit, computed, inject, viewChild } from '@ang
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
+import { SideMenuState } from '@wattwisely/ui';
 import { filter, map } from 'rxjs';
 import { AdminMenu } from './admin-menu';
 import { PageTitleService } from './page-title.service';
@@ -11,7 +12,7 @@ import { TopBarComponent } from './top-bar.component';
 
 /**
  * The frame around every console page: the side menu, the top bar and the page itself.
- * Below 960px the side menu slides in over the page.
+ * Below 960px the side menu slides in over the page; above, it can collapse to its icons.
  */
 @Component({
   selector: 'ww-shell',
@@ -33,6 +34,9 @@ export class ShellComponent implements OnInit {
       .pipe(map((state) => state.matches)),
     { initialValue: false },
   );
+  protected readonly sideMenu = inject(SideMenuState);
+  /** The menu as a strip of icons: only beside the page, never when it slides in. */
+  protected readonly isRail = computed(() => !this.isNarrow() && this.sideMenu.isCollapsed());
   protected readonly url = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),

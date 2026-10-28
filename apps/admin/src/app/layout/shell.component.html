@@ -1,4 +1,4 @@
-<mat-sidenav-container class="frame">
+<mat-sidenav-container class="frame" [class.beside]="!isNarrow()" [class.rail]="isRail()">
   <mat-sidenav
     #drawer
     class="side"
@@ -6,10 +6,16 @@
     [opened]="!isNarrow()"
     [fixedInViewport]="isNarrow()"
   >
-    <ww-side-menu [url]="url()" (navigated)="closeIfNarrow()" />
+    <ww-side-menu [url]="url()" [isCollapsed]="isRail()" (navigated)="closeIfNarrow()" />
   </mat-sidenav>
   <mat-sidenav-content class="main">
-    <ww-top-bar [where]="where()" [isNarrow]="isNarrow()" (menuOpened)="drawer.open()" />
+    <ww-top-bar
+      [where]="where()"
+      [isNarrow]="isNarrow()"
+      [isMenuCollapsed]="isRail()"
+      (menuOpened)="drawer.open()"
+      (menuToggled)="sideMenu.toggle()"
+    />
     <main class="content">
       <router-outlet />
     </main>
