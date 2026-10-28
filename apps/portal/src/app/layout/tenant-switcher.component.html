@@ -3,12 +3,20 @@
     <button
       type="button"
       class="switcher"
+      [class.collapsed]="isCollapsed()"
       [matMenuTriggerFor]="workspaces"
+      [matTooltip]="tenant.name"
+      matTooltipPosition="right"
+      [matTooltipDisabled]="!isCollapsed()"
+      #name="matTooltip"
+      (menuOpened)="name.hide(0)"
       aria-label="Switch workspace"
       data-testid="tenant-switcher"
     >
       <ng-container *ngTemplateOutlet="current; context: { $implicit: tenant }" />
-      <mat-icon svgIcon="chevrons-up-down" />
+      @if (!isCollapsed()) {
+        <mat-icon svgIcon="chevrons-up-down" />
+      }
     </button>
     <mat-menu #workspaces="matMenu" class="ww-workspace-menu">
       @for (other of tenantContext.tenants(); track other.id) {
@@ -28,7 +36,14 @@
       }
     </mat-menu>
   } @else {
-    <div class="switcher" data-testid="tenant-name">
+    <div
+      class="switcher"
+      [class.collapsed]="isCollapsed()"
+      [matTooltip]="tenant.name"
+      matTooltipPosition="right"
+      [matTooltipDisabled]="!isCollapsed()"
+      data-testid="tenant-name"
+    >
       <ng-container *ngTemplateOutlet="current; context: { $implicit: tenant }" />
     </div>
   }

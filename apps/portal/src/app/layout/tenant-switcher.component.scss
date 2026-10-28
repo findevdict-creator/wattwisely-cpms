@@ -26,10 +26,26 @@
   }
 }
 
+// In the collapsed menu: the initials alone, the name hidden but still read out.
+.switcher.collapsed {
+  width: auto;
+  padding: 0;
+  border-color: transparent;
+  background: none;
+
+  .ww-two {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
 button.switcher {
   cursor: pointer;
 
-  &:hover {
+  &:hover:not(.collapsed) {
     border-color: var(--mat-sys-outline);
   }
 }

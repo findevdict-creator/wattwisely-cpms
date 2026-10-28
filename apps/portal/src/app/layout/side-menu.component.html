@@ -1,12 +1,14 @@
 <div class="head">
   <a class="logo" routerLink="/" aria-label="Wattwisely, home" (click)="navigated.emit()">
-    <ww-logo />
+    <ww-logo [isMarkOnly]="isCollapsed()" />
   </a>
-  <ww-tenant-switcher />
+  <ww-tenant-switcher [isCollapsed]="isCollapsed()" />
 </div>
 <nav class="nav-list" aria-label="Main">
   @for (group of groups(); track group.heading) {
-    @if (group.heading) {
+    @if (group.heading && isCollapsed()) {
+      <span class="rule" aria-hidden="true"></span>
+    } @else if (group.heading) {
       <span class="ww-overline group">{{ group.heading }}</span>
     }
     @for (item of group.items; track item.testId) {
@@ -16,6 +18,9 @@
         [routerLink]="item.link"
         [attr.aria-current]="isActive(item) ? 'page' : null"
         [attr.data-testid]="item.testId"
+        [matTooltip]="item.label"
+        matTooltipPosition="right"
+        [matTooltipDisabled]="!isCollapsed()"
         (click)="navigated.emit()"
       >
         <mat-icon [svgIcon]="item.icon" />

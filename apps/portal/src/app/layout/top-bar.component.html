@@ -2,6 +2,17 @@
   <button mat-icon-button (click)="menuOpened.emit()" aria-label="Open the menu" data-testid="menu">
     <mat-icon svgIcon="menu" />
   </button>
+} @else {
+  <button
+    mat-icon-button
+    [matTooltip]="toggleLabel()"
+    [attr.aria-label]="toggleLabel()"
+    [attr.aria-expanded]="!isMenuCollapsed()"
+    (click)="menuToggled.emit()"
+    data-testid="menu-toggle"
+  >
+    <mat-icon svgIcon="menu" />
+  </button>
 }
 <nav class="crumb" aria-label="Where you are" data-testid="where">
   @if (where().section) {

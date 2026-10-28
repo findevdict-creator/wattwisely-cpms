@@ -4,12 +4,33 @@
 }
 
 .frame {
+  --ww-side-width: 248px;
   height: 100%;
+
+  &.rail {
+    --ww-side-width: 72px;
+  }
 }
 
 .side {
-  width: 248px;
+  width: var(--ww-side-width);
   border-right: 1px solid var(--mat-sys-outline-variant);
+
+  ::ng-deep .mat-drawer-inner-container {
+    overflow-x: hidden;
+  }
+}
+
+// Once Material turns its transitions on, the menu's width eases with the same timing as its
+// slide and as the page's margin.
+.frame.mat-drawer-transition .side {
+  transition-property: transform, width;
+}
+
+// Material measures the menu when it opens or the window resizes, and sets the page's margin
+// inline; a change of width alone goes unnoticed. Beside the page the margin follows the width.
+.beside > .main {
+  margin-left: var(--ww-side-width) !important;
 }
 
 .main {

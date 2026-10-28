@@ -1,11 +1,14 @@
 import { Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
-/** The Wattwisely mark, a bolt on the brand green, and the name beside it. */
+/** The Wattwisely mark, a bolt on the brand green, and the name beside it where there is room. */
 @Component({
   selector: 'ww-logo',
   imports: [MatIconModule],
-  template: `<span class="mark"><mat-icon svgIcon="zap" /></span>{{ name() }}`,
+  template: `<span class="mark"><mat-icon svgIcon="zap" /></span>
+    @if (!isMarkOnly()) {
+      {{ name() }}
+    }`,
   styles: `
     :host {
       display: inline-flex;
@@ -31,4 +34,6 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class LogoComponent {
   readonly name = input('Wattwisely');
+  /** In the collapsed side menu, where there is room for the mark alone. */
+  readonly isMarkOnly = input(false);
 }

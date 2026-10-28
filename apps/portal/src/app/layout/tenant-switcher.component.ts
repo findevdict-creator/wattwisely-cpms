@@ -1,7 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TenantMembership } from '../core/api/models/tenant-membership';
 import { PermissionsService } from '../core/permissions/permissions.service';
 import { TenantContextService } from '../core/tenant/tenant-context.service';
@@ -10,14 +11,17 @@ import { Initials } from '../shared/initials';
 /**
  * The workspace at the head of the side menu and, for people in several, a menu to switch
  * (story ACC-04). Switching reloads the page so nothing from the previous tenant stays on screen.
+ * In the collapsed menu it is the workspace's initials alone, with its name on hover.
  */
 @Component({
   selector: 'ww-tenant-switcher',
-  imports: [MatIconModule, MatMenuModule, NgTemplateOutlet],
+  imports: [MatIconModule, MatMenuModule, MatTooltipModule, NgTemplateOutlet],
   templateUrl: './tenant-switcher.component.html',
   styleUrl: './tenant-switcher.component.scss',
 })
 export class TenantSwitcherComponent {
+  readonly isCollapsed = input(false);
+
   protected readonly tenantContext = inject(TenantContextService);
   private readonly permissions = inject(PermissionsService);
 
