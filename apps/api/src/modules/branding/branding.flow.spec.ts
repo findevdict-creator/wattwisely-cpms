@@ -36,7 +36,7 @@ import { LogoPolicy } from './logo-policy';
       preview: {
         name: 'acme charging',
         logo_url: null,
-        primary_color: '#16a34a',
+        primary_color: '#0e7490',
         on_primary_color: '#ffffff',
         accent_color: '#0f172a',
         support_email: null,
