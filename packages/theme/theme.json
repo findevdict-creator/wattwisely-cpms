@@ -23,7 +23,8 @@
     "dangerText": "#B91C1C",
     "info": "#2563EB",
     "infoSoft": "#DBEAFE",
-    "infoText": "#1D4ED8"
+    "infoText": "#1D4ED8",
+    "logo": "#0E7490"
   },
   "roles": {
     "primary": "brand",
