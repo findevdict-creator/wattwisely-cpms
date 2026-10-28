@@ -6,7 +6,7 @@ describe('TenantBrand', () => {
 
     expect(brand).toMatchObject({
       name: 'Acme Charging',
-      primaryColor: '#16a34a',
+      primaryColor: '#0e7490',
       accentColor: '#0f172a',
       logoUrl: null,
       supportEmail: null,

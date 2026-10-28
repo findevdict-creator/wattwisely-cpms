@@ -72,12 +72,12 @@ describe('BrandingForm', () => {
     });
   });
 
-  it('keeps white text on the platform green when the colour is cleared', () => {
+  it('keeps white text on the platform teal when the colour is cleared', () => {
     const form = BrandingForm.from(saved);
     form.fields.patchValue({ primaryColor: '' });
 
     expect(form.preview(saved.preview, 'Acme Charging')).toMatchObject({
-      primary_color: '#16a34a',
+      primary_color: '#0e7490',
       on_primary_color: '#ffffff',
     });
   });

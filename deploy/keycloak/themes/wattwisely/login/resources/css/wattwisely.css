@@ -35,8 +35,8 @@
   --pf-v5-global--link--Color--hover: var(--ww-link);
   --pf-v5-global--link--Color--dark: var(--ww-link);
   --pf-v5-global--link--Color--dark--hover: var(--ww-link);
-  --pf-v5-global--success-color--100: var(--ww-brand);
-  --pf-v5-global--success-color--200: var(--ww-brand-dark);
+  --pf-v5-global--success-color--100: var(--ww-success);
+  --pf-v5-global--success-color--200: var(--ww-success-text);
   --pf-v5-global--info-color--100: var(--ww-info);
   --pf-v5-global--info-color--200: var(--ww-info-text);
   --pf-v5-global--warning-color--100: var(--ww-warning);

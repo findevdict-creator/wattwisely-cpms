@@ -60,8 +60,8 @@ pre,
   color: var(--ww-info-text);
 
   &.ok {
-    background: var(--ww-brand-soft);
-    color: var(--ww-brand-dark);
+    background: var(--ww-success-soft);
+    color: var(--ww-success-text);
   }
   &.warn {
     background: var(--ww-warning-soft);

@@ -1,15 +1,15 @@
 @use '@angular/material' as mat;
 
 // Angular Material, themed from theme.json. mat.theme writes every --mat-sys-* token from a
-// green palette; tokens.css then sets the ones theme.json names on :root, which wins over html,
-// so a color changed in theme.json reaches every component. The overrides give the components
-// the shapes, weights and borders of the approved screens.
+// cyan palette, the nearest to the brand's teal; tokens.css then sets the ones theme.json names
+// on :root, which wins over html, so a color changed in theme.json reaches every component. The
+// overrides give the components the shapes, weights and borders of the approved screens.
 html {
   color-scheme: light;
   @include mat.theme(
     (
       color: (
-        primary: mat.$green-palette,
+        primary: mat.$cyan-palette,
         tertiary: mat.$blue-palette,
         theme-type: light,
       ),
