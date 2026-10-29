@@ -16,6 +16,10 @@ import { DriverAccountEraser } from './me/driver-account.eraser';
 import { DriverDataExportService } from './me/driver-data-export.service';
 import { DriverMeService } from './me/driver-me.service';
 import { SavedCardsEraser } from './me/saved-cards.eraser';
+import { ChargeMailSubscriber } from './notifications/charge-mail.subscriber';
+import { DriverDevicesRepository } from './notifications/driver-devices.repository';
+import { DriverNotificationsController } from './notifications/driver-notifications.controller';
+import { DriverNotificationsService } from './notifications/driver-notifications.service';
 import { DriverOperatorsController } from './operators/driver-operators.controller';
 import { DriverOperatorsService } from './operators/driver-operators.service';
 import { OperatorLinkTransaction } from './operators/operator-link.transaction';
@@ -31,8 +35,8 @@ import { DriverReceiptsService } from './receipts/driver-receipts.service';
 
 /**
  * The driver app's own routes under /v1/driver (module 19): who the driver is, the operators
- * they are linked with, the invitations that make those links, the cards they save, and the
- * charges they start and follow with their login. Every route takes the driver app's tokens
+ * they are linked with, the invitations that make those links, the cards they save, the
+ * charges they start and follow with their login, and their notifications (module 34). Every route takes the driver app's tokens
  * only; the operator's side of the same records is DriversModule, and the anonymous QR page
  * is PaymentsModule's.
  */
@@ -46,6 +50,7 @@ import { DriverReceiptsService } from './receipts/driver-receipts.service';
     DriverPlacesController,
     DriverChargesController,
     DriverReceiptsController,
+    DriverNotificationsController,
   ],
   providers: [
     DriverLinkWriter,
@@ -68,6 +73,9 @@ import { DriverReceiptsService } from './receipts/driver-receipts.service';
     DriverAccountEraser,
     SavedCardsEraser,
     DriverDataExportService,
+    DriverDevicesRepository,
+    DriverNotificationsService,
+    ChargeMailSubscriber,
   ],
 })
 export class DriverAppModule {}
