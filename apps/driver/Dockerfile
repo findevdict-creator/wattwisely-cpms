@@ -14,8 +14,9 @@ RUN npx nx build driver --configuration=production
 FROM nginx:1.31-alpine AS runtime
 COPY apps/driver/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY apps/driver/docker/40-write-runtime-config.sh /docker-entrypoint.d/40-write-runtime-config.sh
+COPY apps/driver/docker/41-write-app-links.sh /docker-entrypoint.d/41-write-app-links.sh
 COPY --from=build /workspace/dist/apps/driver/browser /usr/share/nginx/html
-RUN chmod +x /docker-entrypoint.d/40-write-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/40-write-runtime-config.sh /docker-entrypoint.d/41-write-app-links.sh
 EXPOSE 8080
 # 127.0.0.1, not localhost: busybox wget tries ::1 first and nginx listens on IPv4 only.
 HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1

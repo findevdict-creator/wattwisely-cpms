@@ -68,6 +68,8 @@ jobs:
     env:
       APP_VERSION: ${{ needs.version.outputs.version }}
       APP_BUILD_NUMBER: ${{ needs.version.outputs.build-number }}
+      # The driver web app's domain, whose plug and invitation links open the app (module 32).
+      APP_LINK_HOST: ${{ vars.MOBILE_DRIVER_HOST }}
     # Secrets go only to the steps that use them, never to npm's install scripts.
     steps:
       - name: Check the secrets
@@ -80,11 +82,11 @@ jobs:
         run: |
           missing=""
           for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS \
-            ANDROID_KEY_PASSWORD PLAY_SERVICE_ACCOUNT_JSON; do
+            ANDROID_KEY_PASSWORD PLAY_SERVICE_ACCOUNT_JSON APP_LINK_HOST; do
             [ -n "${!name}" ] || missing="$missing $name"
           done
           if [ -n "$missing" ]; then
-            echo "::error::Set these secrets first:$missing"
+            echo "::error::Set these secrets and variables first:$missing"
             exit 1
           fi
       - uses: actions/checkout@v7
@@ -143,6 +145,8 @@ jobs:
     env:
       APP_VERSION: ${{ needs.version.outputs.version }}
       APP_BUILD_NUMBER: ${{ needs.version.outputs.build-number }}
+      # The driver web app's domain, whose plug and invitation links open the app (module 32).
+      APP_LINK_HOST: ${{ vars.MOBILE_DRIVER_HOST }}
       IOS_TEAM_ID: ${{ vars.IOS_TEAM_ID }}
     steps:
       - name: Check the secrets
@@ -155,7 +159,7 @@ jobs:
         run: |
           missing=""
           for name in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8_BASE64 IOS_CERTIFICATE_P12_BASE64 \
-            IOS_CERTIFICATE_PASSWORD IOS_TEAM_ID; do
+            IOS_CERTIFICATE_PASSWORD IOS_TEAM_ID APP_LINK_HOST; do
             [ -n "${!name}" ] || missing="$missing $name"
           done
           if [ -n "$missing" ]; then

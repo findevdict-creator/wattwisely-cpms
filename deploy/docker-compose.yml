@@ -214,6 +214,9 @@ services:
       DRIVER_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
       DRIVER_KEYCLOAK_REALM: wattwisely
       DRIVER_KEYCLOAK_CLIENT_ID: wattwisely-driver
+      # The mobile app (module 32) opens this domain's plug and invitation links once these are set.
+      MOBILE_ANDROID_CERT_SHA256: ${MOBILE_ANDROID_CERT_SHA256:-}
+      MOBILE_IOS_TEAM_ID: ${MOBILE_IOS_TEAM_ID:-}
     networks: [backend]
 
   # The admin console (module 9): Wattwisely staff manage tenants, plans, add-ons and each
