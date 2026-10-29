@@ -12,6 +12,7 @@ import { UiProviders } from '@wattwisely/ui';
 import { OAuthStorage, provideOAuthClient } from 'angular-oauth2-oidc';
 import { APP_ROUTES } from './app.routes';
 import { MobileAuthService } from './core/auth/mobile-auth.service';
+import { AppLinks } from './core/charging/app-links';
 import { SecureTokenStore } from './core/auth/secure-token-store';
 
 /**
@@ -39,6 +40,8 @@ export class AppConfigFactory {
         { provide: HTTP_INTERCEPTORS, useClass: DriverApiInterceptor, multi: true },
         // Load the stored sign-in, and refresh it, before the first page is chosen.
         provideAppInitializer(() => inject(MobileAuthService).initialize()),
+        // A plug's QR code or an invitation that opened the app goes to its page (module 32).
+        provideAppInitializer(() => inject(AppLinks).listen()),
       ],
     };
   }

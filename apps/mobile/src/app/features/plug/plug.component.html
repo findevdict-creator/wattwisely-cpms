@@ -1,0 +1,80 @@
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content />
+  </ion-refresher>
+  <div class="ww-page">
+    @if (store.place(); as place) {
+      <ww-top-bar [operator]="operator()" backTo="/tabs/charge" />
+      <header>
+        <h1 data-testid="site">{{ place.site_name }}</h1>
+        <p class="ww-lead" data-testid="plug-line">{{ line() }}</p>
+      </header>
+      <div class="chips">
+        <span class="ww-chip" [class]="availability().tone" data-testid="availability">
+          {{ availability().label }}
+        </span>
+        @if (place.access.is_private_site) {
+          <span class="ww-chip neutral">Members only</span>
+        } @else {
+          <span class="ww-chip neutral">Public site</span>
+        }
+      </div>
+
+      @if (place.tariff) {
+        <ww-price-card [tariff]="place.tariff" />
+      }
+
+      @if (cannotStart(); as reason) {
+        <ww-notice-card
+          [chip]="reason.chip"
+          [tone]="reason.tone"
+          [title]="reason.title"
+          [text]="reason.text"
+          data-testid="cannot-start"
+        >
+          @if (reason.action === 'ask_operator' && place.branding.support_email) {
+            <ion-button fill="outline" [href]="mailto(place.branding.support_email)"
+              >Ask for an invitation</ion-button
+            >
+          }
+          @if (reason.action === 'add_card') {
+            <p class="ww-small left">
+              For now, add a card in the Wattwisely web app's account page. The app's own card
+              screen comes in the next update.
+            </p>
+          }
+        </ww-notice-card>
+      } @else {
+        <section class="ww-card access" data-testid="access">
+          <strong>{{ accessTitle() }}</strong>
+          <p class="ww-lead">{{ accessText() }}</p>
+        </section>
+        <ion-button
+          class="ww-large"
+          expand="block"
+          [disabled]="starter.isStarting()"
+          (click)="start()"
+          data-testid="start"
+        >
+          @if (starter.isStarting()) {
+            <ion-spinner name="crescent" />
+          } @else {
+            Start charging
+          }
+        </ion-button>
+      }
+
+      @if (starter.error()) {
+        <p class="ww-error" role="alert" data-testid="start-error">{{ starter.error() }}</p>
+      }
+      @if (place.branding.support_phone || place.branding.support_email; as help) {
+        <p class="ww-small">Help: {{ help }}</p>
+      }
+    } @else if (store.error()) {
+      <ww-top-bar operator="Charge" backTo="/tabs/charge" />
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    } @else {
+      <ion-spinner class="loading" name="crescent" />
+    }
+  </div>
+</ion-content>

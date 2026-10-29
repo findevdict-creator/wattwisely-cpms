@@ -1,0 +1,25 @@
+h1 {
+  margin: 0 0 4px;
+  font: 700 22px/28px var(--ww-font);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: -6px;
+}
+
+.access strong {
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.ww-small.left {
+  text-align: left;
+}
+
+.loading {
+  align-self: center;
+  margin-top: 40px;
+}

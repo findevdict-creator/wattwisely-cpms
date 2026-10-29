@@ -33,4 +33,11 @@ describe('WelcomeComponent', () => {
     await fixture.whenStable();
     expect(navigate).toHaveBeenCalledWith('/tabs/home', { replaceUrl: true });
   });
+
+  it('comes back to the page a link asked for, and only to a page of the app', () => {
+    expect(WelcomeComponent.target('/plug/SIM-001/1')).toBe('/plug/SIM-001/1');
+    expect(WelcomeComponent.target(undefined)).toBe('/tabs/home');
+    expect(WelcomeComponent.target('//evil.example.com')).toBe('/tabs/home');
+    expect(WelcomeComponent.target('https://evil.example.com')).toBe('/tabs/home');
+  });
 });

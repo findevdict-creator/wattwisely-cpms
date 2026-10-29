@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { IonButton, IonContent } from '@ionic/angular';
 import { Initials } from '@wattwisely/driver-core';
 import { AccountStore } from '../../core/account/account.store';
+import { ChargingNowStore } from '../../core/charging/charging-now.store';
 import { MobileAuthService } from '../../core/auth/mobile-auth.service';
 import { NativeApp } from '../../core/native/native-app';
 
@@ -18,6 +19,7 @@ import { NativeApp } from '../../core/native/native-app';
 })
 export class AccountComponent {
   protected readonly store = inject(AccountStore);
+  private readonly chargingNow = inject(ChargingNowStore);
   private readonly auth = inject(MobileAuthService);
   private readonly router = inject(Router);
   private readonly nativeApp = inject(NativeApp);
@@ -33,6 +35,7 @@ export class AccountComponent {
   protected signOut(): void {
     this.auth.logout();
     this.store.clear();
+    this.chargingNow.clear();
     void this.router.navigateByUrl('/welcome', { replaceUrl: true });
   }
 }

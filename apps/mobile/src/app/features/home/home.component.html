@@ -17,6 +17,18 @@
       <mat-icon svgIcon="chevron-right" />
     </a>
 
+    @if (chargingNow.charge(); as charge) {
+      <h2 class="ww-section">Charging now</h2>
+      <a class="ww-card now" [routerLink]="['/charges', charge.id]" data-testid="charging-now">
+        <strong>{{ chargeLine() }}</strong>
+        <span class="ww-lead">
+          {{ charge.site_name }} · Connector {{ charge.connector_label }} ·
+          {{ charge.started_at | duration: null : now() }}
+        </span>
+        <span class="open">Open session <mat-icon svgIcon="chevron-right" /></span>
+      </a>
+    }
+
     @if (store.error()) {
       <p class="error" role="alert" data-testid="error">{{ store.error() }}</p>
     }

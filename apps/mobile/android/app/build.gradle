@@ -6,6 +6,8 @@ apply plugin: 'com.android.application'
 def appVersion = System.getenv('APP_VERSION') ?: '0.1.0'
 def appBuildNumber = (System.getenv('APP_BUILD_NUMBER') ?: '1').toInteger()
 def uploadKeystore = System.getenv('ANDROID_KEYSTORE_PATH')
+// The driver web app's domain, whose plug and invitation links open the app (module 32).
+def appLinkHost = System.getenv('APP_LINK_HOST') ?: 'charge.localhost'
 
 android {
     namespace = "com.wattwisely.driver"
@@ -16,6 +18,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode appBuildNumber
         versionName appVersion
+        manifestPlaceholders = [appLinkHost: appLinkHost]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

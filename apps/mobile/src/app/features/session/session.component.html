@@ -1,0 +1,67 @@
+<ion-content>
+  <div class="ww-page">
+    @if (store.charge(); as charge) {
+      <ww-top-bar
+        [operator]="charge.operator_name"
+        [backTo]="view() === 'starting' ? null : '/tabs/home'"
+      />
+      <header class="heading">
+        @if (view() === 'live' && store.charge()?.status !== 'charging') {
+          <span class="ww-chip" [class]="chip().tone" data-testid="status">{{ chip().label }}</span>
+        }
+        <h1 data-testid="title">{{ title() }}</h1>
+        <p class="ww-lead">{{ charge.site_name }} · Connector {{ charge.connector_label }}</p>
+      </header>
+
+      @switch (view()) {
+        @case ('starting') {
+          <ww-starting-view [charge]="charge" />
+        }
+        @case ('live') {
+          <ww-live-view
+            [charge]="charge"
+            [readings]="store.readings()"
+            [now]="store.now()"
+            [isStopping]="store.isStopping()"
+            (stop)="store.stop()"
+          />
+        }
+        @case ('complete') {
+          <ww-complete-view [charge]="charge" />
+        }
+        @case ('failed') {
+          @if (isCardRefused()) {
+            <ww-notice-card
+              chip="Hold refused"
+              tone="danger"
+              title="Your bank refused the hold"
+              [text]="failure()"
+              data-testid="failed"
+            >
+              <ion-button fill="outline" (click)="chooseCard(charge)" data-testid="choose-card"
+                >Choose another card</ion-button
+              >
+            </ww-notice-card>
+          } @else {
+            <ww-notice-card
+              chip="Did not start"
+              tone="danger"
+              title="The charger did not start"
+              [text]="failure()"
+              data-testid="failed"
+            />
+          }
+        }
+      }
+
+      @if (store.error()) {
+        <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+      }
+    } @else if (store.error()) {
+      <ww-top-bar operator="Charge" backTo="/tabs/home" />
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    } @else {
+      <ion-spinner class="loading" name="crescent" />
+    }
+  </div>
+</ion-content>
