@@ -11,6 +11,7 @@ import {
   PaymentMethod,
   PaymentMethods,
 } from './models/driver-payments';
+import { NearbyPlace } from './models/nearby-place';
 
 /** Calls /v1/driver for paying and charging with a login (module 19): saved cards, plugs and charges. */
 @Injectable({ providedIn: 'root' })
@@ -43,6 +44,13 @@ export class DriverChargesApiService {
   place(chargerIdentity: string, connector: string): Observable<DriverPlace> {
     const identity = encodeURIComponent(chargerIdentity);
     return this.http.get<DriverPlace>(this.url(`places/${identity}/${connector}`));
+  }
+
+  /** The charging sites within a few kilometres of the phone, nearest first (module 35). */
+  nearby(latitude: number, longitude: number): Observable<{ items: NearbyPlace[] }> {
+    return this.http.get<{ items: NearbyPlace[] }>(this.url('places/nearby'), {
+      params: { latitude, longitude },
+    });
   }
 
   /** Starts with the saved card, or free when the operator says so; consent makes a record at a new operator. */

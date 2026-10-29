@@ -35,6 +35,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera reads the QR code on a charging plug.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location shows the charging sites near you, while the app is open.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location shows the charging sites near you, while the app is open.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
