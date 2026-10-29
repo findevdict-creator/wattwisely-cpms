@@ -1,0 +1,15 @@
+# Maestro runs the flows in this order against the debug APK on an Android emulator
+# (.github/workflows/e2e-mobile.yml). They cover what a browser cannot: the system browser
+# sign-in, the camera and location permission prompts, push permission and the back button.
+flows:
+  - flows/*.yaml
+executionOrder:
+  continueOnFailure: true
+  flowsOrder:
+    - 01-sign-in
+    - 02-plug-code
+    - 03-charge
+    - 04-sessions
+    - 05-account
+    - 06-nearby
+    - 07-sign-out

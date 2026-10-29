@@ -1,0 +1,28 @@
+# Module 30: the welcome page opens Keycloak in the system browser (a Custom Tab); after the
+# password the browser hands the code back to the app by its com.wattwisely.driver: link.
+appId: com.wattwisely.driver
+name: 01-sign-in
+tags: [module-30]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- assertVisible: Charge anywhere with one login
+- tapOn: Sign in
+- extendedWaitUntil:
+    visible: E-mail
+    timeout: 30000
+- tapOn: E-mail
+- inputText: dana@acme.test
+- tapOn: Password
+- inputText: Wattwisely-demo-1
+- tapOn:
+    text: Sign in
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: Good .*, Dana
+    timeout: 30000
+- assertVisible: Your operators
+- assertVisible: Acme Charging

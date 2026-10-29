@@ -1,0 +1,73 @@
+# The services the end-to-end tests need around the apps (apps/e2e/README.md).
+# The apps themselves run on the host as in "npm start", so the tests reach them at
+# localhost:3000 (API), :3100 (OCPP gateway), :4200 (portal), :4300 (driver web app),
+# :4400 (admin console) and :4500 (mobile app's web build).
+# stack-up.sh copies this file next to deploy/scripts, so deploy/scripts/seed-demo.sh seeds it.
+name: wattwisely-e2e
+
+services:
+  postgres:
+    image: postgres:16.15-alpine
+    environment:
+      POSTGRES_DB: wattwisely
+      POSTGRES_USER: wattwisely
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    ports: ['127.0.0.1:5432:5432']
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wattwisely -d wattwisely']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  keycloak:
+    image: keycloak/keycloak:26.8.1
+    command: ['start', '--import-realm']
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HOSTNAME: http://auth.localhost
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: 'true'
+      KC_HTTP_ENABLED: 'true'
+      KC_HEALTH_ENABLED: 'true'
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      PORTAL_URL: http://portal.localhost
+      PORTAL_DEV_URL: http://localhost:4200
+      ADMIN_URL: http://admin.localhost
+      ADMIN_DEV_URL: http://localhost:4400
+      DRIVER_URL: http://localhost:4300
+      DRIVER_DEV_URL: http://localhost:4500
+      KC_REALM_SSL_REQUIRED: external
+      SMTP_HOST: mailpit
+      SMTP_PORT: '1025'
+      SMTP_FROM: no-reply@wattwisely.localhost
+      SMTP_AUTH: 'false'
+      SMTP_USER: ''
+      SMTP_PASSWORD: ''
+      SMTP_STARTTLS: 'false'
+    ports: ['127.0.0.1:80:8080']
+    volumes:
+      - ./keycloak/realm:/opt/keycloak/data/import:ro
+      - ./keycloak/themes/wattwisely:/opt/keycloak/themes/wattwisely:ro
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          grep -q '^HTTP/1\.1 200 ' <&3
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+  mailpit:
+    image: axllent/mailpit:v1.32.0
+    ports: ['127.0.0.1:8025:8025', '127.0.0.1:1025:1025']

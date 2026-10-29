@@ -1,0 +1,13 @@
+# Module 32: the Sessions tab, a receipt and its PDF in the share sheet.
+appId: com.wattwisely.driver
+name: 04-sessions
+tags: [module-32]
+---
+- launchApp
+- tapOn: Sessions
+- assertVisible: My sessions
+- tapOn: .*£8\.80.*
+- assertVisible: Receipt
+- assertVisible: Tax included
+- back
+- assertVisible: My sessions

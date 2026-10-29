@@ -1,0 +1,26 @@
+# Module 33 and module 34: the account pages, and the notification settings with the
+# phone's own permission.
+appId: com.wattwisely.driver
+name: 05-account
+tags: [module-33, module-34]
+---
+- launchApp
+- tapOn: Account
+- assertVisible: dana@acme.test
+- tapOn: My operators
+- assertVisible: Acme Charging
+- back
+- tapOn: Notifications
+- assertVisible: What we tell you
+- back
+- tapOn: Personal details
+- tapOn: Phone
+- eraseText
+- inputText: '+44 7700 900999'
+- tapOn: Save
+# Fails today: the PATCH is refused by the API's CORS preflight (finding F1 in the test report).
+- assertVisible: Saved.
+- back
+- tapOn: Privacy and data
+- assertVisible: Download my data
+- back

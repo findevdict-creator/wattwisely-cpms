@@ -1,0 +1,20 @@
+# Module 32: the Charge tab asks for the camera; refusing it still leaves the typed code.
+appId: com.wattwisely.driver
+name: 02-plug-code
+tags: [module-32]
+---
+- launchApp:
+    permissions:
+      camera: deny
+- tapOn: Charge
+- assertVisible: Scan the QR code
+- tapOn: Enter the code instead
+- tapOn: Plug code
+- inputText: WW-7KQ4M2XR9T/1
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: Riverside Car Park
+    timeout: 15000
+- assertVisible: .*£0\.40.*
+- back
+- assertVisible: Scan the QR code

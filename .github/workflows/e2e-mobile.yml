@@ -1,0 +1,69 @@
+# The native Android app on an emulator (apps/e2e/maestro): what the browser runs of the mobile
+# app is in e2e.yml; this adds the system browser sign-in, the permission prompts and the back
+# button. The stack runs on the runner and the emulator reaches it through adb reverse, so the
+# app keeps its development addresses (localhost:3000 and auth.localhost). Nightly and by hand.
+name: End-to-end tests, Android
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 3 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  maestro:
+    name: Maestro on an Android emulator
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm install -g npm@11
+      - run: npm ci
+      # Hardware acceleration for the emulator on GitHub's Linux runners.
+      - run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - run: npx nx run-many -t build -p api ocpp-gateway worker charger-sim-cli portal driver admin mobile
+      - run: apps/e2e/stack/stack-up.sh
+      - run: apps/e2e/stack/apps-up.sh
+      # Plain http to the runner, through adb reverse.
+      - run: npx nx run mobile:apk
+        env:
+          CAPACITOR_CLEARTEXT: 'true'
+      - run: curl -fsSL https://get.maestro.mobile.dev | bash
+      # The Depot North charger, for the charging flow.
+      - run: |
+          nohup node dist/apps/charger-sim/main.js --url ws://localhost:3100/ocpp --identity SN-AB129934 --meter 2 \
+            > dist/e2e-stack/logs/maestro-charger.log 2>&1 &
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          script: |
+            adb reverse tcp:3000 tcp:3000
+            adb reverse tcp:80 tcp:80
+            adb install -r apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+            mkdir -p dist/e2e-report/maestro
+            "$HOME/.maestro/bin/maestro" test apps/e2e/maestro --format junit --output dist/e2e-report/maestro/junit.xml --debug-output dist/e2e-report/maestro
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: e2e-android-report
+          path: |
+            dist/e2e-report/maestro
+            dist/e2e-stack/logs
+          retention-days: 30
+      - if: always()
+        run: apps/e2e/stack/stack-down.sh
