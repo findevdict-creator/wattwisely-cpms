@@ -1,8 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem, DriverApiService, DriverOperatorProfile } from '@wattwisely/driver-core';
+import { ApiProblem } from '../api/api-problem';
+import { DriverApiService } from '../api/driver-api.service';
+import { DriverOperatorProfile } from '../api/models/driver-account';
 
-/** One operator the driver is linked with: what it holds about them, and leaving it. */
+/**
+ * One operator the driver is linked with: what it holds about them, and leaving it. Shared by
+ * the driver web app and the mobile app's operator page (module 33).
+ */
 @Injectable()
 export class OperatorStore {
   private readonly api = inject(DriverApiService);

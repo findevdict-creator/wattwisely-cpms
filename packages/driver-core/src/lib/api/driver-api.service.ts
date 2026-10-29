@@ -23,6 +23,16 @@ export class DriverApiService {
     return this.http.patch<DriverMe>(this.url('me'), changes);
   }
 
+  /** Everything held about the driver, as a JSON file (module 33). */
+  exportData(): Observable<Blob> {
+    return this.http.get(this.url('me/export'), { responseType: 'blob' });
+  }
+
+  /** Deletes the account's data; the Keycloak login is deleted in Keycloak itself (module 33). */
+  deleteMe(): Observable<void> {
+    return this.http.delete<void>(this.url('me'));
+  }
+
   operators(): Observable<{ items: DriverOperator[] }> {
     return this.http.get<{ items: DriverOperator[] }>(this.url('operators'));
   }

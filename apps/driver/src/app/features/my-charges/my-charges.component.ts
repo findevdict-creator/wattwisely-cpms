@@ -3,9 +3,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
-import { DriverCharge, MoneyPipe, ZonedTimePipe } from '@wattwisely/driver-core';
+import { ChargeHistory, DriverCharge, MoneyPipe, ZonedTimePipe } from '@wattwisely/driver-core';
 import { BrandService } from '../../core/branding/brand.service';
-import { ChargeHistory } from './charge-history';
 import { MyChargesStore } from './my-charges.store';
 
 /**

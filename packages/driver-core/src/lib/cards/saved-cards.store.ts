@@ -1,13 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  ApiProblem,
-  CardSetup,
-  DriverChargesApiService,
-  PaymentMethod,
-} from '@wattwisely/driver-core';
+import { ApiProblem } from '../api/api-problem';
+import { DriverChargesApiService } from '../api/driver-charges-api.service';
+import { CardSetup, PaymentMethod } from '../api/models/driver-payments';
 
-/** The cards saved to the driver's login, and the setup a new one is being typed into (module 19). */
+/**
+ * The cards saved to the driver's login, and the setup a new one is being typed into (module 19).
+ * Shared by the driver web app and the mobile app's payment methods (module 33).
+ */
 @Injectable()
 export class SavedCardsStore {
   private readonly api = inject(DriverChargesApiService);

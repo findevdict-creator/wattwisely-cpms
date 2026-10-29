@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { RuntimeConfig } from '@wattwisely/driver-core';
+import { RuntimeConfig } from '../config/runtime-config';
 import { SavedCardsStore } from './saved-cards.store';
 
 describe('SavedCardsStore', () => {

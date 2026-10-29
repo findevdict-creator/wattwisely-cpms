@@ -5,9 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { BrandService } from '../../core/branding/brand.service';
-import { ChipTone, Initials } from '@wattwisely/driver-core';
-import { OperatorStore } from './operator.store';
-import { PaymentModeWords } from './payment-mode-words';
+import { ChipTone, Initials, OperatorStore, PaymentModeWords } from '@wattwisely/driver-core';
 
 /**
  * One operator the driver is linked with (module 19, story DRV-05): what it holds about
