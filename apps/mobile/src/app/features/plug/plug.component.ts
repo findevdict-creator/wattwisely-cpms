@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonContent,
@@ -30,8 +31,10 @@ import { PriceCardComponent } from './price-card.component';
     IonRefresher,
     IonRefresherContent,
     IonSpinner,
+    MatIconModule,
     NoticeCardComponent,
     PriceCardComponent,
+    RouterLink,
     TopBarComponent,
   ],
   providers: [PlugStore, ChargeStarter],
@@ -58,6 +61,8 @@ export class PlugComponent {
   protected readonly accessTitle = computed(() =>
     this.words((place) => PlugWords.accessTitle(place, this.operator())),
   );
+  /** Where "Add a card" comes back to once the card is saved. */
+  protected readonly here = computed(() => `/plug/${this.identity()}/${this.connector()}`);
   protected readonly accessText = computed(() =>
     this.words((place) => PlugWords.accessText(place)),
   );

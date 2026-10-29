@@ -1,0 +1,70 @@
+<ion-content>
+  <div class="ww-page">
+    <ww-page-bar title="Privacy and data" />
+
+    <h2 class="ww-section">Operators with your data</h2>
+    @if (store.operators().length) {
+      <ul class="ww-card list" data-testid="operators">
+        @for (operator of store.operators(); track operator.tenant_id) {
+          <li class="row">
+            <span class="mark"><mat-icon svgIcon="building-2" /></span>
+            <span class="names">
+              <strong>{{ operator.operator_name }}</strong>
+              <span class="ww-lead">
+                Knows you as {{ operator.driver_name }}
+                @if (operator.linked_at) {
+                  · since {{ operator.linked_at | date: 'd MMM y' }}
+                }
+              </span>
+            </span>
+            <a class="manage" [routerLink]="['/account/operators', operator.tenant_id]">Manage</a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="ww-card ww-lead">No operator holds a record linked to your login.</p>
+    }
+
+    <section class="ww-card">
+      <h2>Your data</h2>
+      <p class="ww-lead">
+        Download what Wattwisely holds about you: your account, the operators' records linked to it,
+        your saved cards and your charges, as one JSON file.
+      </p>
+      <ion-button
+        fill="outline"
+        [disabled]="data.isBusy()"
+        (click)="data.download()"
+        data-testid="download-data"
+      >
+        <mat-icon slot="start" svgIcon="download" />
+        Download my data
+      </ion-button>
+    </section>
+
+    <section class="ww-card">
+      <h2>Delete account</h2>
+      <p class="ww-lead">
+        Removes your login, your saved cards and the guest profiles your charges made. Operators you
+        are a member of keep their record of you, without your login. Receipts are kept by the
+        operators for tax.
+      </p>
+      <ion-button
+        color="danger"
+        [disabled]="data.isBusy()"
+        (click)="delete()"
+        data-testid="delete-account"
+      >
+        @if (data.isBusy()) {
+          <ion-spinner name="crescent" />
+        } @else {
+          Delete my account
+        }
+      </ion-button>
+    </section>
+
+    @if (data.error() || store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ data.error() || store.error() }}</p>
+    }
+  </div>
+</ion-content>

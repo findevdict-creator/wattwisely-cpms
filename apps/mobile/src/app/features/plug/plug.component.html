@@ -38,10 +38,15 @@
             >
           }
           @if (reason.action === 'add_card') {
-            <p class="ww-small left">
-              For now, add a card in the Wattwisely web app's account page. The app's own card
-              screen comes in the next update.
-            </p>
+            <ion-button
+              fill="outline"
+              routerLink="/account/cards/new"
+              [queryParams]="{ next: here() }"
+              data-testid="add-card"
+            >
+              <mat-icon slot="start" svgIcon="plus" />
+              Add a card
+            </ion-button>
           }
         </ww-notice-card>
       } @else {

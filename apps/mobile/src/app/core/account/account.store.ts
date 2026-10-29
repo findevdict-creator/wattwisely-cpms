@@ -28,6 +28,19 @@ export class AccountStore {
     }
   }
 
+  /** The name and phone the driver gives themselves (module 33); false when the API refused. */
+  async save(displayName: string, phone: string): Promise<boolean> {
+    this.error.set('');
+    try {
+      const changes = { display_name: displayName.trim(), phone: phone.trim() || null };
+      this.me.set(await firstValueFrom(this.api.updateMe(changes)));
+      return true;
+    } catch (error) {
+      this.error.set(ApiProblem.from(error).detail);
+      return false;
+    }
+  }
+
   /** Forgets the driver, so the next one to sign in on this phone does not see them. */
   clear(): void {
     this.me.set(null);

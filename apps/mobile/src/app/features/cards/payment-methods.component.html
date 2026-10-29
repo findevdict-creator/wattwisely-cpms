@@ -1,0 +1,75 @@
+<ion-content>
+  <div class="ww-page">
+    <ww-page-bar title="Payment methods" />
+
+    @if (store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+
+    @if (store.cards().length) {
+      <ul class="ww-card list" data-testid="cards">
+        @for (card of store.cards(); track card.id) {
+          <li class="row">
+            <mat-icon svgIcon="credit-card" />
+            <span class="words">
+              <strong>{{ name(card) }}</strong>
+              <span class="ww-lead">
+                {{ expiry(card) }}
+                @if (!card.is_default && !isExpired(card)) {
+                  ·
+                  <button
+                    type="button"
+                    class="link"
+                    [disabled]="store.isBusy()"
+                    (click)="store.makeDefault(card)"
+                  >
+                    Make default
+                  </button>
+                }
+                ·
+                <button
+                  type="button"
+                  class="link danger"
+                  [disabled]="store.isBusy()"
+                  (click)="remove(card)"
+                  data-testid="remove"
+                >
+                  Remove
+                </button>
+              </span>
+            </span>
+            @if (isExpired(card)) {
+              <span class="ww-chip danger">Expired</span>
+            } @else if (card.is_default) {
+              <span class="ww-chip dark">Default</span>
+            }
+          </li>
+        }
+      </ul>
+    } @else if (store.isBusy()) {
+      <ion-spinner class="loading" name="crescent" />
+    } @else {
+      <p class="ww-card ww-lead" data-testid="no-cards">
+        No card yet. A card saved here pays at every operator that asks for one.
+      </p>
+    }
+
+    @if (store.isProviderEnabled()) {
+      <ion-button
+        class="ww-large"
+        expand="block"
+        routerLink="/account/cards/new"
+        data-testid="add-card"
+      >
+        <mat-icon slot="start" svgIcon="plus" />
+        Add a card
+      </ion-button>
+    }
+
+    <p class="note">
+      <mat-icon svgIcon="info" />
+      Cards are stored by Stripe. Wattwisely keeps only the brand, the last 4 digits and the expiry.
+      Each operator charges your card through its own Stripe account.
+    </p>
+  </div>
+</ion-content>

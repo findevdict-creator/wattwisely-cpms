@@ -33,3 +33,9 @@ ion-radio-group {
     line-height: 18px;
   }
 }
+
+ion-button.add {
+  align-self: flex-start;
+  margin: -8px 0 0 -8px;
+  text-transform: none;
+}
