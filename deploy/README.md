@@ -131,6 +131,8 @@ Open <http://portal.localhost>. The driver app is at <http://charge.localhost>: 
 
   A realm created before module 30 needs the mobile app's addresses on the driver client. Under _Clients > wattwisely-driver_, add `com.wattwisely.driver:/*` to _Valid redirect URIs_ and to _Valid post logout redirect URIs_, and `https://localhost` and `capacitor://localhost` to _Web origins_ (the app's pages run there on Android and iOS). Then `./scripts/up.sh --no-pull`, so the API allows the same two origins.
 
+  A realm created before module 33 needs two steps before drivers can delete their own login from the mobile app. Under _Authentication > Required actions_, switch **Delete Account** on. Under _Realm settings > User registration > Default roles_, choose _Assign role_, filter by clients and add `account` `delete-account`. Existing users get the role through the default roles at once.
+
   A realm created before module 21 keeps Keycloak's own sign-in pages and e-mails until it is given the platform's theme. Run `./scripts/up.sh --no-pull` first, so the Keycloak container mounts `keycloak/themes/wattwisely`; then under _Realm settings > Themes_ set _Login theme_ and _Email theme_ to `wattwisely` and save. The theme takes its colors from `packages/theme/theme.json`: after a color change, `npx nx run theme:generate` rewrites its `tokens.css`, `mark.svg` and `theme-colours.ftl`, and a Keycloak restart (`docker restart wattwisely-keycloak-1`) shows them, since Keycloak caches themes on a server.
 
 - **OpenBao is sealed after every restart.** `up.sh` unseals it with the key in `.secrets/`. If that file is lost, the secrets in OpenBao are lost too.

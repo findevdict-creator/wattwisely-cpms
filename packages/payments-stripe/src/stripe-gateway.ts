@@ -151,6 +151,10 @@ export class StripeGateway implements PaymentGateway {
     return this.call(() => this.savedCards.detach(providerPaymentMethodId));
   }
 
+  deleteCustomer(providerCustomerId: string): Promise<void> {
+    return this.call(() => this.savedCards.deleteCustomer(providerCustomerId));
+  }
+
   createSavedCardHold(request: SavedCardHoldRequest): Promise<HoldState> {
     return this.call(() => this.savedCards.hold(request));
   }

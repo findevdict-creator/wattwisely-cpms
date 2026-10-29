@@ -120,6 +120,15 @@
       }
     ]
   },
+  "defaultRole": {
+    "name": "default-roles-wattwisely",
+    "description": "Every user gets these roles; delete-account lets a driver delete their own login (module 33).",
+    "composite": true,
+    "composites": {
+      "realm": ["offline_access", "uma_authorization"],
+      "client": { "account": ["view-profile", "manage-account", "delete-account"] }
+    }
+  },
   "requiredActions": [
     {
       "alias": "CONFIGURE_TOTP",
@@ -155,6 +164,15 @@
       "enabled": true,
       "defaultAction": false,
       "priority": 50,
+      "config": {}
+    },
+    {
+      "alias": "delete_account",
+      "name": "Delete Account",
+      "providerId": "delete_account",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 60,
       "config": {}
     },
     {
