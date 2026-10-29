@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { IonicColoursCss } from './ionic-colours-css';
 import { MailColoursFtl } from './mail-colours-ftl';
 import { MarkSvg } from './mark-svg';
 import { PlatformColoursSource } from './platform-colours-source';
@@ -14,6 +15,8 @@ export class ThemeFiles {
   static readonly THEME = 'packages/theme/theme.json';
   static readonly TOKENS_CSS = 'packages/theme/src/tokens.css';
   static readonly PLATFORM_COLOURS = 'packages/theme/src/platform-colours.ts';
+  /** Ionic's color variables for the mobile app (module 30). */
+  static readonly IONIC_CSS = 'packages/theme/src/ionic.css';
   /** Keycloak's login and e-mail theme (deploy/keycloak/themes/wattwisely). */
   static readonly KEYCLOAK = 'deploy/keycloak/themes/wattwisely';
   static readonly KEYCLOAK_TOKENS_CSS = `${ThemeFiles.KEYCLOAK}/login/resources/css/tokens.css`;
@@ -37,6 +40,7 @@ export class ThemeFiles {
     return new Map([
       [ThemeFiles.TOKENS_CSS, TokensCss.render(theme)],
       [ThemeFiles.PLATFORM_COLOURS, PlatformColoursSource.render(theme)],
+      [ThemeFiles.IONIC_CSS, IonicColoursCss.render(theme)],
       [ThemeFiles.KEYCLOAK_TOKENS_CSS, TokensCss.render(theme)],
       [ThemeFiles.KEYCLOAK_MARK, MarkSvg.render(theme)],
       [ThemeFiles.KEYCLOAK_LOGO, MarkSvg.renderLockup(theme)],

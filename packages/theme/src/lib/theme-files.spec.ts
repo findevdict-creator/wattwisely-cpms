@@ -37,4 +37,13 @@ describe('ThemeFiles', () => {
     expect(mail).toContain('<#assign onPrimary = "#ffffff">');
     expect(mail).toContain('<#assign fontFamily = "Inter">');
   });
+
+  it('gives the mobile app Ionic colors from the same palette, with white on the brand teal', () => {
+    const ionic = files.expected().get(ThemeFiles.IONIC_CSS) ?? '';
+    expect(ionic).toContain('--ion-color-primary: #0e7490;');
+    expect(ionic).toContain('--ion-color-primary-rgb: 14, 116, 144;');
+    expect(ionic).toContain('--ion-color-primary-contrast: #ffffff;');
+    expect(ionic).toContain('--ion-color-success: #16a34a;');
+    expect(ionic).toContain('--ion-tab-bar-color-selected: #0e7490;');
+  });
 });
