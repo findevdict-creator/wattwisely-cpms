@@ -18,6 +18,8 @@ updates:
         patterns: ['@nestjs/*']
       aws-sdk:
         patterns: ['@aws-sdk/*']
+      mobile:
+        patterns: ['@capacitor/*', '@ionic/*', '@aparajita/capacitor-*']
       lint-and-test:
         patterns:
           [

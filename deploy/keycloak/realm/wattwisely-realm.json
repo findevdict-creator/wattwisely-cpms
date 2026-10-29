@@ -273,14 +273,14 @@
       "frontchannelLogout": true,
       "rootUrl": "${DRIVER_URL}",
       "baseUrl": "/",
-      "redirectUris": ["${DRIVER_URL}/*", "${DRIVER_DEV_URL}/*"],
-      "webOrigins": ["${DRIVER_URL}", "${DRIVER_DEV_URL}"],
+      "redirectUris": ["${DRIVER_URL}/*", "${DRIVER_DEV_URL}/*", "com.wattwisely.driver:/*"],
+      "webOrigins": ["${DRIVER_URL}", "${DRIVER_DEV_URL}", "https://localhost", "capacitor://localhost"],
       "authenticationFlowBindingOverrides": {
         "browser": "7d1a4c3e-0b2f-4e8a-9c6d-5f1e2a3b4c03"
       },
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "${DRIVER_URL}/*##${DRIVER_DEV_URL}/*"
+        "post.logout.redirect.uris": "${DRIVER_URL}/*##${DRIVER_DEV_URL}/*##com.wattwisely.driver:/*"
       },
       "protocolMappers": [
         {
