@@ -1,5 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { ValidationError, validateSync } from 'class-validator';
+import { PushSettings } from './push-settings';
 import { RetentionPeriods } from './retention-periods';
 import { WorkerConfig } from './worker.config';
 
@@ -38,6 +39,8 @@ export class WorkerConfigLoader {
     RETENTION_WEBHOOK_EVENTS_DAYS: '90',
     RETENTION_WEBHOOK_DELIVERIES_DAYS: '30',
     SMTP_PORT: '587',
+    PUSH_INTERVAL_MS: '15000',
+    APNS_BUNDLE_ID: 'com.wattwisely.driver',
   };
 
   load(environment: NodeJS.ProcessEnv): WorkerConfig {
@@ -60,6 +63,7 @@ export class WorkerConfigLoader {
       ...this.operationsSettings(get),
       ...this.mailSettings(environment, get),
       ...this.addonSettings(environment, get),
+      push: this.pushSettings(environment, get),
       stripeSecretKey: environment['STRIPE_SECRET_KEY'] ?? '',
     });
     const errors = validateSync(config);
@@ -116,6 +120,22 @@ export class WorkerConfigLoader {
       whatsappAccessToken: environment['WHATSAPP_ACCESS_TOKEN'] ?? '',
       whatsappApiUrl: get('WHATSAPP_API_URL'),
     };
+  }
+
+  /** Module 34: Firebase for Android and Apple's service for iOS. */
+  private pushSettings(
+    environment: NodeJS.ProcessEnv,
+    get: (key: WorkerSetting) => string,
+  ): PushSettings {
+    return plainToInstance(PushSettings, {
+      intervalMs: Number(get('PUSH_INTERVAL_MS')),
+      fcmServiceAccountJson: environment['FCM_SERVICE_ACCOUNT_JSON'] ?? '',
+      apnsPrivateKey: (environment['APNS_PRIVATE_KEY'] ?? '').replace(/\\n/g, '\n'),
+      apnsKeyId: environment['APNS_KEY_ID'] ?? '',
+      apnsTeamId: environment['APNS_TEAM_ID'] ?? '',
+      apnsBundleId: get('APNS_BUNDLE_ID'),
+      isApnsSandbox: environment['APNS_SANDBOX'] === 'true',
+    });
   }
 
   /** The same SMTP settings as the API's, and the addresses e-mails link to. */

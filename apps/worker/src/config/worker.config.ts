@@ -11,6 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { PushSettings } from './push-settings';
 import { RetentionPeriods } from './retention-periods';
 import { SmtpSettings } from '@wattwisely/mail';
 
@@ -114,6 +115,11 @@ export class WorkerConfig implements SmtpSettings {
   @IsInt()
   @Min(100)
   sessionNotifyIntervalMs!: number;
+
+  /** Push notifications to the mobile app (module 34). */
+  @ValidateNested()
+  @Type(() => PushSettings)
+  push!: PushSettings;
 
   /** How often the e-mail outbox is sent. */
   @IsInt()

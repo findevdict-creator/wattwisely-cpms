@@ -196,6 +196,13 @@ services:
       MESSAGING_INTERVAL_MS: ${MESSAGING_INTERVAL_MS:-10000}
       DRIVER_URL: ${PUBLIC_SCHEME}://${DRIVER_HOST}
       WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
+      # Module 34: pushes to the mobile app, through Firebase for Android and Apple for iOS.
+      PUSH_INTERVAL_MS: ${PUSH_INTERVAL_MS:-15000}
+      FCM_SERVICE_ACCOUNT_JSON: ${FCM_SERVICE_ACCOUNT_JSON:-}
+      APNS_PRIVATE_KEY: ${APNS_PRIVATE_KEY:-}
+      APNS_KEY_ID: ${APNS_KEY_ID:-}
+      APNS_TEAM_ID: ${APNS_TEAM_ID:-}
+      APNS_SANDBOX: ${APNS_SANDBOX:-false}
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }

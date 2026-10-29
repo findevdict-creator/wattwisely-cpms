@@ -13,6 +13,7 @@ import { WorkerMetricsModule } from './metrics/worker-metrics.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { OperationsModule } from './operations/operations.module';
 import { PaymentJobsModule } from './payments/payment-jobs.module';
+import { PushModule } from './push/push.module';
 import { ReportsModule } from './reports/reports.module';
 import { SessionJobsModule } from './sessions/session-jobs.module';
 import { FileStorageModule } from './storage/file-storage.module';
@@ -43,6 +44,7 @@ import { WebhookJobsModule } from './webhooks/webhook-jobs.module';
     WebhookJobsModule,
     LoadManagementModule,
     MessagingJobsModule,
+    PushModule,
   ],
   controllers: [HealthController],
 })
