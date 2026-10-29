@@ -1,0 +1,5 @@
+# fastlane sends the app to Google Play's internal testing and to TestFlight (module 31).
+# The lanes are in fastlane/Fastfile; the release workflow runs them.
+source 'https://rubygems.org'
+
+gem 'fastlane', '~> 2.241'
