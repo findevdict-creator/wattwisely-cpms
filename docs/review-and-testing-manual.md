@@ -831,6 +831,27 @@ Each section below has the same shape: where the module is, what it adds, which 
 | 5   | `npx nx run mobile:sync`, then run `apps/mobile/ios/App/App.xcodeproj` in Xcode on a simulator                                                     | The same as on Android                                                                                                                    |
 | 6   | Open the driver web app at <http://charge.localhost>                                                                                               | Unchanged: the plug page, paying, the account and the charges work as in module 26                                                        |
 
+### Module 31: the mobile app's release pipeline
+
+**Where:** branch `31-module/mobile-release`, [docs/modules/31-mobile-release.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/31-module/mobile-release/docs/modules/31-mobile-release.md). Stacked on module 30.
+
+**What it adds.** The app's icon (the white mark on the logo's teal) and launch screen (the teal mark on white), drawn from `BrandMark`: Android vector drawables from `theme:generate`, and PNGs for iOS and Android 7 from the new `theme:icons`. Android's release build takes its version, build number and upload key from the environment (`mobile:bundle`). fastlane lanes upload to Google Play's internal testing (`android internal`) and to TestFlight (`ios beta`). `.github/workflows/mobile-release.yml` runs them on a tag `mobile-v*` or by hand, with `config.json` from the GitHub environment `mobile-production` or `mobile-staging`. `mobile.yml` also builds the release App Bundle, unsigned.
+
+**Review, in this order.** `packages/theme/src/lib/android-icon-xml.ts`, `app-icon-svg.ts`, `app-icon-pngs.ts`; the Android `res` folder (`mipmap-anydpi-v26`, `drawable/splash.xml`, `values/styles.xml`); `apps/mobile/android/app/build.gradle`; `apps/mobile/fastlane/Fastfile`; `.github/actions/mobile-config`, `mobile-release.yml`.
+
+**Specs.** `packages/theme` `app-icon-svg.spec.ts`, `app-icon-pngs.spec.ts`, `theme-files.spec.ts`.
+
+**Manual test.** Steps 3 to 6 need the accounts and secrets in the module's document.
+
+| #   | Do                                                                                                    | Expect                                                                                                                                     |
+| --- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Install the debug APK from the pull request's Mobile workflow                                         | The Wattwisely icon, the white mark on teal, in the launcher; on Android 13 with themed icons on, the mark in the wallpaper's tint         |
+| 2   | Open the app                                                                                          | The teal mark on white while it starts, then the welcome page                                                                              |
+| 3   | Run Actions → Mobile release with version `0.1.0` and environment `staging`, before any secret is set | Both jobs stop at "Check the secrets" and name each missing secret                                                                         |
+| 4   | With the secrets set, run it again                                                                    | A signed `.aab` and `.ipa` among the run's downloads; the build in Play Console's internal testing (by hand the first time) and TestFlight |
+| 5   | Install from the internal testing link and from TestFlight, then sign in                              | The staging server's Keycloak opens over the app and comes back to Home                                                                    |
+| 6   | Push the tag `mobile-v0.1.1`                                                                          | A release against `mobile-production`, with a build number above the last one                                                              |
+
 ## 6. Reporting findings
 
 Report what you find on the module's PR, one comment per finding, with the manual step number and what you saw instead of the expected result. Fixes go on the module's branch and PR, are merged forward into every module branch above it, and the `module-NN` tag is moved to the new tip, so the diff between consecutive module branches stays one module. Documentation gaps belong in that module's walkthrough under `docs/modules/`.
