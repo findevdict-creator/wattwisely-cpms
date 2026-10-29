@@ -1,0 +1,28 @@
+# Module 32: a charge at Depot North, free for Dana through her access group. The workflow keeps
+# the simulator for SN-AB129934 running while this flow runs.
+appId: com.wattwisely.driver
+name: 03-charge
+tags: [module-32]
+---
+- launchApp
+- tapOn: Charge
+- tapOn: Enter the code instead
+- tapOn: Plug code
+- inputText: SN-AB129934/1
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: Depot North
+    timeout: 15000
+- assertVisible: .*[Ff]ree.*
+- tapOn: Start charging
+- extendedWaitUntil:
+    visible: Stop charging
+    timeout: 45000
+- assertVisible: Energy
+- tapOn: Stop charging
+- extendedWaitUntil:
+    visible: Done
+    timeout: 90000
+- tapOn: Done
+- assertVisible:
+    text: Good .*, Dana

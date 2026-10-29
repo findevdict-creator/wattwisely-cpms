@@ -1,0 +1,18 @@
+# Module 30 and module 33: signing out ends the Keycloak session and returns to the welcome page.
+appId: com.wattwisely.driver
+name: 07-sign-out
+tags: [module-30, module-33]
+---
+- launchApp
+- tapOn: Account
+- tapOn: Sign out
+- runFlow:
+    when:
+      visible: Sign out?
+    commands:
+      - tapOn:
+          text: Sign out
+          index: 1
+- extendedWaitUntil:
+    visible: Charge anywhere with one login
+    timeout: 30000

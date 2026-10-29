@@ -1,0 +1,20 @@
+# Module 35: with location allowed, the home tab lists sites near Tower Bridge.
+appId: com.wattwisely.driver
+name: 06-nearby
+tags: [module-35]
+---
+- setLocation:
+    latitude: 51.5055
+    longitude: -0.0754
+- launchApp:
+    permissions:
+      location: allow
+- assertVisible: Nearby
+- runFlow:
+    when:
+      visible: Use my location
+    commands:
+      - tapOn: Use my location
+- extendedWaitUntil:
+    visible: Riverside Car Park
+    timeout: 30000

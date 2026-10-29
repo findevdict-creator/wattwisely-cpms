@@ -1,0 +1,35 @@
+{
+  "name": "e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/e2e/src",
+  "projectType": "application",
+  "tags": ["scope:e2e", "type:app"],
+  "implicitDependencies": [
+    "api",
+    "ocpp-gateway",
+    "worker",
+    "portal",
+    "driver",
+    "admin",
+    "mobile",
+    "charger-sim-cli"
+  ],
+  "targets": {
+    "stack-up": {
+      "executor": "nx:run-commands",
+      "options": { "command": "apps/e2e/stack/stack-up.sh && apps/e2e/stack/apps-up.sh" }
+    },
+    "stack-down": {
+      "executor": "nx:run-commands",
+      "options": { "command": "apps/e2e/stack/stack-down.sh" }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "options": { "command": "npx playwright test -c apps/e2e/playwright.config.ts" }
+    },
+    "report": {
+      "executor": "nx:run-commands",
+      "options": { "command": "node apps/e2e/tools/write-summary.mjs" }
+    }
+  }
+}
