@@ -1,4 +1,4 @@
-import { Charge } from '../core/api/models/charge';
+import { Charge } from '../api/models/charge';
 
 /** What happens to the hold once a charge is paid. */
 export class ChargeHold {

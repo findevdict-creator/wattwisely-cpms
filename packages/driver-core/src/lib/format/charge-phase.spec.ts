@@ -1,4 +1,4 @@
-import { Charge } from '../core/api/models/charge';
+import { Charge } from '../api/models/charge';
 import { ChargePhases } from './charge-phase';
 
 describe('ChargePhases', () => {

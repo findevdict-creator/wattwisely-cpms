@@ -1,9 +1,12 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { ChargeReceipt, ReceiptLine } from '../../core/api/models/charge';
-import { MoneyPipe } from '../../shared/money.pipe';
-import { UnitPricePipe } from '../../shared/unit-price.pipe';
-import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
+import {
+  ChargeReceipt,
+  MoneyPipe,
+  ReceiptLine,
+  UnitPricePipe,
+  ZonedTimePipe,
+} from '@wattwisely/driver-core';
 
 /** The receipt, one line per item with its quantity and price, then the tax and the total. */
 @Component({

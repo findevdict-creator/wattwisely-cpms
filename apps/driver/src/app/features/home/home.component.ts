@@ -6,10 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { BrandService } from '../../core/branding/brand.service';
-import { MyChargesStore } from '../../core/charges/my-charges.store';
-import { ChargeChip, ChargeChips } from '../../shared/charge-chips';
-import { MoneyPipe } from '../../shared/money.pipe';
-import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
+import {
+  ChargeChip,
+  ChargeChips,
+  MoneyPipe,
+  MyChargesStore,
+  ZonedTimePipe,
+} from '@wattwisely/driver-core';
 
 /**
  * The home page: how to start (scan the QR code on the plug, or type what the sticker

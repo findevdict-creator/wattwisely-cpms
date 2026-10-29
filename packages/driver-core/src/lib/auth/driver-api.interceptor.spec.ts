@@ -8,7 +8,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { RuntimeConfig } from '../config/runtime-config';
 import { DriverApiInterceptor } from './driver-api.interceptor';
-import { DriverAuthService } from './driver-auth.service';
+import { DriverSession } from './driver-session';
 
 describe('DriverApiInterceptor', () => {
   let http: HttpClient;
@@ -25,7 +25,7 @@ describe('DriverApiInterceptor', () => {
           provide: RuntimeConfig,
           useValue: new RuntimeConfig('https://api.test', 'https://auth.test', 'ww', 'driver'),
         },
-        { provide: DriverAuthService, useValue: auth },
+        { provide: DriverSession, useValue: auth },
       ],
     });
     http = TestBed.inject(HttpClient);

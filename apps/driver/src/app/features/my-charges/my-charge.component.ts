@@ -5,9 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { BrandService } from '../../core/branding/brand.service';
-import { ChargeChip, ChargeChips } from '../../shared/charge-chips';
-import { MoneyPipe } from '../../shared/money.pipe';
-import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
+import { ChargeChip, ChargeChips, MoneyPipe, ZonedTimePipe } from '@wattwisely/driver-core';
 import { MyChargeStore } from './my-charge.store';
 
 /** One of the driver's charges (module 19): where, how much, who pays, and a stop button while it runs. */

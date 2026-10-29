@@ -1,5 +1,5 @@
 import { PlatformColours } from '@wattwisely/theme';
-import { PublicBranding } from '../api/models/branding';
+import { PublicBranding } from '@wattwisely/driver-core';
 
 /**
  * Turns an operator's brand into the page's colours: the Material tokens the buttons,

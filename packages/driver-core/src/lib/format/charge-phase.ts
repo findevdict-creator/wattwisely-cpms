@@ -1,4 +1,4 @@
-import { Charge } from '../core/api/models/charge';
+import { Charge } from '../api/models/charge';
 
 /** Which page the driver sees: the session's state and the payment's, in one word. */
 export type ChargePhase = 'card' | 'starting' | 'charging' | 'finishing' | 'done' | 'failed';

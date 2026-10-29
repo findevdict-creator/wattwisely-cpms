@@ -3,13 +3,15 @@ import { Component, computed, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Charge } from '../../core/api/models/charge';
-import { ChargeHold } from '../../shared/charge-hold';
-import { ChargeWords } from '../../shared/charge-words';
-import { Initials } from '../../shared/initials';
-import { MoneyPipe } from '../../shared/money.pipe';
+import {
+  Charge,
+  ChargeHold,
+  ChargeWords,
+  Initials,
+  MoneyPipe,
+  ZonedTimePipe,
+} from '@wattwisely/driver-core';
 import { SupportContactComponent } from '../../shared/support-contact.component';
-import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
 import { ChargeReceiptComponent } from './charge-receipt.component';
 
 /**

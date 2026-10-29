@@ -1,8 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { DriverApiService } from '../../core/api/driver-api.service';
-import { DriverInvitationPreview, DriverOperator } from '../../core/api/models/driver-account';
+import {
+  ApiProblem,
+  DriverApiService,
+  DriverInvitationPreview,
+  DriverOperator,
+} from '@wattwisely/driver-core';
 
 /** The invitation an operator's e-mail linked to, and the driver's answer to it (module 19). */
 @Injectable()

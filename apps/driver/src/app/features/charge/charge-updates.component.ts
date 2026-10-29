@@ -5,9 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { ChargeNotifications } from '../../core/api/models/charge-notifications';
-import { PublicApiService } from '../../core/api/public-api.service';
+import { ApiProblem, ChargeNotifications, PublicApiService } from '@wattwisely/driver-core';
 
 /**
  * E-mail updates about this charge (story NTF-01): the receipt once an address is given,

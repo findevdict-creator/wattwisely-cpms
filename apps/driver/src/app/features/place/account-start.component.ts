@@ -5,8 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
-import { Place } from '../../core/api/models/place';
-import { MoneyPipe } from '../../shared/money.pipe';
+import { MoneyPipe, Place } from '@wattwisely/driver-core';
 import { AccountStartStore } from './account-start.store';
 
 /**
