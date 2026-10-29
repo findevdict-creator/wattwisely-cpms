@@ -5,6 +5,7 @@ import { DriverChargesApiService, DriverPlace } from '@wattwisely/driver-core';
 import { IconRegistrar } from '@wattwisely/ui';
 import { of } from 'rxjs';
 import { ChargingFixtures } from '../../core/charging/charging.fixture';
+import { PushRegistrar } from '../../core/notifications/push-registrar';
 import { PlugComponent } from './plug.component';
 
 describe('PlugComponent', () => {
@@ -21,6 +22,7 @@ describe('PlugComponent', () => {
         provideIonicAngular(),
         { provide: DriverChargesApiService, useValue: api },
         { provide: NavController, useValue: navController },
+        { provide: PushRegistrar, useValue: { enable: jest.fn(async () => true) } },
       ],
     });
     TestBed.inject(IconRegistrar).register();

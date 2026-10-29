@@ -898,6 +898,27 @@ Each section below has the same shape: where the module is, what it adds, which 
 | 7   | Account → Privacy and data → Download my data                                                                            | `my-wattwisely-data.json` with the account, the operators, the cards and the charges                                                                       |
 | 8   | With a new driver who charged once as a guest at Acme: Privacy and data → Delete my account → Delete                     | Keycloak's "Delete account" page opens; confirming deletes the login (gone from Keycloak's _Users_). In the portal the guest record reads "Deleted driver" |
 
+### Module 34: notifications in the mobile app
+
+**Where:** branch `34-module/mobile-push`, [docs/modules/34-mobile-push.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/34-module/mobile-push/docs/modules/34-mobile-push.md). Stacked on module 33.
+
+**What it adds.** The worker's `PushNotifyJob` pushes the start, nearly full, the idle fee warning and the receipt of each charge to the driver's phones, each once, through Firebase Cloud Messaging (Android) and Apple's push service (iOS), and forgets phones the services no longer know. The app asks for notifications at the first charge, registers the phone with `PUT /v1/driver/devices` and takes it off at sign-out; a tapped push opens the charge or the receipt. Account → Notifications saves the choices with `PUT /v1/driver/me/notifications`; with e-mail on, a charge started in the app gets the module 11 e-mails. New tables `driver_devices` and `push_deliveries`; new package `packages/push`.
+
+**Review, in this order.** `packages/db` `driver-devices.table.ts`, `push-deliveries.table.ts`, `driver-accounts.table.ts`, migrations `0036` and `0037`; `packages/push` (`jwt-signer.ts`, `google-access-token.ts`, `fcm-push.sender.ts`, `apns-push.sender.ts`, `platform-push.sender.ts`); `apps/api` `driver-app/notifications/*`, `charges/driver-charge-starter.ts`, `me/driver-me.service.ts`; `apps/worker` `push/*`, `driver-mail/session-facts.sql.ts`, `config/push-settings.ts`; `apps/mobile` `core/native/native-push.ts`, `core/notifications/*`, `core/auth/sign-out.ts`, `features/notifications`, `PushSupportPlugin.java`, `MainActivity.java`, `AndroidManifest.xml`, `AppDelegate.swift`, `App.entitlements`; `.github/workflows/mobile-release.yml`; `deploy/.env.example`.
+
+**Specs.** `packages/push` `push.spec.ts` (the signed tokens, Firebase's and Apple's messages, which answers mean a gone phone, no credentials no sending); `apps/api` `driver-notifications.flow.spec.ts` (choices, a phone moving between logins, e-mails for an app charge) and `driver-account.flow.spec.ts` (phones forgotten on delete); `apps/worker` `push.flow.spec.ts` (each push once, the choices, phones added after the charge, a gone phone); `apps/mobile` `notifications.spec.ts`, `push-words.spec.ts`.
+
+**Manual test.** Pushes need a phone and the keys in `deploy/.env` (the module's document, "Setting it up").
+
+| #   | Do                                                                                                                          | Expect                                                                                                              |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1   | `npx nx serve mobile`, sign in as `dana@acme.test`, Account → Notifications                                                 | Four choices on, Push notifications "Only in the app on a phone", E-mail off with Dana's address                    |
+| 2   | Turn E-mail on, leave the page and come back                                                                                | E-mail still on                                                                                                     |
+| 3   | Charge on `WW-7KQ4M2XR9T/1` (module 32) and stop                                                                            | Mailpit (http://localhost:8025) has "Charging started at …" and the receipt for Dana                                |
+| 4   | On an Android phone with `google-services.json` and `FCM_SERVICE_ACCOUNT_JSON`: charge, allow notifications, lock the phone | "Charging at …" within 15 seconds; after stopping, "Charge complete: Free", which opens the receipt                 |
+| 5   | Account → Notifications, turn "Charging started" off, charge again                                                          | No "Charging at …" push; the receipt push still comes                                                               |
+| 6   | Sign out on the phone                                                                                                       | The phone is gone: `select count(*) from driver_devices` in the database is 0, and the next charge sends it nothing |
+
 ## 6. Reporting findings
 
 Report what you find on the module's PR, one comment per finding, with the manual step number and what you saw instead of the expected result. Fixes go on the module's branch and PR, are merged forward into every module branch above it, and the `module-NN` tag is moved to the new tip, so the diff between consecutive module branches stays one module. Documentation gaps belong in that module's walkthrough under `docs/modules/`.

@@ -13,6 +13,7 @@ import { OAuthStorage, provideOAuthClient } from 'angular-oauth2-oidc';
 import { APP_ROUTES } from './app.routes';
 import { MobileAuthService } from './core/auth/mobile-auth.service';
 import { AppLinks } from './core/charging/app-links';
+import { PushRegistrar } from './core/notifications/push-registrar';
 import { SecureTokenStore } from './core/auth/secure-token-store';
 
 /**
@@ -42,6 +43,8 @@ export class AppConfigFactory {
         provideAppInitializer(() => inject(MobileAuthService).initialize()),
         // A plug's QR code or an invitation that opened the app goes to its page (module 32).
         provideAppInitializer(() => inject(AppLinks).listen()),
+        // The phone's push token follows the sign-in; a tapped push opens its page (module 34).
+        provideAppInitializer(() => inject(PushRegistrar).listen()),
       ],
     };
   }

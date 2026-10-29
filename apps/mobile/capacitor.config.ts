@@ -15,6 +15,10 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 0,
     },
+    // A push that arrives while the app is open shows as on the lock screen (module 34).
+    PushNotifications: {
+      presentationOptions: ['banner', 'list', 'sound'],
+    },
   },
 };
 

@@ -5,9 +5,15 @@
   driver web app's domain. APP_LINK_HOST is that domain, set in the project for a local build
   and by the release workflow (MOBILE_DRIVER_HOST) for TestFlight. The App ID needs the
   Associated Domains capability, and the domain must serve apple-app-site-association.
+
+  Pushes (module 34): aps-environment lets the app register with Apple's push service. Xcode
+  signs a development build for the sandbox and rewrites it to production when it exports for
+  TestFlight and the App Store. The App ID needs the Push Notifications capability.
 -->
 <plist version="1.0">
 <dict>
+	<key>aps-environment</key>
+	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:$(APP_LINK_HOST)</string>

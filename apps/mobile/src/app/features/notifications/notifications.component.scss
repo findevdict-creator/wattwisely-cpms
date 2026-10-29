@@ -1,0 +1,15 @@
+@use '../operators/operators';
+
+.names .ww-lead {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+ion-toggle {
+  flex: none;
+}
+
+.left {
+  margin-top: -8px;
+  text-align: left;
+}

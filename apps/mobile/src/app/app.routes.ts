@@ -8,6 +8,7 @@ import { ChargeComponent } from './features/charge/charge.component';
 import { PersonalDetailsComponent } from './features/details/personal-details.component';
 import { HomeComponent } from './features/home/home.component';
 import { InvitationComponent } from './features/invitation/invitation.component';
+import { NotificationsComponent } from './features/notifications/notifications.component';
 import { MyOperatorsComponent } from './features/operators/my-operators.component';
 import { OperatorComponent } from './features/operators/operator.component';
 import { CardComponent } from './features/plug/card.component';
@@ -30,7 +31,8 @@ import { WelcomeComponent } from './features/welcome/welcome.component';
  * straight from outside the app.
  *
  * The pages under Sessions and Account (module 33) open over the tabs too: a charge's
- * receipt, the cards, the operators, the driver's details, and privacy and data.
+ * receipt, the cards, the operators, the driver's details, and privacy and data. Module 34
+ * adds the notification choices.
  */
 export const APP_ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'tabs/home' },
@@ -69,6 +71,7 @@ export const APP_ROUTES: Routes = [
       { path: 'cards/new', component: AddCardComponent },
       { path: 'operators', component: MyOperatorsComponent },
       { path: 'operators/:tenantId', component: OperatorComponent },
+      { path: 'notifications', component: NotificationsComponent },
       { path: 'details', component: PersonalDetailsComponent },
       { path: 'privacy', component: PrivacyComponent },
     ],

@@ -1,0 +1,54 @@
+<ion-content>
+  <div class="ww-page">
+    <ww-page-bar title="Notifications" />
+
+    @if (store.settings(); as settings) {
+      <h2 class="ww-section">What we tell you</h2>
+      <ul class="ww-card list" data-testid="events">
+        @for (row of events; track row.name) {
+          <li class="row">
+            <span class="names">
+              <strong>{{ row.title }}</strong>
+              <span class="ww-lead">{{ row.line }}</span>
+            </span>
+            <ion-toggle
+              [checked]="settings[row.name]"
+              [disabled]="store.isSaving()"
+              [attr.aria-label]="row.title"
+              [attr.data-testid]="row.name"
+              (ionChange)="change(row.name, $event)"
+            />
+          </li>
+        }
+      </ul>
+
+      <h2 class="ww-section">How</h2>
+      <ul class="ww-card list" data-testid="channels">
+        @for (row of channels(); track row.name) {
+          <li class="row">
+            <span class="names">
+              <strong>{{ row.title }}</strong>
+              <span class="ww-lead">{{ row.line }}</span>
+            </span>
+            <ion-toggle
+              [checked]="settings[row.name]"
+              [disabled]="store.isSaving()"
+              [attr.aria-label]="row.title"
+              [attr.data-testid]="row.name"
+              (ionChange)="change(row.name, $event)"
+            />
+          </li>
+        }
+      </ul>
+      <p class="ww-small left">
+        E-mails go for charges you start in the app with e-mail on. Every receipt stays in Sessions.
+      </p>
+    } @else if (!store.error()) {
+      <ion-spinner class="loading" name="crescent" />
+    }
+
+    @if (store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+  </div>
+</ion-content>

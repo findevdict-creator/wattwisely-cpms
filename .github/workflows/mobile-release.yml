@@ -105,6 +105,21 @@ jobs:
           api-url: ${{ vars.MOBILE_API_URL }}
           keycloak-url: ${{ vars.MOBILE_KEYCLOAK_URL }}
           is-required: 'true'
+      # Firebase's settings for pushes (module 34). A build without them installs and runs, but
+      # takes no pushes, so a missing secret is a warning, not a stop.
+      - name: Write Firebase's settings
+        env:
+          MOBILE_GOOGLE_SERVICES_JSON: ${{ secrets.MOBILE_GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$MOBILE_GOOGLE_SERVICES_JSON" ]; then
+            echo "::warning::MOBILE_GOOGLE_SERVICES_JSON is not set: this build takes no pushes"
+            exit 0
+          fi
+          printf '%s' "$MOBILE_GOOGLE_SERVICES_JSON" > apps/mobile/android/app/google-services.json
+          if ! grep -q '"package_name": *"com.wattwisely.driver"' apps/mobile/android/app/google-services.json; then
+            echo "::error::MOBILE_GOOGLE_SERVICES_JSON is not the google-services.json of com.wattwisely.driver"
+            exit 1
+          fi
       - name: Write the upload key
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
