@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { Timestamps } from './timestamps';
 
 /**
@@ -22,6 +22,13 @@ export const driverAccounts = pgTable(
     /** The driver's customer at the payment provider (a Stripe Customer on the platform account), once a card was saved. */
     paymentCustomerId: text('payment_customer_id'),
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
+    /** What the driver hears about their charges (module 34, NTF-01), and how. */
+    wantsStarted: boolean('wants_started').notNull().default(true),
+    wantsNearlyFull: boolean('wants_nearly_full').notNull().default(true),
+    wantsFinished: boolean('wants_finished').notNull().default(true),
+    wantsIdleWarning: boolean('wants_idle_warning').notNull().default(true),
+    isPushEnabled: boolean('is_push_enabled').notNull().default(true),
+    isEmailEnabled: boolean('is_email_enabled').notNull().default(false),
     ...Timestamps.columns(),
   },
   (table) => [uniqueIndex('driver_accounts_email_unique').on(sql`lower(${table.email})`)],
