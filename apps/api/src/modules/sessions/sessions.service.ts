@@ -10,6 +10,7 @@ import { SessionPageDto } from './dto/session-page.dto';
 import { SessionReadingDto } from './dto/session-reading.dto';
 import { SessionDto } from './dto/session.dto';
 import { SessionErrors } from './session-errors';
+import { SessionReadingPoints } from './session-reading-points';
 import { SessionFilters } from './session-filters';
 import { SessionRecord } from './session-record';
 import { SessionsRepository } from './sessions.repository';
@@ -52,20 +53,7 @@ export class SessionsService {
   async readings(access: TenantAccess, id: string): Promise<SessionReadingDto[]> {
     return this.transactionRunner.run(DatabaseSession.forTenant(access.tenant.id), async (tx) => {
       const session = await this.requireVisible(tx, access, id);
-      const readings = await this.sessions.findReadings(tx, id);
-      const meterStartWh = session.meterStartWh ?? 0;
-      const points = [
-        { at: session.startedAt, energyWh: 0, powerW: null, socPercent: null },
-        ...readings.map((reading) => ({
-          ...reading,
-          energyWh: reading.energyWh === null ? null : reading.energyWh - meterStartWh,
-        })),
-      ];
-      if (session.endedAt && session.meterStopWh !== null) {
-        const energyWh = session.meterStopWh - meterStartWh;
-        points.push({ at: session.endedAt, energyWh, powerW: null, socPercent: null });
-      }
-      return points.map((point) => new SessionReadingDto(point));
+      return SessionReadingPoints.of(session, await this.sessions.findReadings(tx, id));
     });
   }
 

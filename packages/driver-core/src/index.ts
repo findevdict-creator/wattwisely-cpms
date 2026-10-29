@@ -26,6 +26,7 @@ export type {
 } from './lib/api/models/driver-account';
 export type {
   CardSetup,
+  ChargeReading,
   DriverCharge,
   DriverChargeDetail,
   DriverChargeRefusal,
@@ -37,6 +38,7 @@ export type {
 } from './lib/api/models/driver-payments';
 export type { Place, PlaceAvailability, PublicTariff, TariffBand } from './lib/api/models/place';
 export { PublicApiService } from './lib/api/public-api.service';
+export { InvitationStore } from './lib/invitations/invitation.store';
 export { DriverApiInterceptor } from './lib/auth/driver-api.interceptor';
 export { DriverSession } from './lib/auth/driver-session';
 export { MyChargesStore } from './lib/charges/my-charges.store';
