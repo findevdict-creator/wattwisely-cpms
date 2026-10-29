@@ -28,6 +28,10 @@ import { OperatorProfileReader } from './operators/operator-profile.reader';
 import { DriverPaymentMethodsController } from './payment-methods/payment-methods.controller';
 import { DriverPaymentMethodsService } from './payment-methods/payment-methods.service';
 import { DriverPlaceAccessResolver } from './places/driver-place-access.resolver';
+import { NearbyPlacesController } from './nearby/nearby-places.controller';
+import { NearbyPlacesService } from './nearby/nearby-places.service';
+import { NearbySiteDetailsRepository } from './nearby/nearby-site-details.repository';
+import { NearbySitesRepository } from './nearby/nearby-sites.repository';
 import { DriverPlacesController } from './places/driver-places.controller';
 import { DriverPlacesService } from './places/driver-places.service';
 import { DriverReceiptsController } from './receipts/driver-receipts.controller';
@@ -47,6 +51,7 @@ import { DriverReceiptsService } from './receipts/driver-receipts.service';
     DriverOperatorsController,
     DriverInvitationsController,
     DriverPaymentMethodsController,
+    NearbyPlacesController,
     DriverPlacesController,
     DriverChargesController,
     DriverReceiptsController,
@@ -64,6 +69,9 @@ import { DriverReceiptsService } from './receipts/driver-receipts.service';
     DriverPaymentMethodsService,
     DriverPlaceAccessResolver,
     DriverPlacesService,
+    NearbyPlacesService,
+    NearbySitesRepository,
+    NearbySiteDetailsRepository,
     GuestRecordWriter,
     DriverChargeStarter,
     DriverChargesRepository,

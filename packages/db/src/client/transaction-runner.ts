@@ -26,15 +26,29 @@ export class TransactionRunner {
   }
 
   private static async applySession(tx: Transaction, session: DatabaseSession): Promise<void> {
-    await tx.execute(sql`select
-      set_config('app.tenant_id', ${session.tenantId ?? ''}, true),
-      set_config('app.user_account_id', ${session.userAccountId ?? ''}, true),
-      set_config('app.invite_token_hash', ${session.inviteTokenHash ?? ''}, true),
-      set_config('app.charger_identity', ${session.chargerIdentity ?? ''}, true),
-      set_config('app.provider_account_id', ${session.providerAccountId ?? ''}, true),
-      set_config('app.api_key_hash', ${session.apiKeyHash ?? ''}, true),
-      set_config('app.messaging_phone_number_id', ${session.messagingPhoneNumberId ?? ''}, true),
-      set_config('app.driver_account_id', ${session.driverAccountId ?? ''}, true),
-      set_config('app.platform_access', ${session.isPlatformAccess ? 'true' : ''}, true)`);
+    const settings = TransactionRunner.settings(session).map(
+      ([name, value]) => sql`set_config(${name}, ${value ?? ''}, true)`,
+    );
+    await tx.execute(sql`select ${sql.join(settings, sql`, `)}`);
+  }
+
+  /** Each setting the policies read; an empty one hides the rows it guards. */
+  private static settings(session: DatabaseSession): [string, string | null][] {
+    return [
+      ['app.tenant_id', session.tenantId],
+      ['app.user_account_id', session.userAccountId],
+      ['app.invite_token_hash', session.inviteTokenHash],
+      ['app.charger_identity', session.chargerIdentity],
+      ['app.provider_account_id', session.providerAccountId],
+      ['app.api_key_hash', session.apiKeyHash],
+      ['app.messaging_phone_number_id', session.messagingPhoneNumberId],
+      ['app.driver_account_id', session.driverAccountId],
+      ['app.site_search', TransactionRunner.flag(session.isSiteSearch)],
+      ['app.platform_access', TransactionRunner.flag(session.isPlatformAccess)],
+    ];
+  }
+
+  private static flag(isOn: boolean): string | null {
+    return isOn ? 'true' : null;
   }
 }
