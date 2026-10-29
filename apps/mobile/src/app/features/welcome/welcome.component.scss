@@ -1,0 +1,63 @@
+.welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: calc(48px + var(--ion-safe-area-top, 0px)) 24px
+    calc(24px + var(--ion-safe-area-bottom, 0px));
+}
+
+.logo {
+  height: 36px;
+  align-self: flex-start;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font: 700 28px/34px var(--ww-font);
+  letter-spacing: -0.01em;
+}
+
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.points li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-brand-soft);
+  color: var(--ww-brand-dark);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.guest {
+  margin: 4px 0 0;
+  color: var(--ww-text2);
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+}

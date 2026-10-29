@@ -1,0 +1,47 @@
+<ion-content>
+  <div class="welcome">
+    <ww-logo class="logo" />
+    <div class="words">
+      <h1>Charge anywhere with one login</h1>
+      <p class="ww-lead">
+        Scan a plug, start with a saved card, and keep every receipt in one place.
+      </p>
+    </div>
+    <ul class="points">
+      <li>
+        <span class="mark"><mat-icon svgIcon="building-2" /></span>
+        Works at every Wattwisely operator
+      </li>
+      <li>
+        <span class="mark"><mat-icon svgIcon="credit-card" /></span>
+        A hold on your card, charged only what you use
+      </li>
+      <li>
+        <span class="mark"><mat-icon svgIcon="shield-check" /></span>
+        Operators see only what they need
+      </li>
+    </ul>
+    <div class="actions">
+      <ion-button
+        class="ww-large"
+        expand="block"
+        data-testid="create-account"
+        (click)="auth.login(true)"
+      >
+        Create account
+      </ion-button>
+      <ion-button
+        class="ww-large"
+        expand="block"
+        fill="outline"
+        data-testid="sign-in"
+        (click)="auth.login()"
+      >
+        Sign in
+      </ion-button>
+      <p class="guest">
+        Just want to charge once? Scan the QR code on the plug and pay as a guest.
+      </p>
+    </div>
+  </div>
+</ion-content>
