@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { DriverSession, RuntimeConfig } from '@wattwisely/driver-core';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { OAuthErrorEvent, OAuthService } from 'angular-oauth2-oidc';
+import { Subject, filter } from 'rxjs';
 import { NativeApp } from '../native/native-app';
 import { NativeBrowser } from '../native/native-browser';
 import { NativePlatform } from '../native/native-platform';
@@ -26,6 +27,12 @@ export class MobileAuthService implements DriverSession {
   /** Whether the app holds a sign-in, valid or refreshable; the pages follow it. */
   readonly hasSession = signal(false);
 
+  /**
+   * Emits when Keycloak refuses the refresh token (the session was ended, the password
+   * changed): the tokens are already forgotten, and the app goes back to the welcome page.
+   */
+  readonly sessionEnded = new Subject<void>();
+
   /** Set while Keycloak's "Delete account" page is open: its answer signs no one in. */
   private isDeletingLogin = false;
 
@@ -39,6 +46,7 @@ export class MobileAuthService implements DriverSession {
     );
     this.nativeApp.onUrlOpen((url) => void this.handleUrl(url));
     this.nativeApp.onResume(() => void this.refreshIfNeeded());
+    this.listenForRefusedRefresh();
     try {
       await this.oauthService.loadDiscoveryDocument();
       if (!isNative) {
@@ -114,19 +122,43 @@ export class MobileAuthService implements DriverSession {
     return this.oauthService.getAccessToken();
   }
 
-  /** A refresh refused by Keycloak (the session was ended) signs the driver out here too. */
+  /**
+   * Refreshes when the access token has run out. The library would still call a token valid
+   * for ten minutes past its expiry (its default clock skew); the API would not.
+   */
   private async refreshIfNeeded(): Promise<void> {
-    if (this.oauthService.hasValidAccessToken() || !this.oauthService.getRefreshToken()) {
+    if (this.hasUnexpiredAccessToken() || !this.oauthService.getRefreshToken()) {
       return this.update();
     }
     try {
       await this.oauthService.refreshToken();
     } catch (error) {
-      if (error instanceof HttpErrorResponse && error.status === 400) {
-        this.oauthService.logOut(true);
-      }
+      this.endIfRefused(error);
     }
     this.update();
+  }
+
+  private hasUnexpiredAccessToken(): boolean {
+    const expiresAt = this.oauthService.getAccessTokenExpiration();
+    return this.oauthService.hasValidAccessToken() && !!expiresAt && expiresAt > Date.now();
+  }
+
+  /** Also the library's own automatic refreshes, whose failures it only logs. */
+  private listenForRefusedRefresh(): void {
+    this.oauthService.events
+      .pipe(filter((event) => event.type === 'token_refresh_error'))
+      .subscribe((event) => this.endIfRefused((event as OAuthErrorEvent).reason));
+  }
+
+  /** A refresh refused by Keycloak (400) signs the driver out here too; offline (0) does not. */
+  private endIfRefused(error: unknown): void {
+    const isRefused = error instanceof HttpErrorResponse && error.status === 400;
+    if (!isRefused || !this.oauthService.getRefreshToken()) {
+      return;
+    }
+    this.oauthService.logOut(true);
+    this.update();
+    this.sessionEnded.next();
   }
 
   private update(): void {

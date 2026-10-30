@@ -33,6 +33,22 @@ import { TestApi } from './testing/test-api';
     });
   });
 
+  it.each(['PUT', 'PATCH', 'DELETE'])('lets the portal send %s across origins', async (method) => {
+    const preflight = await api.app.inject({
+      method: 'OPTIONS',
+      url: '/v1/branding',
+      headers: {
+        origin: 'http://portal.test',
+        'access-control-request-method': method,
+        'access-control-request-headers': 'authorization,content-type,if-match',
+      },
+    });
+
+    expect(preflight.statusCode).toBe(204);
+    expect(preflight.headers['access-control-allow-origin']).toBe('http://portal.test');
+    expect(preflight.headers['access-control-allow-methods']).toContain(method);
+  });
+
   it('refuses a request without a token with a problem+json body', async () => {
     const response = await api.call('GET', '/v1/me');
 

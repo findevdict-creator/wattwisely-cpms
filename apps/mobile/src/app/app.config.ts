@@ -15,6 +15,7 @@ import { MobileAuthService } from './core/auth/mobile-auth.service';
 import { AppLinks } from './core/charging/app-links';
 import { PushRegistrar } from './core/notifications/push-registrar';
 import { SecureTokenStore } from './core/auth/secure-token-store';
+import { SignOut } from './core/auth/sign-out';
 
 /**
  * Everything the mobile app provides at start-up (module 30). The driver API, its models and
@@ -45,6 +46,8 @@ export class AppConfigFactory {
         provideAppInitializer(() => inject(AppLinks).listen()),
         // The phone's push token follows the sign-in; a tapped push opens its page (module 34).
         provideAppInitializer(() => inject(PushRegistrar).listen()),
+        // A sign-in Keycloak ended (a refused refresh token) goes back to the welcome page.
+        provideAppInitializer(() => inject(SignOut).listen()),
       ],
     };
   }
