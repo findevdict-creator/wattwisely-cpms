@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { RuntimeConfig } from '@wattwisely/driver-core';
-import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { AuthConfig, OAuthErrorEvent, OAuthEvent, OAuthService } from 'angular-oauth2-oidc';
+import { Subject } from 'rxjs';
 import { NativeApp } from '../native/native-app';
 import { NativeBrowser } from '../native/native-browser';
 import { NativePlatform } from '../native/native-platform';
@@ -12,6 +13,9 @@ import { SecureTokenStore } from './secure-token-store';
 class FakeOAuthService {
   config: AuthConfig = {};
   isTokenValid = false;
+  /** When the access token runs out; the library calls it valid for ten minutes more. */
+  expiresAt = Date.now() + 60_000;
+  readonly events = new Subject<OAuthEvent>();
   refreshTokenValue: string | null = null;
   loadDiscoveryDocument = jest.fn(async () => ({}));
   tryLoginCodeFlow = jest.fn(async () => {
@@ -32,6 +36,9 @@ class FakeOAuthService {
   }
   hasValidAccessToken(): boolean {
     return this.isTokenValid;
+  }
+  getAccessTokenExpiration(): number {
+    return this.expiresAt;
   }
   getRefreshToken(): string | null {
     return this.refreshTokenValue;
@@ -116,6 +123,31 @@ describe('MobileAuthService', () => {
     await new Promise((resolve) => setTimeout(resolve));
     expect(oauth.logOut).toHaveBeenCalledWith(true);
     expect(auth.hasSession()).toBe(false);
+  });
+
+  it('refreshes a token that ran out a moment ago, though the library still calls it valid', async () => {
+    oauth.isTokenValid = true;
+    oauth.expiresAt = Date.now() - 60_000;
+    oauth.refreshTokenValue = 'r-1';
+    await auth.initialize();
+    expect(oauth.refreshToken).toHaveBeenCalledTimes(1);
+  });
+
+  it('ends the sign-in when Keycloak refuses one of the automatic refreshes', async () => {
+    oauth.isTokenValid = true;
+    oauth.refreshTokenValue = 'r-1';
+    const ended = jest.fn();
+    auth.sessionEnded.subscribe(ended);
+    await auth.initialize();
+    const offline = new HttpErrorResponse({ status: 0 });
+    oauth.events.next(new OAuthErrorEvent('token_refresh_error', offline));
+    expect(auth.hasSession()).toBe(true);
+    const refused = new HttpErrorResponse({ status: 400 });
+    oauth.events.next(new OAuthErrorEvent('token_refresh_error', refused));
+    oauth.events.next(new OAuthErrorEvent('token_refresh_error', refused));
+    expect(oauth.logOut).toHaveBeenCalledWith(true);
+    expect(auth.hasSession()).toBe(false);
+    expect(ended).toHaveBeenCalledTimes(1);
   });
 
   it('opens the app even when Keycloak cannot be reached', async () => {
