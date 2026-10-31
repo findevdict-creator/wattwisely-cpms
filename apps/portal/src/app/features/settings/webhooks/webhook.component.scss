@@ -1,80 +1,67 @@
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 8px;
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.title {
-  display: flex;
+.back {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 6px;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  max-width: 1100px;
+  font-size: 13px;
+  font-weight: 500;
+
+  .mat-icon {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .url {
+  font-size: 15px;
   word-break: break-all;
-  margin-bottom: 4px;
 }
 
-.card {
-  max-width: 1100px;
-  margin-bottom: 24px;
-  padding: 16px;
-  border-radius: 12px;
-  background: var(--mat-sys-surface-container-low);
-
-  h2 {
-    margin-top: 0;
-  }
+.events {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .secret-row {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
 }
 
 .secret {
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: var(--mat-sys-surface-container-high);
+  padding: 6px 10px;
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface-variant);
+  font-size: 13px;
   word-break: break-all;
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.danger {
-  color: var(--mat-sys-error);
-}
-
-.deliveries {
-  max-width: 1100px;
-}
-
-.description {
-  display: block;
+.notice code {
   font-size: 12px;
-  color: var(--mat-sys-on-surface-variant);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.plain {
+  font-weight: 400;
+}
+
+.small {
+  font-size: 12px;
 }
 
 .result {
   max-width: 320px;
   overflow-wrap: anywhere;
   font-size: 13px;
-}
-
-.hint {
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.error {
-  color: var(--mat-sys-error);
 }

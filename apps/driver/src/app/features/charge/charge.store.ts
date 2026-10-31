@@ -1,10 +1,12 @@
 import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { Charge } from '../../core/api/models/charge';
-import { PublicApiService } from '../../core/api/public-api.service';
-import { MyChargesStore } from '../../core/charges/my-charges.store';
-import { ChargePhases } from '../../shared/charge-phase';
+import {
+  ApiProblem,
+  Charge,
+  ChargePhases,
+  MyChargesStore,
+  PublicApiService,
+} from '@wattwisely/driver-core';
 
 /**
  * One charge as the page follows it. While anything can still happen it asks the API

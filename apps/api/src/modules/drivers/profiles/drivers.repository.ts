@@ -18,6 +18,8 @@ import { DriverGroup, DriverRecord, OpenInvitation } from './driver-record';
 /** Reads and writes drivers. RLS keeps every query inside the current tenant. */
 @Injectable()
 export class DriversRepository {
+  /** What an erased guest record is called in the operator's lists. */
+  static readonly ERASED_NAME = 'Deleted driver';
   static readonly COLUMNS = {
     id: drivers.id,
     name: drivers.name,
@@ -121,6 +123,28 @@ export class DriversRepository {
       .update(drivers)
       .set({ ...changes, version: sql`${drivers.version} + 1`, updatedAt: new Date() })
       .where(and(eq(drivers.id, id), eq(drivers.version, version)))
+      .returning({ id: drivers.id });
+    return rows.length === 1;
+  }
+
+  /**
+   * Blanks a guest record the app made (module 33) when its driver deletes their account: no
+   * name, e-mail, phone or login are left, while the sessions that point at it stay. False when
+   * the record is not a guest's, which the operator made and keeps.
+   */
+  async eraseGuest(tx: Transaction, id: string): Promise<boolean> {
+    const rows = await tx
+      .update(drivers)
+      .set({
+        name: DriversRepository.ERASED_NAME,
+        email: null,
+        phone: null,
+        driverAccountId: null,
+        linkedAt: null,
+        version: sql`${drivers.version} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(drivers.id, id), eq(drivers.isGuest, true)))
       .returning({ id: drivers.id });
     return rows.length === 1;
   }

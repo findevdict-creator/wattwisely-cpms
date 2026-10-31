@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Wattwisely</string>
+    <string name="title_activity_main">Wattwisely</string>
+    <string name="package_name">com.wattwisely.driver</string>
+    <string name="custom_url_scheme">com.wattwisely.driver</string>
+</resources>

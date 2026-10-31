@@ -1,37 +1,9 @@
 import { Component, computed, input } from '@angular/core';
 
-/** A coloured dot and a word for a tenant, subscription, staff or module state. */
+/** A tenant, subscription, staff or invoice state as a soft pill in the shared chip style. */
 @Component({
   selector: 'ww-status-chip',
-  template: `<span class="chip {{ tone() }}" [attr.data-status]="status()"
-    ><span class="dot"></span>{{ label() }}</span
-  >`,
-  styles: `
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--mat-sys-outline);
-    }
-    .good .dot {
-      background: #2e7d32;
-    }
-    .busy .dot {
-      background: #1565c0;
-    }
-    .warn .dot {
-      background: #ef6c00;
-    }
-    .bad .dot {
-      background: var(--mat-sys-error);
-    }
-  `,
+  template: `<span class="ww-chip {{ tone() }}" [attr.data-status]="status()">{{ label() }}</span>`,
 })
 export class StatusChipComponent {
   static readonly LABELS: Record<string, string> = {
@@ -54,18 +26,18 @@ export class StatusChipComponent {
     void: 'Void',
   };
   static readonly TONES: Record<string, string> = {
-    active: 'good',
-    trial: 'busy',
-    trialing: 'busy',
-    invited: 'busy',
-    pending_acceptance: 'busy',
+    active: 'ok',
+    trial: 'info',
+    trialing: 'info',
+    invited: 'info',
+    pending_acceptance: 'info',
     ending: 'warn',
     past_due: 'warn',
-    suspended: 'bad',
+    suspended: 'danger',
     cancelled: 'neutral',
-    issued: 'busy',
+    issued: 'info',
     overdue: 'warn',
-    paid: 'good',
+    paid: 'ok',
   };
 
   readonly status = input.required<string | null>();

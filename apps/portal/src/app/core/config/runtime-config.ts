@@ -6,6 +6,8 @@
 export class RuntimeConfig {
   /** Where Wattwisely staff find the admin console; empty when it is not deployed. */
   adminUrl = '';
+  /** Where the top bar's help button leads, such as a help centre; no button when empty. */
+  helpUrl = '';
 
   constructor(
     readonly apiUrl: string,

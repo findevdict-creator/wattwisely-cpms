@@ -4,3 +4,9 @@
 /.nx/workspace-data
 package-lock.json
 deploy/keycloak/realm/*.json
+# The native Android and iOS projects of the mobile app (module 30): Capacitor and Xcode write them.
+apps/mobile/android
+apps/mobile/ios
+# fastlane's gems and the iOS archive, written by the release workflow (module 31).
+apps/mobile/vendor
+apps/mobile/build

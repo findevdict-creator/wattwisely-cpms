@@ -1,21 +1,23 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, computed, inject, input } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+import { PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { InvoiceLine } from '../../core/api/models/invoice';
 import { StaffContextService } from '../../core/staff/staff-context.service';
+import { PageTitleService } from '../../layout/page-title.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog.component';
 import { Money } from '../../shared/money';
 import { MoneyPipe } from '../../shared/money.pipe';
 import { PromptDialogComponent } from '../../shared/prompt-dialog.component';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { AdjustmentDialogComponent } from './adjustment-dialog.component';
+import { InvoiceHistoryComponent } from './invoice-history.component';
 import { InvoiceStore } from './invoice.store';
 import { PayDialogComponent } from './pay-dialog.component';
 
@@ -24,12 +26,13 @@ import { PayDialogComponent } from './pay-dialog.component';
   selector: 'ww-invoice',
   imports: [
     DatePipe,
+    InvoiceHistoryComponent,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatMenuModule,
     MatTableModule,
     MoneyPipe,
+    PageHeaderComponent,
     RouterLink,
     StatusChipComponent,
   ],
@@ -43,13 +46,21 @@ export class InvoiceComponent implements OnInit {
   protected readonly staff = inject(StaffContextService);
   private readonly dialog = inject(MatDialog);
 
-  protected readonly columns = ['description', 'quantity', 'unit_price', 'amount'];
+  protected readonly columns = ['description', 'quantity', 'unit_price', 'amount', 'remove'];
   protected readonly canWrite = computed(() => this.staff.can('billing:write'));
   protected readonly isDraft = computed(() => this.store.invoice()?.status === 'draft');
   protected readonly status = computed(() => {
     const invoice = this.store.invoice();
     return invoice?.is_overdue ? 'overdue' : (invoice?.status ?? null);
   });
+
+  constructor() {
+    const pageTitle = inject(PageTitleService);
+    effect(() => {
+      const invoice = this.store.invoice();
+      pageTitle.set(invoice ? (invoice.number ?? `Draft, ${invoice.tenant_name}`) : '');
+    });
+  }
 
   ngOnInit(): void {
     void this.store.load(this.id());
@@ -58,6 +69,7 @@ export class InvoiceComponent implements OnInit {
   protected async addLine(): Promise<void> {
     const dialog = this.dialog.open(AdjustmentDialogComponent, {
       data: { currency: this.store.current().currency },
+      width: '480px',
     });
     const line = await firstValueFrom(dialog.afterClosed());
     if (line) {
@@ -105,6 +117,7 @@ export class InvoiceComponent implements OnInit {
     const invoice = this.store.current();
     const dialog = this.dialog.open(PayDialogComponent, {
       data: { number: invoice.number, total: Money.format(invoice.total, invoice.currency) },
+      width: '480px',
     });
     const body = await firstValueFrom(dialog.afterClosed());
     if (body) {
@@ -130,7 +143,7 @@ export class InvoiceComponent implements OnInit {
   }
 
   private confirm(data: ConfirmDialogData): Promise<boolean> {
-    const dialog = this.dialog.open(ConfirmDialogComponent, { data });
+    const dialog = this.dialog.open(ConfirmDialogComponent, { data, width: '440px' });
     return firstValueFrom(dialog.afterClosed());
   }
 }

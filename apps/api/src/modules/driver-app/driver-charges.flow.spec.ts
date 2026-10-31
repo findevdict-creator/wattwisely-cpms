@@ -162,7 +162,7 @@ import { DriverChargesFixture } from './driver-charges.fixture';
     api.gateway.savedCards.refusedCards.clear();
   });
 
-  it('lists, exports and shows only the driver’s own charges, and stops a running one', async () => {
+  it('lists, exports and shows only the driver’s own charges, charts and stops a running one', async () => {
     const list = await api.call('GET', '/v1/driver/charges', { token: stage.danaToken });
     expect(list.json().items.map((item: { id: string }) => item.id)).toContain(danaSessionId);
     expect(list.json().items.map((item: { id: string }) => item.id)).not.toContain(guySessionId);
@@ -185,6 +185,21 @@ import { DriverChargesFixture } from './driver-charges.fixture';
     expect(notRunning.json().code).toBe('charge_not_running');
 
     await stage.running(danaSessionId, 8);
+    await stage.api.data.sql(`update charging_sessions set meter_start_wh = 1000 where id = $1`, [
+      danaSessionId,
+    ]);
+    await stage.reading(danaSessionId, 13400, 48000);
+    const readings = await api.call('GET', `/v1/driver/charges/${danaSessionId}/readings`, {
+      token: stage.danaToken,
+    });
+    expect(readings.json()).toMatchObject([
+      { energy_wh: 0, power_w: null },
+      { energy_wh: 12400, power_w: 48000, soc_percent: 64 },
+    ]);
+    const othersReadings = await api.call('GET', `/v1/driver/charges/${guySessionId}/readings`, {
+      token: stage.danaToken,
+    });
+    expect(othersReadings.statusCode).toBe(404);
     const stop = await api.call('POST', `/v1/driver/charges/${danaSessionId}/stop`, {
       token: stage.danaToken,
     });

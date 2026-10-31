@@ -1,26 +1,23 @@
-.hint {
-  max-width: 1100px;
+ww-page-header {
+  margin-bottom: 16px;
 }
 
-.filters {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.month {
+  width: 180px;
 }
 
-.invoices {
-  max-width: 1100px;
+.status {
+  width: 160px;
 }
 
-.name {
-  font-weight: 500;
-  color: inherit;
+.scroll {
+  overflow-x: auto;
 }
 
-.amount {
-  text-align: right;
+.nowrap {
+  white-space: nowrap;
 }
 
-.more {
-  margin-top: 16px;
+.ww-num .ww-two {
+  align-items: flex-end;
 }

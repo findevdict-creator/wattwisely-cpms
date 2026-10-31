@@ -34,17 +34,6 @@ export interface NewTenantResult {
     ReactiveFormsModule,
   ],
   templateUrl: './new-tenant-dialog.component.html',
-  styles: `
-    .content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0 16px;
-      padding-top: 8px;
-    }
-    .wide {
-      grid-column: 1 / -1;
-    }
-  `,
 })
 export class NewTenantDialogComponent {
   protected readonly data = inject<NewTenantDialogData>(MAT_DIALOG_DATA);

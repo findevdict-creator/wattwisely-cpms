@@ -1,0 +1,1 @@
+CREATE POLICY "sites_public_search" ON "sites" AS PERMISSIVE FOR SELECT TO "wattwisely_app" USING ("sites"."visibility" = 'public' and "sites"."deleted_at" is null and current_setting('app.site_search', true) = 'true');

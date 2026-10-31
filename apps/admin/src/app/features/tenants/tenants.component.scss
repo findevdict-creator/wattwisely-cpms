@@ -1,22 +1,24 @@
-.filters {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+ww-page-header {
+  margin-bottom: 16px;
 }
 
 .search {
   width: 320px;
+  max-width: 100%;
 }
 
-.tenants {
-  max-width: 1100px;
+.filter {
+  width: 160px;
 }
 
-.name {
-  font-weight: 500;
-  color: inherit;
+.next {
+  margin-left: 6px;
 }
 
-.more {
-  margin-top: 16px;
+.nowrap {
+  white-space: nowrap;
+}
+
+.scroll {
+  overflow-x: auto;
 }

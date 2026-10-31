@@ -1,0 +1,104 @@
+<ion-content>
+  <div class="ww-page">
+    <ww-page-bar [title]="heading()" backTo="/tabs/sessions">
+      @if (store.charge()?.receipt) {
+        <button
+          type="button"
+          class="icon"
+          aria-label="Download receipt"
+          [disabled]="store.isDownloading()"
+          (click)="store.download()"
+        >
+          <mat-icon svgIcon="download" />
+        </button>
+      }
+    </ww-page-bar>
+
+    @if (store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+
+    @if (store.charge(); as charge) {
+      <section class="where">
+        <span class="bolt"><mat-icon svgIcon="zap" /></span>
+        <span class="names">
+          <strong data-testid="operator">{{ charge.operator_name }}</strong>
+          <span class="ww-lead">{{ place() }}</span>
+          <span class="small" data-testid="period">{{ period() }}</span>
+        </span>
+      </section>
+
+      <dl class="ww-card tiles">
+        <div>
+          <dt>Energy</dt>
+          <dd data-testid="energy">{{ energy() }}</dd>
+        </div>
+        <div>
+          <dt>Time</dt>
+          <dd>{{ charge.started_at | duration: charge.ended_at }}</dd>
+        </div>
+        <div>
+          <dt>Total</dt>
+          <dd data-testid="total">{{ total() }}</dd>
+        </div>
+      </dl>
+
+      <section class="ww-card">
+        <h2>Receipt</h2>
+        @if (charge.receipt) {
+          <dl class="ww-rows" data-testid="receipt">
+            @for (row of rows(); track $index) {
+              <div>
+                <dt>{{ row.label }}</dt>
+                <dd>{{ row.value }}</dd>
+              </div>
+            }
+            @if (charge.receipt.tax) {
+              <div>
+                <dt>Tax included</dt>
+                <dd>{{ tax() }}</dd>
+              </div>
+            }
+            <div class="total">
+              <dt data-testid="paid-with">{{ paidWith() }}</dt>
+              <dd>{{ total() }}</dd>
+            </div>
+          </dl>
+        } @else {
+          <p class="ww-lead" data-testid="not-priced">
+            {{ paidWith() || 'The receipt appears here once the charge has been priced.' }}
+          </p>
+        }
+      </section>
+
+      @if (contact(); as contact) {
+        <a class="ww-card help" [href]="contact.href" target="_blank" data-testid="contact">
+          <mat-icon svgIcon="circle-help" />
+          <span class="names">
+            <strong>Problem with this charge?</strong>
+            <span class="ww-lead">{{ contact.text }}</span>
+          </span>
+          <mat-icon svgIcon="chevron-right" />
+        </a>
+      }
+
+      @if (charge.receipt) {
+        <ion-button
+          class="ww-large"
+          expand="block"
+          fill="outline"
+          data-testid="download"
+          [disabled]="store.isDownloading()"
+          (click)="store.download()"
+        >
+          @if (store.isDownloading()) {
+            <ion-spinner slot="start" name="crescent" />
+          } @else {
+            <mat-icon slot="start" svgIcon="download" />
+          }
+          Download receipt (PDF)
+        </ion-button>
+      }
+    }
+  </div>
+</ion-content>

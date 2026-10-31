@@ -1,0 +1,90 @@
+<ion-content>
+  <div class="ww-page">
+    @if (store.place(); as place) {
+      <ww-top-bar [operator]="operator()" [backTo]="'/plug/' + identity() + '/' + connector()" />
+      <header>
+        <h1>Start charging</h1>
+        <p class="ww-lead">{{ place.site_name }} · Connector {{ place.connector_label }}</p>
+      </header>
+
+      <h2 class="ww-section">Pay with</h2>
+      @if (cards.cards().length) {
+        <ion-radio-group
+          [value]="cards.chosenId()"
+          (ionChange)="cards.chosenId.set($event.detail.value)"
+          data-testid="cards"
+        >
+          @for (card of cards.cards(); track card.id) {
+            <ion-radio
+              class="ww-card choice"
+              [value]="card.id"
+              labelPlacement="start"
+              justify="space-between"
+            >
+              <span class="card-name">
+                <mat-icon svgIcon="credit-card" />
+                <span>
+                  <strong>{{ cardName(card.brand, card.last4) }}</strong>
+                  <small>{{ expiry(card) }}</small>
+                </span>
+              </span>
+            </ion-radio>
+          }
+        </ion-radio-group>
+      } @else if (cards.error()) {
+        <p class="ww-error" role="alert">{{ cards.error() }}</p>
+      }
+      <ion-button
+        class="add"
+        fill="clear"
+        size="small"
+        routerLink="/account/cards/new"
+        [queryParams]="{ next: here() }"
+        data-testid="add-card"
+      >
+        <mat-icon slot="start" svgIcon="plus" />
+        Add a card
+      </ion-button>
+
+      <section class="ww-card">
+        @if (hold()) {
+          <p class="ww-lead" data-testid="hold-words">
+            {{ operator() }} holds {{ hold() }} and charges only what you use. The rest is released
+            as soon as you finish.
+          </p>
+        }
+        @if (estimate(); as estimate) {
+          <dl class="ww-rows">
+            <div>
+              <dt>Estimate for 30 kWh</dt>
+              <dd>{{ estimate }}</dd>
+            </div>
+          </dl>
+        }
+      </section>
+
+      <ion-button
+        class="ww-large"
+        expand="block"
+        [disabled]="!cards.chosenId() || starter.isStarting()"
+        (click)="start()"
+        data-testid="start"
+      >
+        @if (starter.isStarting()) {
+          <ion-spinner name="crescent" />
+        } @else {
+          <mat-icon slot="start" svgIcon="zap" />
+          {{ startLabel() }}
+        }
+      </ion-button>
+      @if (starter.error()) {
+        <p class="ww-error" role="alert" data-testid="start-error">{{ starter.error() }}</p>
+      }
+      <p class="ww-small">Already plugged in? That works too.</p>
+    } @else if (store.error()) {
+      <p class="ww-error" role="alert">{{ store.error() }}</p>
+    } @else {
+      <ion-spinner class="loading" name="crescent" />
+    }
+  </div>
+</ion-content>

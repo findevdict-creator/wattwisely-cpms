@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -12,7 +11,7 @@ import { NotificationsApiService } from '../core/api/notifications-api.service';
 /** The bell in the top bar: the latest portal notifications, with the unread ones counted (story NTF-03). */
 @Component({
   selector: 'ww-notification-bell',
-  imports: [DatePipe, MatBadgeModule, MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule],
   templateUrl: './notification-bell.component.html',
   styleUrl: './notification-bell.component.scss',
 })

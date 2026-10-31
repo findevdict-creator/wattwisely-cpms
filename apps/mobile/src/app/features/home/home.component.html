@@ -1,0 +1,118 @@
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content />
+  </ion-refresher>
+  <div class="ww-page">
+    <header>
+      <h1 data-testid="greeting">{{ greeting() }}</h1>
+      <p class="ww-lead">Where are you charging today?</p>
+    </header>
+
+    <a class="scan" routerLink="/tabs/charge" data-testid="scan">
+      <span class="scan-mark"><mat-icon svgIcon="scan-qr-code" /></span>
+      <span class="scan-words">
+        <strong>Scan a plug to start</strong>
+        <span>Point the camera at the QR code on the charger</span>
+      </span>
+      <mat-icon svgIcon="chevron-right" />
+    </a>
+
+    @if (chargingNow.charge(); as charge) {
+      <h2 class="ww-section">Charging now</h2>
+      <a class="ww-card now" [routerLink]="['/charges', charge.id]" data-testid="charging-now">
+        <strong>{{ chargeLine() }}</strong>
+        <span class="ww-lead">
+          {{ charge.site_name }} · Connector {{ charge.connector_label }} ·
+          {{ charge.started_at | duration: null : now() }}
+        </span>
+        <span class="open">Open session <mat-icon svgIcon="chevron-right" /></span>
+      </a>
+    }
+
+    @if (store.error()) {
+      <p class="error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+
+    <h2 class="ww-section">Your operators</h2>
+    @if (store.operators().length) {
+      <ul class="operators" data-testid="operators">
+        @for (operator of store.operators(); track operator.tenant_id) {
+          <li>
+            {{ operator.operator_name }}
+            @if (operator.status === 'blocked') {
+              <span class="ww-chip danger">Blocked</span>
+            } @else {
+              <span class="ww-chip">Member</span>
+            }
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="ww-card ww-lead" data-testid="no-operators">
+        None yet. An operator's invitation, or your first charge with one, adds it here.
+      </p>
+    }
+
+    <h2 class="ww-section">Nearby</h2>
+    @switch (nearby.state()) {
+      @case ('ready') {
+        @if (nearby.places().length) {
+          <ul class="ww-card nearby" data-testid="nearby">
+            @for (place of nearby.places(); track place.site_id) {
+              <li>
+                <a
+                  class="place"
+                  [routerLink]="plugRoute(place)"
+                  [attr.data-testid]="'nearby-' + $index"
+                >
+                  <span class="mark">
+                    <mat-icon [svgIcon]="place.is_private_site ? 'lock' : 'map-pin'" />
+                  </span>
+                  <span class="names">
+                    <strong>{{ place.site_name }}</strong>
+                    <span class="ww-lead">{{ words.line(place) }}</span>
+                  </span>
+                  @if (place.is_private_site && place.is_member) {
+                    <span class="ww-chip">Member</span>
+                  } @else if (place.connector_count) {
+                    <span class="free" [class.none]="!place.available_count">{{
+                      words.free(place)
+                    }}</span>
+                  }
+                  <mat-icon class="chevron" svgIcon="chevron-right" />
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="ww-card ww-lead" data-testid="nearby-none">No charging sites within 15 km.</p>
+        }
+      }
+      @case ('ask') {
+        <section class="ww-card ask" data-testid="nearby-ask">
+          <p class="ww-lead">See the chargers around you, their prices and free plugs.</p>
+          <ion-button fill="outline" (click)="nearby.load(true)" data-testid="use-location">
+            <mat-icon slot="start" svgIcon="map-pin" />
+            Use my location
+          </ion-button>
+        </section>
+      }
+      @case ('denied') {
+        <p class="ww-card ww-lead" data-testid="nearby-denied">
+          Location is off for Wattwisely. Allow it in the phone's settings to see chargers near you.
+        </p>
+      }
+      @case ('unavailable') {
+        <p class="ww-card ww-lead" data-testid="nearby-unavailable">
+          Turn on the phone's location to see chargers near you.
+        </p>
+      }
+      @case ('error') {
+        <p class="error" role="alert" data-testid="nearby-error">{{ nearby.error() }}</p>
+      }
+      @default {
+        <ion-spinner class="loading" name="crescent" />
+      }
+    }
+  </div>
+</ion-content>

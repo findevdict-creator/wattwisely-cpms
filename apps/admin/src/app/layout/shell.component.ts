@@ -1,36 +1,61 @@
-import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../core/auth/auth.service';
-import { StaffContextService } from '../core/staff/staff-context.service';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { Component, DestroyRef, OnInit, computed, inject, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
+import { SideMenuState } from '@wattwisely/ui';
+import { filter, map } from 'rxjs';
+import { AdminMenu } from './admin-menu';
+import { PageTitleService } from './page-title.service';
+import { SideMenuComponent } from './side-menu.component';
+import { TopBarComponent } from './top-bar.component';
 
-/** The frame around every console page: top bar, side menu and the page itself. */
+/**
+ * The frame around every console page: the side menu, the top bar and the page itself.
+ * Below 960px the side menu slides in over the page; above, it can collapse to its icons.
+ */
 @Component({
   selector: 'ww-shell',
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    MatMenuModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    RouterLink,
-    RouterLinkActive,
-    RouterOutlet,
-  ],
+  imports: [MatSidenavModule, RouterOutlet, SideMenuComponent, TopBarComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
-export class ShellComponent {
-  protected readonly staff = inject(StaffContextService);
-  private readonly authService = inject(AuthService);
+export class ShellComponent implements OnInit {
+  static readonly NARROW = '(max-width: 959px)';
 
-  protected logout(): void {
-    this.authService.logout();
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly drawer = viewChild(MatSidenav);
+
+  protected readonly isNarrow = toSignal(
+    inject(BreakpointObserver)
+      .observe(ShellComponent.NARROW)
+      .pipe(map((state) => state.matches)),
+    { initialValue: false },
+  );
+  protected readonly sideMenu = inject(SideMenuState);
+  /** The menu as a strip of icons: only beside the page, never when it slides in. */
+  protected readonly isRail = computed(() => !this.isNarrow() && this.sideMenu.isCollapsed());
+  protected readonly url = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+  protected readonly where = computed(() => AdminMenu.where(this.url(), this.pageTitle.detail()));
+
+  ngOnInit(): void {
+    const navigations = this.router.events
+      .pipe(filter((event) => event instanceof NavigationStart))
+      .subscribe(() => this.pageTitle.clear());
+    this.destroyRef.onDestroy(() => navigations.unsubscribe());
+  }
+
+  protected closeIfNarrow(): void {
+    if (this.isNarrow()) {
+      void this.drawer()?.close();
+    }
   }
 }

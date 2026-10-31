@@ -9,7 +9,7 @@ import { WatchedSession } from './watched-session';
  */
 export class DriverProgressComposer {
   static readonly FOOTNOTE =
-    'You asked for these updates on the charging page. You can turn each one off there.';
+    'You asked for these updates when you started charging, on the charging page or in the app. You can turn each one off there.';
 
   static started(session: WatchedSession): MailContent {
     return {

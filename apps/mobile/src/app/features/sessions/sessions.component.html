@@ -1,0 +1,79 @@
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content />
+  </ion-refresher>
+  <div class="ww-page">
+    <header class="head">
+      <h1>My sessions</h1>
+      @if (store.charges().length) {
+        <button type="button" class="csv" data-testid="csv" (click)="store.shareCsv()">
+          <mat-icon svgIcon="download" /> CSV
+        </button>
+      }
+    </header>
+
+    @if (store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+
+    @if (totals().length) {
+      <div class="totals" data-testid="totals">
+        @for (total of totals(); track total.label) {
+          <section class="ww-card total">
+            <span class="ww-lead">{{ total.label }}</span>
+            <strong>{{ total.amount }}</strong>
+            <span class="small">{{ total.line }}</span>
+          </section>
+        }
+      </div>
+    }
+
+    @if (operators().length > 1) {
+      <div class="filters" role="group" aria-label="Operator" data-testid="filters">
+        <button type="button" [class.is-on]="!operator()" (click)="operator.set('')">
+          All operators
+        </button>
+        @for (item of operators(); track item.id) {
+          <button
+            type="button"
+            [class.is-on]="operator() === item.id"
+            (click)="operator.set(item.id)"
+          >
+            {{ item.name }}
+          </button>
+        }
+      </div>
+    }
+
+    @for (month of months(); track month.label) {
+      <h2 class="ww-section">{{ month.label }}</h2>
+      <ul class="ww-card rows">
+        @for (row of month.rows; track row.id) {
+          <li>
+            <a class="row" [routerLink]="row.link" data-testid="session">
+              <span class="words">
+                <strong>{{ row.title }}</strong>
+                <span class="ww-lead">{{ row.line }}</span>
+                @if (row.isRefused) {
+                  <span class="ww-chip danger">Card refused · nothing taken</span>
+                }
+              </span>
+              <strong class="amount">{{ row.amount }}</strong>
+              <mat-icon svgIcon="chevron-right" />
+            </a>
+          </li>
+        }
+      </ul>
+    } @empty {
+      @if (store.isLoaded() && !store.error()) {
+        <ww-empty-state
+          class="ww-card"
+          icon="history"
+          heading="No charges yet"
+          text="Every charge with this login, at every operator, is listed here with its receipt."
+          data-testid="no-sessions"
+        />
+      }
+    }
+  </div>
+</ion-content>

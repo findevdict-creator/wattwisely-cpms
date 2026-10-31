@@ -1,69 +1,90 @@
-<p class="back">
-  <a routerLink="/account" data-testid="back"><mat-icon>arrow_back</mat-icon> Your account</a>
-</p>
+<a class="back" routerLink="/account" data-testid="back">
+  <mat-icon svgIcon="arrow-left" />
+  Your account
+</a>
 
 @if (store.profile(); as profile) {
-  <header class="where">
-    <h1>{{ profile.operator_name }}</h1>
-    <p class="hint">
-      Knows you as {{ profile.driver_name }}
-      @if (profile.reference) {
-        · {{ profile.reference }}
-      }
-      @if (profile.linked_at) {
-        · linked {{ profile.linked_at | date: 'mediumDate' }}
-      }
-    </p>
+  <header class="who">
+    <span class="op-mark l" [class.off]="profile.status === 'blocked'">{{ initials() }}</span>
+    <span class="ww-two">
+      <h1>{{ profile.operator_name }}</h1>
+      <span>
+        Knows you as {{ profile.driver_name }}
+        @if (profile.reference) {
+          · {{ profile.reference }}
+        }
+        @if (profile.linked_at) {
+          · linked {{ profile.linked_at | date: 'mediumDate' }}
+        }
+      </span>
+    </span>
   </header>
 
   @if (profile.status === 'blocked') {
-    <section class="panel blocked" data-testid="blocked">
-      <mat-icon>block</mat-icon>
-      <p>
+    <p class="notice danger has-icon" data-testid="blocked">
+      <mat-icon svgIcon="ban" />
+      <span>
         {{ profile.operator_name }} has blocked you: its chargers refuse your cards and your login.
-      </p>
-    </section>
+      </span>
+    </p>
+  } @else if (isJustLinked()) {
+    <p class="notice ok has-icon" data-testid="linked">
+      <mat-icon svgIcon="link" />
+      <span>Linked. Your charges at {{ profile.operator_name }} now show in your account.</span>
+    </p>
   }
 
-  <section class="panel">
-    <h2>Paying</h2>
+  <section class="panel" aria-labelledby="paying-title">
+    <h2 id="paying-title">Paying</h2>
     <p data-testid="payment">{{ paymentWords() }}</p>
   </section>
 
-  <section class="panel">
-    <h2>What {{ profile.operator_name }} holds about you</h2>
-    <dl>
-      <dt>Name</dt>
-      <dd>{{ profile.driver_name }}</dd>
-      <dt>E-mail</dt>
-      <dd>{{ profile.email || '—' }}</dd>
-      <dt>Phone</dt>
-      <dd>{{ profile.phone || '—' }}</dd>
-      <dt>Groups</dt>
-      <dd>{{ profile.groups.length ? profile.groups.join(', ') : '—' }}</dd>
-      <dt>Cards</dt>
-      <dd>
-        @if (profile.cards.length === 0) {
-          —
-        }
+  <section class="panel record" aria-labelledby="record-title">
+    <h2 id="record-title">What {{ profile.operator_name }} holds about you</h2>
+    <dl class="ww-kv">
+      <div>
+        <dt>Name</dt>
+        <dd>{{ profile.driver_name }}</dd>
+      </div>
+      <div>
+        <dt>E-mail</dt>
+        <dd>{{ profile.email || '–' }}</dd>
+      </div>
+      <div>
+        <dt>Phone</dt>
+        <dd [class.ww-faint]="!profile.phone">{{ profile.phone || '–' }}</dd>
+      </div>
+      <div>
+        <dt>Groups</dt>
+        <dd [class.ww-faint]="!profile.groups.length">
+          {{ profile.groups.length ? profile.groups.join(', ') : '–' }}
+        </dd>
+      </div>
+      <div class="wide">
+        <dt>Cards</dt>
         @for (card of profile.cards; track card.id_tag) {
-          <div>
-            {{ card.label || card.id_tag }}
-            <span class="hint"
-              >{{ card.label ? card.id_tag + ' · ' : '' }}{{ cardStatus(card.status) }}</span
-            >
-          </div>
+          <dd class="card">
+            @if (card.label) {
+              {{ card.label }}
+            }
+            <span class="mono">{{ card.id_tag }}</span>
+            <span class="ww-chip {{ cardTone(card.status) }}">{{ cardStatus(card.status) }}</span>
+          </dd>
+        } @empty {
+          <dd class="ww-faint">–</dd>
         }
-      </dd>
+      </div>
     </dl>
-    <p class="hint">This is the operator's record, kept by the operator. To change it, ask them.</p>
+    <p class="caption">
+      This is {{ profile.operator_name }}'s record, kept by them. To change it, ask them.
+    </p>
   </section>
 
-  <section class="panel leave">
+  <section class="panel leave" aria-label="Leave">
     @if (isLeaveAsked()) {
       <p>
-        {{ profile.operator_name }} keeps its record of you, but your login no longer opens it, and
-        nothing you charge there is shown here. The operator can invite you again.
+        <b>Leave {{ profile.operator_name }}?</b> Nothing you charge there will be shown here any
+        more.
       </p>
       <div class="actions">
         <button
@@ -78,18 +99,27 @@
         <button mat-button (click)="isLeaveAsked.set(false)">Keep</button>
       </div>
     } @else {
-      <button mat-stroked-button (click)="isLeaveAsked.set(true)" data-testid="leave">
-        <mat-icon>link_off</mat-icon>
+      <p class="hint">
+        If you leave, {{ profile.operator_name }} keeps its record of you but your login no longer
+        opens it. {{ profile.operator_name }} can invite you again.
+      </p>
+      <button
+        mat-stroked-button
+        class="ww-danger"
+        (click)="isLeaveAsked.set(true)"
+        data-testid="leave"
+      >
+        <mat-icon svgIcon="unlink" />
         Leave this operator
       </button>
     }
     @if (store.error()) {
-      <p class="error" role="alert">{{ store.error() }}</p>
+      <p class="notice danger" role="alert">{{ store.error() }}</p>
     }
   </section>
 } @else if (store.error()) {
   <section class="panel">
-    <p class="error" role="alert">{{ store.error() }}</p>
+    <p class="notice danger" role="alert">{{ store.error() }}</p>
   </section>
 } @else {
   <div class="loading"><mat-spinner diameter="32" /></div>

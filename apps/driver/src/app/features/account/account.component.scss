@@ -1,77 +1,40 @@
-.where {
-  margin-bottom: 16px;
+.who {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 
   h1 {
     margin: 0;
-    font-size: 24px;
+    font: 600 22px/28px var(--ww-font);
+    color: var(--mat-sys-on-surface);
+  }
+
+  .ww-two > span {
+    font-size: 13px;
+    line-height: 18px;
   }
 }
 
-h2 {
-  font-size: 16px;
-  margin: 24px 0 8px;
-}
-
-.panel h2 {
-  margin-top: 0;
-}
-
 .profile {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
 }
 
 .actions {
   display: flex;
-  align-items: center;
   gap: 12px;
-}
-
-.operators {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.operator {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  color: inherit;
-  text-decoration: none;
 }
 
-.name {
-  font-weight: 500;
+.list-title {
+  margin: 4px 0 0;
+  font: 600 17px/24px var(--ww-font);
 }
 
-.blocked {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--mat-sys-error);
-}
-
-.signout {
-  text-align: center;
-  margin-top: 24px;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 48px 0;
-}
-
-.link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: inherit;
-  text-decoration: none;
-
-  span {
-    flex: 1;
-    font-weight: 500;
-  }
+.chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-outline);
 }

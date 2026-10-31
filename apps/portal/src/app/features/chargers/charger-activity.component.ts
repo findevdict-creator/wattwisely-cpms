@@ -1,31 +1,39 @@
 import { DatePipe, JsonPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
+import { EmptyStateComponent } from '@wattwisely/ui';
+import { OcppMessage } from '../../core/api/models/command';
 import { StatusChipComponent } from '../../shared/status-chip.component';
 import { StatusLabels } from '../../shared/status-labels';
 import { ChargerActivityStore } from './charger-activity.store';
 
-/** The recent commands and raw OCPP messages of a charger, for checking what it did and said. */
+/** Which messages the log shows: all, those from or to the charger, or only errors. */
+export type MessageFilter = 'all' | 'in' | 'out' | 'errors';
+
+/** The recent commands or raw OCPP messages of a charger, for checking what it did and said. */
 @Component({
   selector: 'ww-charger-activity',
-  imports: [
-    DatePipe,
-    JsonPipe,
-    MatCardModule,
-    MatExpansionModule,
-    MatTableModule,
-    StatusChipComponent,
-  ],
+  imports: [DatePipe, EmptyStateComponent, JsonPipe, MatTableModule, StatusChipComponent],
   templateUrl: './charger-activity.component.html',
   styleUrl: './charger-activity.component.scss',
 })
 export class ChargerActivityComponent {
   static readonly COMMAND_COLUMNS = ['when', 'action', 'who', 'status'];
-  static readonly MESSAGE_COLUMNS = ['when', 'direction', 'action', 'payload'];
+  static readonly MESSAGE_COLUMNS = ['when', 'direction', 'action', 'result', 'payload'];
+  static readonly FILTERS: { key: MessageFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'in', label: 'In' },
+    { key: 'out', label: 'Out' },
+    { key: 'errors', label: 'Errors' },
+  ];
 
+  readonly view = input<'messages' | 'commands'>('messages');
   protected readonly activity = inject(ChargerActivityStore);
+  protected readonly filters = ChargerActivityComponent.FILTERS;
+  protected readonly filter = signal<MessageFilter>('all');
+  protected readonly shown = computed(() =>
+    ChargerActivityComponent.matching(this.activity.messages(), this.filter()),
+  );
   protected readonly commandColumns = ChargerActivityComponent.COMMAND_COLUMNS;
   protected readonly messageColumns = ChargerActivityComponent.MESSAGE_COLUMNS;
 
@@ -33,10 +41,14 @@ export class ChargerActivityComponent {
     return StatusLabels.commandAction(action);
   }
 
-  protected direction(message: { direction: string; message_type: string }): string {
-    const arrow = message.direction === 'in' ? '← charger' : '→ charger';
-    return message.message_type === 'call'
-      ? arrow
-      : `${arrow} (${message.message_type === 'call_error' ? 'error' : 'reply'})`;
+  protected direction(message: OcppMessage): string {
+    return message.direction === 'in' ? 'From the charger' : 'To the charger';
+  }
+
+  private static matching(messages: OcppMessage[], filter: MessageFilter): OcppMessage[] {
+    if (filter === 'errors') {
+      return messages.filter((message) => message.message_type === 'call_error');
+    }
+    return filter === 'all' ? messages : messages.filter((m) => m.direction === filter);
   }
 }

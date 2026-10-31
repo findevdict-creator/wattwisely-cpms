@@ -8,6 +8,7 @@ export interface DatabaseSessionOptions {
   apiKeyHash?: string | null;
   messagingPhoneNumberId?: string | null;
   driverAccountId?: string | null;
+  isSiteSearch?: boolean;
   isPlatformAccess?: boolean;
 }
 
@@ -27,6 +28,8 @@ export class DatabaseSession {
   readonly messagingPhoneNumberId: string | null;
   /** The driver account behind a driver app request (module 19): their own linked drivers rows are visible. */
   readonly driverAccountId: string | null;
+  /** True while the app searches public sites near the driver, across tenants (module 35). */
+  readonly isSiteSearch: boolean;
   /** True only in admin console requests by Wattwisely staff (module 9). */
   readonly isPlatformAccess: boolean;
 
@@ -40,6 +43,7 @@ export class DatabaseSession {
     this.apiKeyHash = given(options.apiKeyHash);
     this.messagingPhoneNumberId = given(options.messagingPhoneNumberId);
     this.driverAccountId = given(options.driverAccountId);
+    this.isSiteSearch = options.isSiteSearch === true;
     this.isPlatformAccess = options.isPlatformAccess === true;
   }
 
@@ -86,6 +90,11 @@ export class DatabaseSession {
    */
   static forDriverAccount(driverAccountId: string): DatabaseSession {
     return new DatabaseSession({ driverAccountId });
+  }
+
+  /** The nearby search (module 35): the public sites of every tenant, nothing else. */
+  static forSiteSearch(): DatabaseSession {
+    return new DatabaseSession({ isSiteSearch: true });
   }
 
   /**

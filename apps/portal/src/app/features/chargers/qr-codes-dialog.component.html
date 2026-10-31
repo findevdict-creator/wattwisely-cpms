@@ -8,7 +8,7 @@
     <div class="codes">
       @for (code of codes; track code.connector_id) {
         <div class="code" [attr.data-testid]="'qr-' + code.label">
-          <div class="label">Plug {{ code.label }}</div>
+          <div class="label">Scan to charge · Plug {{ code.label }}</div>
           <div class="drawing" [innerHTML]="code.drawing"></div>
           <div class="url">{{ code.url }}</div>
         </div>
@@ -25,7 +25,7 @@
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Close</button>
   <button mat-flat-button (click)="print()" [disabled]="!codes()?.length" data-testid="print-qr">
-    <mat-icon>print</mat-icon>
+    <mat-icon svgIcon="printer" />
     Print
   </button>
 </mat-dialog-actions>

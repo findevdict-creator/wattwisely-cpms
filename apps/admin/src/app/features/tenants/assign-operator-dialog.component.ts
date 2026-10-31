@@ -25,21 +25,23 @@ export interface AssignOperatorDialogData {
     ReactiveFormsModule,
   ],
   template: `
-    <h2 mat-dialog-title>Add a Managed operator to {{ data.tenantName }}</h2>
-    <mat-dialog-content class="content">
-      <p>
+    <h2 mat-dialog-title>Assign an operator to {{ data.tenantName }}</h2>
+    <mat-dialog-content>
+      <p class="ww-lead">
         They join the tenant's team with the Managed operator role: sites, chargers, tariffs,
         sessions, drivers, payments and alerts, but not the team or the plan. The tenant sees them
         as "Wattwisely".
       </p>
-      <mat-form-field appearance="outline">
-        <mat-label>Staff member</mat-label>
-        <mat-select [formControl]="staffId" data-testid="operator-staff">
-          @for (member of staff(); track member.id) {
-            <mat-option [value]="member.id">{{ member.name || member.email }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="ww-form">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Staff member</mat-label>
+          <mat-select [formControl]="staffId" data-testid="operator-staff">
+            @for (member of staff(); track member.id) {
+              <mat-option [value]="member.id">{{ member.name || member.email }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -49,16 +51,9 @@ export interface AssignOperatorDialogData {
         [mat-dialog-close]="staffId.value"
         data-testid="assign-operator"
       >
-        Add
+        Assign
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      padding-top: 8px;
-    }
   `,
 })
 export class AssignOperatorDialogComponent implements OnInit {

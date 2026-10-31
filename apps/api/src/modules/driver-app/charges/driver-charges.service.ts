@@ -4,6 +4,9 @@ import { CommandQueuer } from '@wattwisely/payments';
 import { SessionStates, SessionStore } from '@wattwisely/session-engine';
 import { RequestAuth } from '../../../common/request/request-auth';
 import { DriverErrors } from '../../drivers/driver-errors';
+import { SessionReadingDto } from '../../sessions/dto/session-reading.dto';
+import { SessionReadingPoints } from '../../sessions/session-reading-points';
+import { SessionsRepository } from '../../sessions/sessions.repository';
 import { ChargeReceiptLookup } from '../../payments/public/charge-receipt.lookup';
 import { StopCommandLookup } from '../../payments/public/stop-command.lookup';
 import { DriverAppErrors } from '../driver-app-errors';
@@ -29,6 +32,8 @@ export class DriverChargesService {
   private readonly commands = new CommandQueuer();
   private readonly stops = new StopCommandLookup();
   private readonly receipts = new ChargeReceiptLookup();
+  /** The staff pages' readings query, for the driver's own chart (module 32). */
+  private readonly sessionsRepository = new SessionsRepository();
 
   constructor(
     private readonly runner: TransactionRunner,
@@ -62,6 +67,13 @@ export class DriverChargesService {
 
   get(auth: RequestAuth, id: string): Promise<DriverChargeDetailDto> {
     return this.transaction.withCharge(auth, id, (tx, record) => this.detail(tx, record, null));
+  }
+
+  /** The power and energy chart of one of the driver's charges, as staff see it (module 32). */
+  readings(auth: RequestAuth, id: string): Promise<SessionReadingDto[]> {
+    return this.transaction.withCharge(auth, id, async (tx, record) =>
+      SessionReadingPoints.of(record, await this.sessionsRepository.findReadings(tx, record.id)),
+    );
   }
 
   /** The driver asks the charger to stop; asking twice queues nothing new. 409 unless it runs. */

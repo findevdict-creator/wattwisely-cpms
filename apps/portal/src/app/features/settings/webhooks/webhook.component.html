@@ -1,48 +1,66 @@
 <a routerLink="/settings/webhooks" class="back">
-  <mat-icon inline>arrow_back</mat-icon>
+  <mat-icon svgIcon="arrow-left" />
   All webhooks
 </a>
 @if (endpoint(); as endpoint) {
-  <header class="title">
-    <div>
-      <h1 class="url">{{ endpoint.url }}</h1>
-      @if (endpoint.description) {
-        <p class="hint">{{ endpoint.description }}</p>
-      }
+  <section class="ww-card" aria-labelledby="endpoint-title">
+    <div class="ww-card-head line">
+      <div class="titles">
+        <h2 id="endpoint-title" class="mono url">{{ endpoint.url }}</h2>
+        <p>{{ endpoint.description || 'No description' }}</p>
+      </div>
+      <ww-status-chip [status]="endpoint.is_active ? 'active' : 'paused'" kind="webhook" />
     </div>
-    <ww-status-chip [status]="endpoint.is_active ? 'active' : 'paused'" kind="webhook" />
-  </header>
-
-  <section class="card">
-    <h2>Signing secret</h2>
-    <p class="hint">
-      Every delivery carries <code>Wattwisely-Signature: t=&lt;unix time&gt;,v1=&lt;hex&gt;</code>.
-      Check it by taking the HMAC-SHA256 of <code>&lt;t&gt;.&lt;raw body&gt;</code> with this
-      secret, and reject anything older than five minutes.
-    </p>
-    <div class="secret-row">
-      <code class="secret" data-testid="webhook-secret">
-        {{ isSecretShown() ? endpoint.secret : 'whsec_••••••••••••••••••••••••' }}
-      </code>
-      <button mat-button (click)="isSecretShown.set(!isSecretShown())" data-testid="reveal-secret">
-        {{ isSecretShown() ? 'Hide' : 'Reveal' }}
-      </button>
-      <button mat-button (click)="copySecret(endpoint)" data-testid="copy-secret">
-        <mat-icon>content_copy</mat-icon>
-        Copy
-      </button>
+    <div class="ww-card-body">
+      <dl class="ww-kv">
+        <div class="wide">
+          <dt>Events</dt>
+          <dd class="events">
+            @for (type of endpoint.event_types; track type) {
+              <span class="ww-chip neutral mono">{{ type }}</span>
+            }
+          </dd>
+        </div>
+        <div class="wide">
+          <dt>Signing secret</dt>
+          <dd class="secret-row">
+            <code class="mono secret" data-testid="webhook-secret">
+              {{ isSecretShown() ? endpoint.secret : 'whsec_••••••••••••••••••••••••' }}
+            </code>
+            <button
+              mat-button
+              class="ww-small"
+              (click)="isSecretShown.set(!isSecretShown())"
+              data-testid="reveal-secret"
+            >
+              {{ isSecretShown() ? 'Hide' : 'Reveal' }}
+            </button>
+            <button
+              mat-button
+              class="ww-small"
+              (click)="copySecret(endpoint)"
+              data-testid="copy-secret"
+            >
+              <mat-icon svgIcon="copy" />
+              Copy
+            </button>
+          </dd>
+        </div>
+      </dl>
+      <div class="notice neutral">
+        Every delivery carries <code class="mono">Wattwisely-Signature: t=…,v1=…</code>. Take the
+        HMAC-SHA256 of <code class="mono">&lt;t&gt;.&lt;raw body&gt;</code> with this secret,
+        compare it with <code class="mono">v1</code>, and reject anything older than five minutes.
+      </div>
     </div>
-  </section>
-
-  <section class="card">
-    <h2>Events</h2>
-    <code>{{ endpoint.event_types.join(', ') }}</code>
     @if (canManage()) {
-      <div class="actions">
+      <div class="ww-card-foot">
         <button mat-stroked-button (click)="edit(endpoint)" data-testid="edit-webhook">
+          <mat-icon svgIcon="pencil" />
           Change
         </button>
         <button mat-stroked-button (click)="toggle(endpoint)" data-testid="toggle-webhook">
+          <mat-icon [svgIcon]="endpoint.is_active ? 'circle-pause' : 'circle-play'" />
           {{ endpoint.is_active ? 'Pause' : 'Resume' }}
         </button>
         <button
@@ -52,67 +70,90 @@
           matTooltip="Queues a ping event so you can check your side gets it"
           data-testid="test-webhook"
         >
+          <mat-icon svgIcon="send" />
           Send test
         </button>
-        <button mat-button class="danger" (click)="remove(endpoint)" data-testid="remove-webhook">
+        <span class="ww-spacer"></span>
+        <button
+          mat-button
+          class="ww-danger"
+          (click)="remove(endpoint)"
+          data-testid="remove-webhook"
+        >
+          <mat-icon svgIcon="trash-2" />
           Remove
         </button>
       </div>
     }
   </section>
 
-  <section>
-    <header class="title">
-      <h2>Recent deliveries</h2>
-      <button mat-button (click)="refresh()" data-testid="refresh-deliveries">
-        <mat-icon>refresh</mat-icon>
-        Refresh
+  <section class="ww-card" aria-labelledby="deliveries-title">
+    <div class="ww-card-head line">
+      <div class="titles">
+        <h2 id="deliveries-title">Recent deliveries</h2>
+        <p>A failed delivery is tried again, waiting longer each time, for up to a day</p>
+      </div>
+      <button
+        mat-icon-button
+        (click)="refresh()"
+        aria-label="Refresh the deliveries"
+        data-testid="refresh-deliveries"
+      >
+        <mat-icon svgIcon="refresh-cw" />
       </button>
-    </header>
+    </div>
     @if (deliveries().length) {
-      <table mat-table [dataSource]="deliveries()" class="deliveries" data-testid="deliveries">
-        <ng-container matColumnDef="event">
-          <th mat-header-cell *matHeaderCellDef>Event</th>
-          <td mat-cell *matCellDef="let delivery">
-            <code>{{ delivery.event_type }}</code>
-            <span class="description">{{ delivery.created_at | date: 'medium' }}</span>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>State</th>
-          <td mat-cell *matCellDef="let delivery">
-            <ww-status-chip [status]="delivery.status" kind="delivery" />
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="attempts">
-          <th mat-header-cell *matHeaderCellDef>Attempts</th>
-          <td mat-cell *matCellDef="let delivery">
-            {{ delivery.attempts }}
-            @if (delivery.status === 'pending' && delivery.next_attempt_at) {
-              <span class="description">next {{ delivery.next_attempt_at | date: 'medium' }}</span>
-            }
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="last_attempt">
-          <th mat-header-cell *matHeaderCellDef>Last attempt</th>
-          <td mat-cell *matCellDef="let delivery">
-            {{ delivery.last_attempt_at ? (delivery.last_attempt_at | date: 'medium') : '—' }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="result">
-          <th mat-header-cell *matHeaderCellDef>Result</th>
-          <td mat-cell *matCellDef="let delivery" class="result">{{ resultOf(delivery) }}</td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns"></tr>
-      </table>
+      <div class="scroll">
+        <table mat-table [dataSource]="deliveries()" data-testid="deliveries">
+          <ng-container matColumnDef="time">
+            <th mat-header-cell *matHeaderCellDef>Time</th>
+            <td mat-cell *matCellDef="let delivery">
+              <span class="ww-two">
+                <b class="plain">{{ delivery.created_at | date: 'HH:mm:ss' }}</b>
+                <span>{{ dayOf(delivery) }}</span>
+              </span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="event">
+            <th mat-header-cell *matHeaderCellDef>Event</th>
+            <td mat-cell *matCellDef="let delivery" class="mono small">
+              {{ delivery.event_type }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>State</th>
+            <td mat-cell *matCellDef="let delivery">
+              <ww-status-chip [status]="delivery.status" kind="delivery" />
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="result">
+            <th mat-header-cell *matHeaderCellDef>Response</th>
+            <td mat-cell *matCellDef="let delivery" class="result">{{ resultOf(delivery) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="attempts">
+            <th mat-header-cell *matHeaderCellDef class="ww-num">Attempts</th>
+            <td mat-cell *matCellDef="let delivery" class="ww-num">
+              <span class="ww-two">
+                <b class="plain">{{ delivery.attempts }}</b>
+                @if (delivery.status === 'pending' && delivery.next_attempt_at) {
+                  <span>next {{ delivery.next_attempt_at | date: 'HH:mm' }}</span>
+                }
+              </span>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+      </div>
     } @else {
-      <p class="hint" data-testid="no-deliveries">
-        Nothing sent yet. Deliveries show up here within a few seconds of an event.
-      </p>
+      <ww-empty-state
+        icon="send"
+        heading="Nothing sent yet"
+        text="Deliveries show up here within a few seconds of an event."
+        data-testid="no-deliveries"
+      />
     }
   </section>
-}
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
+} @else if (error()) {
+  <div class="notice danger" role="alert">{{ error() }}</div>
 }

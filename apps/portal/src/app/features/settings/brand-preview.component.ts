@@ -16,7 +16,7 @@ import { PublicBranding } from '../../core/api/models/branding';
         @if (brand().logo_url; as logoUrl) {
           <img class="logo" [src]="logoUrl" [alt]="brand().name" />
         } @else {
-          <mat-icon>bolt</mat-icon>
+          <mat-icon svgIcon="zap" />
           <span>{{ brand().name }}</span>
         }
       </div>
@@ -55,18 +55,19 @@ import { PublicBranding } from '../../core/api/models/branding';
   styles: `
     .phone {
       width: 260px;
-      border: 8px solid #222;
-      border-radius: 28px;
+      border: 1px solid var(--ww-line);
+      border-radius: 24px;
       overflow: hidden;
-      background: #f4f6f4;
+      box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--ww-ink) 16%, transparent);
+      background: var(--ww-background);
       font-size: 12px;
     }
     .bar {
       display: flex;
       align-items: center;
-      gap: 4px;
-      height: 40px;
-      padding: 0 12px;
+      gap: 6px;
+      height: 44px;
+      padding: 0 16px;
       font-weight: 500;
       font-size: 14px;
     }
@@ -83,15 +84,15 @@ import { PublicBranding } from '../../core/api/models/branding';
       font-weight: 500;
     }
     .hint {
-      color: #5f6368;
+      color: var(--ww-text2);
       font-size: 11px;
     }
     .card {
-      background: #fff;
+      background: var(--ww-white);
       border-radius: 12px;
       padding: 10px;
       margin: 8px 0;
-      box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+      border: 1px solid var(--ww-line);
     }
     .plug {
       display: flex;
@@ -106,9 +107,9 @@ import { PublicBranding } from '../../core/api/models/branding';
       font-weight: 500;
     }
     .button {
-      margin: 8px 0;
-      padding: 8px;
-      border-radius: 999px;
+      margin: 10px 0 8px;
+      padding: 12px;
+      border-radius: 10px;
       text-align: center;
       font-weight: 500;
     }

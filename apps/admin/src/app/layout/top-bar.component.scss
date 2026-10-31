@@ -1,0 +1,99 @@
+:host {
+  position: sticky;
+  flex: none;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  height: 64px;
+  box-sizing: border-box;
+  padding: 0 24px 0 16px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+}
+
+.crumb {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    flex: none;
+    width: 14px;
+    height: 14px;
+  }
+
+  span,
+  b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  b {
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.portal mat-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.account {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px;
+  border: 0;
+  border-radius: var(--ww-radius-md);
+  background: none;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mat-sys-surface-variant);
+  }
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 959px) {
+  :host {
+    padding: 0 12px 0 8px;
+  }
+
+  .section,
+  .portal {
+    display: none;
+  }
+}
+
+::ng-deep .mat-mdc-menu-panel.ww-account-menu {
+  min-width: 240px;
+
+  .who {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px 12px;
+
+    b {
+      font-weight: 600;
+    }
+
+    span {
+      font-size: 13px;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+}

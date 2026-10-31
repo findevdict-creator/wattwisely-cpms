@@ -1,8 +1,6 @@
 import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { DriverChargesApiService } from '../../core/api/driver-charges-api.service';
-import { DriverChargeDetail } from '../../core/api/models/driver-payments';
+import { ApiProblem, DriverChargeDetail, DriverChargesApiService } from '@wattwisely/driver-core';
 
 /**
  * One of the driver's charges, followed every few seconds while something can still happen

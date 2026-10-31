@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
-import { PublicBranding } from '../api/models/branding';
+import { PublicBranding } from '@wattwisely/driver-core';
 import { BrandTheme } from './brand-theme';
 
 /**

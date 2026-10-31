@@ -1,64 +1,91 @@
-<header class="title">
-  <div>
-    <a routerLink="/drivers" class="back"><mat-icon>arrow_back</mat-icon> Drivers</a>
-    <h1>Access groups</h1>
-  </div>
+<ww-page-header
+  heading="Access groups"
+  subtitle="A group opens private sites to its drivers and can set who pays. Public sites admit every active card."
+  backLink="/drivers"
+  backLabel="Drivers"
+>
   @if (permissions.canChange('drivers:write')) {
     <button mat-flat-button (click)="edit(null)" data-testid="add-group">
-      <mat-icon>add</mat-icon>
-      New group
+      <mat-icon svgIcon="plus" />
+      New access group
     </button>
   }
-</header>
-<p class="hint">
-  A private site admits only the drivers of a group that names it. Public sites admit every active
-  card.
-</p>
+</ww-page-header>
 
 @if (error()) {
   <p class="error" role="alert">{{ error() }}</p>
 }
-@if (!isLoading() && groups().length === 0) {
-  <p class="empty" data-testid="no-groups">No access group yet.</p>
-} @else {
-  <table mat-table [dataSource]="groups()" class="groups" data-testid="groups">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Group</th>
-      <td mat-cell *matCellDef="let group">
-        <span class="name">{{ group.name }}</span>
-        @if (group.description) {
-          <br /><span class="hint">{{ group.description }}</span>
-        }
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="sites">
-      <th mat-header-cell *matHeaderCellDef>Opens</th>
-      <td mat-cell *matCellDef="let group">
-        {{ group.sites.length === 0 ? 'No site yet' : names(group.sites) }}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="members">
-      <th mat-header-cell *matHeaderCellDef>Drivers</th>
-      <td mat-cell *matCellDef="let group">
-        @if (group.members.length === 0) {
-          None
-        } @else if (group.members.length <= 3) {
-          {{ names(group.members) }}
-        } @else {
-          {{ group.members.length }} drivers
-        }
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let group" class="row-actions">
-        @if (permissions.canChange('drivers:write')) {
-          <button mat-button (click)="edit(group)">Edit</button>
-          <button mat-button (click)="remove(group)">Delete</button>
-        }
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
-}
+<section class="ww-card">
+  <div class="ww-card-body flush">
+    @if (!isLoading() && groups().length === 0) {
+      <ww-empty-state
+        icon="users-round"
+        heading="No access group yet"
+        text="Create one to open a private site to a set of drivers."
+        data-testid="no-groups"
+      />
+    } @else {
+      <table mat-table [dataSource]="groups()" data-testid="groups">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Group</th>
+          <td mat-cell *matCellDef="let group">
+            <div class="ww-two">
+              <b>{{ group.name }}</b>
+              @if (group.description) {
+                <span>{{ group.description }}</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="sites">
+          <th mat-header-cell *matHeaderCellDef>Opens</th>
+          <td mat-cell *matCellDef="let group">
+            @if (group.sites.length === 0) {
+              <span class="ww-faint">No site yet</span>
+            } @else {
+              {{ names(group.sites) }}
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="members">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">Drivers</th>
+          <td mat-cell *matCellDef="let group" class="ww-num" [matTooltip]="names(group.members)">
+            {{ group.members.length }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="paying">
+          <th mat-header-cell *matHeaderCellDef>Paying</th>
+          <td mat-cell *matCellDef="let group">{{ payingOf(group) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="hold">
+          <th mat-header-cell *matHeaderCellDef class="ww-num">Hold per session</th>
+          <td mat-cell *matCellDef="let group" class="ww-num">
+            @if (group.hold_amount === null) {
+              <span class="ww-faint">Standard</span>
+            } @else {
+              {{ group.hold_amount | money: currency() }}
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef><span class="ww-faint">Actions</span></th>
+          <td mat-cell *matCellDef="let group" class="actions">
+            @if (permissions.canChange('drivers:write')) {
+              <span class="buttons">
+                <button mat-button class="ww-small" (click)="edit(group)">Edit</button>
+                <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More for this group">
+                  <mat-icon svgIcon="ellipsis-vertical" />
+                </button>
+              </span>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="remove(group)">Delete group</button>
+              </mat-menu>
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    }
+  </div>
+</section>

@@ -18,6 +18,8 @@ import { FileStore, MemoryFileStore } from '@wattwisely/file-storage';
 import { MESSAGING_PROVIDER } from '@wattwisely/messaging';
 import { FakeMessagingProvider } from '@wattwisely/messaging/testing';
 import { PAYMENT_GATEWAY } from '@wattwisely/payments';
+import { PUSH_SENDER } from '@wattwisely/push';
+import { FakePushSender } from '@wattwisely/push/testing';
 import { FakePaymentGateway } from '@wattwisely/payments/testing';
 import { ChargerEvent, NotifyChannels } from '@wattwisely/ocpp-contracts';
 import { AppModule } from '../app.module';
@@ -50,6 +52,7 @@ export class TestWorker {
     WEBHOOK_INTERVAL_MS: '3600000',
     LOAD_MANAGEMENT_INTERVAL_MS: '3600000',
     MESSAGING_INTERVAL_MS: '3600000',
+    PUSH_INTERVAL_MS: '3600000',
     /** Tests receive deliveries on a local port. */
     WEBHOOK_ALLOW_PRIVATE_URLS: 'true',
   };
@@ -80,6 +83,8 @@ export class TestWorker {
   readonly gateway = new FakePaymentGateway();
   /** The messaging app in memory the chat jobs talk to (module 17). */
   readonly chat = new FakeMessagingProvider();
+  /** The push services in memory (module 34). */
+  readonly push = new FakePushSender();
   app!: NestFastifyApplication;
   /** Object storage in memory, used when the worker was created with `isUsingObjectStorage`. */
   readonly files = new MemoryFileStore();
@@ -124,7 +129,9 @@ export class TestWorker {
       .overrideProvider(WorkerMailSender)
       .useValue(this.mail)
       .overrideProvider(MESSAGING_PROVIDER)
-      .useValue(this.chat);
+      .useValue(this.chat)
+      .overrideProvider(PUSH_SENDER)
+      .useValue(this.push);
     if (this.isUsingObjectStorage) {
       builder.overrideProvider(FileStore).useValue(this.files);
     }

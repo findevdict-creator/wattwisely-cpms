@@ -59,7 +59,7 @@ services:
     environment:
       PORT: 3000
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PUBLIC_SCHEME}://${ADMIN_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}},${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}},${DRIVER_DEV_URL:-${PUBLIC_SCHEME}://${DRIVER_HOST}}
+      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PUBLIC_SCHEME}://${ADMIN_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}},${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}},${DRIVER_DEV_URL:-${PUBLIC_SCHEME}://${DRIVER_HOST}},https://localhost,capacitor://localhost
       # The issuer is the public address written into tokens; the keys are fetched over the private network.
       KEYCLOAK_ISSUER_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}/realms/wattwisely
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/wattwisely/protocol/openid-connect/certs
@@ -125,6 +125,8 @@ services:
       PORTAL_KEYCLOAK_CLIENT_ID: wattwisely-portal
       # Wattwisely staff get a link to the admin console (module 9) in the portal's user menu.
       PORTAL_ADMIN_URL: ${PUBLIC_SCHEME}://${ADMIN_HOST}
+      # The top bar's help button leads here (module 22); no button when it is empty.
+      PORTAL_HELP_URL: ${PORTAL_HELP_URL:-}
     networks: [backend]
 
   # Chargers connect here over WebSocket (OCPP 1.6J or 2.0.1). Caddy terminates TLS and forwards
@@ -194,6 +196,13 @@ services:
       MESSAGING_INTERVAL_MS: ${MESSAGING_INTERVAL_MS:-10000}
       DRIVER_URL: ${PUBLIC_SCHEME}://${DRIVER_HOST}
       WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
+      # Module 34: pushes to the mobile app, through Firebase for Android and Apple for iOS.
+      PUSH_INTERVAL_MS: ${PUSH_INTERVAL_MS:-15000}
+      FCM_SERVICE_ACCOUNT_JSON: ${FCM_SERVICE_ACCOUNT_JSON:-}
+      APNS_PRIVATE_KEY: ${APNS_PRIVATE_KEY:-}
+      APNS_KEY_ID: ${APNS_KEY_ID:-}
+      APNS_TEAM_ID: ${APNS_TEAM_ID:-}
+      APNS_SANDBOX: ${APNS_SANDBOX:-false}
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }
@@ -212,6 +221,9 @@ services:
       DRIVER_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
       DRIVER_KEYCLOAK_REALM: wattwisely
       DRIVER_KEYCLOAK_CLIENT_ID: wattwisely-driver
+      # The mobile app (module 32) opens this domain's plug and invitation links once these are set.
+      MOBILE_ANDROID_CERT_SHA256: ${MOBILE_ANDROID_CERT_SHA256:-}
+      MOBILE_IOS_TEAM_ID: ${MOBILE_IOS_TEAM_ID:-}
     networks: [backend]
 
   # The admin console (module 9): Wattwisely staff manage tenants, plans, add-ons and each
@@ -225,6 +237,7 @@ services:
       ADMIN_KEYCLOAK_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}
       ADMIN_KEYCLOAK_REALM: wattwisely
       ADMIN_KEYCLOAK_CLIENT_ID: wattwisely-admin
+      ADMIN_PORTAL_URL: ${PUBLIC_SCHEME}://${PORTAL_HOST}
     networks: [backend]
 
   # ---------- Login: Keycloak ----------
@@ -261,6 +274,8 @@ services:
       SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
     volumes:
       - ./keycloak/realm:/opt/keycloak/data/import:ro
+      # Sign-in pages and e-mails in the platform's look (module 21), named by the realm.
+      - ./keycloak/themes/wattwisely:/opt/keycloak/themes/wattwisely:ro
     networks: [backend]
     depends_on:
       postgres: { condition: service_healthy }

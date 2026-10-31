@@ -126,13 +126,16 @@ export class StatusLabels {
     clear_charging_profile: 'Remove power cap',
   };
 
-  /** Which statuses get which colour; anything else is quiet. */
-  static readonly TONES: Record<'good' | 'busy' | 'bad', string[]> = {
-    good: [
+  /**
+   * Which statuses get which tone of chip (packages/ui, colors from theme.json); anything else
+   * is neutral, like an offline charger or a finished session.
+   */
+  static readonly TONES: Record<'live' | 'ok' | 'info' | 'warn' | 'danger', string[]> = {
+    live: ['charging'],
+    ok: [
       'ok',
       'available',
       'accepted',
-      'completed',
       'captured',
       'succeeded',
       'active',
@@ -140,11 +143,9 @@ export class StatusLabels {
       'paid',
       'delivered',
     ],
-    busy: [
-      'charging',
+    info: [
       'preparing',
       'finishing',
-      'occupied',
       'reserved',
       'queued',
       'sent',
@@ -156,28 +157,27 @@ export class StatusLabels {
       'awaiting_approval',
       'pending_acceptance',
       'proposed',
-      'ending',
       'issued',
     ],
-    bad: [
+    warn: ['occupied', 'suspended_ev', 'suspended_evse', 'ending', 'overdue'],
+    danger: [
       'problem',
-      'offline',
       'faulted',
       'rejected',
       'timed_out',
       'failed',
       'capture_failed',
       'restricted',
-      'overdue',
       'revoked',
       'expired',
+      'blocked',
     ],
   };
 
-  /** The CSS tone class: good, busy, bad or quiet. */
+  /** The chip's tone class: live, ok, info, warn, danger or neutral. */
   static toneOf(status: string): string {
     const tones = Object.keys(StatusLabels.TONES) as (keyof typeof StatusLabels.TONES)[];
-    return tones.find((tone) => StatusLabels.TONES[tone].includes(status)) ?? 'quiet';
+    return tones.find((tone) => StatusLabels.TONES[tone].includes(status)) ?? 'neutral';
   }
 
   static site(status: string): string {

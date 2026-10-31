@@ -1,0 +1,93 @@
+<section class="ww-card list" aria-labelledby="chats-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="chats-title">Conversations</h2>
+      <p>Newest first</p>
+    </div>
+    <button
+      mat-icon-button
+      (click)="refresh()"
+      aria-label="Refresh the conversations"
+      data-testid="refresh-chats"
+    >
+      <mat-icon svgIcon="refresh-cw" />
+    </button>
+  </div>
+  @if (conversations().length) {
+    <div class="ww-card-body items" data-testid="conversations">
+      @for (row of conversations(); track row.id) {
+        <button
+          type="button"
+          class="ww-list-item contact"
+          [class.on]="row.id === selected()?.id"
+          [attr.aria-pressed]="row.id === selected()?.id"
+          (click)="open(row)"
+        >
+          <span class="ww-avatar"><mat-icon svgIcon="message-circle" /></span>
+          <span class="ww-two ww-grow">
+            <b>+{{ row.contact }}</b>
+            <span>
+              {{ plugOf(row) }}
+              @if (chargeOf(row)) {
+                · {{ chargeOf(row) }}
+              }
+            </span>
+          </span>
+          <span class="ww-faint when">{{ whenOf(row) }}</span>
+        </button>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  } @else {
+    <ww-empty-state
+      icon="message-circle"
+      heading="No one has written yet"
+      text="A chat appears here when a driver messages your number."
+      data-testid="no-conversations"
+    />
+  }
+</section>
+
+<section class="ww-card chat" aria-labelledby="chat-title" data-testid="thread">
+  @if (selected(); as conversation) {
+    <div class="ww-card-head line">
+      <div class="titles">
+        <h2 id="chat-title">+{{ conversation.contact }}</h2>
+        <p>
+          @if (conversation.session_id) {
+            <a [routerLink]="['/sessions', conversation.session_id]">The charge</a>
+            on {{ plugOf(conversation) }}
+          } @else {
+            {{ plugOf(conversation) }}
+          }
+        </p>
+      </div>
+    </div>
+    <div class="ww-card-body bubbles">
+      @for (message of messages(); track message.id) {
+        <div class="bubble" [class.out]="message.direction === 'out'">
+          <p>{{ message.body }}</p>
+          @if (message.buttons.length) {
+            <p class="buttons">{{ message.buttons.join(' · ') }}</p>
+          }
+          <span class="meta">
+            {{ message.created_at | date: 'short' }} · {{ message.status }}
+            @if (message.error) {
+              · {{ message.error }}
+            }
+          </span>
+        </div>
+      }
+    </div>
+  } @else {
+    <h2 id="chat-title" class="cdk-visually-hidden">Chat</h2>
+    <ww-empty-state
+      icon="message-square"
+      heading="No chat open"
+      text="Pick a conversation to read it."
+    />
+  }
+</section>

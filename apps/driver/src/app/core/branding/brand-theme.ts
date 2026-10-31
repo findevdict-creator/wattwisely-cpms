@@ -1,17 +1,19 @@
-import { PublicBranding } from '../api/models/branding';
+import { PlatformColours } from '@wattwisely/theme';
+import { PublicBranding } from '@wattwisely/driver-core';
 
 /**
  * Turns an operator's brand into the page's colours: the Material tokens the buttons,
  * spinners and fields read, and the app's own variables for the bar and the links.
- * The platform's own brand is what the app starts with and goes back to.
+ * The platform's own brand (theme.json) is what the app starts with and goes back to. The
+ * accent becomes Material's secondary color; tertiary stays the theme's blue for information.
  */
 export class BrandTheme {
   static readonly PLATFORM: PublicBranding = {
     name: 'Wattwisely',
     logo_url: null,
-    primary_color: '#1b5e20',
-    on_primary_color: '#ffffff',
-    accent_color: '#43a047',
+    primary_color: PlatformColours.PRIMARY,
+    on_primary_color: PlatformColours.ON_PRIMARY,
+    accent_color: PlatformColours.ACCENT,
     support_email: null,
     support_phone: null,
     support_url: null,
@@ -28,9 +30,8 @@ export class BrandTheme {
       '--mat-sys-primary': brand.primary_color,
       '--mat-sys-on-primary': brand.on_primary_color,
       '--mat-sys-primary-container': container,
-      '--mat-sys-on-primary-container': '#1b1b1b',
+      '--mat-sys-on-primary-container': PlatformColours.INK,
       '--mat-sys-secondary': brand.accent_color,
-      '--mat-sys-tertiary': brand.accent_color,
       '--ww-accent': brand.accent_color,
     };
   }

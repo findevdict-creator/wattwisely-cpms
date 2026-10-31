@@ -24,16 +24,20 @@ export interface PayDialogData {
   ],
   template: `
     <h2 mat-dialog-title>Mark {{ data.number }} as paid</h2>
-    <mat-dialog-content class="content" [formGroup]="form">
-      <p>{{ data.total }} received. A paid invoice cannot be changed or voided afterwards.</p>
-      <mat-form-field appearance="outline">
-        <mat-label>Paid on</mat-label>
-        <input matInput type="date" formControlName="paid_at" data-testid="paid-on" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Payment reference (optional)</mat-label>
-        <input matInput formControlName="payment_reference" data-testid="payment-reference" />
-      </mat-form-field>
+    <mat-dialog-content>
+      <p class="ww-lead">{{ data.total }} received.</p>
+      <form class="ww-form" [formGroup]="form" (ngSubmit)="form.valid && save()">
+        <div class="notice warn">A paid invoice cannot be changed or voided afterwards.</div>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Paid on</mat-label>
+          <input matInput type="date" formControlName="paid_at" data-testid="paid-on" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Payment reference, optional</mat-label>
+          <input matInput formControlName="payment_reference" data-testid="payment-reference" />
+          <mat-hint>Such as the bank transfer's reference</mat-hint>
+        </mat-form-field>
+      </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -41,15 +45,6 @@ export interface PayDialogData {
         Mark paid
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding-top: 8px;
-      min-width: 360px;
-    }
   `,
 })
 export class PayDialogComponent {

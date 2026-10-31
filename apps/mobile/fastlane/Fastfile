@@ -1,0 +1,67 @@
+# The mobile app's store lanes (module 31). .github/workflows/mobile-release.yml runs them from
+# apps/mobile after building the app; each lane reads its keys from environment variables, which
+# the workflow sets from the repository's secrets. docs/modules/31-mobile-release.md lists them.
+default_platform(:android)
+
+APP_ID = 'com.wattwisely.driver'
+IOS_PROJECT = 'ios/App/App.xcodeproj'
+
+platform :android do
+  desc 'Uploads the App Bundle that `npx nx run mobile:bundle` signed to the internal testing track'
+  lane :internal do
+    upload_to_play_store(
+      package_name: APP_ID,
+      track: 'internal',
+      aab: 'android/app/build/outputs/bundle/release/app-release.aab',
+      json_key_data: ENV.fetch('PLAY_SERVICE_ACCOUNT_JSON'),
+      # Google Play takes only drafts until the app's first release has been reviewed.
+      release_status: ENV.fetch('PLAY_RELEASE_STATUS', 'draft'),
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
+
+platform :ios do
+  desc 'Signs the app with the distribution certificate, archives it and uploads it to TestFlight'
+  lane :beta do
+    setup_ci
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch('ASC_KEY_ID'),
+      issuer_id: ENV.fetch('ASC_ISSUER_ID'),
+      key_content: ENV.fetch('ASC_KEY_P8_BASE64'),
+      is_key_content_base64: true
+    )
+    import_certificate(
+      certificate_path: ENV.fetch('IOS_CERTIFICATE_PATH'),
+      certificate_password: ENV.fetch('IOS_CERTIFICATE_PASSWORD'),
+      keychain_name: 'fastlane_tmp_keychain',
+      keychain_password: ''
+    )
+    # Downloads the App Store profile for the app, or creates it the first time.
+    get_provisioning_profile(api_key: api_key, app_identifier: APP_ID)
+    profile = lane_context[SharedValues::SIGH_NAME]
+    update_code_signing_settings(
+      path: IOS_PROJECT,
+      targets: ['App'],
+      use_automatic_signing: false,
+      team_id: ENV.fetch('IOS_TEAM_ID'),
+      code_sign_identity: 'Apple Distribution',
+      profile_name: profile
+    )
+    build_app(
+      project: IOS_PROJECT,
+      scheme: 'App',
+      configuration: 'Release',
+      export_method: 'app-store',
+      export_options: { provisioningProfiles: { APP_ID => profile } },
+      output_directory: 'build/ios',
+      xcargs: "MARKETING_VERSION=#{ENV.fetch('APP_VERSION')} " \
+              "CURRENT_PROJECT_VERSION=#{ENV.fetch('APP_BUILD_NUMBER')} " \
+              "APP_LINK_HOST=#{ENV.fetch('APP_LINK_HOST')}"
+    )
+    upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true)
+  end
+end

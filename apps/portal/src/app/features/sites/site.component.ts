@@ -1,41 +1,49 @@
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { Router, RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { ChargersApiService } from '../../core/api/chargers-api.service';
-import { Charger } from '../../core/api/models/charger';
+import { ActiveSession, Charger, Connector } from '../../core/api/models/charger';
 import { Site } from '../../core/api/models/site';
 import { SitesApiService } from '../../core/api/sites-api.service';
 import { Tariff } from '../../core/api/models/tariff';
 import { TariffsApiService } from '../../core/api/tariffs-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { DurationLabel } from '../../shared/duration-label';
+import { SiteMapComponent } from '../../shared/site-map/site-map.component';
 import { StatusChipComponent } from '../../shared/status-chip.component';
+import { PlugLabel } from '../chargers/plug-label';
 import { RegisterChargerDialogComponent } from '../chargers/register-charger-dialog.component';
+import { UsageFigures } from '../reports/usage-figures';
 import { OpeningHoursText } from './opening-hours-text';
+import { SiteConnectors } from './site-connectors';
 import { SiteDialogComponent } from './site-dialog.component';
+import { SiteTodayComponent } from './site-today.component';
 
-/** One site: its details and the chargers on it (story AST-01). */
+/** One site: its connectors and what is charging on them, today's figures, where it is (AST-01). */
 @Component({
   selector: 'ww-site',
   imports: [
+    EmptyStateComponent,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatMenuModule,
     MatTableModule,
+    PageHeaderComponent,
     RouterLink,
+    SiteMapComponent,
+    SiteTodayComponent,
     StatusChipComponent,
   ],
   templateUrl: './site.component.html',
-  styleUrl: './site.component.scss',
 })
 export class SiteComponent implements OnInit {
   readonly id = input.required<string>();
@@ -51,8 +59,11 @@ export class SiteComponent implements OnInit {
   protected readonly chargers = signal<Charger[]>([]);
   protected readonly tariff = signal<Tariff | null>(null);
   protected readonly error = signal('');
-  protected readonly columns = ['identity', 'model', 'status', 'connectors'];
+  protected readonly columns = ['charger', 'connector', 'plug', 'status', 'session'];
   protected readonly describeHours = OpeningHoursText.describe;
+  protected readonly plugOf = (connector: Connector) => PlugLabel.of(connector);
+  protected readonly rows = computed(() => SiteConnectors.rows(this.chargers()));
+  protected readonly connectorSummary = computed(() => SiteConnectors.summary(this.chargers()));
 
   ngOnInit(): void {
     void this.load();
@@ -93,6 +104,22 @@ export class SiteComponent implements OnInit {
     } catch (error) {
       this.snackBar.open(ApiProblem.from(error).detail, 'OK', { duration: 6000 });
     }
+  }
+
+  protected energyOf(session: ActiveSession): string {
+    return UsageFigures.energy(session.energy_wh);
+  }
+
+  protected durationOf(session: ActiveSession): string {
+    return DurationLabel.between(session.started_at, null);
+  }
+
+  protected fullAddress(site: Site): string {
+    const address = site.address;
+    const town = `${address.postal_code} ${address.city}`;
+    return [address.line1, address.line2, town, address.region, address.country]
+      .filter(Boolean)
+      .join(', ');
   }
 
   /** The site's tariff, for its name; shown only to people who may read tariffs. */

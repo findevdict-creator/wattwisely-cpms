@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CardSaverComponent } from './card-saver.component';
-import { SavedCardsStore } from './saved-cards.store';
+import { SavedCardsStore } from '@wattwisely/driver-core';
 
 /**
  * "Your cards" on the account page (module 19): the cards saved to the login, which one the

@@ -1,17 +1,17 @@
+import { TitleCasePipe } from '@angular/common';
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
-import { Place } from '../../core/api/models/place';
-import { MoneyPipe } from '../../shared/money.pipe';
+import { MoneyPipe, Place } from '@wattwisely/driver-core';
 import { AccountStartStore } from './account-start.store';
 
 /**
  * "Charge with your account" on the plug page (module 19). A free rule starts at once; a paid
  * one holds the default saved card with no card form. The first charge at an operator that has
- * no record of the driver asks their consent to keep one.
+ * no record of the driver asks their consent to keep one. The plug page offers the login itself.
  */
 @Component({
   selector: 'ww-account-start',
@@ -22,6 +22,7 @@ import { AccountStartStore } from './account-start.store';
     MatProgressSpinnerModule,
     MoneyPipe,
     RouterLink,
+    TitleCasePipe,
   ],
   providers: [AccountStartStore],
   templateUrl: './account-start.component.html',

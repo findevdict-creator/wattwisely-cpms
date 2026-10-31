@@ -1,34 +1,19 @@
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--mat-sys-on-surface-variant);
-  text-decoration: none;
-}
-
-h1 {
-  margin-bottom: 4px;
-}
-
-.facts {
+:host {
   display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+ww-page-header {
+  margin-bottom: 0;
+}
+
+.danger {
+  border-color: var(--ww-danger-soft);
+}
+
+.buttons {
+  flex-direction: row;
   flex-wrap: wrap;
-  gap: 12px;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.notice {
-  max-width: 1100px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: var(--mat-sys-tertiary-container);
-  color: var(--mat-sys-on-tertiary-container);
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 16px;
-  max-width: 1100px;
-  margin: 24px 0;
+  gap: 8px;
 }

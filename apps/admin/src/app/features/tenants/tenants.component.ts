@@ -2,13 +2,12 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { Plan } from '../../core/api/models/plan';
@@ -24,12 +23,12 @@ import { NewTenantDialogComponent } from './new-tenant-dialog.component';
   selector: 'ww-tenants',
   imports: [
     DatePipe,
+    EmptyStateComponent,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatSelectModule,
     MatTableModule,
+    PageHeaderComponent,
     RouterLink,
     StatusChipComponent,
   ],
@@ -45,19 +44,21 @@ export class TenantsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected readonly columns = ['tenant', 'status', 'plan', 'usage', 'created'];
+  protected readonly columns = ['tenant', 'plan', 'usage', 'status', 'created'];
   protected readonly statuses = ['trial', 'active', 'suspended', 'cancelled'];
+  protected readonly labels = StatusChipComponent.LABELS;
   protected readonly tenants = signal<TenantSummary[]>([]);
   protected readonly plans = signal<Plan[]>([]);
   protected readonly nextCursor = signal<string | null>(null);
   protected readonly error = signal('');
+  protected readonly isLoaded = signal(false);
   protected readonly filter = signal<TenantFilter>({});
 
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
     this.filter.set({ plan: params.get('plan') ?? '', status: params.get('status') ?? '' });
     void this.load();
-    void this.loadPlans();
+    void this.loadPlans().then(() => this.createIfAsked(params.has('new')));
   }
 
   protected change(change: TenantFilter): void {
@@ -72,6 +73,8 @@ export class TenantsComponent implements OnInit {
       this.nextCursor.set(page.next_cursor);
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
+    } finally {
+      this.isLoaded.set(true);
     }
   }
 
@@ -91,6 +94,18 @@ export class TenantsComponent implements OnInit {
             : ' The Owner e-mail could not be sent; invite them again from the tenant page.';
       this.snackBar.open(`${created.tenant.name} created.${note}`, 'OK', { duration: 8000 });
       await this.router.navigate(['/tenants', created.tenant.id]);
+    }
+  }
+
+  /** "New tenant" on the overview comes here with ?new=1, which opens the form once. */
+  private async createIfAsked(isAsked: boolean): Promise<void> {
+    if (isAsked && this.staff.can('tenants:write')) {
+      await this.router.navigate([], {
+        queryParams: { new: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+      await this.create();
     }
   }
 

@@ -103,4 +103,13 @@ export class DriverAppErrors {
       'This charge is not one of yours, or does not exist.',
     );
   }
+
+  /** The receipt is made once the session has its final price. */
+  static receiptNotReady(): ProblemException {
+    return new ProblemException(
+      HttpStatus.CONFLICT,
+      'receipt_not_ready',
+      'The receipt is ready once the charge has ended and been priced.',
+    );
+  }
 }

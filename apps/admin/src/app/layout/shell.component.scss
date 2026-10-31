@@ -1,46 +1,50 @@
 :host {
-  display: flex;
-  flex-direction: column;
+  display: block;
   height: 100%;
 }
 
-.top-bar {
-  gap: 16px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
-  background: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+.frame {
+  --ww-side-width: 248px;
+  height: 100%;
+
+  &.rail {
+    --ww-side-width: 72px;
+  }
 }
 
-.brand {
-  font-weight: 500;
+.side {
+  width: var(--ww-side-width);
+  border-right: 1px solid var(--mat-sys-outline-variant);
+
+  ::ng-deep .mat-drawer-inner-container {
+    overflow-x: hidden;
+  }
 }
 
-.role {
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: var(--mat-sys-primary);
-  color: var(--mat-sys-on-primary);
+// Once Material turns its transitions on, the menu's width eases with the same timing as its
+// slide and as the page's margin.
+.frame.mat-drawer-transition .side {
+  transition-property: transform, width;
 }
 
-.spacer {
+// Material measures the menu when it opens or the window resizes, and sets the page's margin
+// inline; a change of width alone goes unnoticed. Beside the page the margin follows the width.
+.beside > .main {
+  margin-left: var(--ww-side-width) !important;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
   flex: 1;
+  padding: 28px 32px 32px;
 }
 
-.body {
-  flex: 1;
-}
-
-.side-menu {
-  width: 220px;
-}
-
-.page {
-  padding: 24px;
-}
-
-.active {
-  background: var(--mat-sys-secondary-container);
+@media (max-width: 959px) {
+  .content {
+    padding: 20px 16px 24px;
+  }
 }

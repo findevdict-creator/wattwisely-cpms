@@ -1,87 +1,123 @@
-<header class="title">
-  <h1>Team</h1>
-  <div class="title-actions">
-    <a mat-stroked-button routerLink="/team/roles" data-testid="roles">
-      <mat-icon>verified_user</mat-icon>
-      Roles and permissions
-    </a>
-    @if (permissions.canChange('team:manage')) {
-      <button mat-flat-button (click)="invite()" data-testid="invite">
-        <mat-icon>person_add</mat-icon>
-        Invite
-      </button>
-    }
+<ww-page-header
+  heading="Team"
+  subtitle="People who can sign in to your company, and what they can do where"
+>
+  @if (permissions.canChange('team:manage')) {
+    <button mat-flat-button (click)="invite()" data-testid="invite">
+      <mat-icon svgIcon="user-plus" />
+      Invite member
+    </button>
+  }
+</ww-page-header>
+
+<ww-team-tabs />
+
+<section class="ww-card">
+  <div class="ww-toolbar">
+    <label class="ww-field search">
+      <mat-icon svgIcon="search" />
+      <input
+        #query
+        type="search"
+        placeholder="Search by name or e-mail, then Enter"
+        aria-label="Search by name or e-mail"
+        (keyup.enter)="search(query.value)"
+        data-testid="team-search"
+      />
+    </label>
   </div>
-</header>
 
-<mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-  <mat-icon matPrefix>search</mat-icon>
-  <mat-label>Search by name or e-mail</mat-label>
-  <input matInput #query (keyup.enter)="search(query.value)" data-testid="team-search" />
-</mat-form-field>
+  @if (!store.isLoading() && store.members().length === 0) {
+    <ww-empty-state icon="users" heading="Nobody matches this search" />
+  } @else {
+    <table mat-table [dataSource]="store.members()" data-testid="members">
+      <ng-container matColumnDef="person">
+        <th mat-header-cell *matHeaderCellDef>Member</th>
+        <td mat-cell *matCellDef="let member">
+          <span class="person">
+            <span class="ww-avatar" [class.invited]="member.status === 'invited'">
+              {{ initialsOf(member) }}
+            </span>
+            <span class="ww-two">
+              <b>{{ member.name || member.email }}</b>
+              @if (member.status === 'invited') {
+                <span>
+                  Invited by {{ member.invited_by || 'someone' }},
+                  {{ member.invited_at | date: 'd MMM y' }}
+                </span>
+              } @else if (member.name) {
+                <span>{{ member.email }}</span>
+              }
+            </span>
+          </span>
+        </td>
+      </ng-container>
 
-<table mat-table [dataSource]="store.members()" class="members" data-testid="members">
-  <ng-container matColumnDef="person">
-    <th mat-header-cell *matHeaderCellDef>Person</th>
-    <td mat-cell *matCellDef="let member">
-      <div class="name">{{ member.name || member.email }}</div>
-      @if (member.name) {
-        <div class="email">{{ member.email }}</div>
-      }
-    </td>
-  </ng-container>
+      <ng-container matColumnDef="roles">
+        <th mat-header-cell *matHeaderCellDef>Roles</th>
+        <td mat-cell *matCellDef="let member">
+          <span class="chips">
+            @if (member.is_managed_operator) {
+              <span class="ww-chip info" data-testid="member-wattwisely">Wattwisely</span>
+            } @else {
+              @for (role of member.roles; track role.role_id) {
+                <span class="ww-chip neutral">{{ role.name }}</span>
+              }
+            }
+          </span>
+        </td>
+      </ng-container>
 
-  <ng-container matColumnDef="roles">
-    <th mat-header-cell *matHeaderCellDef>Roles</th>
-    <td mat-cell *matCellDef="let member">
-      @if (member.is_managed_operator) {
-        <mat-chip class="wattwisely" data-testid="member-wattwisely">Wattwisely</mat-chip>
-      } @else {
-        {{ describeRoles(member) }}
-      }
-    </td>
-  </ng-container>
+      <ng-container matColumnDef="where">
+        <th mat-header-cell *matHeaderCellDef>Where</th>
+        <td mat-cell *matCellDef="let member">{{ whereOf(member) }}</td>
+      </ng-container>
 
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>Status</th>
-    <td mat-cell *matCellDef="let member">
-      @if (member.status === 'invited') {
-        <mat-chip [class.expired]="member.is_invite_expired">
-          {{ member.is_invite_expired ? 'Invitation expired' : 'Invited' }}
-        </mat-chip>
-        <div class="email">
-          by {{ member.invited_by || 'someone' }}, {{ member.invited_at | date: 'mediumDate' }}
-        </div>
-      } @else {
-        Active since {{ member.joined_at | date: 'mediumDate' }}
-      }
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let member" class="actions">
-      @if (permissions.canChange('team:manage') && !member.is_managed_operator) {
-        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="editRoles(member)">Change roles</button>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let member">
           @if (member.status === 'invited') {
-            <button mat-menu-item (click)="store.resend(member)">Send again</button>
-            <button mat-menu-item (click)="cancelInvitation(member)">Cancel invitation</button>
+            <span class="ww-chip {{ member.is_invite_expired ? 'warn' : 'info' }}">
+              {{ member.is_invite_expired ? 'Invitation expired' : 'Invited' }}
+            </span>
           } @else {
-            <button mat-menu-item (click)="remove(member)">Remove from team</button>
+            <div class="ww-two">
+              <span class="ww-chip ok">Active</span>
+              <span>since {{ member.joined_at | date: 'd MMM y' }}</span>
+            </div>
           }
-        </mat-menu>
-      }
-    </td>
-  </ng-container>
+        </td>
+      </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">
+          <span class="ww-faint">Actions</span>
+        </th>
+        <td mat-cell *matCellDef="let member" class="ww-num">
+          @if (permissions.canChange('team:manage') && !member.is_managed_operator) {
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
+              <mat-icon svgIcon="ellipsis-vertical" />
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+              <button mat-menu-item (click)="editRoles(member)">Change roles</button>
+              @if (member.status === 'invited') {
+                <button mat-menu-item (click)="store.resend(member)">Send again</button>
+                <button mat-menu-item (click)="cancelInvitation(member)">Cancel invitation</button>
+              } @else {
+                <button mat-menu-item (click)="remove(member)">Remove from team</button>
+              }
+            </mat-menu>
+          }
+        </td>
+      </ng-container>
 
-@if (!store.isLoading() && store.members().length === 0) {
-  <p class="empty">Nobody matches this search.</p>
-}
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  }
+</section>
+
+<div class="notice neutral rules">
+  There is always at least one Owner. Nobody can give a role with more permissions than they hold.
+  Removing a member ends their access within a minute.
+</div>

@@ -1,69 +1,97 @@
-<mat-card data-testid="managed-service-card">
-  <mat-card-header>
-    <mat-card-title>Managed service</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    @if (store.service(); as s) {
-      <dl>
-        <dt>Status</dt>
-        <dd>
-          <ww-status-chip [status]="s.status" />
-          @if (s.ends_at) {
-            <span class="sub">
-              {{ s.status === 'ended' ? ' ended' : ' ends' }} {{ s.ends_at | date: 'mediumDate' }}
-            </span>
-          }
-        </dd>
-        <dt>Account manager</dt>
-        <dd data-testid="managed-account-manager">
-          {{ s.account_manager?.name || s.account_manager?.email || 'Nobody' }}
-        </dd>
-        <dt>Tariff changes</dt>
-        <dd>{{ s.is_tariff_approval_required ? 'Owner approves' : 'Applied directly' }}</dd>
-        <dt>Monthly fee</dt>
-        <dd data-testid="managed-monthly-fee">
-          {{ s.monthly_fee ? (s.monthly_fee | money: currency()) : 'None' }}
-        </dd>
-        @if (s.agreement_reference) {
-          <dt>Agreement</dt>
-          <dd>{{ s.agreement_reference }}</dd>
+<section class="ww-card" aria-labelledby="managed-title" data-testid="managed-service-card">
+  @let s = store.service();
+  <div class="ww-card-head">
+    <div class="titles">
+      <h2 id="managed-title">Managed service</h2>
+      @if (s) {
+        <p>
+          {{ s.agreement_reference || 'No agreement reference' }} ·
+          <span data-testid="managed-monthly-fee">{{
+            s.monthly_fee ? (s.monthly_fee | money: currency()) + ' a month' : 'No monthly fee'
+          }}</span>
+        </p>
+      } @else {
+        <p>Wattwisely staff run the tenant's charging for them</p>
+      }
+    </div>
+    @if (s) {
+      <ww-status-chip [status]="s.status" />
+    }
+    @if (canManage() && isLive()) {
+      <button mat-icon-button [matMenuTriggerFor]="more" aria-label="More">
+        <mat-icon svgIcon="ellipsis-vertical" />
+      </button>
+      <mat-menu #more="matMenu" xPosition="before">
+        <button mat-menu-item (click)="edit()" data-testid="edit-managed-service">
+          <mat-icon svgIcon="pencil" />
+          Change the terms
+        </button>
+        @if (s && s.status === 'active') {
+          <button mat-menu-item (click)="giveNotice()" data-testid="managed-notice">
+            <mat-icon svgIcon="calendar-x" />
+            Give notice
+          </button>
         }
-        <dt>Offered</dt>
-        <dd>{{ s.offered_at | date: 'mediumDate' }}</dd>
-        @if (s.accepted_at) {
-          <dt>Accepted</dt>
-          <dd>{{ s.accepted_at | date: 'mediumDate' }}</dd>
-        }
+      </mat-menu>
+    }
+  </div>
+  <div class="ww-card-body">
+    @if (s) {
+      @if (s.ends_at) {
+        <div class="notice neutral">
+          {{ s.status === 'ended' ? 'Ended' : 'Ends' }} {{ s.ends_at | date: 'd MMM y' }}.
+        </div>
+      }
+      <div class="person">
+        <span class="ww-avatar">{{ initialsOf(s.account_manager) }}</span>
+        <span class="ww-two ww-grow">
+          <b data-testid="managed-account-manager">
+            {{ s.account_manager?.name || s.account_manager?.email || 'Nobody' }}
+          </b>
+          <span>Account manager</span>
+        </span>
+      </div>
+      <dl class="ww-kv">
+        <div>
+          <dt>Tariff changes</dt>
+          <dd>{{ s.is_tariff_approval_required ? 'Owner approves' : 'Applied directly' }}</dd>
+        </div>
+        <div>
+          <dt>{{ s.accepted_at ? 'Accepted' : 'Offered' }}</dt>
+          <dd>{{ s.accepted_at ?? s.offered_at | date: 'd MMM y' }}</dd>
+        </div>
         @if (s.notes) {
-          <dt>Notes</dt>
-          <dd class="notes">{{ s.notes }}</dd>
+          <div class="wide">
+            <dt>Notes</dt>
+            <dd class="notes">{{ s.notes }}</dd>
+          </div>
         }
       </dl>
 
       @if (isLive()) {
-        <h3>Managed operators</h3>
+        <span class="ww-overline">Managed operators</span>
         @if (s.operators.length) {
-          <mat-list data-testid="managed-operators">
+          <div data-testid="managed-operators">
             @for (operator of s.operators; track operator.id) {
-              <mat-list-item>
-                <span matListItemTitle>{{ operator.name || operator.email }}</span>
-                <span matListItemLine>
-                  {{ operator.email }} · since {{ operator.assigned_at | date: 'mediumDate' }}
+              <div class="person">
+                <span class="ww-avatar">{{ initials.of(operator.name || operator.email) }}</span>
+                <span class="ww-two ww-grow">
+                  <b>{{ operator.name || operator.email }}</b>
+                  <span>since {{ operator.assigned_at | date: 'd MMM y' }}</span>
                 </span>
                 @if (canManage() && operator.staff_id) {
                   <button
-                    matListItemMeta
                     mat-icon-button
                     (click)="removeOperator(operator)"
-                    aria-label="Remove"
+                    [attr.aria-label]="'Remove ' + (operator.name || operator.email)"
                     data-testid="remove-operator"
                   >
-                    <mat-icon>person_remove</mat-icon>
+                    <mat-icon svgIcon="user-minus" />
                   </button>
                 }
-              </mat-list-item>
+              </div>
             }
-          </mat-list>
+          </div>
         } @else {
           <p class="empty">
             {{
@@ -78,49 +106,49 @@
       <p class="empty">Self-serve: the tenant runs its own charging.</p>
     }
     @if (store.error()) {
-      <p class="error" role="alert">{{ store.error() }}</p>
+      <div class="notice danger" role="alert">{{ store.error() }}</div>
     }
-  </mat-card-content>
+  </div>
   @if (store.isLoaded()) {
-    <mat-card-actions align="end">
-      @let s = store.service();
+    <div class="ww-card-foot">
+      @if (canManage() && s && s.status === 'active') {
+        <button
+          mat-stroked-button
+          class="ww-small"
+          (click)="addOperator()"
+          data-testid="add-operator"
+        >
+          <mat-icon svgIcon="user-plus" />
+          Assign operator
+        </button>
+      }
+      @if (canManage() && !isLive()) {
+        <button
+          mat-stroked-button
+          class="ww-small"
+          (click)="offer()"
+          data-testid="offer-managed-service"
+        >
+          <mat-icon svgIcon="headset" />
+          Offer the managed service
+        </button>
+      }
+      @if (canManage() && s && s.status === 'pending_acceptance') {
+        <button
+          mat-button
+          class="ww-small ww-danger"
+          (click)="withdraw()"
+          data-testid="withdraw-managed-service"
+        >
+          Withdraw
+        </button>
+      }
+      <span class="ww-spacer"></span>
       @if (s && s.status !== 'pending_acceptance' && s.status !== 'withdrawn') {
-        <a mat-button [routerLink]="['/tenants', tenant().id, 'service-report']">Service report</a>
+        <a mat-button class="ww-small" [routerLink]="['/tenants', tenant().id, 'service-report']">
+          Service report
+        </a>
       }
-      @if (canManage()) {
-        @if (!isLive()) {
-          <button mat-button (click)="offer()" data-testid="offer-managed-service">
-            Offer the managed service
-          </button>
-        }
-        @if (s && s.status === 'pending_acceptance') {
-          <button mat-button (click)="withdraw()" data-testid="withdraw-managed-service">
-            Withdraw
-          </button>
-        }
-        @if (s && s.status === 'active') {
-          <button mat-button (click)="addOperator()" data-testid="add-operator">
-            Add operator
-          </button>
-        }
-        @if (isLive()) {
-          <button mat-icon-button [matMenuTriggerFor]="more" aria-label="More">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #more="matMenu">
-            <button mat-menu-item (click)="edit()" data-testid="edit-managed-service">
-              <mat-icon>edit</mat-icon>
-              Change the terms
-            </button>
-            @if (s && s.status === 'active') {
-              <button mat-menu-item (click)="giveNotice()" data-testid="managed-notice">
-                <mat-icon>event_busy</mat-icon>
-                Give notice
-              </button>
-            }
-          </mat-menu>
-        }
-      }
-    </mat-card-actions>
+    </div>
   }
-</mat-card>
+</section>

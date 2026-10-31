@@ -23,19 +23,21 @@ export interface DraftInvoiceDialogData {
   ],
   template: `
     <h2 mat-dialog-title>Draft an invoice for {{ data.tenantName }}</h2>
-    <mat-dialog-content class="content">
-      <p>
+    <mat-dialog-content>
+      <p class="ww-lead">
         For a month the worker skipped (nothing to bill then, or the tenant had no plan) or whose
         invoice was voided. The lines come from today's plan, size, prices and tax rate.
       </p>
-      <mat-form-field appearance="outline">
-        <mat-label>Month</mat-label>
-        <mat-select [formControl]="month" data-testid="draft-month">
-          @for (option of months; track option.key) {
-            <mat-option [value]="option.key">{{ option.label }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="ww-form">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Month</mat-label>
+          <mat-select [formControl]="month" data-testid="draft-month">
+            @for (option of months; track option.key) {
+              <mat-option [value]="option.key">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -45,18 +47,9 @@ export interface DraftInvoiceDialogData {
         [mat-dialog-close]="month.value"
         data-testid="confirm-draft"
       >
-        Draft
+        Draft the invoice
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding-top: 8px;
-      max-width: 420px;
-    }
   `,
 })
 export class DraftInvoiceDialogComponent {

@@ -1,45 +1,30 @@
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 960px;
-}
-
-.title-actions {
-  display: flex;
-  gap: 8px;
-}
-
 .search {
-  width: 360px;
-  margin-bottom: 16px;
+  width: 320px;
+  max-width: 100%;
 }
 
-.members {
-  max-width: 960px;
+.person {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
 }
 
-.name {
-  font-weight: 500;
-}
-
-.email {
-  font-size: 13px;
+.ww-avatar.invited {
+  background: var(--mat-sys-surface-variant);
   color: var(--mat-sys-on-surface-variant);
 }
 
-.wattwisely {
-  --mat-chip-container-height: 24px;
+.chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
-.expired {
-  --mat-chip-label-text-color: var(--mat-sys-error);
+.ww-two .ww-chip {
+  align-self: flex-start;
+  margin-bottom: 2px;
 }
 
-.actions {
-  text-align: right;
-}
-
-.empty {
-  color: var(--mat-sys-on-surface-variant);
+.rules {
+  margin-top: 16px;
 }

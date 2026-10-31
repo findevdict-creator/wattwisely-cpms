@@ -1,72 +1,97 @@
-<header class="title">
-  <h2>Exports</h2>
-  <button mat-button (click)="load()" aria-label="Refresh exports">
-    <mat-icon>refresh</mat-icon>
-    Refresh
-  </button>
-</header>
+<section class="ww-card" aria-labelledby="exports-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="exports-title">Exports</h2>
+      <p>Files you asked for, ready to download for seven days</p>
+    </div>
+    <button mat-button class="ww-small" (click)="load()" aria-label="Refresh exports">
+      <mat-icon svgIcon="refresh-cw" />
+      Refresh
+    </button>
+  </div>
 
-@if (exports().length === 0) {
-  <p class="hint" data-testid="no-exports">
-    Large session exports, audit log exports and scheduled reports appear here, ready to download
-    for seven days.
-  </p>
-} @else {
-  <table mat-table [dataSource]="exports()" class="exports" data-testid="exports">
-    <ng-container matColumnDef="created_at">
-      <th mat-header-cell *matHeaderCellDef>Asked for</th>
-      <td mat-cell *matCellDef="let item">{{ item.created_at | date: 'short' }}</td>
-    </ng-container>
-    <ng-container matColumnDef="file">
-      <th mat-header-cell *matHeaderCellDef>File</th>
-      <td mat-cell *matCellDef="let item">
-        {{ item.file_name }}
-        <div class="hint">{{ kindLabel(item) }}</div>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let item" [attr.data-testid]="'export-status-' + item.status">
-        @switch (item.status) {
-          @case ('ready') {
-            {{ item.row_count | number }} rows
-            @if (item.is_truncated) {
-              <div class="error">Cut short at the row limit: narrow the filters for the rest.</div>
+  @if (exports().length === 0) {
+    <ww-empty-state
+      icon="download"
+      heading="No exports yet"
+      text="Large session exports, audit log exports and scheduled reports appear here, ready to download for seven days."
+      data-testid="no-exports"
+    />
+  } @else {
+    <table mat-table [dataSource]="exports()" data-testid="exports">
+      <ng-container matColumnDef="created_at">
+        <th mat-header-cell *matHeaderCellDef>Asked for</th>
+        <td mat-cell *matCellDef="let item" class="nowrap">
+          {{ item.created_at | date: 'd MMM y, HH:mm' }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="file">
+        <th mat-header-cell *matHeaderCellDef>File</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="ww-two">
+            <b class="mono">{{ item.file_name }}</b>
+            <span>{{ kindLabel(item) }}</span>
+          </div>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let item" [attr.data-testid]="'export-status-' + item.status">
+          @switch (item.status) {
+            @case ('ready') {
+              <div class="ww-two">
+                <b>{{ item.row_count | number }} rows</b>
+                @if (item.is_truncated) {
+                  <span class="error"
+                    >Cut short at the row limit: narrow the filters for the rest.</span
+                  >
+                }
+                <span>Until {{ item.expires_at | date: 'd MMM, HH:mm' }}</span>
+              </div>
             }
-            <div class="hint">Until {{ item.expires_at | date: 'short' }}</div>
+            @case ('failed') {
+              <span class="ww-chip danger">Failed</span>
+              <div class="error">{{ item.error }}</div>
+            }
+            @case ('expired') {
+              <span class="ww-chip neutral">Expired</span>
+            }
+            @default {
+              <span class="ww-chip info">Being built…</span>
+            }
           }
-          @case ('failed') {
-            <span class="error">Failed: {{ item.error }}</span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">
+          <span class="ww-faint">Actions</span>
+        </th>
+        <td mat-cell *matCellDef="let item" class="ww-num">
+          @if (item.status === 'ready') {
+            <button
+              mat-stroked-button
+              class="ww-small"
+              (click)="download(item)"
+              data-testid="download-export"
+            >
+              <mat-icon svgIcon="download" />
+              Download
+            </button>
           }
-          @case ('expired') {
-            Expired
-          }
-          @default {
-            Being built…
-          }
-        }
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let item">
-        @if (item.status === 'ready') {
-          <button mat-stroked-button (click)="download(item)" data-testid="download-export">
-            <mat-icon>download</mat-icon>
-            Download
-          </button>
-        }
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: columns"
-      [class.highlight]="row.id === highlight()"
-    ></tr>
-  </table>
-}
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: columns"
+        [class.highlight]="row.id === highlight()"
+      ></tr>
+    </table>
+  }
 
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
+  @if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  }
+</section>

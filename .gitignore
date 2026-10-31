@@ -55,3 +55,9 @@ deploy/monitoring/textfile/
 
 # local settings for "npm start"
 apps/*/.env
+
+# the mobile app's release (module 31): fastlane's gems, reports and the iOS archive
+apps/mobile/vendor
+apps/mobile/build
+apps/mobile/fastlane/report.xml
+apps/mobile/fastlane/README.md

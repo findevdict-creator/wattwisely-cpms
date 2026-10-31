@@ -1,17 +1,60 @@
-@if (tenantContext.tenants().length > 1) {
-  <mat-select
-    class="switcher"
-    data-testid="tenant-switcher"
-    [value]="tenantContext.currentTenant()"
-    (selectionChange)="switchTo($event)"
-    aria-label="Switch tenant"
-  >
-    @for (tenant of tenantContext.tenants(); track tenant.id) {
-      <mat-option [value]="tenant">{{ tenant.name }}</mat-option>
-    }
-  </mat-select>
-} @else {
-  <span class="tenant-name" data-testid="tenant-name">{{
-    tenantContext.currentTenant()?.name
-  }}</span>
+@if (tenantContext.currentTenant(); as tenant) {
+  @if (tenantContext.tenants().length > 1) {
+    <button
+      type="button"
+      class="switcher"
+      [class.collapsed]="isCollapsed()"
+      [matMenuTriggerFor]="workspaces"
+      [matTooltip]="tenant.name"
+      matTooltipPosition="right"
+      [matTooltipDisabled]="!isCollapsed()"
+      #name="matTooltip"
+      (menuOpened)="name.hide(0)"
+      aria-label="Switch workspace"
+      data-testid="tenant-switcher"
+    >
+      <ng-container *ngTemplateOutlet="current; context: { $implicit: tenant }" />
+      @if (!isCollapsed()) {
+        <mat-icon svgIcon="chevrons-up-down" />
+      }
+    </button>
+    <mat-menu #workspaces="matMenu" class="ww-workspace-menu">
+      @for (other of tenantContext.tenants(); track other.id) {
+        <button
+          mat-menu-item
+          (click)="switchTo(other)"
+          [attr.aria-current]="other.id === tenant.id"
+        >
+          <span class="ww-avatar square" [style.background]="initials.toneOf(other.id)">{{
+            initials.of(other.name)
+          }}</span>
+          <span class="name">{{ other.name }}</span>
+          @if (other.id === tenant.id) {
+            <span class="current"><mat-icon svgIcon="check" /></span>
+          }
+        </button>
+      }
+    </mat-menu>
+  } @else {
+    <div
+      class="switcher"
+      [class.collapsed]="isCollapsed()"
+      [matTooltip]="tenant.name"
+      matTooltipPosition="right"
+      [matTooltipDisabled]="!isCollapsed()"
+      data-testid="tenant-name"
+    >
+      <ng-container *ngTemplateOutlet="current; context: { $implicit: tenant }" />
+    </div>
+  }
 }
+
+<ng-template #current let-tenant>
+  <span class="ww-avatar m square" [style.background]="initials.toneOf(tenant.id)">{{
+    initials.of(tenant.name)
+  }}</span>
+  <span class="ww-two ww-grow">
+    <b>{{ tenant.name }}</b>
+    <span>{{ line() }}</span>
+  </span>
+</ng-template>

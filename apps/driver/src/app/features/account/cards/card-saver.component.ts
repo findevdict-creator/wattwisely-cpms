@@ -11,9 +11,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CardSetup } from '../../../core/api/models/driver-payments';
-import { CardForm } from '../../../core/payment/card-form';
-import { CardFormFactory } from '../../../core/payment/card-form.factory';
+import { CardForm, CardFormFactory, CardSetup } from '@wattwisely/driver-core';
 
 /** The provider's form for saving a card: nothing is charged now; holds are taken when charging. */
 @Component({
@@ -22,10 +20,10 @@ import { CardFormFactory } from '../../../core/payment/card-form.factory';
   template: `
     <div #host class="host" data-testid="card-saver"></div>
     @if (error()) {
-      <p class="error" role="alert">{{ error() }}</p>
+      <p class="notice danger" role="alert">{{ error() }}</p>
     }
     <div class="actions">
-      <button mat-stroked-button type="button" (click)="cancelled.emit()">Cancel</button>
+      <button mat-button type="button" (click)="cancelled.emit()">Cancel</button>
       <button
         mat-flat-button
         type="button"
@@ -41,9 +39,14 @@ import { CardFormFactory } from '../../../core/payment/card-form.factory';
     </div>
   `,
   styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
     .host {
       min-height: 120px;
-      margin: 12px 0;
     }
     .actions {
       display: flex;

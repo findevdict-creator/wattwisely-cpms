@@ -28,6 +28,8 @@ export class ReceiptComponent {
     gross: number | null;
   }>();
   readonly timeZone = input<string | undefined>(undefined);
+  /** Leaves out when each line ran, for a narrow card. */
+  readonly isCompact = input(false);
 
   protected labelOf(line: ReceiptLine): string {
     const kind = ReceiptComponent.KIND[line.kind] ?? line.kind;

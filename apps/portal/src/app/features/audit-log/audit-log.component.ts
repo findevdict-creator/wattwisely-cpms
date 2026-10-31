@@ -1,11 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { AuditLogApiService } from '../../core/api/audit-log-api.service';
@@ -21,17 +20,32 @@ import { PermissionsService } from '../../core/permissions/permissions.service';
   selector: 'ww-audit-log',
   imports: [
     DatePipe,
+    EmptyStateComponent,
     MatButtonModule,
-    MatButtonToggleModule,
-    MatChipsModule,
     MatIconModule,
     MatTableModule,
+    PageHeaderComponent,
     RouterLink,
   ],
   templateUrl: './audit-log.component.html',
   styleUrl: './audit-log.component.scss',
 })
 export class AuditLogComponent implements OnInit {
+  static readonly KINDS: Record<string, string> = {
+    user: 'Team member',
+    api_key: 'API key',
+    support: 'Wattwisely support',
+    system: 'Automatic',
+    platform: 'Wattwisely',
+    managed: 'Wattwisely managed service',
+    driver: 'Driver',
+  };
+  static readonly TEST_IDS: Record<string, string> = {
+    managed: 'actor-wattwisely',
+    api_key: 'actor-api-key',
+    driver: 'actor-driver',
+  };
+
   private readonly auditLogApi = inject(AuditLogApiService);
   private readonly reportsApi = inject(ReportsApiService);
   protected readonly permissions = inject(PermissionsService);
@@ -43,9 +57,19 @@ export class AuditLogComponent implements OnInit {
   protected readonly actorType = signal<string | null>(null);
   protected readonly error = signal('');
   protected readonly notice = signal('');
+  protected readonly selected = signal<AuditLogEntry | null>(null);
 
   ngOnInit(): void {
     void this.loadMore();
+  }
+
+  /** "Team member", "API key", "Wattwisely managed service" and so on. */
+  protected actorKind(entry: AuditLogEntry): string {
+    return AuditLogComponent.KINDS[entry.actor_type] ?? entry.actor_type;
+  }
+
+  protected actorTestId(entry: AuditLogEntry): string | null {
+    return AuditLogComponent.TEST_IDS[entry.actor_type] ?? null;
   }
 
   protected async show(actorType: string | null): Promise<void> {

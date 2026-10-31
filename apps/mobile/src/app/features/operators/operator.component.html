@@ -1,0 +1,82 @@
+<ion-content>
+  <div class="ww-page">
+    <ww-page-bar [title]="title()" backTo="/account/operators" />
+
+    @if (store.profile(); as profile) {
+      @if (profile.status === 'blocked') {
+        <p class="ww-error" data-testid="blocked">
+          {{ profile.operator_name }} has blocked you: its chargers refuse your cards and your
+          login.
+        </p>
+      }
+
+      <section class="ww-card">
+        <h2>Paying</h2>
+        <p class="ww-lead" data-testid="paying">{{ paying() }}</p>
+      </section>
+
+      <section class="ww-card">
+        <h2>What {{ profile.operator_name }} holds about you</h2>
+        <dl class="ww-rows" data-testid="record">
+          <div>
+            <dt>Name</dt>
+            <dd>{{ profile.driver_name }}</dd>
+          </div>
+          <div>
+            <dt>E-mail</dt>
+            <dd>{{ profile.email || '–' }}</dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>{{ profile.phone || '–' }}</dd>
+          </div>
+          @if (profile.reference) {
+            <div>
+              <dt>Reference</dt>
+              <dd>{{ profile.reference }}</dd>
+            </div>
+          }
+          <div>
+            <dt>Groups</dt>
+            <dd>{{ profile.groups.length ? profile.groups.join(', ') : '–' }}</dd>
+          </div>
+          <div>
+            <dt>Charging cards</dt>
+            <dd class="cards">
+              @for (card of profile.cards; track card.id_tag) {
+                <span>{{ card.label || card.id_tag }}</span>
+                <span class="ww-chip" [class]="cardTone(card.status)">{{
+                  cardStatus(card.status)
+                }}</span>
+              } @empty {
+                –
+              }
+            </dd>
+          </div>
+        </dl>
+        <p class="ww-small left">
+          This is {{ profile.operator_name }}'s record, kept by them. To change it, ask them.
+        </p>
+      </section>
+
+      <ion-button
+        class="ww-large"
+        expand="block"
+        fill="outline"
+        color="danger"
+        [disabled]="store.isLeaving()"
+        (click)="leave()"
+        data-testid="leave"
+      >
+        <mat-icon slot="start" svgIcon="unlink" />
+        Leave {{ profile.operator_name }}
+      </ion-button>
+    } @else if (!store.error()) {
+      <ion-spinner class="loading" name="crescent" />
+    }
+
+    @if (store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+  </div>
+</ion-content>

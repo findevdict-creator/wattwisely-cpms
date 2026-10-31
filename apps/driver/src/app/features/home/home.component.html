@@ -1,52 +1,58 @@
-<section class="panel welcome">
-  <mat-icon class="big">qr_code_scanner</mat-icon>
+<section class="panel centre welcome">
+  <span class="scan"><mat-icon svgIcon="scan-qr-code" /></span>
   <h1>Scan to charge</h1>
-  <p>
-    Scan the QR code on the charger's plug with your phone's camera. You will see the prices, pay by
-    card and watch the charge from here. No account needed.
+  <p class="lead">
+    Point your phone's camera at the QR code on the plug. You'll see the prices, pay by card and
+    watch the charge here. No account needed.
   </p>
-  @if (isFormShown()) {
-    <form class="manual" (ngSubmit)="open()">
-      <mat-form-field appearance="outline">
-        <mat-label>Charger ID on the sticker</mat-label>
+  <form class="manual" [formGroup]="form" (ngSubmit)="open()">
+    <span class="ww-overline" data-testid="type-code">No camera? Type the code on the sticker</span>
+    <div class="fields">
+      <mat-form-field appearance="outline" class="identity" subscriptSizing="dynamic">
+        <mat-label>Charger ID</mat-label>
         <input
           matInput
-          [formControl]="identity"
+          class="mono"
+          formControlName="identity"
           autocapitalize="characters"
+          autocomplete="off"
           data-testid="identity"
         />
       </mat-form-field>
-      <mat-form-field appearance="outline" class="plug">
+      <mat-form-field appearance="outline" class="plug" subscriptSizing="dynamic">
         <mat-label>Plug</mat-label>
-        <input matInput [formControl]="plug" inputmode="numeric" data-testid="plug" />
+        <input
+          matInput
+          class="mono"
+          formControlName="plug"
+          inputmode="numeric"
+          autocomplete="off"
+          data-testid="plug"
+        />
       </mat-form-field>
-      <button mat-flat-button type="submit" [disabled]="identity.invalid || plug.invalid">
-        Open
-      </button>
-    </form>
-  } @else {
-    <button mat-stroked-button (click)="isFormShown.set(true)" data-testid="type-code">
-      No camera? Type the code on the sticker
-    </button>
-  }
+    </div>
+    <button mat-flat-button class="ww-large" type="submit" [disabled]="form.invalid">Open</button>
+  </form>
 </section>
 
 @if (myCharges.charges().length > 0) {
-  <h2>Your charges</h2>
-  <ul class="charges">
-    @for (charge of myCharges.charges(); track charge.key) {
-      <li>
-        <a class="panel charge" [routerLink]="['/charges', charge.key]">
-          <div>
-            <div class="place">{{ charge.site_name }} · {{ charge.connector_label }}</div>
-            <div class="hint">
-              {{ charge.operator_name }} · {{ charge.started_at | zonedTime: undefined : true }}
-            </div>
-            <div class="hint">{{ sessionLabel(charge.session_status) }}</div>
-          </div>
-          <div class="amount">{{ charge.amount | money: charge.currency }}</div>
-        </a>
-      </li>
-    }
-  </ul>
+  <h2 class="list-title">Your charges on this phone</h2>
+  @for (charge of myCharges.charges(); track charge.key) {
+    <a class="panel row" [routerLink]="['/charges', charge.key]">
+      @let chip = chipOf(charge.session_status);
+      <span class="ww-avatar m" [class.past]="!isUnderWay(charge.session_status)">
+        <mat-icon [svgIcon]="isUnderWay(charge.session_status) ? 'zap' : 'receipt-text'" />
+      </span>
+      <span class="ww-two ww-grow">
+        <b>{{ charge.site_name }} · {{ charge.connector_label }}</b>
+        <span>
+          {{ charge.operator_name }} · {{ charge.started_at | zonedTime: undefined : true }}
+        </span>
+      </span>
+      <span class="amount">
+        <b>{{ charge.amount | money: charge.currency }}</b>
+        <span class="ww-chip {{ chip.tone }}">{{ chip.label }}</span>
+      </span>
+    </a>
+  }
 }

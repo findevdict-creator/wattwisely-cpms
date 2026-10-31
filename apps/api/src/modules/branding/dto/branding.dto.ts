@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TenantBrand } from '@wattwisely/mail';
+import { PlatformColours } from '@wattwisely/theme';
 import { BrandingRecord } from '../branding-record';
 import { PublicBrandingDto } from './public-branding.dto';
 
@@ -11,10 +12,14 @@ export class BrandingDto {
   @ApiProperty({ nullable: true, example: 'Acme Go', description: 'Null: the company’s name' })
   readonly display_name: string | null;
 
-  @ApiProperty({ nullable: true, example: '#1b5e20', description: 'Null: the platform’s colour' })
+  @ApiProperty({
+    nullable: true,
+    example: PlatformColours.PRIMARY,
+    description: 'Null: the platform’s colour',
+  })
   readonly primary_color: string | null;
 
-  @ApiProperty({ nullable: true, example: '#43a047' })
+  @ApiProperty({ nullable: true, example: PlatformColours.ACCENT })
   readonly accent_color: string | null;
 
   @ApiProperty({ nullable: true })

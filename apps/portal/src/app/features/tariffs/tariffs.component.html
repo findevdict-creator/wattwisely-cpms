@@ -1,63 +1,128 @@
-<header class="title">
-  <h1>Tariffs</h1>
-  <div class="actions">
-    @if (permissions.managedService()) {
-      <a mat-stroked-button routerLink="/tariffs/proposals" data-testid="tariff-proposals">
-        <mat-icon>rule</mat-icon>
-        Proposed changes
-      </a>
+<ww-page-header
+  heading="Tariffs"
+  subtitle="What drivers pay. Every change makes a new version; past sessions keep their price."
+>
+  @if (permissions.canChange('tariffs:write')) {
+    <a mat-flat-button routerLink="/tariffs/new" data-testid="add-tariff">
+      <mat-icon svgIcon="plus" />
+      New tariff
+    </a>
+  }
+</ww-page-header>
+
+@if (waiting() > 0) {
+  <a class="notice info has-icon waiting" routerLink="/tariffs/proposals" data-testid="waiting">
+    <mat-icon svgIcon="list-checks" />
+    <span class="ww-grow">
+      <b>{{ waiting() === 1 ? '1 price change is' : waiting() + ' price changes are' }} waiting.</b>
+      Your managed team proposed them; nothing changes until an Owner approves.
+    </span>
+    <b>Review</b>
+  </a>
+}
+
+<nav class="ww-tabs" aria-label="Which tariffs">
+  <button
+    type="button"
+    class="ww-tab"
+    [class.on]="status() === 'active'"
+    (click)="show('active')"
+    data-testid="tab-active"
+  >
+    In use
+  </button>
+  <button
+    type="button"
+    class="ww-tab"
+    [class.on]="status() === 'archived'"
+    (click)="show('archived')"
+    data-testid="tab-archived"
+  >
+    Archived
+  </button>
+  @if (permissions.managedService()) {
+    <a class="ww-tab" routerLink="/tariffs/proposals" data-testid="tariff-proposals">Proposals</a>
+  }
+</nav>
+
+<section class="ww-card">
+  <div class="ww-card-body flush">
+    <table mat-table [dataSource]="tariffs()" data-testid="tariffs">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Tariff</th>
+        <td mat-cell *matCellDef="let tariff">
+          <div class="ww-two">
+            <a [routerLink]="['/tariffs', tariff.id]">{{ tariff.name }}</a>
+            <span>{{ taxLineOf(tariff) }}</span>
+          </div>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="prices">
+        <th mat-header-cell *matHeaderCellDef>Energy</th>
+        <td mat-cell *matCellDef="let tariff">
+          @let energy = energyOf(tariff);
+          <div class="ww-two">
+            <b>{{ energy.main }}</b>
+            <span>{{ energy.foot }}</span>
+          </div>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="time">
+        <th mat-header-cell *matHeaderCellDef>Time and idle</th>
+        <td mat-cell *matCellDef="let tariff">
+          {{ timeOf(tariff) }}
+          @if (!timeOf(tariff)) {
+            <span class="ww-faint">–</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="start_fee">
+        <th mat-header-cell *matHeaderCellDef>Start fee</th>
+        <td mat-cell *matCellDef="let tariff">
+          {{ startFeeOf(tariff) }}
+          @if (!startFeeOf(tariff)) {
+            <span class="ww-faint">–</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="sites">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Sites</th>
+        <td mat-cell *matCellDef="let tariff" class="ww-num">{{ tariff.site_count }}</td>
+      </ng-container>
+      <ng-container matColumnDef="version">
+        <th mat-header-cell *matHeaderCellDef>Version</th>
+        <td mat-cell *matCellDef="let tariff">
+          <span class="ww-chip neutral">
+            v{{ tariff.current_version.number }} ·
+            {{ tariff.current_version.created_at | date: 'd MMM' }}
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef><span class="ww-faint">Actions</span></th>
+        <td mat-cell *matCellDef="let tariff" class="actions">
+          <a mat-button class="ww-small" [routerLink]="['/tariffs', tariff.id]">
+            {{ permissions.canChange('tariffs:write') ? 'Edit' : 'Open' }}
+          </a>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    @if (tariffs().length === 0 && !error()) {
+      @if (status() === 'active') {
+        <ww-empty-state
+          icon="tag"
+          heading="No tariffs yet"
+          text="Sessions at sites without a tariff are not priced."
+        />
+      } @else {
+        <ww-empty-state icon="tag" heading="No archived tariffs" />
+      }
     }
-    @if (permissions.canChange('tariffs:write')) {
-      <a mat-flat-button routerLink="/tariffs/new" data-testid="add-tariff">
-        <mat-icon>add</mat-icon>
-        New tariff
-      </a>
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
     }
   </div>
-</header>
-
-<mat-button-toggle-group
-  [value]="status()"
-  (change)="show($event.value)"
-  aria-label="Which tariffs"
-  class="toggle"
->
-  <mat-button-toggle value="active">In use</mat-button-toggle>
-  <mat-button-toggle value="archived">Archived</mat-button-toggle>
-</mat-button-toggle-group>
-
-<table mat-table [dataSource]="tariffs()" class="tariffs" data-testid="tariffs">
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef>Tariff</th>
-    <td mat-cell *matCellDef="let tariff">
-      <a [routerLink]="['/tariffs', tariff.id]" class="name">{{ tariff.name }}</a>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="prices">
-    <th mat-header-cell *matHeaderCellDef>Energy prices</th>
-    <td mat-cell *matCellDef="let tariff">{{ pricesOf(tariff) }}</td>
-  </ng-container>
-  <ng-container matColumnDef="sites">
-    <th mat-header-cell *matHeaderCellDef>Sites</th>
-    <td mat-cell *matCellDef="let tariff">{{ tariff.site_count }}</td>
-  </ng-container>
-  <ng-container matColumnDef="version">
-    <th mat-header-cell *matHeaderCellDef>Prices version</th>
-    <td mat-cell *matCellDef="let tariff">{{ tariff.current_version.number }}</td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
-
-@if (tariffs().length === 0 && !error()) {
-  <p class="empty">
-    {{
-      status() === 'active'
-        ? 'No tariffs yet. Sessions at sites without a tariff are not priced.'
-        : 'No archived tariffs.'
-    }}
-  </p>
-}
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
+</section>

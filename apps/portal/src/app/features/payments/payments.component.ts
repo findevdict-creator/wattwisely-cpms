@@ -1,12 +1,12 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { Refund } from '../../core/api/models/payment';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { MoneyPipe } from '../../shared/money.pipe';
@@ -20,14 +20,14 @@ import { PaymentsStore } from './payments.store';
   selector: 'ww-payments',
   imports: [
     DatePipe,
-    DecimalPipe,
+    EmptyStateComponent,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
     MatSelectModule,
     MatTableModule,
     MatTooltipModule,
     MoneyPipe,
+    PageHeaderComponent,
     PaymentAccountCardComponent,
     RouterLink,
     StatusChipComponent,
@@ -48,7 +48,7 @@ export class PaymentsComponent implements OnInit {
   protected readonly permissions = inject(PermissionsService);
 
   protected readonly columns = ['created_at', 'where', 'card', 'hold', 'taken', 'status', 'flags'];
-  protected readonly queueColumns = ['requested_at', 'amount', 'reason', 'requested_by', 'actions'];
+  protected readonly queueColumns = ['requested_at', 'reason', 'amount', 'actions'];
   protected readonly statusFilters = PaymentsComponent.STATUS_FILTERS;
   protected readonly flagLabel = StatusLabels.reviewFlag;
 

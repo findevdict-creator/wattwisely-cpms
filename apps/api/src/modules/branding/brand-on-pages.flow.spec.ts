@@ -35,7 +35,7 @@ import { PaymentsFixture } from '../payments/payments.fixture';
       branding: {
         name: 'Acme Go',
         primary_color: '#fff176',
-        on_primary_color: '#1b1b1b',
+        on_primary_color: '#0f172a',
         accent_color: '#ff6f00',
         logo_url: logoUrl,
         support_email: 'help@acme.test',
@@ -70,7 +70,7 @@ import { PaymentsFixture } from '../payments/payments.fixture';
       subject: 'Join Acme Go',
       fromName: 'Acme Go',
     });
-    expect(mail?.html).toContain('background:#fff176;color:#1b1b1b');
+    expect(mail?.html).toContain('background:#fff176;color:#0f172a');
     expect(mail?.html).toContain(logoUrl);
     expect(mail?.html).toContain('Powered by Wattwisely');
     expect(mail?.text).toContain('Support: help@acme.test');

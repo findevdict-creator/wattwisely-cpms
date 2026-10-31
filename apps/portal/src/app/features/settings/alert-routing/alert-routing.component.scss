@@ -1,27 +1,78 @@
-.intro,
-.rules,
-.defaults {
-  max-width: 1100px;
+.scroll {
+  overflow-x: auto;
 }
 
-.rule {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
+.rules {
+  width: 100%;
+  border-collapse: collapse;
 
-  mat-form-field {
-    width: 220px;
+  th,
+  td {
+    padding: 8px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  th {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    background: var(--ww-surface);
+  }
+
+  th:first-child,
+  td:first-child {
+    padding-left: 20px;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-right: 20px;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .mark {
+    text-align: center;
+  }
+
+  .type {
+    width: 200px;
+  }
+
+  .site {
+    width: 180px;
+  }
+
+  .target {
+    width: 240px;
   }
 }
 
-.actions {
-  display: flex;
+.saved {
+  display: inline-flex;
+  gap: 4px;
   align-items: center;
-  gap: 12px;
-  margin-top: 8px;
+  color: var(--ww-success-text);
+
+  .mat-icon {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .defaults {
-  margin-top: 32px;
+  margin-top: 16px;
+}
+
+.list {
+  gap: 0;
+  padding-top: 4px;
+  padding-bottom: 8px;
+}
+
+.ww-list-item {
+  gap: 8px;
 }

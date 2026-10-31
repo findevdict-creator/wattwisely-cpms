@@ -1,8 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { DriverChargesApiService } from '../../core/api/driver-charges-api.service';
-import { DriverChargeDetail, DriverPlaceAccess } from '../../core/api/models/driver-payments';
+import {
+  ApiProblem,
+  DriverChargeDetail,
+  DriverChargesApiService,
+  DriverPlaceAccess,
+} from '@wattwisely/driver-core';
 import { DriverAuthService } from '../../core/auth/driver-auth.service';
 
 /**
@@ -17,14 +20,6 @@ export class AccountStartStore {
   readonly access = signal<DriverPlaceAccess | null>(null);
   readonly isStarting = signal(false);
   readonly error = signal('');
-
-  isLoggedIn(): boolean {
-    return this.auth.isLoggedIn();
-  }
-
-  login(): void {
-    this.auth.login();
-  }
 
   /** Nothing to load without a login; a failure leaves the anonymous page as it is. */
   async load(identity: string, connector: string): Promise<void> {

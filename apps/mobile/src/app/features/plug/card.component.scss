@@ -1,0 +1,41 @@
+@use './plug.component';
+
+ion-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: -8px;
+}
+
+.choice {
+  width: 100%;
+  padding: 14px 16px;
+}
+
+.card-name {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  > span {
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  small {
+    color: var(--ww-text2);
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
+ion-button.add {
+  align-self: flex-start;
+  margin: -8px 0 0 -8px;
+  text-transform: none;
+}

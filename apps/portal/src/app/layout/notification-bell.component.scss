@@ -1,3 +1,19 @@
+// A red dot on the bell while something is unread, as in the approved top bar.
+.bell {
+  position: relative;
+}
+
+.dot {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mat-sys-error);
+  box-shadow: 0 0 0 2px var(--mat-sys-surface);
+}
+
 ::ng-deep .inbox-menu {
   min-width: 340px;
   max-width: 420px;
@@ -6,8 +22,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 4px 16px;
-    font-weight: 500;
+    padding: 4px 8px 4px 16px;
+    font-weight: 600;
   }
 
   .item {

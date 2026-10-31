@@ -13,6 +13,9 @@
 } @else {
   <h2 mat-dialog-title>Register a charger</h2>
   <mat-dialog-content class="content" [formGroup]="form">
+    <p class="lead">
+      Your installer needs the connection address and charger ID that come after this step.
+    </p>
     <mat-form-field appearance="outline" class="wide">
       <mat-label>Site</mat-label>
       <mat-select formControlName="siteId" data-testid="charger-site">

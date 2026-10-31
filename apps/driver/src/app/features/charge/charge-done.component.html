@@ -1,0 +1,58 @@
+<section class="panel centre" data-testid="phase-done">
+  <span class="mark"><mat-icon svgIcon="circle-check" /></span>
+  <div class="figure" data-testid="final-price">
+    {{ charge().receipt?.gross ?? charge().amount | money: charge().currency }}
+  </div>
+  <span class="hint">
+    {{ paymentLabel() }}
+    @if (charge().card_brand) {
+      · {{ charge().card_brand | titlecase }} •••• {{ charge().card_last4 }}
+    }
+  </span>
+  <span class="hint">
+    {{ charge().started_at | zonedTime: charge().time_zone : true }}
+    @if (charge().ended_at) {
+      to {{ charge().ended_at | zonedTime: charge().time_zone }}
+    }
+    · {{ charge().energy_wh / 1000 | number: '1.1-2' }} kWh
+  </span>
+  @if (released(); as rest) {
+    <p class="notice ok has-icon wide" data-testid="hold-released">
+      <mat-icon svgIcon="undo-2" />
+      <span>
+        The rest of the hold, {{ rest | money: charge().currency }}, goes back to your card. Your
+        bank may take a few days to show it.
+      </span>
+    </p>
+  }
+</section>
+
+@if (charge().receipt; as receipt) {
+  <section class="panel receipt" data-testid="receipt-panel" aria-labelledby="receipt-title">
+    <header class="issuer">
+      @if (charge().branding.logo_url; as logoUrl) {
+        <img class="logo" [src]="logoUrl" [alt]="charge().branding.name" />
+      } @else {
+        <span class="op-mark">{{ initials() }}</span>
+      }
+      <span class="ww-two ww-grow">
+        <b id="receipt-title">Receipt</b>
+        <span>
+          {{ charge().branding.name }} · {{ charge().site_name }}, plug
+          {{ charge().connector_label }}
+        </span>
+      </span>
+    </header>
+    <ww-charge-receipt
+      [receipt]="receipt"
+      [currency]="charge().currency"
+      [timeZone]="charge().time_zone"
+    />
+    <ww-support-contact [brand]="charge().branding" lead="Questions about this charge? Contact" />
+    <p class="caption ww-faint">
+      Charging by {{ charge().operator_name }} · Powered by {{ charge().branding.platform_name }}
+    </p>
+  </section>
+}
+
+<a mat-button class="ww-large" routerLink="/">Back to home</a>

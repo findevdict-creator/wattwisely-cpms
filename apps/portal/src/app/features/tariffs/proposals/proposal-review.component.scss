@@ -1,0 +1,54 @@
+.box {
+  overflow-x: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+}
+
+.prices {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th,
+  td {
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  th {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--mat-sys-on-surface-variant);
+    background: var(--ww-surface);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .number {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .strong {
+    font-weight: 600;
+  }
+}
+
+.decision {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+h2 a {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

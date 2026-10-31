@@ -68,6 +68,11 @@ export class RowLevelSecurity {
     return sql`current_setting('app.platform_access', true) = 'true'`;
   }
 
+  /** True while the mobile app looks for public sites near the driver, across tenants (module 35). */
+  static isSiteSearch(): SQL {
+    return sql`current_setting('app.site_search', true) = 'true'`;
+  }
+
   /** A row linked to the driver account behind a driver app request, e.g. their own drivers rows. */
   static isCurrentDriverAccount(column: AnyPgColumn): SQL {
     return sql`${column} = ${RowLevelSecurity.currentDriverAccount()}`;

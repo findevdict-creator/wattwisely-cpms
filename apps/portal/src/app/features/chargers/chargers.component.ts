@@ -1,33 +1,33 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { ChargersApiService } from '../../core/api/chargers-api.service';
-import { Charger, ChargerFilter, ChargerStatus } from '../../core/api/models/charger';
+import { Charger, ChargerFilter } from '../../core/api/models/charger';
 import { Site } from '../../core/api/models/site';
 import { SitesApiService } from '../../core/api/sites-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
+import { DurationLabel } from '../../shared/duration-label';
 import { StatusChipComponent } from '../../shared/status-chip.component';
-import { StatusLabels } from '../../shared/status-labels';
+import { ChargerTabs, ChargerTabKey } from './charger-tabs';
 import { RegisterChargerDialogComponent } from './register-charger-dialog.component';
 
-/** Chargers: every registered charge point, filtered by site, status and search (story AST-02). */
+/** Chargers: every registered charge point, by status tab, site and search (story AST-02). */
 @Component({
   selector: 'ww-chargers',
   imports: [
+    EmptyStateComponent,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatSelectModule,
     MatTableModule,
+    PageHeaderComponent,
     RouterLink,
     StatusChipComponent,
   ],
@@ -40,14 +40,26 @@ export class ChargersComponent implements OnInit {
   private readonly sitesApi = inject(SitesApiService);
   private readonly dialog = inject(MatDialog);
 
-  protected readonly columns = ['identity', 'site', 'model', 'status', 'connectors', 'security'];
-  protected readonly statuses = Object.entries(StatusLabels.CHARGER);
+  protected readonly columns = [
+    'identity',
+    'site',
+    'status',
+    'free',
+    'last_seen',
+    'ocpp',
+    'security',
+  ];
+  protected readonly tabs = ChargerTabs.TABS;
+  protected readonly tabKey = signal<ChargerTabKey>('all');
   protected readonly chargers = signal<Charger[]>([]);
   protected readonly sites = signal<Site[]>([]);
   protected readonly nextCursor = signal<string | null>(null);
   protected readonly filter = signal<ChargerFilter>({});
   protected readonly error = signal('');
   protected readonly isLoading = signal(true);
+  protected readonly summary = computed(() =>
+    ChargerTabs.summary(this.chargers(), this.nextCursor() !== null),
+  );
 
   ngOnInit(): void {
     void this.loadSites();
@@ -62,8 +74,9 @@ export class ChargersComponent implements OnInit {
     void this.load({ ...this.filter(), site_id: siteId || undefined });
   }
 
-  protected filterByStatus(statuses: ChargerStatus[]): void {
-    void this.load({ ...this.filter(), status: statuses });
+  protected showTab(key: ChargerTabKey): void {
+    this.tabKey.set(key);
+    void this.load({ ...this.filter(), status: ChargerTabs.statusesOf(key) });
   }
 
   protected async loadMore(): Promise<void> {
@@ -79,9 +92,21 @@ export class ChargersComponent implements OnInit {
     }
   }
 
-  protected securityOf(charger: Charger): string {
-    const mode = charger.auth_mode === 'password' ? 'Password' : 'No password';
-    return charger.allow_plain_ws ? `${mode}, plain ws allowed` : mode;
+  /** "Alpitronic HYC300 · 3 connectors". */
+  protected modelOf(charger: Charger): string {
+    const model =
+      [charger.vendor, charger.model].filter(Boolean).join(' ') || 'Model not known yet';
+    const count = charger.connectors.length;
+    return `${model} · ${count} ${count === 1 ? 'connector' : 'connectors'}`;
+  }
+
+  protected freeOf(charger: Charger): string {
+    const free = charger.connectors.filter((connector) => connector.status === 'available');
+    return charger.is_online ? `${free.length} of ${charger.connectors.length}` : '–';
+  }
+
+  protected lastSeenOf(charger: Charger): string {
+    return DurationLabel.ago(charger.last_seen_at);
   }
 
   private async load(filter: ChargerFilter = this.filter()): Promise<void> {

@@ -1,33 +1,19 @@
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-.toggle {
+ww-page-header {
   margin-bottom: 16px;
 }
 
-.tariffs {
-  max-width: 1100px;
-}
-
-.name {
-  font-weight: 500;
+.waiting {
+  margin: 0 0 16px;
   color: inherit;
   text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
-.empty {
-  color: var(--mat-sys-on-surface-variant);
+.actions {
+  width: 1%;
+  text-align: right;
+}
+
+.error {
+  padding: 0 20px;
+  color: var(--mat-sys-error);
 }

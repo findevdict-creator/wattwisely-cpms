@@ -1,62 +1,78 @@
-<header class="title">
-  <h2>Scheduled reports</h2>
-  @if (permissions.canChange('reports:schedule')) {
-    <button mat-stroked-button (click)="edit(null)" data-testid="new-schedule">
-      <mat-icon>schedule_send</mat-icon>
-      Schedule a report
-    </button>
+<section class="ww-card" aria-labelledby="schedules-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="schedules-title">Scheduled reports</h2>
+      <p>A usage report by e-mail every Monday or on the 1st of each month</p>
+    </div>
+    @if (permissions.canChange('reports:schedule')) {
+      <button mat-stroked-button class="ww-small" (click)="edit(null)" data-testid="new-schedule">
+        <mat-icon svgIcon="calendar-clock" />
+        Schedule a report
+      </button>
+    }
+  </div>
+
+  @if (schedules().length === 0) {
+    <ww-empty-state
+      icon="calendar-clock"
+      heading="Nothing scheduled"
+      text="Send a usage report by e-mail every Monday or on the 1st of each month."
+      data-testid="no-schedules"
+    />
+  } @else {
+    <table mat-table [dataSource]="schedules()" data-testid="schedules">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Report</th>
+        <td mat-cell *matCellDef="let schedule">
+          <div class="ww-two">
+            <b>{{ schedule.name }}</b>
+            <span>
+              {{ schedule.frequency === 'weekly' ? 'Weekly' : 'Monthly' }},
+              {{ schedule.group_by === 'site' ? 'per site' : 'per charger' }},
+              {{ schedule.site_name ?? 'every site' }}
+            </span>
+          </div>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="recipients">
+        <th mat-header-cell *matHeaderCellDef>Sent to</th>
+        <td mat-cell *matCellDef="let schedule">{{ schedule.recipients.join(', ') }}</td>
+      </ng-container>
+      <ng-container matColumnDef="next_run">
+        <th mat-header-cell *matHeaderCellDef>Next</th>
+        <td mat-cell *matCellDef="let schedule">
+          @if (schedule.is_active) {
+            {{ schedule.next_run_at | date: 'd MMM y, HH:mm' }}
+          } @else {
+            <span class="ww-chip neutral">Paused</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">
+          <span class="ww-faint">Actions</span>
+        </th>
+        <td mat-cell *matCellDef="let schedule" class="ww-num">
+          @if (permissions.canChange('reports:schedule')) {
+            <span class="buttons">
+              <button mat-icon-button (click)="edit(schedule)" aria-label="Edit">
+                <mat-icon svgIcon="pencil" />
+              </button>
+              <button mat-icon-button (click)="remove(schedule)" aria-label="Delete">
+                <mat-icon svgIcon="trash-2" />
+              </button>
+            </span>
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
   }
-</header>
 
-@if (schedules().length === 0) {
-  <p class="hint" data-testid="no-schedules">
-    Send a usage report by e-mail every Monday or on the 1st of each month.
-  </p>
-} @else {
-  <table mat-table [dataSource]="schedules()" class="schedules" data-testid="schedules">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Report</th>
-      <td mat-cell *matCellDef="let schedule">
-        {{ schedule.name }}
-        <div class="hint">
-          {{ schedule.frequency === 'weekly' ? 'Weekly' : 'Monthly' }},
-          {{ schedule.group_by === 'site' ? 'per site' : 'per charger' }},
-          {{ schedule.site_name ?? 'every site' }}
-        </div>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="recipients">
-      <th mat-header-cell *matHeaderCellDef>Sent to</th>
-      <td mat-cell *matCellDef="let schedule">{{ schedule.recipients.join(', ') }}</td>
-    </ng-container>
-    <ng-container matColumnDef="next_run">
-      <th mat-header-cell *matHeaderCellDef>Next</th>
-      <td mat-cell *matCellDef="let schedule">
-        @if (schedule.is_active) {
-          {{ schedule.next_run_at | date: 'medium' }}
-        } @else {
-          Paused
-        }
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let schedule">
-        @if (permissions.canChange('reports:schedule')) {
-          <button mat-icon-button (click)="edit(schedule)" aria-label="Edit">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button (click)="remove(schedule)" aria-label="Delete">
-            <mat-icon>delete</mat-icon>
-          </button>
-        }
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
-}
-
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
+  @if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  }
+</section>

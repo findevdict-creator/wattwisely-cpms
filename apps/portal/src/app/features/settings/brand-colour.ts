@@ -1,17 +1,48 @@
+import { PlatformColours } from '@wattwisely/theme';
+
 /** Colour sums for the live preview: the same rule the API applies when it answers. */
 export class BrandColour {
   static readonly PATTERN = /^#?([0-9a-fA-F]{6})$/;
 
-  /** "#1B5E20" or "1b5e20" as "#1b5e20"; null for anything else. */
+  /** "#0E7490" or "0e7490" as "#0e7490"; null for anything else. */
   static normalise(text: string): string | null {
     const match = BrandColour.PATTERN.exec(text.trim());
     return match ? `#${match[1].toLowerCase()}` : null;
   }
 
-  /** White on dark colours, near-black on light ones (WCAG 2 contrast). */
+  /** White on the platform's own teal, as theme.json says; otherwise the contrast rule. */
+  static onPrimary(hex: string): string {
+    return BrandColour.normalise(hex) === PlatformColours.PRIMARY
+      ? PlatformColours.ON_PRIMARY
+      : BrandColour.textOn(hex);
+  }
+
+  /** White on dark colours, ink on light ones (WCAG 2 contrast). */
   static textOn(hex: string): string {
     const luminance = BrandColour.luminance(hex);
-    return 1.05 / (luminance + 0.05) >= (luminance + 0.05) / 0.05 ? '#ffffff' : '#1b1b1b';
+    const isLightText = 1.05 / (luminance + 0.05) >= (luminance + 0.05) / 0.05;
+    return isLightText ? PlatformColours.WHITE : PlatformColours.INK;
+  }
+
+  /** The WCAG 2 contrast of text on a background, from 1 to 21. */
+  static contrast(background: string, text: string): number {
+    const [light, dark] = [BrandColour.luminance(background), BrandColour.luminance(text)].sort(
+      (a, b) => b - a,
+    );
+    return (light + 0.05) / (dark + 0.05);
+  }
+
+  /** A warning when the text on the main colour is too faint for small print, or ''. */
+  static contrastNote(background: string, text: string): string {
+    const ratio = BrandColour.contrast(background, text);
+    if (ratio >= 4.5) {
+      return '';
+    }
+    const words = BrandColour.normalise(text) === PlatformColours.WHITE ? 'White' : 'Dark';
+    return (
+      `${words} text on this colour is ${ratio.toFixed(1)} to 1: fine for large buttons, ` +
+      'too faint for small text (4.5 to 1 is needed).'
+    );
   }
 
   private static luminance(hex: string): number {

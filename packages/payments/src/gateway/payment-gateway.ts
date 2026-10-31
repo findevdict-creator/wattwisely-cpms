@@ -145,6 +145,8 @@ export interface PaymentGateway {
   getCardSetup(providerSetupId: string): Promise<CardSetupState>;
   /** Forgets a saved card at the provider. */
   detachCard(providerPaymentMethodId: string): Promise<void>;
+  /** Deletes a driver's customer and every card on it, when the driver deletes their account (module 33). */
+  deleteCustomer(providerCustomerId: string): Promise<void>;
   /** A hold on a saved card, confirmed at once; a refusal is a failed HoldState or a card_declined error. */
   createSavedCardHold(request: SavedCardHoldRequest): Promise<HoldState>;
 }

@@ -1,70 +1,23 @@
-<mat-toolbar class="top-bar">
-  <span class="brand">Wattwisely Admin</span>
-  <span class="role" data-testid="my-role">{{ staff.roleName() }}</span>
-  <span class="spacer"></span>
-  @if (staff.me(); as me) {
-    <button mat-button [matMenuTriggerFor]="userMenu" data-testid="user-menu">
-      <mat-icon>account_circle</mat-icon>
-      {{ me.name || me.email }}
-    </button>
-    <mat-menu #userMenu="matMenu">
-      <div class="user-details" mat-menu-item disabled>{{ me.email }}</div>
-      <button mat-menu-item (click)="logout()" data-testid="logout">
-        <mat-icon>logout</mat-icon>
-        Log out
-      </button>
-    </mat-menu>
-  }
-</mat-toolbar>
-
-<mat-sidenav-container class="body">
-  <mat-sidenav mode="side" opened class="side-menu">
-    <mat-nav-list>
-      <a
-        mat-list-item
-        routerLink="/"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        <mat-icon matListItemIcon>dashboard</mat-icon>
-        <span matListItemTitle>Overview</span>
-      </a>
-      <a mat-list-item routerLink="/tenants" routerLinkActive="active" data-testid="nav-tenants">
-        <mat-icon matListItemIcon>business</mat-icon>
-        <span matListItemTitle>Tenants</span>
-      </a>
-      @if (staff.can('plans:read')) {
-        <a mat-list-item routerLink="/plans" routerLinkActive="active" data-testid="nav-plans">
-          <mat-icon matListItemIcon>sell</mat-icon>
-          <span matListItemTitle>Plans</span>
-        </a>
-      }
-      @if (staff.can('staff:read')) {
-        <a mat-list-item routerLink="/staff" routerLinkActive="active" data-testid="nav-staff">
-          <mat-icon matListItemIcon>badge</mat-icon>
-          <span matListItemTitle>Staff</span>
-        </a>
-      }
-      @if (staff.can('billing:read')) {
-        <a
-          mat-list-item
-          routerLink="/invoices"
-          routerLinkActive="active"
-          data-testid="nav-invoices"
-        >
-          <mat-icon matListItemIcon>receipt_long</mat-icon>
-          <span matListItemTitle>Invoices</span>
-        </a>
-      }
-      @if (staff.can('platform_audit:read')) {
-        <a mat-list-item routerLink="/audit-log" routerLinkActive="active">
-          <mat-icon matListItemIcon>history</mat-icon>
-          <span matListItemTitle>Audit log</span>
-        </a>
-      }
-    </mat-nav-list>
+<mat-sidenav-container class="frame" [class.beside]="!isNarrow()" [class.rail]="isRail()">
+  <mat-sidenav
+    #drawer
+    class="side"
+    [mode]="isNarrow() ? 'over' : 'side'"
+    [opened]="!isNarrow()"
+    [fixedInViewport]="isNarrow()"
+  >
+    <ww-side-menu [url]="url()" [isCollapsed]="isRail()" (navigated)="closeIfNarrow()" />
   </mat-sidenav>
-  <mat-sidenav-content class="page">
-    <router-outlet />
+  <mat-sidenav-content class="main">
+    <ww-top-bar
+      [where]="where()"
+      [isNarrow]="isNarrow()"
+      [isMenuCollapsed]="isRail()"
+      (menuOpened)="drawer.open()"
+      (menuToggled)="sideMenu.toggle()"
+    />
+    <main class="content">
+      <router-outlet />
+    </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

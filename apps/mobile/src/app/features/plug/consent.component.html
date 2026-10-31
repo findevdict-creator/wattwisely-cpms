@@ -1,0 +1,59 @@
+<ion-content>
+  <div class="ww-page">
+    @if (store.place(); as place) {
+      <ww-top-bar [operator]="operator()" [backTo]="'/plug/' + identity() + '/' + connector()" />
+      <header>
+        <h1>Charge with {{ operator() }}</h1>
+        <p class="ww-lead">
+          This is your first charge with {{ operator() }}. They get only the details below and your
+          charges at their chargers.
+        </p>
+      </header>
+
+      <dl class="ww-card ww-rows" data-testid="shared-details">
+        <div>
+          <dt>Name</dt>
+          <dd>{{ account.me()?.display_name }}</dd>
+        </div>
+        <div>
+          <dt>E-mail</dt>
+          <dd>{{ account.me()?.email }}</dd>
+        </div>
+      </dl>
+
+      <ion-checkbox
+        labelPlacement="end"
+        justify="start"
+        [checked]="isConsentGiven()"
+        (ionChange)="isConsentGiven.set($event.detail.checked)"
+        data-testid="consent"
+      >
+        I accept {{ operator() }}'s terms and privacy notice.
+      </ion-checkbox>
+
+      <ion-button
+        class="ww-large"
+        expand="block"
+        [disabled]="!isConsentGiven() || starter.isStarting()"
+        (click)="continue()"
+        data-testid="continue"
+      >
+        @if (starter.isStarting()) {
+          <ion-spinner name="crescent" />
+        } @else {
+          Continue
+        }
+      </ion-button>
+      @if (starter.error()) {
+        <p class="ww-error" role="alert">{{ starter.error() }}</p>
+      }
+      <p class="ww-small">
+        You can remove your data from this operator at any time in Account › Privacy and data.
+      </p>
+    } @else if (store.error()) {
+      <p class="ww-error" role="alert">{{ store.error() }}</p>
+    } @else {
+      <ion-spinner class="loading" name="crescent" />
+    }
+  </div>
+</ion-content>

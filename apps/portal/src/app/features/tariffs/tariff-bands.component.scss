@@ -1,24 +1,61 @@
-.bands {
-  border-collapse: collapse;
-  margin-bottom: 8px;
+.scroll {
+  overflow-x: auto;
+}
 
-  th {
+.bands {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 8px 6px;
     text-align: left;
-    font-weight: 500;
-    font-size: 13px;
-    padding: 4px 8px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
   }
 
-  td {
-    padding: 4px 8px;
+  th:first-child,
+  td:first-child {
+    padding-left: 20px;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-right: 20px;
+  }
+
+  th {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    background: var(--mat-sys-surface-container-low);
+  }
+
+  .num {
+    text-align: right;
   }
 
   input {
-    font: inherit;
-    padding: 6px;
+    box-sizing: border-box;
+    width: 96px;
+    height: 32px;
+    padding: 0 8px;
     border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: 4px;
-    width: 120px;
+    border-radius: var(--ww-radius-sm);
+    background: var(--mat-sys-surface);
+    color: inherit;
+    font: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: var(--mat-sys-primary);
+      box-shadow: 0 0 0 1px var(--mat-sys-primary);
+    }
+  }
+
+  input:disabled {
+    padding: 0;
+    border-color: transparent;
+    background: none;
   }
 
   input.ng-invalid.ng-touched {
@@ -26,14 +63,16 @@
   }
 
   .time {
-    width: 56px;
+    width: 60px;
   }
 
   .price {
     width: 72px;
+    text-align: right;
   }
 
   .days {
-    width: 160px;
+    width: 140px;
+    height: 32px;
   }
 }

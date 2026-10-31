@@ -1,83 +1,76 @@
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
-}
-
-.lead {
-  max-width: 720px;
-  margin-top: 0;
-}
-
 .columns {
   display: flex;
-  gap: 32px;
-  align-items: flex-start;
-  max-width: 1100px;
   flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
 }
 
-.settings {
-  flex: 1 1 520px;
-  min-width: 0;
+.form {
+  flex: 999 1 440px;
 }
 
 .preview {
-  flex: 0 0 auto;
-
-  h2 {
-    margin: 0 0 12px;
-    font-size: 16px;
-  }
+  flex: 1 1 300px;
+  max-width: 340px;
 }
 
-.card {
-  margin-bottom: 16px;
+.phone-body {
+  align-items: center;
 }
 
 .logo-row {
   display: flex;
-  align-items: center;
   gap: 16px;
+  align-items: center;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
 }
 
 .logo {
-  height: 40px;
+  height: 64px;
   max-width: 220px;
   object-fit: contain;
-  padding: 6px;
+  padding: 8px;
+  box-sizing: border-box;
   border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 8px;
-  background: #fff;
+  border-radius: 12px;
+  background: var(--ww-white);
 }
 
-.file-hint {
-  margin: 0;
-  padding: 0 16px 16px;
+.placeholder {
+  width: 64px;
+  height: 64px;
+  font-size: 20px;
 }
 
-.wide {
-  width: 100%;
-}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 16px;
+  padding-top: 8px;
 
-.row {
-  display: flex;
-  gap: 12px;
+  .wide {
+    grid-column: 1 / -1;
+  }
 
-  mat-form-field {
-    flex: 1;
+  .notice {
+    margin-bottom: 12px;
   }
 }
 
-h3 {
-  margin: 8px 0 0;
-  font-size: 14px;
-}
-
 .swatch {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
+  margin-right: 8px;
   padding: 0;
   border: none;
   background: none;
@@ -85,9 +78,23 @@ h3 {
 }
 
 .hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
   color: var(--mat-sys-on-surface-variant);
 }
 
-.error {
-  color: var(--mat-sys-error);
+.ww-overline {
+  display: block;
+  margin-top: 8px;
+}
+
+.contact {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 600px) {
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

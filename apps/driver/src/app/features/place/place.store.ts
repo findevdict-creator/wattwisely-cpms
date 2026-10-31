@@ -1,10 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { Charge } from '../../core/api/models/charge';
-import { Place } from '../../core/api/models/place';
-import { PublicApiService } from '../../core/api/public-api.service';
-import { MyChargesStore } from '../../core/charges/my-charges.store';
+import {
+  ApiProblem,
+  Charge,
+  MyChargesStore,
+  Place,
+  PublicApiService,
+} from '@wattwisely/driver-core';
 
 /** The plug a QR code named, and the start of a paid charge on it. */
 @Injectable()

@@ -1,0 +1,105 @@
+@let p = proposal();
+<section class="ww-card" data-testid="proposal-card" [attr.aria-label]="p.name">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2>
+        @if (isLinked()) {
+          <a [routerLink]="['/tariffs/proposals', p.id]">{{ heading() }}</a>
+        } @else {
+          {{ heading() }}
+        }
+      </h2>
+      <p>{{ byline() }}</p>
+    </div>
+    <ww-status-chip [status]="p.status" kind="proposal" />
+  </div>
+  <div class="ww-card-body">
+    @if (p.note) {
+      <div class="notice neutral" data-testid="proposal-note">"{{ p.note }}"</div>
+    }
+    @if (p.decided_at) {
+      <p class="decision" data-testid="proposal-decision">
+        {{ decisionOf(p) }}
+        @if (p.decision_comment) {
+          · "{{ p.decision_comment }}"
+        }
+        @if (p.applied_tariff_id) {
+          · <a [routerLink]="['/tariffs', p.applied_tariff_id]">Open the tariff</a>
+        }
+      </p>
+    }
+    <div class="box">
+      <table class="prices" data-testid="proposal-comparison">
+        <thead>
+          <tr>
+            <th>Price</th>
+            @if (current(); as tariff) {
+              <th class="number">Now, version {{ tariff.current_version.number }}</th>
+            }
+            <th class="number">Proposed</th>
+            @if (current()) {
+              <th>Change</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.label) {
+            <tr>
+              <td>{{ row.label }}</td>
+              @if (current()) {
+                <td class="number">{{ row.now }}</td>
+              }
+              <td class="number" [class.strong]="row.tone !== 'faint'">{{ row.proposed }}</td>
+              @if (current()) {
+                <td>
+                  @if (row.tone === 'faint') {
+                    <span class="ww-faint">{{ row.change }}</span>
+                  } @else {
+                    <span class="ww-chip {{ row.tone }}">{{ row.change }}</span>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (error()) {
+      <div class="notice danger" role="alert" data-testid="proposal-error">{{ error() }}</div>
+    }
+  </div>
+  @if (canDecide() || canWithdraw()) {
+    <div class="ww-card-foot">
+      @if (canWithdraw()) {
+        <button
+          mat-button
+          (click)="withdraw()"
+          [disabled]="isBusy()"
+          data-testid="withdraw-proposal"
+        >
+          Withdraw
+        </button>
+      }
+      <span class="ww-spacer"></span>
+      @if (canDecide()) {
+        <button
+          mat-stroked-button
+          (click)="decide('reject')"
+          [disabled]="isBusy()"
+          data-testid="reject-proposal"
+        >
+          Reject
+        </button>
+        <button
+          mat-flat-button
+          (click)="decide('approve')"
+          [disabled]="isBusy()"
+          data-testid="approve-proposal"
+        >
+          <mat-icon svgIcon="check" />
+          {{ approveLabel() }}
+        </button>
+      }
+    </div>
+  }
+</section>

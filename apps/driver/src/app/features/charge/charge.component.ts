@@ -5,27 +5,33 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { BrandService } from '../../core/branding/brand.service';
-import { ChargePhases } from '../../shared/charge-phase';
-import { ChargeWords } from '../../shared/charge-words';
-import { DurationPipe } from '../../shared/duration.pipe';
-import { MoneyPipe } from '../../shared/money.pipe';
+import {
+  ChargeChips,
+  ChargePhases,
+  ChargeSteps,
+  ChargeWords,
+  DurationPipe,
+  MoneyPipe,
+} from '@wattwisely/driver-core';
 import { SupportContactComponent } from '../../shared/support-contact.component';
-import { ZonedTimePipe } from '../../shared/zoned-time.pipe';
 import { CardFormComponent } from './card-form.component';
-import { ChargeReceiptComponent } from './charge-receipt.component';
+import { ChargeDoneComponent } from './charge-done.component';
+import { ChargeStepsComponent } from './charge-steps.component';
 import { ChargeUpdatesComponent } from './charge-updates.component';
 import { ChargeStore } from './charge.store';
 
 /**
  * One charge, from the card form to the receipt: the page the driver keeps open (or
- * comes back to) while the car charges. Which part shows depends on the charge's phase.
- * The page and the receipt wear the operator's brand (module 8).
+ * comes back to) while the car charges. Which part shows depends on the charge's phase, with
+ * the steps over it until it is done. The page and the receipt wear the operator's brand
+ * (module 8).
  */
 @Component({
   selector: 'ww-charge',
   imports: [
     CardFormComponent,
-    ChargeReceiptComponent,
+    ChargeDoneComponent,
+    ChargeStepsComponent,
     ChargeUpdatesComponent,
     DecimalPipe,
     DurationPipe,
@@ -35,7 +41,6 @@ import { ChargeStore } from './charge.store';
     MoneyPipe,
     RouterLink,
     SupportContactComponent,
-    ZonedTimePipe,
   ],
   providers: [ChargeStore],
   templateUrl: './charge.component.html',
@@ -57,11 +62,12 @@ export class ChargeComponent implements OnInit {
   protected readonly isUpdatesOffered = computed(() =>
     ['starting', 'charging', 'finishing'].includes(this.phase() ?? ''),
   );
+  protected readonly isStepsShown = computed(() => ChargeSteps.isShown(this.phase()));
+  protected readonly chip = computed(() =>
+    ChargeChips.session(this.store.charge()?.session_status ?? ''),
+  );
   protected readonly statusLabel = computed(() =>
     ChargeWords.session(this.store.charge()?.session_status ?? ''),
-  );
-  protected readonly paymentLabel = computed(() =>
-    ChargeWords.payment(this.store.charge()?.payment_status ?? ''),
   );
   protected readonly failureLabel = computed(() => {
     const charge = this.store.charge();

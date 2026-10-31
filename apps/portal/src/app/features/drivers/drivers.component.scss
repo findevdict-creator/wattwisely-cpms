@@ -1,48 +1,16 @@
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1100px;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-.filters {
-  display: flex;
-  gap: 12px;
+ww-page-header {
   margin-bottom: 16px;
 }
 
 .search {
-  width: 360px;
+  width: 320px;
+  max-width: 100%;
 }
 
-.drivers {
-  max-width: 1100px;
+.group {
+  width: 200px;
 }
 
-.name {
-  font-weight: 500;
-  color: inherit;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.hint,
-.empty {
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.hint {
-  font-size: 13px;
-}
-
-.more {
-  margin-top: 16px;
+.ww-chip + .ww-chip {
+  margin-left: 4px;
 }

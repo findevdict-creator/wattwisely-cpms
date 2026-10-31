@@ -10,11 +10,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Charge } from '../../core/api/models/charge';
-import { CardForm } from '../../core/payment/card-form';
-import { CardFormFactory } from '../../core/payment/card-form.factory';
-import { MoneyPipe } from '../../shared/money.pipe';
+import { CardForm, CardFormFactory, Charge, MoneyPipe } from '@wattwisely/driver-core';
 
 /**
  * The provider's card form for the hold. Once the provider confirms the card, the page
@@ -22,38 +20,42 @@ import { MoneyPipe } from '../../shared/money.pipe';
  */
 @Component({
   selector: 'ww-card-form',
-  imports: [MatButtonModule, MatProgressSpinnerModule, MoneyPipe],
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, MoneyPipe],
   template: `
     <p>
-      A hold of <strong>{{ charge().hold_amount | money: charge().currency }}</strong> is placed on
-      your card now. At the end you pay only what you used; the rest is released.
+      A hold of <b>{{ charge().hold_amount | money: charge().currency }}</b> is placed on your card
+      now. At the end you pay only what you used; the rest is released.
     </p>
     <div #host class="host" data-testid="card-form"></div>
     @if (error()) {
-      <p class="error" role="alert" data-testid="card-error">{{ error() }}</p>
+      <p class="notice danger" role="alert" data-testid="card-error">{{ error() }}</p>
     }
     <button
       mat-flat-button
-      class="pay"
+      class="ww-large"
       (click)="pay()"
       [disabled]="!isReady() || isPaying()"
       data-testid="pay"
     >
       @if (isPaying()) {
         <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon svgIcon="credit-card" />
       }
       Pay and start charging
     </button>
   `,
   styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    p {
+      margin: 0;
+    }
     .host {
       min-height: 120px;
-      margin: 12px 0;
-    }
-    .pay {
-      width: 100%;
-      height: 52px;
-      font-size: 16px;
     }
   `,
 })

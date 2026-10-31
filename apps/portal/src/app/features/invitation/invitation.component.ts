@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { AuthPageComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { InvitationsApiService } from '../../core/api/invitations-api.service';
@@ -16,7 +16,7 @@ import { LastTenantStore } from '../../core/tenant/last-tenant.store';
  */
 @Component({
   selector: 'ww-invitation',
-  imports: [DatePipe, MatButtonModule, MatCardModule],
+  imports: [AuthPageComponent, DatePipe, MatButtonModule],
   templateUrl: './invitation.component.html',
   styleUrl: './invitation.component.scss',
 })
@@ -29,6 +29,17 @@ export class InvitationComponent implements OnInit {
   protected readonly invitation = signal<InvitationPreview | null>(null);
   protected readonly problem = signal<ApiProblem | null>(null);
   protected readonly isWorking = signal(false);
+  protected readonly heading = computed(() => {
+    const invitation = this.invitation();
+    if (this.problem()) {
+      return 'This invitation cannot be used';
+    }
+    return invitation ? `Join ${invitation.tenant_name} on Wattwisely` : 'Your invitation';
+  });
+  protected readonly subtitle = computed(() => {
+    const invitation = this.invitation();
+    return invitation && !this.problem() ? `The invitation is for ${invitation.email}.` : '';
+  });
 
   async ngOnInit(): Promise<void> {
     try {

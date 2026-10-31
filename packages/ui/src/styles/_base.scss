@@ -1,0 +1,91 @@
+// What theme.json does not hold: corner radii and the monospace font for codes and IDs.
+:root {
+  --ww-radius-sm: 6px;
+  --ww-radius-md: 10px;
+  --ww-radius-lg: 12px;
+  --ww-radius-xl: 16px;
+  --ww-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font: 400 14px/20px var(--ww-font);
+  background: var(--mat-sys-background);
+  color: var(--mat-sys-on-surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--ww-link);
+}
+
+code,
+kbd,
+samp,
+pre,
+.mono {
+  font-family: var(--ww-mono);
+}
+
+// Messages shown next to a form or list when something went wrong.
+.error {
+  color: var(--mat-sys-on-error-container);
+}
+
+.hint {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// Secondary text under a name in a table.
+.sub {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// A note beside a form or list: blue by default, or ok, warn, danger or neutral.
+.notice {
+  padding: 12px 16px;
+  border-radius: var(--ww-radius-md);
+  font-size: 13px;
+  line-height: 18px;
+  background: var(--ww-info-soft);
+  color: var(--ww-info-text);
+
+  &.ok {
+    background: var(--ww-success-soft);
+    color: var(--ww-success-text);
+  }
+  &.warn {
+    background: var(--ww-warning-soft);
+    color: var(--ww-warning-text);
+  }
+  &.danger {
+    background: var(--ww-danger-soft);
+    color: var(--ww-danger-text);
+  }
+  &.neutral {
+    background: var(--ww-surface);
+    color: var(--ww-text2);
+  }
+
+  // With an icon in front of the words.
+  &.has-icon {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+
+    > .mat-icon {
+      flex: none;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}

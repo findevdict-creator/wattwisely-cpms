@@ -1,12 +1,15 @@
 import { Component, computed, input } from '@angular/core';
-import { PublicBranding } from '../core/api/models/branding';
+import { PublicBranding } from '@wattwisely/driver-core';
 
-/** How to reach the operator, as links: whatever of e-mail, phone and web address it gave. */
+/**
+ * How to reach the operator, as links in small print: whatever of e-mail, phone and web address
+ * it gave.
+ */
 @Component({
   selector: 'ww-support-contact',
   template: `
     @if (links().length > 0) {
-      <p class="hint contact" data-testid="support-contact">
+      <p class="caption" data-testid="support-contact">
         {{ lead() }}
         @for (link of links(); track link.href; let last = $last) {
           <a [href]="link.href" target="_blank" rel="noopener">{{ link.label }}</a
@@ -14,12 +17,12 @@ import { PublicBranding } from '../core/api/models/branding';
         }
       </p>
     } @else {
-      <p class="hint contact">{{ lead() }} {{ brand().name }}.</p>
+      <p class="caption">{{ lead() }} {{ brand().name }}.</p>
     }
   `,
   styles: `
-    .contact {
-      margin: 8px 0 0;
+    :host {
+      display: block;
     }
     a {
       color: var(--ww-accent, var(--mat-sys-primary));

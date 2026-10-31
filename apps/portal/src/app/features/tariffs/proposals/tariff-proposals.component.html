@@ -1,61 +1,93 @@
-<header class="title">
-  <div>
-    <a routerLink="/tariffs" class="back"><mat-icon>arrow_back</mat-icon> Tariffs</a>
-    <h1>Proposed changes</h1>
-  </div>
-</header>
-<p class="hint lead">
-  Tariff changes Wattwisely proposed. An Owner approves or rejects each one; nothing changes until
-  it is approved.
-</p>
+<ww-page-header
+  heading="Tariff proposals"
+  backLink="/tariffs"
+  backLabel="Tariffs"
+  subtitle="Price changes your managed team proposes. Nothing changes until an Owner approves."
+/>
 
-<mat-button-toggle-group
-  [value]="scope()"
-  (change)="show($event.value)"
-  aria-label="Which proposals"
-  class="toggle"
->
-  <mat-button-toggle value="open">Waiting for approval</mat-button-toggle>
-  <mat-button-toggle value="all">All</mat-button-toggle>
-</mat-button-toggle-group>
+<nav class="ww-tabs" aria-label="Which proposals">
+  <button
+    type="button"
+    class="ww-tab"
+    [class.on]="scope() === 'open'"
+    [attr.aria-current]="scope() === 'open' ? 'page' : null"
+    (click)="scope.set('open')"
+    data-testid="tab-waiting"
+  >
+    Waiting <span class="count">{{ waiting().length }}</span>
+  </button>
+  <button
+    type="button"
+    class="ww-tab"
+    [class.on]="scope() === 'decided'"
+    [attr.aria-current]="scope() === 'decided' ? 'page' : null"
+    (click)="scope.set('decided')"
+    data-testid="tab-decided"
+  >
+    Decided <span class="count">{{ decided().length }}</span>
+  </button>
+</nav>
 
-<table mat-table [dataSource]="proposals()" class="proposals" data-testid="tariff-proposals">
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef>Tariff</th>
-    <td mat-cell *matCellDef="let proposal">
-      <a [routerLink]="['/tariffs/proposals', proposal.id]" class="name">{{ proposal.name }}</a>
-      <div class="hint">{{ proposal.tariff_id ? 'New prices' : 'New tariff' }}</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="proposed">
-    <th mat-header-cell *matHeaderCellDef>Proposed</th>
-    <td mat-cell *matCellDef="let proposal">
-      {{ proposal.proposed_at | date: 'mediumDate' }} by {{ proposal.proposed_by }}
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>Status</th>
-    <td mat-cell *matCellDef="let proposal">
-      <ww-status-chip [status]="proposal.status" kind="proposal" />
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="decided">
-    <th mat-header-cell *matHeaderCellDef>Decided</th>
-    <td mat-cell *matCellDef="let proposal">
-      @if (proposal.decided_at) {
-        {{ proposal.decided_at | date: 'mediumDate' }} by {{ proposal.decided_by }}
-      }
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
-
-@if (proposals().length === 0 && !error()) {
-  <p class="empty">
-    {{ scope() === 'open' ? 'Nothing is waiting for approval.' : 'No proposals yet.' }}
-  </p>
-}
 @if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
+  <div class="notice danger" role="alert">{{ error() }}</div>
+} @else if (scope() === 'open') {
+  <div class="waiting" data-testid="tariff-proposals">
+    @for (proposal of waiting(); track proposal.id) {
+      <ww-proposal-review [proposal]="proposal" [isLinked]="true" (changed)="load()" />
+    } @empty {
+      <section class="ww-card">
+        <ww-empty-state
+          icon="tag"
+          heading="Nothing is waiting"
+          text="When your managed team proposes new prices, they wait here for an Owner."
+        />
+      </section>
+    }
+  </div>
+} @else {
+  <section class="ww-card">
+    @if (decided().length === 0) {
+      <ww-empty-state icon="tag" heading="No decisions yet" text="Decided proposals show here." />
+    } @else {
+      <table mat-table [dataSource]="decided()" data-testid="tariff-proposals">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Proposal</th>
+          <td mat-cell *matCellDef="let proposal">
+            <div class="ww-two">
+              <a [routerLink]="['/tariffs/proposals', proposal.id]">{{ proposal.name }}</a>
+              <span>{{ proposal.tariff_id ? 'New prices' : 'New tariff' }}</span>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="proposed">
+          <th mat-header-cell *matHeaderCellDef>Proposed</th>
+          <td mat-cell *matCellDef="let proposal">
+            <div class="ww-two">
+              <b>{{ proposal.proposed_at | date: 'd MMM y' }}</b>
+              <span>{{ proposal.proposed_by }}</span>
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Decision</th>
+          <td mat-cell *matCellDef="let proposal">
+            <ww-status-chip [status]="proposal.status" kind="proposal" />
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="decided">
+          <th mat-header-cell *matHeaderCellDef>By</th>
+          <td mat-cell *matCellDef="let proposal">
+            <div class="ww-two">
+              <b>{{ proposal.decided_by }}, {{ proposal.decided_at | date: 'd MMM y' }}</b>
+              @if (proposal.decision_comment) {
+                <span>"{{ proposal.decision_comment }}"</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    }
+  </section>
 }

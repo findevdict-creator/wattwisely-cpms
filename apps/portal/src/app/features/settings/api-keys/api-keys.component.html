@@ -1,86 +1,126 @@
-<header class="title">
-  <h1>API keys</h1>
-  @if (canManage()) {
-    <button mat-flat-button (click)="add()" data-testid="add-key">
-      <mat-icon>add</mat-icon>
-      New key
-    </button>
-  }
-</header>
-<p class="hint lead">
-  Your own systems call the Wattwisely API with a key instead of a login: sent as
-  <code>Authorization: Bearer wwk_…</code>, it works within the permissions chosen when it was made
-  and shows up in the audit log as itself. The key is shown once, when it is made.
-  @if (isLocked()) {
-    <span data-testid="api-keys-locked">
+@if (isLocked()) {
+  <div class="notice warn has-icon" data-testid="api-keys-locked">
+    <mat-icon svgIcon="lock" />
+    <span>
       API keys and webhooks come with the Growth and Enterprise plans. Ask Wattwisely to add them.
     </span>
-  }
-</p>
+  </div>
+}
 
-@if (keys().length) {
-  <table mat-table [dataSource]="keys()" class="keys" data-testid="api-keys">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Key</th>
-      <td mat-cell *matCellDef="let key">
-        <span class="name">{{ key.name }}</span>
-        @if (key.description) {
-          <span class="description">{{ key.description }}</span>
-        }
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="hint">
-      <th mat-header-cell *matHeaderCellDef>Token</th>
-      <td mat-cell *matCellDef="let key">
-        <code>{{ key.key_hint }}</code>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="permissions">
-      <th mat-header-cell *matHeaderCellDef>May do</th>
-      <td mat-cell *matCellDef="let key">
-        <span [matTooltip]="key.permissions.join(', ')">{{ permissionSummary(key) }}</span>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="created_by">
-      <th mat-header-cell *matHeaderCellDef>Made by</th>
-      <td mat-cell *matCellDef="let key">
-        {{ key.created_by }}
-        <span class="description">{{ key.created_at | date: 'mediumDate' }}</span>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="last_used">
-      <th mat-header-cell *matHeaderCellDef>Last used · expires</th>
-      <td mat-cell *matCellDef="let key">
-        {{ key.last_used_at ? (key.last_used_at | date: 'medium') : 'never' }}
-        <span class="description">
-          {{ key.expires_at ? 'expires ' + (key.expires_at | date: 'mediumDate') : 'no expiry' }}
-        </span>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>State</th>
-      <td mat-cell *matCellDef="let key">
-        <ww-status-chip [status]="key.status" kind="api_key" />
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let key" class="actions">
-        @if (canManage() && key.status !== 'revoked') {
-          <button mat-stroked-button (click)="revoke(key)" data-testid="revoke-key">Revoke</button>
-        }
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: columns"
-      [class.revoked]="row.status === 'revoked'"
-    ></tr>
-  </table>
-} @else if (isLoaded() && !error() && !isLocked()) {
-  <p class="hint" data-testid="no-keys">No keys yet. Make one to connect a system of your own.</p>
+@if (created(); as created) {
+  <div class="notice ok created" role="status">
+    <span>
+      <b>{{ created.key.name }} is ready.</b> Copy the key now and keep it somewhere safe: it is not
+      stored and cannot be shown again.
+    </span>
+    <div class="token">
+      <code class="mono" data-testid="created-token">{{ created.token }}</code>
+      <button mat-stroked-button class="ww-small" (click)="copy(created)" data-testid="copy-token">
+        <mat-icon svgIcon="copy" />
+        {{ isCopied() ? 'Copied' : 'Copy key' }}
+      </button>
+      <button mat-button class="ww-small" (click)="forget()">Done</button>
+    </div>
+  </div>
 }
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
+
+<section class="ww-card" aria-labelledby="keys-title">
+  <div class="ww-card-head line">
+    <div class="titles">
+      <h2 id="keys-title">API keys</h2>
+      <p>{{ countLine() }}</p>
+    </div>
+    @if (canManage()) {
+      <button mat-flat-button class="ww-small" (click)="add()" data-testid="add-key">
+        <mat-icon svgIcon="plus" />
+        New key
+      </button>
+    }
+  </div>
+
+  @if (keys().length) {
+    <div class="scroll">
+      <table mat-table [dataSource]="keys()" data-testid="api-keys">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let key">
+            <span class="ww-two">
+              <b>{{ key.name }}</b>
+              <span class="mono">{{ key.key_hint }}</span>
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="permissions">
+          <th mat-header-cell *matHeaderCellDef>May do</th>
+          <td mat-cell *matCellDef="let key">
+            <span class="mono scopes" [matTooltip]="key.permissions.join(', ')">
+              {{ scopesOf(key) }}
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="created">
+          <th mat-header-cell *matHeaderCellDef>Made</th>
+          <td mat-cell *matCellDef="let key">
+            <span class="ww-two">
+              <b class="plain">{{ key.created_at | date: 'd MMM y' }}</b>
+              <span>{{ key.created_by }}</span>
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="last_used">
+          <th mat-header-cell *matHeaderCellDef>Last used</th>
+          <td mat-cell *matCellDef="let key">
+            <span class="ww-two">
+              <b class="plain">{{ lastUsedOf(key) }}</b>
+              <span>{{ expiryOf(key) }}</span>
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>State</th>
+          <td mat-cell *matCellDef="let key">
+            <ww-status-chip [status]="key.status" kind="api_key" />
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let key" class="actions">
+            @if (canManage() && key.status !== 'revoked') {
+              <button
+                mat-button
+                class="ww-small ww-danger"
+                (click)="revoke(key)"
+                data-testid="revoke-key"
+              >
+                Revoke
+              </button>
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: columns"
+          [class.revoked]="row.status === 'revoked'"
+        ></tr>
+      </table>
+    </div>
+  } @else if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  } @else if (isLoaded() && !isLocked()) {
+    <ww-empty-state
+      icon="key-round"
+      heading="No keys yet"
+      text="Make one to connect a system of your own."
+      data-testid="no-keys"
+    />
+  }
+  <div class="ww-card-foot">
+    <span>
+      Send the key as <code class="mono">Authorization: Bearer &lt;key&gt;</code>. It can do only
+      what was chosen when it was made, and the audit log shows it by name.
+    </span>
+  </div>
+</section>

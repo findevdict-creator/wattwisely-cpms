@@ -1,8 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { DriverChargesApiService } from '../../core/api/driver-charges-api.service';
-import { DriverCharge } from '../../core/api/models/driver-payments';
+import { ApiProblem, DriverCharge, DriverChargesApiService } from '@wattwisely/driver-core';
 
 /** The driver's charges at every operator they are linked with (module 19), and the CSV of them. */
 @Injectable()

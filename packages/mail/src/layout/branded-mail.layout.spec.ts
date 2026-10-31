@@ -66,7 +66,7 @@ describe('BrandedMailLayout', () => {
 
     expect(html).not.toContain('<img');
     expect(html).not.toContain('Support:');
-    expect(html).toContain('background:#1b5e20');
+    expect(html).toContain('background:#0e7490');
     expect(BrandedMailLayout.supportLines(plain)).toEqual([]);
   });
 });

@@ -1,9 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { EmptyStateComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { AlertsApiService } from '../../../core/api/alerts-api.service';
 import { ApiProblem } from '../../../core/api/api-problem';
@@ -23,7 +23,13 @@ import { AlertRuleTarget } from './alert-rule-target';
  */
 @Component({
   selector: 'ww-alert-routing',
-  imports: [MatButtonModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatSelectModule],
+  imports: [
+    EmptyStateComponent,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatSelectModule,
+  ],
   templateUrl: './alert-routing.component.html',
   styleUrl: './alert-routing.component.scss',
 })
@@ -36,6 +42,8 @@ export class AlertRoutingComponent implements OnInit {
   protected readonly labels = AlertTypeLabels.LABELS;
   protected readonly types = AlertTypeLabels.TYPES;
   protected readonly targetOf = AlertRuleTarget.of;
+  /** Stands for "no site": a select shows nothing for an option whose value is null. */
+  protected readonly everySite = 'every';
   protected readonly rules = signal<AlertRule[]>([]);
   protected readonly defaults = signal<AlertRules['default_rules']>([]);
   protected readonly sites = signal<Site[]>([]);
@@ -85,6 +93,10 @@ export class AlertRoutingComponent implements OnInit {
       rules.map((rule, i) => (i === index ? { ...rule, ...changes } : rule)),
     );
     this.saved.set(false);
+  }
+
+  protected changeSite(index: number, value: string): void {
+    this.change(index, { site_id: value === this.everySite ? null : value });
   }
 
   protected changeTarget(index: number, target: string): void {

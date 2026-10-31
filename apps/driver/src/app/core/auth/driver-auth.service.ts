@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { RuntimeConfig } from '../config/runtime-config';
+import { DriverSession, RuntimeConfig } from '@wattwisely/driver-core';
 import { DriverAuthConfigFactory } from './driver-auth-config.factory';
 
 /**
@@ -8,7 +8,7 @@ import { DriverAuthConfigFactory } from './driver-auth-config.factory';
  * the account pages and accepting an invitation do, and ask this service.
  */
 @Injectable({ providedIn: 'root' })
-export class DriverAuthService {
+export class DriverAuthService implements DriverSession {
   private readonly oauthService = inject(OAuthService);
   private readonly runtimeConfig = inject(RuntimeConfig);
 

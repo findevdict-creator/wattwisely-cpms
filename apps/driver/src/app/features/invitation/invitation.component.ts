@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
+import { InvitationStore } from '@wattwisely/driver-core';
 import { DriverAuthService } from '../../core/auth/driver-auth.service';
 import { BrandService } from '../../core/branding/brand.service';
-import { InvitationStore } from './invitation.store';
 
 /**
  * Where an operator's invitation e-mail leads (module 19, story DRV-04): who invites whom,
@@ -54,7 +54,9 @@ export class InvitationComponent implements OnInit {
   protected async accept(): Promise<void> {
     const operator = await this.store.accept(this.token());
     if (operator) {
-      await this.router.navigate(['/account/operators', operator.tenant_id]);
+      await this.router.navigate(['/account/operators', operator.tenant_id], {
+        queryParams: { linked: 1 },
+      });
     }
   }
 

@@ -1,87 +1,122 @@
-<div class="title">
-  <h1>Tenants</h1>
+<ww-page-header heading="Tenants" subtitle="Every company on Wattwisely">
   @if (staff.can('tenants:write')) {
     <button mat-flat-button (click)="create()" data-testid="new-tenant">
-      <mat-icon>add</mat-icon>
+      <mat-icon svgIcon="plus" />
       New tenant
     </button>
   }
-</div>
+</ww-page-header>
 
-<div class="filters">
-  <mat-form-field appearance="outline" class="search">
-    <mat-label>Search by name or short name</mat-label>
-    <input matInput #search (keyup.enter)="change({ q: search.value.trim() })" />
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Status</mat-label>
-    <mat-select [value]="filter().status" (valueChange)="change({ status: $event })">
-      <mat-option value="">Any</mat-option>
-      @for (status of statuses; track status) {
-        <mat-option [value]="status"><ww-status-chip [status]="status" /></mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-  @if (plans().length) {
-    <mat-form-field appearance="outline">
-      <mat-label>Plan</mat-label>
-      <mat-select [value]="filter().plan" (valueChange)="change({ plan: $event })">
-        <mat-option value="">Any</mat-option>
+<section class="ww-card">
+  <div class="ww-toolbar">
+    <label class="ww-field search">
+      <mat-icon svgIcon="search" />
+      <input
+        #search
+        type="search"
+        placeholder="Search by name or short name"
+        aria-label="Search tenants"
+        (keyup.enter)="change({ q: search.value.trim() })"
+        (search)="change({ q: search.value.trim() })"
+      />
+    </label>
+    @if (plans().length) {
+      <mat-select
+        class="ww-field filter"
+        [value]="filter().plan"
+        (valueChange)="change({ plan: $event })"
+        aria-label="Plan"
+      >
+        <mat-option value="">All plans</mat-option>
         @for (plan of plans(); track plan.id) {
           <mat-option [value]="plan.code">{{ plan.name }}</mat-option>
         }
       </mat-select>
-    </mat-form-field>
-  }
-</div>
-
-<table mat-table [dataSource]="tenants()" class="tenants" data-testid="tenants">
-  <ng-container matColumnDef="tenant">
-    <th mat-header-cell *matHeaderCellDef>Tenant</th>
-    <td mat-cell *matCellDef="let tenant">
-      <a class="name" [routerLink]="['/tenants', tenant.id]">{{ tenant.name }}</a>
-      <div class="sub">
-        {{ tenant.slug }}
-        @if (tenant.region) {
-          · {{ tenant.region }}
-        }
-      </div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>Status</th>
-    <td mat-cell *matCellDef="let tenant"><ww-status-chip [status]="tenant.status" /></td>
-  </ng-container>
-  <ng-container matColumnDef="plan">
-    <th mat-header-cell *matHeaderCellDef>Plan</th>
-    <td mat-cell *matCellDef="let tenant">
-      {{ tenant.plan?.name ?? 'No plan' }}
-      @if (tenant.subscription_status && tenant.subscription_status !== 'active') {
-        <div class="sub"><ww-status-chip [status]="tenant.subscription_status" /></div>
+    }
+    <mat-select
+      class="ww-field filter"
+      [value]="filter().status"
+      (valueChange)="change({ status: $event })"
+      aria-label="State"
+    >
+      <mat-option value="">All states</mat-option>
+      @for (status of statuses; track status) {
+        <mat-option [value]="status">{{ labels[status] }}</mat-option>
       }
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="usage">
-    <th mat-header-cell *matHeaderCellDef>Connectors · users</th>
-    <td mat-cell *matCellDef="let tenant">
-      {{ tenant.usage.connectors }} · {{ tenant.usage.users }}
-      <div class="sub">{{ tenant.usage.sites }} sites, {{ tenant.usage.chargers }} chargers</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="created">
-    <th mat-header-cell *matHeaderCellDef>Since</th>
-    <td mat-cell *matCellDef="let tenant">{{ tenant.created_at | date: 'mediumDate' }}</td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
+    </mat-select>
+  </div>
 
-@if (!tenants().length && !error()) {
-  <p class="empty">No tenants match.</p>
-}
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
-@if (nextCursor()) {
-  <button mat-stroked-button class="more" (click)="load(nextCursor())">Show more</button>
-}
+  <div class="scroll">
+    <table mat-table [dataSource]="tenants()" data-testid="tenants">
+      <ng-container matColumnDef="tenant">
+        <th mat-header-cell *matHeaderCellDef>Tenant</th>
+        <td mat-cell *matCellDef="let tenant">
+          <span class="ww-two">
+            <b
+              ><a [routerLink]="['/tenants', tenant.id]">{{ tenant.name }}</a></b
+            >
+            <span>{{ tenant.slug }}{{ tenant.region ? ' · ' + tenant.region : '' }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="plan">
+        <th mat-header-cell *matHeaderCellDef>Plan</th>
+        <td mat-cell *matCellDef="let tenant">
+          @if (tenant.plan) {
+            {{ tenant.plan.name }}
+          } @else {
+            <span class="ww-faint">No plan</span>
+          }
+          @if (tenant.subscription_status && tenant.subscription_status !== 'active') {
+            <ww-status-chip class="next" [status]="tenant.subscription_status" />
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="usage">
+        <th mat-header-cell *matHeaderCellDef>Connectors · users</th>
+        <td mat-cell *matCellDef="let tenant">
+          <span class="ww-two">
+            <b>{{ tenant.usage.connectors }} · {{ tenant.usage.users }}</b>
+            <span>{{ tenant.usage.sites }} sites, {{ tenant.usage.chargers }} chargers</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>State</th>
+        <td mat-cell *matCellDef="let tenant"><ww-status-chip [status]="tenant.status" /></td>
+      </ng-container>
+      <ng-container matColumnDef="created">
+        <th mat-header-cell *matHeaderCellDef>Since</th>
+        <td mat-cell *matCellDef="let tenant" class="nowrap">
+          {{ tenant.created_at | date: 'd MMM y' }}
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
+
+  @if (!tenants().length && isLoaded() && !error()) {
+    <ww-empty-state
+      icon="building-2"
+      heading="No tenants match"
+      text="Try another name, plan or state."
+    />
+  }
+  @if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  }
+  @if (tenants().length) {
+    <div class="ww-card-foot">
+      <span>Showing {{ tenants().length }}</span>
+      <span class="ww-spacer"></span>
+      @if (nextCursor()) {
+        <button mat-stroked-button class="ww-small" (click)="load(nextCursor())">
+          Show more tenants
+        </button>
+      }
+    </div>
+  }
+</section>

@@ -1,66 +1,81 @@
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--mat-sys-on-surface-variant);
-  text-decoration: none;
-}
-
-h1 {
-  margin-bottom: 4px;
-}
-
-.facts {
+:host {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  color: var(--mat-sys-on-surface-variant);
+  flex-direction: column;
+  gap: 24px;
 }
 
-.notice {
-  max-width: 1100px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: var(--mat-sys-tertiary-container);
-  color: var(--mat-sys-on-tertiary-container);
+ww-page-header {
+  margin-bottom: 0;
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 16px;
-  max-width: 1100px;
-  margin: 24px 0;
-}
-
-dl {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 6px 16px;
-  margin: 0;
-}
-
-dt {
-  color: var(--mat-sys-on-surface-variant);
-}
-
-dd {
-  margin: 0;
-}
-
-.lines {
-  max-width: 1100px;
-}
-
-.amount {
-  text-align: right;
+.scroll {
+  overflow-x: auto;
 }
 
 .remove {
-  vertical-align: middle;
+  width: 48px;
+  text-align: right;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+  max-width: calc(100% - 40px);
+  margin: 0 20px 0 auto;
+  padding: 16px 0 20px;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  dt {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  .grand {
+    padding-top: 8px;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    font-weight: 600;
+
+    dt {
+      color: inherit;
+    }
+  }
 }
 
 .remarks {
-  max-width: 1100px;
+  margin: 0;
+  padding: 12px 20px 20px 40px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  font-size: 13px;
   color: var(--mat-sys-on-surface-variant);
+}
+
+.ww-kv.one {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.faint {
+  font-weight: 400;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.extra {
+  display: block;
+  font-size: 13px;
+}
+
+.danger {
+  color: var(--ww-danger-text);
+
+  .mat-icon {
+    color: inherit;
+  }
 }

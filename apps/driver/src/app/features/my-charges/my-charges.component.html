@@ -1,45 +1,57 @@
-<p class="back">
-  <a routerLink="/account"><mat-icon>arrow_back</mat-icon> Your account</a>
-</p>
-<header class="where">
+<a class="back" routerLink="/account">
+  <mat-icon svgIcon="arrow-left" />
+  Your account
+</a>
+<header class="where top">
   <h1>Your charges</h1>
   @if (store.charges().length > 0) {
-    <button mat-stroked-button (click)="store.download()" data-testid="download-csv">
-      <mat-icon>download</mat-icon>
+    <button
+      mat-stroked-button
+      class="ww-small"
+      (click)="store.download()"
+      data-testid="download-csv"
+    >
+      <mat-icon svgIcon="download" />
       CSV
     </button>
   }
 </header>
 
 @if (store.charges().length > 0) {
-  <ul class="charges">
-    @for (charge of store.charges(); track charge.id) {
-      <li>
-        <a class="panel charge" [routerLink]="['/account/charges', charge.id]" data-testid="charge">
-          <div>
-            <div class="place">{{ charge.site_name }} · {{ charge.connector_label }}</div>
-            <div class="hint">
+  @if (operators().length > 1) {
+    <div class="ww-seg" role="group" aria-label="Operator">
+      <button type="button" [class.on]="!operator()" (click)="operator.set('')">All</button>
+      @for (item of operators(); track item.id) {
+        <button type="button" [class.on]="operator() === item.id" (click)="operator.set(item.id)">
+          {{ item.name }}
+        </button>
+      }
+    </div>
+  }
+  @for (month of months(); track month.label) {
+    <span class="ww-overline">{{ month.label }}</span>
+    <div class="panel list">
+      @for (charge of month.charges; track charge.id) {
+        <a class="ww-list-item" [routerLink]="['/account/charges', charge.id]" data-testid="charge">
+          <span class="ww-two ww-grow">
+            <b>{{ charge.site_name }} · {{ charge.connector_label }}</b>
+            <span>
               {{ charge.operator_name }} ·
               {{ charge.started_at | zonedTime: charge.time_zone : true }}
-            </div>
-            <div class="hint">
-              {{ status(charge.status) }}
-              @if (charge.payment_rule; as rule) {
-                · {{ rule.words }}
-              }
-            </div>
-          </div>
-          <div class="amount">
-            @if (charge.payment_rule?.outcome === 'free') {
-              Free
-            } @else {
-              {{ charge.amount | money: charge.currency }}
-            }
-          </div>
+            </span>
+            <span [class.refused]="isRefused(charge)">{{ stateOf(charge) }}</span>
+          </span>
+          @if (charge.payment_rule?.outcome === 'free') {
+            <b class="amount free">Free</b>
+          } @else if (charge.amount === null) {
+            <b class="amount ww-faint">–</b>
+          } @else {
+            <b class="amount">{{ charge.amount | money: charge.currency }}</b>
+          }
         </a>
-      </li>
-    }
-  </ul>
+      }
+    </div>
+  }
 } @else if (store.isLoaded()) {
   <section class="panel">
     <p class="hint" data-testid="no-charges">
@@ -51,5 +63,5 @@
   <div class="loading"><mat-spinner diameter="32" /></div>
 }
 @if (store.error()) {
-  <p class="error" role="alert">{{ store.error() }}</p>
+  <p class="notice danger" role="alert">{{ store.error() }}</p>
 }

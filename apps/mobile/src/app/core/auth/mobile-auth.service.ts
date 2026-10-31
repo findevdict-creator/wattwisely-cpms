@@ -1,0 +1,169 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { DriverSession, RuntimeConfig } from '@wattwisely/driver-core';
+import { OAuthErrorEvent, OAuthService } from 'angular-oauth2-oidc';
+import { Subject, filter } from 'rxjs';
+import { NativeApp } from '../native/native-app';
+import { NativeBrowser } from '../native/native-browser';
+import { NativePlatform } from '../native/native-platform';
+import { AuthRedirects } from './auth-redirects';
+import { MobileAuthConfigFactory } from './mobile-auth-config.factory';
+import { SecureTokenStore } from './secure-token-store';
+
+/**
+ * The mobile app's only door to Keycloak (module 30). The driver signs in once in the
+ * system browser; the tokens live in the phone's secure storage and are refreshed when they
+ * run out, also when the app comes back to the foreground.
+ */
+@Injectable({ providedIn: 'root' })
+export class MobileAuthService implements DriverSession {
+  private readonly oauthService = inject(OAuthService);
+  private readonly runtimeConfig = inject(RuntimeConfig);
+  private readonly tokenStore = inject(SecureTokenStore);
+  private readonly nativeApp = inject(NativeApp);
+  private readonly browser = inject(NativeBrowser);
+  private readonly platform = inject(NativePlatform);
+
+  /** Whether the app holds a sign-in, valid or refreshable; the pages follow it. */
+  readonly hasSession = signal(false);
+
+  /**
+   * Emits when Keycloak refuses the refresh token (the session was ended, the password
+   * changed): the tokens are already forgotten, and the app goes back to the welcome page.
+   */
+  readonly sessionEnded = new Subject<void>();
+
+  /** Set while Keycloak's "Delete account" page is open: its answer signs no one in. */
+  private isDeletingLogin = false;
+
+  /** Runs once at start-up, before the first page. Never fails: offline, the app still opens. */
+  async initialize(): Promise<void> {
+    await this.tokenStore.load();
+    const isNative = this.platform.isNative();
+    const openUri = isNative ? (uri: string) => this.browser.open(uri) : null;
+    this.oauthService.configure(
+      new MobileAuthConfigFactory().create(this.runtimeConfig, openUri, window.location.origin),
+    );
+    this.nativeApp.onUrlOpen((url) => void this.handleUrl(url));
+    this.nativeApp.onResume(() => void this.refreshIfNeeded());
+    this.listenForRefusedRefresh();
+    try {
+      await this.oauthService.loadDiscoveryDocument();
+      if (!isNative) {
+        await this.oauthService.tryLoginCodeFlow();
+      }
+      await this.refreshIfNeeded();
+      this.oauthService.setupAutomaticSilentRefresh();
+    } catch (error) {
+      console.warn('Could not reach the sign-in server', error);
+    }
+    this.update();
+  }
+
+  /** A link that opened the app: Keycloak's answer to a sign-in or a sign-out. */
+  async handleUrl(url: string): Promise<void> {
+    if (AuthRedirects.isSignedOut(url)) {
+      await this.browser.close();
+      return;
+    }
+    if (this.isDeletingLogin && AuthRedirects.isCallback(url)) {
+      this.isDeletingLogin = false;
+      await this.browser.close();
+      return;
+    }
+    if (!AuthRedirects.isCallback(url)) {
+      return;
+    }
+    await this.browser.close();
+    await this.oauthService.tryLoginCodeFlow({
+      customHashFragment: AuthRedirects.query(url),
+      preventClearHashAfterLogin: true,
+    });
+    this.update();
+  }
+
+  /** Keycloak's sign-in page, or its sign-up page for "Create account". */
+  login(isNewAccount = false): void {
+    this.oauthService.initCodeFlow('', isNewAccount ? { prompt: 'create' } : {});
+  }
+
+  /** Forgets the tokens here and ends the Keycloak session in the browser sheet. */
+  logout(): void {
+    this.oauthService.logOut();
+    this.update();
+  }
+
+  /** Keycloak's own account page, where the e-mail and the password change (module 33). */
+  openAccount(): void {
+    const url = `${this.runtimeConfig.issuerUrl}/account`;
+    if (this.platform.isNative()) {
+      this.browser.open(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  /**
+   * Forgets the tokens here, then opens Keycloak's "Delete account" page, where the driver
+   * deletes the login themselves: the API holds no right to (module 33).
+   */
+  deleteLogin(): void {
+    this.oauthService.logOut(true);
+    this.update();
+    this.isDeletingLogin = true;
+    this.oauthService.initCodeFlow('', { kc_action: 'delete_account' });
+  }
+
+  isLoggedIn(): boolean {
+    return this.oauthService.hasValidAccessToken();
+  }
+
+  accessToken(): string {
+    return this.oauthService.getAccessToken();
+  }
+
+  /**
+   * Refreshes when the access token has run out. The library would still call a token valid
+   * for ten minutes past its expiry (its default clock skew); the API would not.
+   */
+  private async refreshIfNeeded(): Promise<void> {
+    if (this.hasUnexpiredAccessToken() || !this.oauthService.getRefreshToken()) {
+      return this.update();
+    }
+    try {
+      await this.oauthService.refreshToken();
+    } catch (error) {
+      this.endIfRefused(error);
+    }
+    this.update();
+  }
+
+  private hasUnexpiredAccessToken(): boolean {
+    const expiresAt = this.oauthService.getAccessTokenExpiration();
+    return this.oauthService.hasValidAccessToken() && !!expiresAt && expiresAt > Date.now();
+  }
+
+  /** Also the library's own automatic refreshes, whose failures it only logs. */
+  private listenForRefusedRefresh(): void {
+    this.oauthService.events
+      .pipe(filter((event) => event.type === 'token_refresh_error'))
+      .subscribe((event) => this.endIfRefused((event as OAuthErrorEvent).reason));
+  }
+
+  /** A refresh refused by Keycloak (400) signs the driver out here too; offline (0) does not. */
+  private endIfRefused(error: unknown): void {
+    const isRefused = error instanceof HttpErrorResponse && error.status === 400;
+    if (!isRefused || !this.oauthService.getRefreshToken()) {
+      return;
+    }
+    this.oauthService.logOut(true);
+    this.update();
+    this.sessionEnded.next();
+  }
+
+  private update(): void {
+    this.hasSession.set(
+      this.oauthService.hasValidAccessToken() || !!this.oauthService.getRefreshToken(),
+    );
+  }
+}

@@ -1,0 +1,42 @@
+<ion-content>
+  <div class="ww-page">
+    <section class="who" data-testid="who">
+      <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+      <span class="names">
+        <strong data-testid="name">{{ store.me()?.display_name }}</strong>
+        <span class="ww-lead" data-testid="email">{{ store.me()?.email }}</span>
+      </span>
+    </section>
+    @if (store.error()) {
+      <p class="ww-error" role="alert">{{ store.error() }}</p>
+    }
+
+    <nav class="ww-card menu" aria-label="Account">
+      @for (row of menu(); track row.link) {
+        <a class="row" [routerLink]="row.link" [attr.data-testid]="row.testId">
+          <span class="mark"><mat-icon [svgIcon]="row.icon" /></span>
+          <span class="names">
+            <strong>{{ row.title }}</strong>
+            <span class="ww-lead">{{ row.line }}</span>
+          </span>
+          <mat-icon class="chevron" svgIcon="chevron-right" />
+        </a>
+      }
+    </nav>
+
+    <ion-button
+      class="ww-large"
+      expand="block"
+      fill="outline"
+      color="danger"
+      data-testid="sign-out"
+      (click)="signOut()"
+    >
+      <mat-icon slot="start" svgIcon="log-out" />
+      Sign out
+    </ion-button>
+    @if (version()) {
+      <p class="version" data-testid="version">Version {{ version() }}</p>
+    }
+  </div>
+</ion-content>

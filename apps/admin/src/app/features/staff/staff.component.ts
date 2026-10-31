@@ -6,18 +6,27 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { PageHeaderComponent } from '@wattwisely/ui';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ApiProblem } from '../../core/api/api-problem';
 import { PlatformRoleDefinition, StaffMember } from '../../core/api/models/staff';
 import { StaffApiService } from '../../core/api/staff-api.service';
 import { StaffContextService } from '../../core/staff/staff-context.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { Initials } from '../../shared/initials';
 import { AddStaffDialogComponent } from './add-staff-dialog.component';
 
 /** Staff: who at Wattwisely can use this console, with which role. */
 @Component({
   selector: 'ww-staff',
-  imports: [DatePipe, MatButtonModule, MatIconModule, MatMenuModule, MatTableModule],
+  imports: [
+    DatePipe,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTableModule,
+    PageHeaderComponent,
+  ],
   templateUrl: './staff.component.html',
   styleUrl: './staff.component.scss',
 })
@@ -31,6 +40,7 @@ export class StaffComponent implements OnInit {
   protected readonly members = signal<StaffMember[]>([]);
   protected readonly roles = signal<PlatformRoleDefinition[]>([]);
   protected readonly error = signal('');
+  protected readonly initials = Initials;
 
   ngOnInit(): void {
     void this.load();
@@ -72,6 +82,7 @@ export class StaffComponent implements OnInit {
         message: 'They lose access to this console within a minute. Any tenant memberships stay.',
         confirmLabel: 'Remove',
       },
+      width: '440px',
     });
     if ((await firstValueFrom(dialog.afterClosed())) === true) {
       await this.change(this.staffApi.remove(member), `${member.name || member.email} removed.`);

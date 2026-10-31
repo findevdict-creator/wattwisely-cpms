@@ -36,40 +36,51 @@ export interface ManagedServiceDialogData {
     <h2 mat-dialog-title>
       {{ data.service ? 'Change the terms' : 'Offer the managed service to ' + data.tenantName }}
     </h2>
-    <mat-dialog-content class="content" [formGroup]="form">
+    <mat-dialog-content>
       @if (!data.service) {
-        <p>
+        <p class="ww-lead">
           The tenant's Owners get an e-mail. Nothing changes until one of them accepts in the
           portal; then staff you assign work in the tenant as Managed operators.
         </p>
       }
-      <mat-form-field appearance="outline">
-        <mat-label>Account manager</mat-label>
-        <mat-select formControlName="account_manager_id" data-testid="account-manager">
-          @for (member of staff(); track member.id) {
-            <mat-option [value]="member.id">{{ member.name || member.email }}</mat-option>
+      <form
+        class="ww-form two"
+        [formGroup]="form"
+        (ngSubmit)="form.valid && fee() !== null && save()"
+      >
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="wide">
+          <mat-label>Account manager</mat-label>
+          <mat-select formControlName="account_manager_id" data-testid="account-manager">
+            @for (member of staff(); track member.id) {
+              <mat-option [value]="member.id">{{ member.name || member.email }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Monthly fee</mat-label>
+          <input matInput formControlName="monthly_fee" data-testid="monthly-fee" />
+          <span matTextSuffix>{{ currency }}</span>
+          <mat-hint>Invoiced with the plan each month; 0 for none</mat-hint>
+          @if (form.controls.monthly_fee.dirty && fee() === null) {
+            <mat-error>An amount such as 250.00</mat-error>
           }
-        </mat-select>
-      </mat-form-field>
-      <mat-checkbox formControlName="is_tariff_approval_required" data-testid="approval-required">
-        Tariff changes by Managed operators need the Owner's approval
-      </mat-checkbox>
-      <mat-form-field appearance="outline">
-        <mat-label>Monthly fee ({{ currency }})</mat-label>
-        <input matInput formControlName="monthly_fee" data-testid="monthly-fee" />
-        <mat-hint>Invoiced with the plan each month; 0 for none</mat-hint>
-        @if (form.controls.monthly_fee.dirty && fee() === null) {
-          <mat-error>An amount such as 250.00</mat-error>
-        }
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Agreement reference</mat-label>
-        <input matInput formControlName="agreement_reference" data-testid="agreement-reference" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Notes (staff only)</mat-label>
-        <textarea matInput formControlName="notes" rows="3"></textarea>
-      </mat-form-field>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Agreement reference</mat-label>
+          <input matInput formControlName="agreement_reference" data-testid="agreement-reference" />
+        </mat-form-field>
+        <mat-checkbox
+          class="wide"
+          formControlName="is_tariff_approval_required"
+          data-testid="approval-required"
+        >
+          Tariff changes by Managed operators need the Owner's approval
+        </mat-checkbox>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="wide">
+          <mat-label>Notes, staff only</mat-label>
+          <textarea matInput formControlName="notes" rows="3"></textarea>
+        </mat-form-field>
+      </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
@@ -82,14 +93,6 @@ export interface ManagedServiceDialogData {
         {{ data.service ? 'Save' : 'Send the offer' }}
       </button>
     </mat-dialog-actions>
-  `,
-  styles: `
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding-top: 8px;
-    }
   `,
 })
 export class ManagedServiceDialogComponent implements OnInit {

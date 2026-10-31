@@ -54,6 +54,24 @@ export class DriverAccountsRepository {
     await tx.update(driverAccounts).set(changes).where(eq(driverAccounts.id, id));
   }
 
+  /**
+   * The driver deleted their account (module 33): the row stays for the removed cards that point
+   * at it, without the person. The Keycloak id and e-mail go, so a later login starts afresh.
+   */
+  async erase(tx: Transaction, id: string): Promise<void> {
+    await tx
+      .update(driverAccounts)
+      .set({
+        keycloakId: null,
+        email: `deleted-${id}@deleted.invalid`,
+        displayName: '',
+        phone: null,
+        paymentCustomerId: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(driverAccounts.id, id));
+  }
+
   static toDriverAccount(row: DriverAccountRow): DriverAccount {
     return new DriverAccount(row.id, row.email, row.displayName, row.phone);
   }

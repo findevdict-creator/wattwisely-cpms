@@ -1,77 +1,103 @@
-<div class="title">
-  <h1>Wattwisely staff</h1>
+<ww-page-header
+  heading="Wattwisely staff"
+  subtitle="People who can open this console. Every change here is in the platform audit log."
+>
   @if (staff.can('staff:manage')) {
     <button mat-flat-button (click)="add()" data-testid="add-staff">
-      <mat-icon>person_add</mat-icon>
+      <mat-icon svgIcon="user-plus" />
       Add staff
     </button>
   }
+</ww-page-header>
+
+<div class="ww-columns">
+  <section class="ww-card ww-main" aria-label="Staff">
+    <div class="scroll">
+      <table mat-table [dataSource]="members()" data-testid="staff">
+        <ng-container matColumnDef="person">
+          <th mat-header-cell *matHeaderCellDef>Person</th>
+          <td mat-cell *matCellDef="let member">
+            <span class="person">
+              <span class="ww-avatar m">{{ initials.of(member.name || member.email) }}</span>
+              <span class="ww-two">
+                <b>{{ member.name || member.email }}</b>
+                <span>{{ member.email }}{{ isMe(member) ? ' · you' : '' }}</span>
+              </span>
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>Role</th>
+          <td mat-cell *matCellDef="let member" [attr.data-role]="member.role">
+            <span class="ww-chip" [class.dark]="member.role === 'admin'">
+              {{ roleName(member.role) }}
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="since">
+          <th mat-header-cell *matHeaderCellDef>Since</th>
+          <td mat-cell *matCellDef="let member" class="nowrap">
+            {{ member.granted_at | date: 'd MMM y' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef><span class="cdk-visually-hidden">Change</span></th>
+          <td mat-cell *matCellDef="let member" class="actions">
+            @if (staff.can('staff:manage')) {
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="menu"
+                [attr.aria-label]="'Change ' + (member.name || member.email)"
+                [attr.data-testid]="'staff-menu-' + member.email"
+              >
+                <mat-icon svgIcon="ellipsis-vertical" />
+              </button>
+              <mat-menu #menu="matMenu" xPosition="before">
+                @for (role of roles(); track role.key) {
+                  @if (role.key !== member.role) {
+                    <button mat-menu-item (click)="changeRole(member, role.key)">
+                      <mat-icon svgIcon="arrow-left-right" />
+                      Make {{ role.name }}
+                    </button>
+                  }
+                }
+                <button mat-menu-item (click)="remove(member)" data-testid="remove-staff">
+                  <mat-icon svgIcon="user-minus" />
+                  Remove from staff
+                </button>
+              </mat-menu>
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+    <div class="ww-card-foot">
+      <span>
+        {{ members().length }} {{ members().length === 1 ? 'person' : 'people' }} on the staff
+      </span>
+    </div>
+  </section>
+
+  <section class="ww-card ww-side" aria-labelledby="roles-title">
+    <div class="ww-card-head line">
+      <div class="titles">
+        <h2 id="roles-title">Roles</h2>
+        <p>What each role may do in this console</p>
+      </div>
+    </div>
+    <div class="ww-card-body">
+      @for (role of roles(); track role.key) {
+        <div class="ww-list-item role">
+          <span class="ww-chip" [class.dark]="role.key === 'admin'">{{ role.name }}</span>
+          <span class="ww-grow">{{ role.description }}</span>
+        </div>
+      }
+    </div>
+  </section>
 </div>
 
-<table mat-table [dataSource]="members()" class="members" data-testid="staff">
-  <ng-container matColumnDef="person">
-    <th mat-header-cell *matHeaderCellDef>Person</th>
-    <td mat-cell *matCellDef="let member">
-      <div class="name">
-        {{ member.name || member.email }}
-        @if (isMe(member)) {
-          <span class="sub">(you)</span>
-        }
-      </div>
-      <div class="sub">{{ member.email }}</div>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="role">
-    <th mat-header-cell *matHeaderCellDef>Role</th>
-    <td mat-cell *matCellDef="let member" [attr.data-role]="member.role">
-      {{ roleName(member.role) }}
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="since">
-    <th mat-header-cell *matHeaderCellDef>Since</th>
-    <td mat-cell *matCellDef="let member">{{ member.granted_at | date: 'mediumDate' }}</td>
-  </ng-container>
-  <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let member" class="actions">
-      @if (staff.can('staff:manage')) {
-        <button
-          mat-icon-button
-          [matMenuTriggerFor]="menu"
-          aria-label="Change staff member"
-          [attr.data-testid]="'staff-menu-' + member.email"
-        >
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          @for (role of roles(); track role.key) {
-            @if (role.key !== member.role) {
-              <button mat-menu-item (click)="changeRole(member, role.key)">
-                <mat-icon>swap_horiz</mat-icon>
-                Make {{ role.name }}
-              </button>
-            }
-          }
-          <button mat-menu-item (click)="remove(member)" data-testid="remove-staff">
-            <mat-icon>person_remove</mat-icon>
-            Remove from staff
-          </button>
-        </mat-menu>
-      }
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
-
-<h2>Roles</h2>
-<dl class="roles">
-  @for (role of roles(); track role.key) {
-    <dt>{{ role.name }}</dt>
-    <dd>{{ role.description }}</dd>
-  }
-</dl>
-
 @if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
+  <div class="notice danger" role="alert">{{ error() }}</div>
 }

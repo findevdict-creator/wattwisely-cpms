@@ -1,0 +1,166 @@
+// The mobile app's look (module 30): Ionic's own styles, then the platform's colors from
+// packages/theme/theme.json, as Wattwisely tokens and as Ionic's variables.
+@use '@ionic/angular/css/core.css';
+@use '@ionic/angular/css/normalize.css';
+@use '@ionic/angular/css/structure.css';
+@use '@ionic/angular/css/typography.css';
+@use '../../../packages/theme/src/tokens';
+@use '../../../packages/theme/src/ionic';
+
+:root {
+  --ww-radius-md: 10px;
+  --ww-radius-lg: 12px;
+  --ww-radius-xl: 16px;
+}
+
+body {
+  font-family: var(--ww-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+// Every tab's page: a column of cards with 16px between them.
+.ww-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: calc(16px + var(--ion-safe-area-top, 0px)) 20px 24px;
+}
+
+// A white card, the building block of every page.
+.ww-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--ww-line);
+  border-radius: var(--ww-radius-lg);
+  background: var(--ww-white);
+}
+
+// A section's name above its card, as in the design's "Your operators".
+.ww-section {
+  margin: 8px 0 0;
+  font: 600 17px/24px var(--ww-font);
+}
+
+// The quiet line under a title.
+.ww-lead {
+  margin: 0;
+  color: var(--ww-text2);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+// A small rounded label: Member, Blocked.
+.ww-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  background: var(--ww-info-soft);
+  color: var(--ww-info-text);
+
+  &.live {
+    background: var(--ww-success-soft);
+    color: var(--ww-success-text);
+  }
+
+  &.warn {
+    background: var(--ww-warning-soft);
+    color: var(--ww-warning-text);
+  }
+
+  &.neutral {
+    background: var(--ww-surface);
+    color: var(--ww-text2);
+  }
+
+  &.danger {
+    background: var(--ww-danger-soft);
+    color: var(--ww-danger-text);
+  }
+}
+
+// Label on the left, value on the right: prices, a receipt, a hold (module 32).
+.ww-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+
+  div {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  dt {
+    color: var(--ww-text2);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .total {
+    padding-top: 8px;
+    border-top: 1px solid var(--ww-line);
+    font-size: 16px;
+  }
+}
+
+// What went wrong, in the page's flow.
+.ww-error {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-danger-soft);
+  color: var(--ww-danger-text);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+// The small print under a page's main button.
+.ww-small {
+  margin: 0;
+  color: var(--ww-muted);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+// Large buttons, as tall as the design's (48px), with the theme's corners.
+ion-button.ww-large {
+  --border-radius: var(--ww-radius-md);
+  height: 48px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+mat-icon.mat-icon {
+  flex: none;
+}
+
+ion-button mat-icon[slot='start'] {
+  margin-right: 8px;
+}
+
+// A checkbox's sentence wraps instead of being cut short.
+ion-checkbox::part(label) {
+  white-space: normal;
+}
+
+// The button of a confirmation that deletes or leaves (module 33).
+.ww-alert-danger.alert-button {
+  color: var(--ww-danger);
+}

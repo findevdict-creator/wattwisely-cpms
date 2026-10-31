@@ -1,4 +1,5 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { PlatformColours } from '@wattwisely/theme';
 import { Branding, BrandingInput, PublicBranding } from '../../core/api/models/branding';
 import { BrandColour } from './brand-colour';
 
@@ -73,7 +74,7 @@ export class BrandingForm {
       ...saved,
       name: request.display_name ?? tenantName,
       primary_color: primary,
-      on_primary_color: BrandColour.textOn(primary),
+      on_primary_color: BrandColour.onPrimary(primary),
       accent_color: request.accent_color ?? BrandingForm.DEFAULT_ACCENT,
       support_email: request.support_email,
       support_phone: request.support_phone,
@@ -81,9 +82,9 @@ export class BrandingForm {
     };
   }
 
-  /** The platform's colours, what a cleared colour field means. */
-  static readonly DEFAULT_PRIMARY = '#1b5e20';
-  static readonly DEFAULT_ACCENT = '#43a047';
+  /** The platform's colours (theme.json), what a cleared colour field means. */
+  static readonly DEFAULT_PRIMARY = PlatformColours.PRIMARY;
+  static readonly DEFAULT_ACCENT = PlatformColours.ACCENT;
 
   private static textOrNull(text: string): string | null {
     const trimmed = text.trim();

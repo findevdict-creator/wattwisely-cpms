@@ -1,0 +1,45 @@
+<div class="head">
+  <a class="logo" routerLink="/" aria-label="Wattwisely, overview" (click)="navigated.emit()">
+    <ww-logo [isMarkOnly]="isCollapsed()" />
+  </a>
+  <span class="ww-chip dark" data-testid="staff-console">Staff console</span>
+</div>
+<nav class="nav-list" aria-label="Main">
+  @for (group of groups(); track group.heading) {
+    @if (group.heading && isCollapsed()) {
+      <span class="rule" aria-hidden="true"></span>
+    } @else if (group.heading) {
+      <span class="ww-overline group">{{ group.heading }}</span>
+    }
+    @for (item of group.items; track item.testId) {
+      <a
+        class="nav"
+        [class.on]="isActive(item)"
+        [routerLink]="item.link"
+        [attr.aria-current]="isActive(item) ? 'page' : null"
+        [attr.data-testid]="item.testId"
+        [matTooltip]="item.label"
+        matTooltipPosition="right"
+        [matTooltipDisabled]="!isCollapsed()"
+        (click)="navigated.emit()"
+      >
+        <mat-icon [svgIcon]="item.icon" />
+        <span class="label">{{ item.label }}</span>
+      </a>
+    }
+  }
+</nav>
+@if (staff.me(); as me) {
+  <div
+    class="user"
+    [matTooltip]="(me.name || me.email) + ', ' + (staff.roleName() | titlecase)"
+    matTooltipPosition="right"
+    [matTooltipDisabled]="!isCollapsed()"
+  >
+    <span class="ww-avatar m">{{ initials() }}</span>
+    <span class="ww-two ww-grow">
+      <b>{{ me.name || me.email }}</b>
+      <span class="role" data-testid="my-role">{{ staff.roleName() }}</span>
+    </span>
+  </div>
+}

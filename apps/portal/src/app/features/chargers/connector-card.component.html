@@ -1,65 +1,78 @@
-<mat-card
-  appearance="outlined"
-  class="connector"
+<section
+  class="ww-card connector"
+  [attr.aria-label]="'Connector ' + connector().label"
   [attr.data-testid]="'connector-' + connector().label"
 >
-  <mat-card-header>
-    <mat-card-title>{{ connector().label }}</mat-card-title>
-    <mat-card-subtitle>Connector {{ connector().ocpp_connector_id }}</mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content>
+  <div class="ww-card-head">
+    <div class="titles">
+      <h2>Connector {{ connector().label }}</h2>
+      <p>{{ plug() }} · number {{ connector().ocpp_connector_id }}</p>
+    </div>
     <ww-status-chip kind="connector" [status]="connector().status" />
-    <p>
-      {{ connector().type === 'unknown' ? 'Plug type not set' : connector().type.toUpperCase() }}
-      @if (connector().current_type) {
-        · {{ connector().current_type?.toUpperCase() }}
-      }
-      @if (connector().max_power_kw) {
-        · {{ connector().max_power_kw }} kW
-      }
-    </p>
+  </div>
+  <div class="ww-card-body">
     @if (connector().active_session; as session) {
-      <p class="session" data-testid="active-session">
-        {{ sessionLabel() }} · {{ energyKwh() | number: '1.0-2' }} kWh
-        @if (session.gross_amount !== null) {
-          · {{ session.gross_amount | money: session.currency }} so far
-        }
-        @if (permissions.can('sessions:read')) {
-          · <a [routerLink]="['/sessions', session.id]">Details</a>
-        }
-      </p>
-    }
-    @if (connector().error_code) {
-      <p class="error">{{ connector().error_code }} {{ connector().status_info || '' }}</p>
-    }
-  </mat-card-content>
-  <mat-card-actions align="end">
-    @if (canStart()) {
-      <button mat-button (click)="start()" data-testid="start-charging">Start charging</button>
-    }
-    @if (canStop()) {
-      <button mat-button (click)="stop()" data-testid="stop-charging">Stop charging</button>
-    }
-    @if (canCommand() || permissions.canChange('chargers:write')) {
-      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Connector actions">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        @if (canCommand()) {
-          <button mat-menu-item (click)="unlock()">Unlock cable</button>
-          @if (connector().status === 'unavailable') {
-            <button mat-menu-item (click)="setAvailability(true)">Put back in service</button>
+      <div class="session" data-testid="active-session">
+        <b class="energy">{{ energyKwh() | number: '1.0-1' }} kWh</b>
+        <span class="hint">
+          ·
+          @if (permissions.can('sessions:read')) {
+            <a [routerLink]="['/sessions', session.id]">{{ sessionLabel() | lowercase }}</a
+            >,
           } @else {
-            <button mat-menu-item (click)="setAvailability(false)">Take out of service</button>
+            {{ sessionLabel() | lowercase }},
           }
-        }
-        @if (permissions.canChange('chargers:write')) {
-          <button mat-menu-item (click)="edit.emit(connector())">Edit</button>
-          @if (connector().status === 'unknown') {
-            <button mat-menu-item (click)="remove.emit(connector())">Remove</button>
+          {{ duration() }}
+          @if (session.gross_amount !== null) {
+            · {{ session.gross_amount | money: session.currency }} so far
           }
-        }
-      </mat-menu>
+        </span>
+      </div>
+    } @else if (connector().error_code) {
+      <p class="error">{{ connector().error_code }} {{ connector().status_info || '' }}</p>
+    } @else {
+      <p class="hint">{{ idleNote() }}</p>
     }
-  </mat-card-actions>
-</mat-card>
+    @if (canStart() || canStop() || canCommand() || permissions.canChange('chargers:write')) {
+      <div class="actions">
+        @if (canStart()) {
+          <button
+            mat-stroked-button
+            class="ww-small"
+            (click)="start()"
+            data-testid="start-charging"
+          >
+            <mat-icon svgIcon="play" />
+            Start charging
+          </button>
+        }
+        @if (canStop()) {
+          <button mat-stroked-button class="ww-small" (click)="stop()" data-testid="stop-charging">
+            Stop charging
+          </button>
+        }
+        @if (canCommand() || permissions.canChange('chargers:write')) {
+          <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Connector actions">
+            <mat-icon svgIcon="ellipsis-vertical" />
+          </button>
+          <mat-menu #menu="matMenu">
+            @if (canCommand()) {
+              <button mat-menu-item (click)="unlock()">Unlock cable</button>
+              @if (connector().status === 'unavailable') {
+                <button mat-menu-item (click)="setAvailability(true)">Put back in service</button>
+              } @else {
+                <button mat-menu-item (click)="setAvailability(false)">Take out of service</button>
+              }
+            }
+            @if (permissions.canChange('chargers:write')) {
+              <button mat-menu-item (click)="edit.emit(connector())">Edit</button>
+              @if (connector().status === 'unknown') {
+                <button mat-menu-item (click)="remove.emit(connector())">Remove</button>
+              }
+            }
+          </mat-menu>
+        }
+      </div>
+    }
+  </div>
+</section>

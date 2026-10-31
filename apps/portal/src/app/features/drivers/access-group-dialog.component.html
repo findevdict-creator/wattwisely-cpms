@@ -5,15 +5,15 @@
     card without a group.
   </p>
   <form [formGroup]="form.fields" (ngSubmit)="save()">
-    <mat-form-field appearance="outline" class="wide">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Name</mat-label>
       <input matInput formControlName="name" maxlength="100" data-testid="group-name" />
     </mat-form-field>
-    <mat-form-field appearance="outline" class="wide">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Description (optional)</mat-label>
       <input matInput formControlName="description" maxlength="500" />
     </mat-form-field>
-    <mat-form-field appearance="outline" class="wide">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Sites it opens</mat-label>
       <mat-select formControlName="siteIds" multiple data-testid="group-sites">
         @for (site of sites(); track site.id) {
@@ -21,7 +21,7 @@
         }
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="wide">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Drivers</mat-label>
       <mat-select formControlName="driverIds" multiple data-testid="group-drivers">
         @for (driver of drivers(); track driver.id) {
@@ -30,7 +30,7 @@
       </mat-select>
       <mat-hint>A driver can also be put in groups from their own page</mat-hint>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="wide">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Paying</mat-label>
       <mat-select formControlName="paymentMode" data-testid="group-payment-mode">
         <mat-option value="inherit">As the operator's standard: paid</mat-option>
@@ -39,7 +39,7 @@
       </mat-select>
       <mat-hint>A driver's or a card's own setting comes first</mat-hint>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="wide">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Hold per session ({{ form.currency }}, optional)</mat-label>
       <input matInput formControlName="holdAmount" inputmode="decimal" data-testid="group-hold" />
       <mat-hint

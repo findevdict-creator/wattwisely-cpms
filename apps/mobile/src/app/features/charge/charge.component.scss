@@ -1,0 +1,53 @@
+h1 {
+  margin: 0 0 2px;
+  font: 700 24px/30px var(--ww-font);
+}
+
+// The viewfinder: the camera opens full screen over it, so it only shows where to point.
+.finder {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 24px;
+  border: 0;
+  border-radius: var(--ww-radius-xl);
+  background: var(--ww-ink);
+  color: var(--ww-white);
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+
+  mat-icon {
+    width: 64px;
+    height: 64px;
+    opacity: 0.9;
+  }
+
+  strong {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  span {
+    opacity: 0.7;
+  }
+}
+
+.finder .frame {
+  display: grid;
+  place-items: center;
+  width: 60%;
+  aspect-ratio: 1;
+  margin-bottom: 12px;
+  border: 3px solid rgb(255 255 255 / 40%);
+  border-radius: var(--ww-radius-lg);
+  opacity: 1;
+}
+
+form ion-input {
+  font-size: 16px;
+}

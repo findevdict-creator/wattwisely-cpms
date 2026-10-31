@@ -1,23 +1,30 @@
-<mat-card appearance="outlined" data-testid="account-card">
-  <mat-card-header><mat-card-title>App login</mat-card-title></mat-card-header>
-  <mat-card-content>
+<section class="ww-card" aria-labelledby="account-title" data-testid="account-card">
+  <div class="ww-card-head line">
+    <div class="titles"><h2 id="account-title">Wattwisely account</h2></div>
+    <span class="ww-chip {{ chip().tone }}">{{ chip().label }}</span>
+  </div>
+  <div class="ww-card-body">
     @switch (driver().account.status) {
       @case ('linked') {
         <p class="state" data-testid="account-linked">
-          <mat-icon>verified_user</mat-icon>
+          <mat-icon svgIcon="shield-check" />
           Linked to the driver's own login
         </p>
-        <dl>
-          <dt>Login</dt>
-          <dd>
-            @if (driver().is_personal_data_hidden) {
-              <span class="hint">Hidden</span>
-            } @else {
-              {{ driver().account.email }}
-            }
-          </dd>
-          <dt>Since</dt>
-          <dd>{{ driver().account.linked_at | date: 'medium' }}</dd>
+        <dl class="ww-kv">
+          <div class="wide">
+            <dt>Login</dt>
+            <dd>
+              @if (driver().is_personal_data_hidden) {
+                <span class="hint">Hidden</span>
+              } @else {
+                {{ driver().account.email }}
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Linked</dt>
+            <dd>{{ driver().account.linked_at | date: 'd MMM y' }}</dd>
+          </div>
         </dl>
         <p class="hint">
           The driver sees this record, their cards and their charges with you in the app, and pays
@@ -26,8 +33,8 @@
         @if (permissions.canChange('drivers:invite')) {
           <div class="actions">
             <button mat-stroked-button (click)="unlink()" data-testid="unlink">
-              <mat-icon>link_off</mat-icon>
-              Unlink login
+              <mat-icon svgIcon="unlink" />
+              Unlink
             </button>
           </div>
         }
@@ -38,33 +45,37 @@
           [class.expired]="driver().account.is_invitation_expired"
           data-testid="account-invited"
         >
-          <mat-icon>{{
-            driver().account.is_invitation_expired ? 'schedule' : 'mark_email_unread'
-          }}</mat-icon>
+          <mat-icon [svgIcon]="driver().account.is_invitation_expired ? 'clock' : 'mail-warning'" />
           {{
             driver().account.is_invitation_expired
               ? 'Invitation expired'
               : 'Invited, not yet accepted'
           }}
         </p>
-        <dl>
-          <dt>Sent to</dt>
-          <dd>
-            @if (driver().is_personal_data_hidden) {
-              <span class="hint">Hidden</span>
-            } @else {
-              {{ driver().account.email }}
-            }
-          </dd>
-          <dt>Sent</dt>
-          <dd>{{ driver().account.invited_at | date: 'medium' }}</dd>
-          <dt>Valid until</dt>
-          <dd>{{ driver().account.invitation_expires_at | date: 'medium' }}</dd>
+        <dl class="ww-kv">
+          <div class="wide">
+            <dt>Sent to</dt>
+            <dd>
+              @if (driver().is_personal_data_hidden) {
+                <span class="hint">Hidden</span>
+              } @else {
+                {{ driver().account.email }}
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Sent</dt>
+            <dd>{{ driver().account.invited_at | date: 'd MMM, HH:mm' }}</dd>
+          </div>
+          <div>
+            <dt>Valid until</dt>
+            <dd>{{ driver().account.invitation_expires_at | date: 'd MMM, HH:mm' }}</dd>
+          </div>
         </dl>
         @if (permissions.canChange('drivers:invite')) {
           <div class="actions">
             <button mat-stroked-button (click)="resend()" data-testid="resend-invite">
-              <mat-icon>forward_to_inbox</mat-icon>
+              <mat-icon svgIcon="forward" />
               Resend
             </button>
             <button mat-button (click)="cancel()" data-testid="cancel-invite">
@@ -81,12 +92,12 @@
         @if (permissions.canChange('drivers:invite')) {
           <div class="actions">
             <button mat-flat-button (click)="invite()" data-testid="invite">
-              <mat-icon>send</mat-icon>
+              <mat-icon svgIcon="send" />
               Invite to the app
             </button>
           </div>
         }
       }
     }
-  </mat-card-content>
-</mat-card>
+  </div>
+</section>

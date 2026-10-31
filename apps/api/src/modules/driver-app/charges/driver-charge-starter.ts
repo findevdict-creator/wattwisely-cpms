@@ -12,6 +12,7 @@ import { RequestAuth } from '../../../common/request/request-auth';
 import { PaymentErrors } from '../../payments/payment-errors';
 import { PublicCharger } from '../../payments/public/charge-place.lookup';
 import { DriverAppErrors } from '../driver-app-errors';
+import { ChargeMailSubscriber } from '../notifications/charge-mail.subscriber';
 import { DriverPlaceAccessPolicy } from '../places/driver-place-access';
 import { DriverPlace, DriverPlacesService } from '../places/driver-places.service';
 import { StartDriverChargeRequestDto } from './dto/start-driver-charge-request.dto';
@@ -29,7 +30,8 @@ export interface StartedCharge {
  * A charge started from the driver app (module 19): the plug and the driver's access are
  * resolved as the page saw them, a guest gets their record first with their consent, then
  * the session opens as a start from the app. A `pay` rule takes the hold from the saved card
- * on the spot, and a confirmed hold sends RemoteStart; a `free` rule sends it at once.
+ * on the spot, and a confirmed hold sends RemoteStart; a `free` rule sends it at once. A
+ * driver who turned e-mail on gets the charge's e-mails (module 34).
  */
 @Injectable()
 export class DriverChargeStarter {
@@ -41,6 +43,7 @@ export class DriverChargeStarter {
     @Inject(PAYMENT_GATEWAY) gateway: PaymentGateway,
     private readonly places: DriverPlacesService,
     private readonly guests: GuestRecordWriter,
+    private readonly mail: ChargeMailSubscriber,
   ) {
     this.placer = new SavedCardHoldPlacer(gateway);
   }
@@ -73,7 +76,10 @@ export class DriverChargeStarter {
     if (refusal) {
       throw DriverAppErrors.cannotCharge(refusal);
     }
-    return this.open(tx, place);
+    const started = await this.open(tx, place);
+    const at = { tenantId: place.access.tenantId, sessionId: started.sessionId };
+    await this.mail.subscribe(tx, account.id, at);
+    return started;
   }
 
   private async open(tx: Transaction, place: DriverPlace): Promise<StartedCharge> {

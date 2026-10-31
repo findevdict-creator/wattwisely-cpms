@@ -1,19 +1,17 @@
-<p class="back">
-  <a routerLink="/account/charges"><mat-icon>arrow_back</mat-icon> Your charges</a>
-</p>
+<a class="back" routerLink="/account/charges">
+  <mat-icon svgIcon="arrow-left" />
+  Your charges
+</a>
 
 @if (store.charge(); as charge) {
   <header class="where">
-    <div>
-      <h1>{{ charge.site_name }}</h1>
-      <p class="hint">
-        {{ charge.operator_name }} · {{ charge.charger_identity }} plug {{ charge.connector_label }}
-      </p>
-    </div>
+    <h1>{{ charge.site_name }} · Plug {{ charge.connector_label }}</h1>
+    <p>{{ charge.operator_name }} · {{ charge.charger_identity }}</p>
   </header>
 
-  <section class="panel">
-    <div class="hint" data-testid="status">{{ status(charge.status) }}</div>
+  <section class="panel centre">
+    @let chip = chipOf(charge.status);
+    <span class="ww-chip {{ chip.tone }}" data-testid="status">{{ chip.label }}</span>
     <div class="figure" data-testid="amount">
       @if (charge.payment_rule?.outcome === 'free') {
         Free
@@ -21,18 +19,19 @@
         {{ charge.receipt?.gross ?? charge.amount | money: charge.currency }}
       }
     </div>
-    <div class="hint">
+    <span class="hint">
       {{ kwh(charge.energy_wh) }} kWh · started
       {{ charge.started_at | zonedTime: charge.time_zone : true }}
-    </div>
+    </span>
     @if (charge.can_stop) {
       <button
-        mat-flat-button
-        class="stop"
+        mat-stroked-button
+        class="ww-large ww-danger wide stop"
         (click)="store.stop(charge.id)"
         [disabled]="store.isBusy() || charge.is_stop_requested"
         data-testid="stop"
       >
+        <mat-icon svgIcon="circle-stop" />
         @if (charge.is_stop_requested) {
           Stopping…
         } @else {
@@ -42,21 +41,21 @@
     }
   </section>
 
-  <section class="panel">
-    <h2>Paying</h2>
+  <section class="panel" aria-labelledby="paying-title">
+    <h2 id="paying-title">Paying</h2>
     @if (charge.payment_rule; as rule) {
       <p data-testid="rule">{{ rule.words }}</p>
     }
     @if (charge.payment; as payment) {
       <p class="hint" data-testid="payment">
         {{ payment.hold_amount | money: charge.currency }} held on
-        {{ payment.card_brand ?? 'your card' }}
+        {{ payment.card_brand ? (payment.card_brand | titlecase) : 'your card' }}
         @if (payment.card_last4) {
           ending {{ payment.card_last4 }}
         }
       </p>
       @if (payment.failure_message) {
-        <p class="error" data-testid="refused">{{ payment.failure_message }}</p>
+        <p class="notice danger" data-testid="refused">{{ payment.failure_message }}</p>
       }
     }
   </section>
@@ -64,5 +63,5 @@
   <div class="loading"><mat-spinner diameter="32" /></div>
 }
 @if (store.error()) {
-  <p class="error" role="alert">{{ store.error() }}</p>
+  <p class="notice danger" role="alert">{{ store.error() }}</p>
 }

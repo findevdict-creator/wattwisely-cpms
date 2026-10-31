@@ -1,0 +1,99 @@
+:host {
+  display: block;
+}
+
+.map {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ww-radius-md);
+  background:
+    radial-gradient(circle, var(--mat-sys-outline-variant) 1px, transparent 1.5px) 0 0 / 20px 20px,
+    var(--mat-sys-surface-variant);
+}
+
+.pin {
+  position: absolute;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  max-width: 48%;
+  padding: 4px 10px 4px 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  color: var(--mat-sys-on-surface);
+  background: var(--mat-sys-surface);
+  box-shadow: 0 8px 24px -4px color-mix(in srgb, var(--ww-ink) 12%, transparent);
+
+  &.on {
+    box-shadow: 0 0 0 2px var(--mat-sys-primary);
+  }
+}
+
+.pin::before,
+.legend i {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ww-success);
+}
+
+// One site, as on its own page: the pin in the middle, with room for its whole label.
+.single .pin {
+  max-width: 90%;
+  transform: translateX(-50%);
+}
+
+.pin.flipped {
+  flex-direction: row-reverse;
+  padding: 4px 6px 4px 10px;
+}
+
+.pin.busy::before,
+.legend .busy {
+  background: var(--ww-warning);
+}
+
+.pin.bad::before,
+.legend .bad {
+  background: var(--ww-danger);
+}
+
+.pin.off::before,
+.legend .off {
+  background: var(--ww-muted);
+}
+
+.legend {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+
+  span {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  i {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+  }
+}

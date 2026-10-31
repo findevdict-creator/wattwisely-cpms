@@ -1,3 +1,4 @@
+import { PlatformColours } from '@wattwisely/theme';
 import { MailMessage } from '../sending/mail-message';
 import { TenantBrand } from '../brand/tenant-brand';
 
@@ -49,15 +50,15 @@ export class BrandedMailLayout {
       ...content.paragraphs.map((text) => `<p style="margin:0 0 12px">${escape(text)}</p>`),
       content.action ? BrandedMailLayout.button(brand, content.action) : '',
       content.footnote
-        ? `<p style="margin:16px 0 0;font-size:13px;color:#5f6368">${escape(content.footnote)}</p>`
+        ? `<p style="margin:16px 0 0;font-size:13px;color:${PlatformColours.TEXT2}">${escape(content.footnote)}</p>`
         : '',
     ].join('');
     return [
-      `<div style="margin:0;padding:24px 12px;background:#f3f4f6;font-family:Roboto,'Helvetica Neue',Arial,sans-serif;color:#1b1b1b;font-size:15px;line-height:1.5">`,
-      `<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;width:100%;background:#ffffff;border-radius:12px;overflow:hidden">`,
-      `<tr><td style="background:${brand.primaryColor};color:${brand.onPrimaryColor};padding:16px 24px;font-size:18px;font-weight:500">${BrandedMailLayout.header(brand)}</td></tr>`,
+      `<div style="margin:0;padding:24px 12px;background:${PlatformColours.SURFACE};font-family:${PlatformColours.FONT_FAMILY},'Helvetica Neue',Arial,sans-serif;color:${PlatformColours.INK};font-size:15px;line-height:1.5">`,
+      `<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;width:100%;background:${PlatformColours.WHITE};border-radius:12px;overflow:hidden">`,
+      `<tr><td style="background:${brand.primaryColor};color:${brand.onPrimaryColor};padding:16px 24px;font-size:18px;font-weight:600">${BrandedMailLayout.header(brand)}</td></tr>`,
       `<tr><td style="padding:24px">${body}</td></tr>`,
-      `<tr><td style="padding:16px 24px;border-top:1px solid #e5e7eb;font-size:13px;color:#5f6368">${BrandedMailLayout.footer(brand)}</td></tr>`,
+      `<tr><td style="padding:16px 24px;border-top:1px solid ${PlatformColours.LINE};font-size:13px;color:${PlatformColours.TEXT2}">${BrandedMailLayout.footer(brand)}</td></tr>`,
       `</table></div>`,
     ].join('');
   }
@@ -71,14 +72,14 @@ export class BrandedMailLayout {
   }
 
   private static button(brand: TenantBrand, action: { label: string; url: string }): string {
-    return `<p style="margin:20px 0"><a href="${BrandedMailLayout.escape(action.url)}" style="display:inline-block;padding:12px 20px;border-radius:999px;background:${brand.primaryColor};color:${brand.onPrimaryColor};text-decoration:none;font-weight:500">${BrandedMailLayout.escape(action.label)}</a></p>`;
+    return `<p style="margin:20px 0"><a href="${BrandedMailLayout.escape(action.url)}" style="display:inline-block;padding:12px 20px;border-radius:10px;background:${brand.primaryColor};color:${brand.onPrimaryColor};text-decoration:none;font-weight:600">${BrandedMailLayout.escape(action.label)}</a></p>`;
   }
 
   private static footer(brand: TenantBrand): string {
     const lines = [brand.name, ...BrandedMailLayout.supportLines(brand)].map(
       BrandedMailLayout.escape,
     );
-    return `${lines.join('<br>')}<br><span style="color:#9aa0a6">${BrandedMailLayout.POWERED_BY}</span>`;
+    return `${lines.join('<br>')}<br><span style="color:${PlatformColours.MUTED}">${BrandedMailLayout.POWERED_BY}</span>`;
   }
 
   /** "Questions? …" lines for the support contact the tenant gave, if any. */

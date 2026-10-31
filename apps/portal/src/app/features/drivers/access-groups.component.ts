@@ -2,37 +2,59 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { RouterLink } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { EmptyStateComponent, PageHeaderComponent } from '@wattwisely/ui';
 import { firstValueFrom } from 'rxjs';
 import { AccessGroupsApiService } from '../../core/api/access-groups-api.service';
 import { ApiProblem } from '../../core/api/api-problem';
 import { AccessGroup } from '../../core/api/models/driver';
+import { PaymentsApiService } from '../../core/api/payments-api.service';
 import { PermissionsService } from '../../core/permissions/permissions.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { MoneyPipe } from '../../shared/money.pipe';
+import { PaymentModeLabels } from '../../shared/payment-mode-labels';
 import { AccessGroupDialogComponent } from './access-group-dialog.component';
 
 /** Access groups: which drivers may charge at which private sites (story AST-04). */
 @Component({
   selector: 'ww-access-groups',
-  imports: [MatButtonModule, MatIconModule, MatTableModule, RouterLink],
+  imports: [
+    EmptyStateComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTableModule,
+    MatTooltipModule,
+    MoneyPipe,
+    PageHeaderComponent,
+  ],
   templateUrl: './access-groups.component.html',
   styleUrl: './access-groups.component.scss',
 })
 export class AccessGroupsComponent implements OnInit {
   protected readonly permissions = inject(PermissionsService);
   private readonly groupsApi = inject(AccessGroupsApiService);
+  private readonly paymentsApi = inject(PaymentsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   protected readonly groups = signal<AccessGroup[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly error = signal('');
-  protected readonly columns = ['name', 'sites', 'members', 'actions'];
+  /** Holds are in the payment account's currency, as in the group dialog. */
+  protected readonly currency = signal('GBP');
+  protected readonly columns = ['name', 'sites', 'members', 'paying', 'hold', 'actions'];
 
   ngOnInit(): void {
     void this.load();
+    if (this.permissions.can('payments:read')) {
+      firstValueFrom(this.paymentsApi.account())
+        .then((account) => this.currency.set(account.default_currency || this.currency()))
+        .catch(() => undefined);
+    }
   }
 
   protected async edit(group: AccessGroup | null): Promise<void> {
@@ -62,6 +84,10 @@ export class AccessGroupsComponent implements OnInit {
     } catch (error) {
       this.tell(ApiProblem.from(error).detail);
     }
+  }
+
+  protected payingOf(group: AccessGroup): string {
+    return PaymentModeLabels.group(group.payment_mode);
   }
 
   protected names(rows: { name: string }[]): string {

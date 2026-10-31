@@ -1,4 +1,4 @@
-import { Component, OnInit, effect, inject } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,13 +8,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { DriverAuthService } from '../../core/auth/driver-auth.service';
 import { BrandService } from '../../core/branding/brand.service';
+import { Initials, PaymentModeWords } from '@wattwisely/driver-core';
 import { SavedCardsComponent } from './cards/saved-cards.component';
-import { PaymentModeWords } from './payment-mode-words';
 import { AccountStore } from './account.store';
 
 /**
  * The driver's account (module 19): the name and phone they go by, the cards they pay with,
- * their charges, the operators that know them, and the way out. The page is the platform's: several operators may be listed.
+ * their charges, the operators that know them, and the way out. The page is the platform's:
+ * several operators may be listed.
  */
 @Component({
   selector: 'ww-account',
@@ -56,6 +57,15 @@ export class AccountComponent implements OnInit {
 
   ngOnInit(): void {
     void this.store.load();
+  }
+
+  protected readonly initials = computed(() => {
+    const me = this.store.me();
+    return me ? Initials.of(me.display_name || me.email) : '';
+  });
+
+  protected initialsOf(name: string): string {
+    return Initials.of(name);
   }
 
   protected paymentWords(mode: string): string {

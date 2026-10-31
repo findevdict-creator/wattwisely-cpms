@@ -1,51 +1,77 @@
-<h1>Audit log</h1>
+<ww-page-header
+  heading="Audit log"
+  subtitle="What staff and tenants did across the platform, newest first. Each tenant also sees what staff did in its own audit log."
+/>
 
-<mat-form-field appearance="outline" class="filter">
-  <mat-label>Only one tenant (paste its id)</mat-label>
-  <input matInput #tenant (keyup.enter)="filter(tenant.value)" (blur)="filter(tenant.value)" />
-</mat-form-field>
+<section class="ww-card">
+  <div class="ww-toolbar">
+    <label class="ww-field tenant">
+      <mat-icon svgIcon="search" />
+      <input
+        #tenant
+        type="search"
+        placeholder="Only one tenant (paste its id)"
+        aria-label="Only one tenant"
+        (keyup.enter)="filter(tenant.value)"
+        (search)="filter(tenant.value)"
+        (blur)="filter(tenant.value)"
+      />
+    </label>
+  </div>
 
-<table mat-table [dataSource]="entries()" class="entries" data-testid="audit-log">
-  <ng-container matColumnDef="occurred_at">
-    <th mat-header-cell *matHeaderCellDef>When</th>
-    <td mat-cell *matCellDef="let entry">{{ entry.occurred_at | date: 'medium' }}</td>
-  </ng-container>
-  <ng-container matColumnDef="actor">
-    <th mat-header-cell *matHeaderCellDef>Who</th>
-    <td mat-cell *matCellDef="let entry">
-      {{ entry.actor_label }}
-      @if (entry.actor_type === 'platform') {
-        <span class="sub">(staff)</span>
-      }
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="action">
-    <th mat-header-cell *matHeaderCellDef>What</th>
-    <td mat-cell *matCellDef="let entry">
-      <code>{{ entry.action }}</code>
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="target">
-    <th mat-header-cell *matHeaderCellDef>On</th>
-    <td mat-cell *matCellDef="let entry">{{ entry.target_label ?? entry.target_type }}</td>
-  </ng-container>
-  <ng-container matColumnDef="tenant">
-    <th mat-header-cell *matHeaderCellDef>Tenant</th>
-    <td mat-cell *matCellDef="let entry">
-      @if (entry.tenant_id) {
-        <a [routerLink]="['/tenants', entry.tenant_id]">open</a>
-      } @else {
-        <span class="sub">platform</span>
-      }
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
+  <div class="scroll">
+    <table mat-table [dataSource]="entries()" data-testid="audit-log">
+      <ng-container matColumnDef="occurred_at">
+        <th mat-header-cell *matHeaderCellDef>When</th>
+        <td mat-cell *matCellDef="let entry" class="nowrap">
+          {{ entry.occurred_at | date: 'd MMM y, HH:mm' }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="actor">
+        <th mat-header-cell *matHeaderCellDef>Who</th>
+        <td mat-cell *matCellDef="let entry">
+          <span class="ww-two">
+            <b>{{ entry.actor_label }}</b>
+            <span>{{ actorKinds[entry.actor_type] ?? entry.actor_type }}</span>
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>What</th>
+        <td mat-cell *matCellDef="let entry" class="mono">{{ entry.action }}</td>
+      </ng-container>
+      <ng-container matColumnDef="target">
+        <th mat-header-cell *matHeaderCellDef>On</th>
+        <td mat-cell *matCellDef="let entry">{{ entry.target_label ?? entry.target_type }}</td>
+      </ng-container>
+      <ng-container matColumnDef="tenant">
+        <th mat-header-cell *matHeaderCellDef>Tenant</th>
+        <td mat-cell *matCellDef="let entry">
+          @if (entry.tenant_id) {
+            <a [routerLink]="['/tenants', entry.tenant_id]">Open the tenant</a>
+          } @else {
+            <span class="ww-faint">Platform</span>
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
 
-@if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
-}
-@if (nextCursor()) {
-  <button mat-stroked-button class="more" (click)="loadMore()">Show older entries</button>
-}
+  @if (!entries().length && isLoaded() && !error()) {
+    <ww-empty-state icon="history" heading="Nothing here yet" text="No entries match." />
+  }
+  @if (error()) {
+    <div class="ww-card-body">
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    </div>
+  }
+  <div class="ww-card-foot">
+    <span>Entries can't be edited or deleted.</span>
+    <span class="ww-spacer"></span>
+    @if (nextCursor()) {
+      <button mat-stroked-button class="ww-small" (click)="loadMore()">Show older entries</button>
+    }
+  </div>
+</section>

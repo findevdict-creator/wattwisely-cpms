@@ -1,0 +1,64 @@
+<ion-content>
+  <div class="ww-page">
+    <ww-page-bar title="Personal details" />
+
+    <section class="ww-card">
+      <ion-input
+        label="Name"
+        labelPlacement="stacked"
+        autocomplete="name"
+        [value]="name()"
+        (ionInput)="name.set($event.detail.value ?? ''); isSaved.set(false)"
+        data-testid="name"
+      />
+      <ion-input
+        label="Phone"
+        labelPlacement="stacked"
+        type="tel"
+        autocomplete="tel"
+        placeholder="Optional"
+        [value]="phone()"
+        (ionInput)="phone.set($event.detail.value ?? ''); isSaved.set(false)"
+        data-testid="phone"
+      />
+    </section>
+    <p class="ww-small left">
+      Operators keep their own record of you. This changes your Wattwisely account, not theirs.
+    </p>
+
+    @if (store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+    @if (isSaved()) {
+      <p class="saved" role="status" data-testid="saved">Saved.</p>
+    }
+
+    <ion-button
+      class="ww-large"
+      expand="block"
+      [disabled]="!name().trim() || isSaving()"
+      (click)="save()"
+      data-testid="save"
+    >
+      @if (isSaving()) {
+        <ion-spinner name="crescent" />
+      } @else {
+        Save
+      }
+    </ion-button>
+
+    <h2 class="ww-section">Sign-in</h2>
+    <section class="ww-card">
+      <dl class="ww-rows">
+        <div>
+          <dt>E-mail</dt>
+          <dd data-testid="email">{{ store.me()?.email }}</dd>
+        </div>
+      </dl>
+      <ion-button fill="outline" (click)="openAccount()" data-testid="keycloak-account">
+        <mat-icon slot="start" svgIcon="external-link" />
+        Change e-mail or password
+      </ion-button>
+    </section>
+  </div>
+</ion-content>

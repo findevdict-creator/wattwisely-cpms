@@ -23,6 +23,9 @@ export class ApiServer {
     'If-Match',
   ];
 
+  /** Every method the apps send. Fastify's CORS plugin allows only GET, HEAD and POST by default. */
+  static readonly ALLOWED_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'];
+
   /** The raw request body is kept, because a Stripe webhook's signature is over the exact bytes. */
   static readonly OPTIONS = { rawBody: true };
 
@@ -58,7 +61,11 @@ export class ApiServer {
   static configure(app: NestFastifyApplication): void {
     const config = app.get(ApiConfig);
     app.setGlobalPrefix('v1', { exclude: ['health/live', 'health/ready', 'metrics'] });
-    app.enableCors({ origin: config.corsOrigins, allowedHeaders: ApiServer.ALLOWED_HEADERS });
+    app.enableCors({
+      origin: config.corsOrigins,
+      methods: ApiServer.ALLOWED_METHODS,
+      allowedHeaders: ApiServer.ALLOWED_HEADERS,
+    });
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );

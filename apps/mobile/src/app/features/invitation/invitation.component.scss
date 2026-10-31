@@ -1,0 +1,25 @@
+.mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-top: 24px;
+  border-radius: var(--ww-radius-xl);
+  background: var(--ww-brand-soft);
+  color: var(--ww-brand);
+
+  mat-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+h1 {
+  margin: 0 0 6px;
+  font: 700 22px/28px var(--ww-font);
+}
+
+.loading {
+  align-self: center;
+  margin-top: 40px;
+}

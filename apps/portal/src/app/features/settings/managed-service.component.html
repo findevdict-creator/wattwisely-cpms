@@ -1,126 +1,160 @@
-<header class="title">
-  <h1>Managed service</h1>
-</header>
-<p class="hint lead">
-  Under the managed service Wattwisely runs your charging for you: its staff watch the chargers, set
-  the prices and handle refunds in your account, and everything they do is marked "Wattwisely" in
-  your audit log.
-</p>
-
 @if (service(); as s) {
-  <div class="cards">
-    <mat-card appearance="outlined" class="card" data-testid="managed-service-card">
-      <mat-card-header>
-        <mat-card-title>Agreement</mat-card-title>
-        <mat-card-subtitle>
-          <ww-status-chip [status]="s.status" kind="managed_service" />
-        </mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <dl>
-          @if (s.account_manager; as manager) {
-            <dt>Your account manager</dt>
-            <dd data-testid="account-manager">
-              {{ manager.name || manager.email }}
-              <a [href]="'mailto:' + manager.email">{{ manager.email }}</a>
-            </dd>
-          }
+  <section class="ww-card" aria-labelledby="agreement-title" data-testid="managed-service-card">
+    <div class="ww-card-head line">
+      <span class="ww-avatar m icon"><mat-icon svgIcon="headset" /></span>
+      <div class="titles">
+        <h2 id="agreement-title">Managed service</h2>
+        <p>
           @if (s.agreement_reference) {
-            <dt>Agreement</dt>
-            <dd>{{ s.agreement_reference }}</dd>
+            Agreement <span class="mono">{{ s.agreement_reference }}</span> ·
           }
-          <dt>Offered</dt>
-          <dd>{{ s.offered_at | date: 'longDate' }}</dd>
           @if (s.accepted_at) {
-            <dt>Accepted</dt>
-            <dd>{{ s.accepted_at | date: 'longDate' }}</dd>
+            accepted {{ s.accepted_at | date: 'd MMM y' }}
+          } @else {
+            offered {{ s.offered_at | date: 'd MMM y' }}
           }
-          @if (s.ends_at) {
-            <dt>{{ s.status === 'ended' ? 'Ended' : 'Ends' }}</dt>
-            <dd data-testid="ends-at">{{ s.ends_at | date: 'longDate' }}</dd>
-          }
-          @if (s.monthly_fee) {
+        </p>
+      </div>
+      <ww-status-chip [status]="s.status" kind="managed_service" />
+    </div>
+    <div class="ww-card-body">
+      <p class="lead">
+        Wattwisely runs your charging for you: its staff watch the chargers, set the prices and
+        handle refunds in your account, and everything they do is marked "Wattwisely" in your audit
+        log.
+      </p>
+      <dl class="ww-kv three">
+        @if (s.monthly_fee) {
+          <div>
             <dt>Monthly fee</dt>
             <dd data-testid="managed-monthly-fee">
               {{ s.monthly_fee | money: currency() }}
-              <span class="hint">invoiced with your plan</span>
+              <span class="faint">with your plan</span>
             </dd>
-          }
-          <dt>Tariff changes</dt>
-          <dd>
+          </div>
+        }
+        @if (s.account_manager; as manager) {
+          <div>
+            <dt>Account manager</dt>
+            <dd data-testid="account-manager">{{ manager.name || manager.email }}</dd>
+          </div>
+          <div>
+            <dt>Contact</dt>
+            <dd>
+              <a [href]="'mailto:' + manager.email">{{ manager.email }}</a>
+            </dd>
+          </div>
+        }
+        @if (s.ends_at) {
+          <div>
+            <dt>{{ s.status === 'ended' ? 'Ended' : 'Ends' }}</dt>
+            <dd data-testid="ends-at">{{ s.ends_at | date: 'd MMM y' }}</dd>
+          </div>
+        }
+      </dl>
+      <div class="approval">
+        <span class="ww-two ww-grow">
+          <b>
             {{
               s.is_tariff_approval_required
-                ? 'Wattwisely proposes them; an Owner approves before they apply.'
-                : 'Wattwisely applies them directly.'
+                ? "Price changes need an Owner's approval"
+                : 'Wattwisely changes prices directly'
             }}
-          </dd>
-        </dl>
-        @if (s.status === 'pending_acceptance') {
-          <p>
-            Nothing changes until an Owner accepts. The service runs until you end it, with 30 days'
-            notice.
-          </p>
+          </b>
+          <span>
+            {{
+              s.is_tariff_approval_required
+                ? 'The managed team proposes; you decide in Tariffs, Proposals'
+                : 'Every change is in the audit log and the monthly report'
+            }}
+          </span>
+        </span>
+        @if (s.is_tariff_approval_required) {
+          <a mat-button class="ww-small" routerLink="/tariffs/proposals">Proposals</a>
         }
-      </mat-card-content>
-      @if (permissions.canChange('managed_service:manage')) {
-        <mat-card-actions>
-          @if (s.status === 'pending_acceptance') {
-            <button
-              mat-flat-button
-              (click)="accept()"
-              [disabled]="isBusy()"
-              data-testid="accept-managed-service"
-            >
-              Accept the offer
-            </button>
-          }
-          @if (s.status === 'active') {
-            <button
-              mat-stroked-button
-              (click)="giveNotice()"
-              [disabled]="isBusy()"
-              data-testid="give-notice"
-            >
-              End the service
-            </button>
-          }
-        </mat-card-actions>
+      </div>
+      @if (s.status === 'pending_acceptance') {
+        <div class="notice">
+          Nothing changes until an Owner accepts. The service runs until you end it, with 30 days'
+          notice.
+        </div>
       }
-    </mat-card>
+    </div>
+    @if (permissions.canChange('managed_service:manage') && s.status === 'pending_acceptance') {
+      <div class="ww-card-foot">
+        <span class="ww-spacer"></span>
+        <button
+          mat-flat-button
+          (click)="accept()"
+          [disabled]="isBusy()"
+          data-testid="accept-managed-service"
+        >
+          Accept the offer
+        </button>
+      </div>
+    }
+  </section>
 
-    <mat-card appearance="outlined" class="card" data-testid="operators-card">
-      <mat-card-header>
-        <mat-card-title>Wattwisely staff in your account</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if (s.operators.length === 0) {
-          <p class="hint">Nobody yet.</p>
-        } @else {
-          <ul class="operators">
-            @for (operator of s.operators; track operator.id) {
-              <li>
-                <mat-icon>support_agent</mat-icon>
-                <div>
-                  <div class="name">{{ operator.name || operator.email }}</div>
-                  <div class="hint">
-                    {{ operator.email }}, since {{ operator.assigned_at | date: 'mediumDate' }}
-                  </div>
-                </div>
-              </li>
-            }
-          </ul>
-        }
-        <p class="hint">
-          They appear in your team as "Wattwisely". Only Wattwisely adds or removes them.
-        </p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  <section class="ww-card" aria-labelledby="operators-title" data-testid="operators-card">
+    <div class="ww-card-head line">
+      <div class="titles">
+        <h2 id="operators-title">Wattwisely staff in your account</h2>
+        <p>They appear in your team as "Wattwisely"; only Wattwisely adds or removes them</p>
+      </div>
+    </div>
+    @if (s.operators.length === 0) {
+      <div class="ww-card-body"><p class="faint">Nobody yet.</p></div>
+    } @else {
+      <table mat-table [dataSource]="s.operators">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let operator">
+            <span class="person">
+              <span class="ww-avatar">{{ initialsOf(operator.name || operator.email) }}</span>
+              <b>{{ operator.name || operator.email }}</b>
+            </span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>E-mail</th>
+          <td mat-cell *matCellDef="let operator">{{ operator.email }}</td>
+        </ng-container>
+        <ng-container matColumnDef="since">
+          <th mat-header-cell *matHeaderCellDef>Since</th>
+          <td mat-cell *matCellDef="let operator">{{ operator.assigned_at | date: 'd MMM y' }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="operatorColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: operatorColumns"></tr>
+      </table>
+    }
+  </section>
 
   @if (s.status !== 'pending_acceptance' && s.status !== 'withdrawn') {
     <ww-service-report />
   }
+
+  @if (permissions.canChange('managed_service:manage') && s.status === 'active') {
+    <section class="ww-card" aria-labelledby="end-title">
+      <div class="ww-card-head end">
+        <div class="titles">
+          <h2 id="end-title">End the service</h2>
+          <p>
+            30 days' notice. The staff lose access on the last day; your data and settings stay.
+          </p>
+        </div>
+        <button
+          mat-stroked-button
+          class="ww-danger"
+          (click)="giveNotice()"
+          [disabled]="isBusy()"
+          data-testid="give-notice"
+        >
+          Give notice
+        </button>
+      </div>
+    </section>
+  }
 }
 @if (error()) {
-  <p class="error" role="alert" data-testid="managed-service-error">{{ error() }}</p>
+  <div class="notice danger" role="alert" data-testid="managed-service-error">{{ error() }}</div>
 }

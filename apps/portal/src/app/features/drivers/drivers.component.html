@@ -1,98 +1,152 @@
-<header class="title">
-  <h1>Drivers</h1>
-  <div class="actions">
-    <a mat-stroked-button routerLink="/drivers/groups" data-testid="access-groups">
-      <mat-icon>groups</mat-icon>
-      Access groups
-    </a>
-    @if (permissions.canChange('drivers:write')) {
-      <button mat-flat-button (click)="add()" data-testid="add-driver">
-        <mat-icon>person_add</mat-icon>
-        Add driver
-      </button>
-    }
-  </div>
-</header>
+<ww-page-header
+  heading="Drivers"
+  subtitle="People and fleet cards that charge at your sites, and who pays for them"
+>
+  <a mat-stroked-button routerLink="/drivers/groups" data-testid="access-groups">
+    <mat-icon svgIcon="users-round" />
+    Access groups
+  </a>
+  @if (permissions.canChange('drivers:write')) {
+    <button mat-flat-button (click)="add()" data-testid="add-driver">
+      <mat-icon svgIcon="user-plus" />
+      Add driver
+    </button>
+  }
+</ww-page-header>
 
-<div class="filters">
-  <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-    <mat-icon matPrefix>search</mat-icon>
-    <mat-label>Search by name, e-mail or reference</mat-label>
-    <input matInput #query (keyup.enter)="search(query.value)" data-testid="drivers-search" />
-  </mat-form-field>
-  <mat-form-field appearance="outline" subscriptSizing="dynamic">
-    <mat-label>Status</mat-label>
-    <mat-select value="" (valueChange)="filterBy('status', $event)">
-      <mat-option value="">Any</mat-option>
-      <mat-option value="active">Active</mat-option>
-      <mat-option value="blocked">Blocked</mat-option>
-    </mat-select>
-  </mat-form-field>
-  @if (groups().length > 0) {
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Access group</mat-label>
-      <mat-select value="" (valueChange)="filterBy('group_id', $event)">
-        <mat-option value="">Any</mat-option>
+<nav class="ww-tabs" aria-label="Driver status" data-testid="filter-status">
+  @for (tab of tabs; track tab.value) {
+    <button
+      type="button"
+      class="ww-tab"
+      [class.on]="tab.value === (store.filter().status ?? '')"
+      [attr.aria-pressed]="tab.value === (store.filter().status ?? '')"
+      (click)="filterBy('status', tab.value)"
+      [attr.data-testid]="'tab-' + (tab.value || 'all')"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</nav>
+
+<section class="ww-card">
+  <div class="ww-toolbar">
+    <label class="ww-field search">
+      <mat-icon svgIcon="search" />
+      <input
+        #query
+        type="search"
+        placeholder="Search by name, e-mail or reference"
+        aria-label="Search drivers"
+        (keyup.enter)="search(query.value)"
+        (search)="search(query.value)"
+        data-testid="drivers-search"
+      />
+    </label>
+    @if (groups().length > 0) {
+      <mat-select
+        class="ww-field group"
+        value=""
+        (valueChange)="filterBy('group_id', $event)"
+        aria-label="Access group"
+        data-testid="filter-group"
+      >
+        <mat-option value="">All access groups</mat-option>
         @for (group of groups(); track group.id) {
           <mat-option [value]="group.id">{{ group.name }}</mat-option>
         }
       </mat-select>
-    </mat-form-field>
-  }
-</div>
-
-<table mat-table [dataSource]="store.drivers()" class="drivers" data-testid="drivers">
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef>Driver</th>
-    <td mat-cell *matCellDef="let driver">
-      <a [routerLink]="['/drivers', driver.id]" class="name">{{ driver.name }}</a>
-      @if (driver.email) {
-        <div class="hint">{{ driver.email }}</div>
-      }
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="reference">
-    <th mat-header-cell *matHeaderCellDef>Reference</th>
-    <td mat-cell *matCellDef="let driver">{{ driver.reference || '—' }}</td>
-  </ng-container>
-  <ng-container matColumnDef="cards">
-    <th mat-header-cell *matHeaderCellDef>Cards</th>
-    <td mat-cell *matCellDef="let driver">
-      {{ driver.active_card_count }}
-      @if (driver.card_count > driver.active_card_count) {
-        <span class="hint">of {{ driver.card_count }}</span>
-      }
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="groups">
-    <th mat-header-cell *matHeaderCellDef>Access groups</th>
-    <td mat-cell *matCellDef="let driver">{{ groupNames(driver) || '—' }}</td>
-  </ng-container>
-  <ng-container matColumnDef="last_session">
-    <th mat-header-cell *matHeaderCellDef>Last charge</th>
-    <td mat-cell *matCellDef="let driver">
-      {{ (driver.last_session_at | date: 'mediumDate') || 'Never' }}
-    </td>
-  </ng-container>
-  <ng-container matColumnDef="status">
-    <th mat-header-cell *matHeaderCellDef>Status</th>
-    <td mat-cell *matCellDef="let driver">
-      <ww-status-chip kind="driver" [status]="driver.status" />
-    </td>
-  </ng-container>
-  <tr mat-header-row *matHeaderRowDef="columns"></tr>
-  <tr mat-row *matRowDef="let row; columns: columns"></tr>
-</table>
-
-@if (!store.isLoading() && store.drivers().length === 0) {
-  <p class="empty" data-testid="no-drivers">
-    @if (store.filter().q || store.filter().status || store.filter().group_id) {
-      No driver matches these filters.
-    } @else {
-      No drivers yet. Add a driver, then register their RFID card so chargers accept it.
     }
-  </p>
-}
-@if (store.nextCursor()) {
-  <button mat-stroked-button class="more" (click)="store.loadMore()">Show more drivers</button>
-}
+  </div>
+
+  <div class="ww-card-body flush">
+    <table mat-table [dataSource]="store.drivers()" data-testid="drivers">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Driver</th>
+        <td mat-cell *matCellDef="let driver">
+          <div class="ww-two">
+            <a [routerLink]="['/drivers', driver.id]">{{ driver.name }}</a>
+            <span>{{ contactOf(driver) }}</span>
+          </div>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="reference">
+        <th mat-header-cell *matHeaderCellDef>Reference</th>
+        <td mat-cell *matCellDef="let driver">
+          @if (driver.reference) {
+            <span class="mono">{{ driver.reference }}</span>
+          } @else {
+            <span class="ww-faint">–</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="groups">
+        <th mat-header-cell *matHeaderCellDef>Access groups</th>
+        <td mat-cell *matCellDef="let driver">
+          @for (group of driver.groups; track group.id) {
+            <span class="ww-chip neutral">{{ group.name }}</span>
+          } @empty {
+            <span class="ww-faint">Public only</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="cards">
+        <th mat-header-cell *matHeaderCellDef class="ww-num">Cards</th>
+        <td mat-cell *matCellDef="let driver" class="ww-num">
+          {{ driver.active_card_count }}
+          @if (driver.card_count > driver.active_card_count) {
+            <span class="ww-faint">of {{ driver.card_count }}</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="paying">
+        <th mat-header-cell *matHeaderCellDef>Paying</th>
+        <td mat-cell *matCellDef="let driver">{{ payingOf(driver) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="last_session">
+        <th mat-header-cell *matHeaderCellDef>Last charge</th>
+        <td mat-cell *matCellDef="let driver">{{ lastChargeOf(driver) }}</td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let driver">
+          <ww-status-chip kind="driver" [status]="driver.status" />
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    @if (!store.isLoading() && store.drivers().length === 0) {
+      @if (store.filter().q || store.filter().status || store.filter().group_id) {
+        <ww-empty-state
+          icon="search"
+          heading="No driver matches these filters"
+          data-testid="no-drivers"
+        />
+      } @else {
+        <ww-empty-state
+          icon="users-round"
+          heading="No drivers yet"
+          text="Add a driver, then register their RFID card so chargers accept it."
+          data-testid="no-drivers"
+        />
+      }
+    }
+  </div>
+
+  @if (store.drivers().length > 0) {
+    <div class="ww-card-foot">
+      @if (hasHiddenDetails()) {
+        <span>Personal details are hidden unless your role can read them.</span>
+      }
+      <span class="ww-spacer"></span>
+      <span>Showing {{ store.drivers().length }}</span>
+      @if (store.nextCursor()) {
+        <button mat-stroked-button class="ww-small" (click)="store.loadMore()">
+          Show more drivers
+        </button>
+      }
+    </div>
+  }
+</section>

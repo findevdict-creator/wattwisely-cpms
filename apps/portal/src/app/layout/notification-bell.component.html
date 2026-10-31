@@ -1,18 +1,15 @@
 <button
   mat-icon-button
+  class="bell"
   [matMenuTriggerFor]="inbox"
   (menuOpened)="refresh()"
-  aria-label="Notifications"
+  [attr.aria-label]="unread() > 0 ? 'Notifications, ' + unread() + ' unread' : 'Notifications'"
   data-testid="bell"
 >
-  <mat-icon
-    [matBadge]="unread()"
-    [matBadgeHidden]="unread() === 0"
-    matBadgeColor="warn"
-    matBadgeSize="small"
-    aria-hidden="false"
-    >notifications</mat-icon
-  >
+  <mat-icon svgIcon="bell" />
+  @if (unread() > 0) {
+    <span class="dot" data-testid="bell-unread"></span>
+  }
 </button>
 <mat-menu #inbox="matMenu" class="inbox-menu" xPosition="before">
   <div class="header">

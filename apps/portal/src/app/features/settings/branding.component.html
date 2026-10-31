@@ -1,143 +1,139 @@
-<header class="title">
-  <h1>Branding</h1>
-</header>
-<p class="hint lead">
-  How your company appears to drivers: on the page a plug's QR code opens, on receipts and in
-  e-mails. A small "Powered by Wattwisely" line stays at the foot. Your own web address and a
-  branded driver app come with a later release.
-</p>
-
 @if (branding(); as saved) {
   <div class="columns">
-    <div class="settings">
-      <mat-card appearance="outlined" class="card">
-        <mat-card-header>
-          <mat-card-title>Logo</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="logo-row">
+    <section class="ww-card form" aria-labelledby="branding-title">
+      <div class="ww-card-head line">
+        <div class="titles">
+          <h2 id="branding-title">Branding</h2>
+          <p>Leave a field empty to use the Wattwisely default</p>
+        </div>
+      </div>
+      <div class="ww-card-body">
+        <div class="logo-row">
           @if (saved.logo_url) {
             <img class="logo" [src]="saved.logo_url" alt="Current logo" data-testid="logo" />
-            <span class="hint"
-              >{{ saved.logo_content_type }},
-              {{ (saved.logo_size_bytes ?? 0) / 1024 | number: '1.0-0' }} KB</span
-            >
           } @else {
-            <span class="hint" data-testid="no-logo">No logo yet: drivers see your name.</span>
+            <span class="ww-avatar l square placeholder" data-testid="no-logo">
+              {{ initials() }}
+            </span>
           }
-        </mat-card-content>
-        @if (canEdit()) {
-          <mat-card-actions align="end">
-            @if (saved.logo_url) {
-              <button
-                mat-button
-                (click)="removeLogo()"
-                [disabled]="isBusy()"
-                data-testid="remove-logo"
-              >
-                Remove
-              </button>
+          <div class="logo-text">
+            @if (canEdit()) {
+              <div class="buttons">
+                <button
+                  mat-stroked-button
+                  class="ww-small"
+                  (click)="logoFile.click()"
+                  [disabled]="isBusy()"
+                  data-testid="upload-logo"
+                >
+                  <mat-icon svgIcon="upload" />
+                  {{ saved.logo_url ? 'Replace logo' : 'Upload logo' }}
+                </button>
+                @if (saved.logo_url) {
+                  <button
+                    mat-button
+                    class="ww-small"
+                    (click)="removeLogo()"
+                    [disabled]="isBusy()"
+                    data-testid="remove-logo"
+                  >
+                    Remove
+                  </button>
+                }
+              </div>
+              <input
+                #logoFile
+                type="file"
+                hidden
+                [accept]="acceptedFiles"
+                (change)="chooseLogo($event)"
+              />
             }
-            <button
-              mat-stroked-button
-              (click)="logoFile.click()"
-              [disabled]="isBusy()"
-              data-testid="upload-logo"
-            >
-              <mat-icon>upload</mat-icon>
-              {{ saved.logo_url ? 'Replace logo' : 'Upload logo' }}
-            </button>
-            <input
-              #logoFile
-              type="file"
-              hidden
-              [accept]="acceptedFiles"
-              (change)="chooseLogo($event)"
-            />
-          </mat-card-actions>
-        }
-        <p class="hint file-hint">
-          PNG, JPEG, SVG or WebP, at most 512 KB. It is shown about 32 pixels high.
-        </p>
-      </mat-card>
+            <span class="hint">
+              @if (saved.logo_url) {
+                {{ saved.logo_content_type }},
+                {{ (saved.logo_size_bytes ?? 0) / 1024 | number: '1.0-0' }} KB.
+              } @else {
+                No logo yet: drivers see your name.
+              }
+              PNG, JPEG, SVG or WebP, at most 512 KB, shown about 32 pixels high.
+            </span>
+          </div>
+        </div>
 
-      <mat-card appearance="outlined" class="card">
-        <mat-card-header>
-          <mat-card-title>Name, colours and support</mat-card-title>
-        </mat-card-header>
-        <mat-card-content [formGroup]="form.fields">
+        <div class="fields" [formGroup]="form.fields">
           <mat-form-field appearance="outline" class="wide">
             <mat-label>Name drivers see</mat-label>
             <input matInput formControlName="displayName" data-testid="display-name" />
             <mat-hint>Leave empty to use your company's name.</mat-hint>
           </mat-form-field>
 
-          <div class="row">
-            <mat-form-field appearance="outline">
-              <mat-label>Primary colour</mat-label>
-              <input
-                matInput
-                formControlName="primaryColor"
-                placeholder="#1b5e20"
-                data-testid="primary-color"
-              />
-              <input
-                matSuffix
-                type="color"
-                class="swatch"
-                aria-label="Pick the primary colour"
-                [value]="preview()?.primary_color"
-                [disabled]="!canEdit()"
-                (input)="form.fields.controls.primaryColor.setValue(swatchPrimary.value)"
-                #swatchPrimary
-              />
-              <mat-hint>The top bar and the buttons.</mat-hint>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Accent colour</mat-label>
-              <input
-                matInput
-                formControlName="accentColor"
-                placeholder="#43a047"
-                data-testid="accent-color"
-              />
-              <input
-                matSuffix
-                type="color"
-                class="swatch"
-                aria-label="Pick the accent colour"
-                [value]="preview()?.accent_color"
-                [disabled]="!canEdit()"
-                (input)="form.fields.controls.accentColor.setValue(swatchAccent.value)"
-                #swatchAccent
-              />
-              <mat-hint>Links and highlights.</mat-hint>
-            </mat-form-field>
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Main colour</mat-label>
+            <input
+              matInput
+              class="mono"
+              formControlName="primaryColor"
+              placeholder="#0e7490"
+              data-testid="primary-color"
+            />
+            <input
+              matSuffix
+              type="color"
+              class="swatch"
+              aria-label="Pick the main colour"
+              [value]="preview()?.primary_color"
+              [disabled]="!canEdit()"
+              (input)="form.fields.controls.primaryColor.setValue(swatchPrimary.value)"
+              #swatchPrimary
+            />
+            <mat-hint>The top bar and the buttons.</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Accent colour</mat-label>
+            <input
+              matInput
+              class="mono"
+              formControlName="accentColor"
+              placeholder="#0f172a"
+              data-testid="accent-color"
+            />
+            <input
+              matSuffix
+              type="color"
+              class="swatch"
+              aria-label="Pick the accent colour"
+              [value]="preview()?.accent_color"
+              [disabled]="!canEdit()"
+              (input)="form.fields.controls.accentColor.setValue(swatchAccent.value)"
+              #swatchAccent
+            />
+            <mat-hint>Links and highlights.</mat-hint>
+          </mat-form-field>
 
-          <h3>Support contact</h3>
-          <p class="hint">
-            Shown to drivers when a charge needs a human: on the page, the receipt and in e-mails.
-          </p>
-          <div class="row">
-            <mat-form-field appearance="outline">
-              <mat-label>E-mail</mat-label>
-              <input
-                matInput
-                formControlName="supportEmail"
-                type="email"
-                data-testid="support-email"
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Phone</mat-label>
-              <input
-                matInput
-                formControlName="supportPhone"
-                type="tel"
-                data-testid="support-phone"
-              />
-            </mat-form-field>
+          @if (contrastNote()) {
+            <div class="notice warn wide" data-testid="contrast-note">{{ contrastNote() }}</div>
+          }
+
+          <div class="wide contact">
+            <span class="ww-overline">Support contact</span>
+            <p class="hint">
+              Shown to drivers when a charge needs a human: on the page, the receipt and in e-mails.
+            </p>
           </div>
+          <mat-form-field appearance="outline">
+            <mat-label>E-mail</mat-label>
+            <input
+              matInput
+              formControlName="supportEmail"
+              type="email"
+              data-testid="support-email"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="supportPhone" type="tel" data-testid="support-phone" />
+          </mat-form-field>
           <mat-form-field appearance="outline" class="wide">
             <mat-label>Help page</mat-label>
             <input
@@ -148,42 +144,50 @@
               data-testid="support-url"
             />
           </mat-form-field>
-        </mat-card-content>
-        @if (canEdit()) {
-          <mat-card-actions align="end">
-            <button
-              mat-button
-              (click)="form.fill(saved)"
-              [disabled]="isBusy() || form.fields.pristine"
-            >
-              Undo changes
-            </button>
-            <button
-              mat-flat-button
-              (click)="save()"
-              [disabled]="isBusy() || form.fields.invalid || form.fields.pristine"
-              data-testid="save-branding"
-            >
-              Save
-            </button>
-          </mat-card-actions>
+        </div>
+        @if (error()) {
+          <div class="notice danger" role="alert">{{ error() }}</div>
         }
-      </mat-card>
-      @if (error()) {
-        <p class="error" role="alert">{{ error() }}</p>
+      </div>
+      @if (canEdit()) {
+        <div class="ww-card-foot">
+          <span>A small "Powered by Wattwisely" line stays at the foot of the page.</span>
+          <span class="ww-spacer"></span>
+          <button
+            mat-button
+            (click)="form.fill(saved)"
+            [disabled]="isBusy() || form.fields.pristine"
+          >
+            Discard
+          </button>
+          <button
+            mat-flat-button
+            (click)="save()"
+            [disabled]="isBusy() || form.fields.invalid || form.fields.pristine"
+            data-testid="save-branding"
+          >
+            Save
+          </button>
+        </div>
       }
-    </div>
+    </section>
 
-    <aside class="preview">
-      <h2>Preview</h2>
-      @if (preview(); as brand) {
-        <ww-brand-preview [brand]="brand" />
-      }
-      <p class="hint">How the QR charge page looks with these settings.</p>
-    </aside>
+    <section class="ww-card preview" aria-labelledby="preview-title">
+      <div class="ww-card-head">
+        <div class="titles">
+          <h2 id="preview-title">Preview</h2>
+          <p>The connector page on a phone</p>
+        </div>
+      </div>
+      <div class="ww-card-body phone-body">
+        @if (preview(); as brand) {
+          <ww-brand-preview [brand]="brand" />
+        }
+      </div>
+    </section>
   </div>
 } @else if (error()) {
-  <p class="error" role="alert">{{ error() }}</p>
+  <div class="notice danger" role="alert">{{ error() }}</div>
 } @else {
   <p class="hint">Loading…</p>
 }
