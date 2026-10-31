@@ -330,7 +330,7 @@ services:
 
   # Secrets store (Stripe keys, tenant credentials). Starts sealed; up.sh unseals it.
   openbao:
-    image: openbao/openbao:2.7.1
+    image: openbao/openbao:2.7.2
     <<: [*restart, *logging]
     command: ['server']
     environment:
