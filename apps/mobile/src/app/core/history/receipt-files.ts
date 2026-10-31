@@ -4,8 +4,8 @@ import { firstValueFrom } from 'rxjs';
 import { NativeFiles } from '../native/native-files';
 
 /**
- * A charge's receipt as a PDF (module 33), fetched with the login and handed to the share
- * sheet, from the session's page and from "Charging complete".
+ * A charge's receipt as a PDF (module 33), fetched with the login and opened in the phone's
+ * PDF viewer, from the session's page and from "Charging complete".
  */
 @Injectable({ providedIn: 'root' })
 export class ReceiptFiles {
@@ -14,11 +14,11 @@ export class ReceiptFiles {
   private readonly api = inject(DriverChargesApiService);
   private readonly files = inject(NativeFiles);
 
-  /** '' once the share sheet opened, or why it could not. */
-  async share(charge: DriverCharge): Promise<string> {
+  /** '' once the receipt opened, or why it could not. */
+  async open(charge: DriverCharge): Promise<string> {
     try {
       const pdf = await firstValueFrom(this.api.receiptPdf(charge.id));
-      await this.files.share(pdf, ReceiptFiles.fileName(charge));
+      await this.files.open(pdf, ReceiptFiles.fileName(charge));
       return '';
     } catch (error) {
       const problem = ApiProblem.from(error);

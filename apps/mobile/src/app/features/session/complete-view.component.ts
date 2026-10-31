@@ -43,7 +43,7 @@ export class CompleteViewComponent {
 
   protected async download(): Promise<void> {
     this.isDownloading.set(true);
-    this.downloadError.set(await this.receipts.share(this.charge()));
+    this.downloadError.set(await this.receipts.open(this.charge()));
     this.isDownloading.set(false);
   }
 

@@ -22,7 +22,7 @@ Stories covered: Dana opens Sessions and sees October at €46.30 for 98 kWh ove
 | Charging complete                                    | Receipt and hold                   | Also "Download receipt (PDF)"                                                                                                                                               |
 | Keycloak realm                                       | —                                  | The `delete_account` required action enabled, and the `delete-account` role in the realm's default roles                                                                    |
 | `packages/driver-core`                               | —                                  | Gains, from the driver web app, `SavedCardsStore`, `ChargeHistory`, `CardFormFactory` and the Stripe forms, `OperatorStore` and `PaymentModeWords`, so both apps share them |
-| Capacitor plugins                                    | —                                  | `@capacitor/filesystem` and `@capacitor/share`: a file the API sends is written to the app's cache and handed to the share sheet                                            |
+| Capacitor plugins                                    | —                                  | `@capacitor/filesystem`, `@capacitor/file-viewer` and `@capacitor/share`: a receipt opens in the phone's PDF viewer, the CSV and the data go to the share sheet             |
 
 ## The screens
 
@@ -35,7 +35,7 @@ The card form in the screenshot is a stand-in for Stripe's Payment Element, whic
 
 ## A file from the API
 
-The receipt's PDF, the CSV and the data export need the login, so the app fetches each as a blob with the token, as the web app does. `NativeFiles.share()` then writes it to the app's cache with `@capacitor/filesystem` and opens the share sheet with `@capacitor/share`, from which the driver keeps it in Files, mails it or prints it. Android reaches the cache through the app's existing `FileProvider` (`res/xml/file_paths.xml`). In a browser, during `nx serve mobile`, the file downloads instead.
+The receipt's PDF, the CSV and the data export need the login, so the app fetches each as a blob with the token, as the web app does, and writes it to the app's cache with `@capacitor/filesystem`. A receipt opens in the phone's PDF viewer through `@capacitor/file-viewer` (`NativeFiles.open()`), where the driver can save, print or send it; a phone with no PDF viewer gets the share sheet. The CSV and the data export go to the share sheet with `@capacitor/share` (`NativeFiles.share()`), from which the driver keeps them in Files or mails them. Android reaches the cache through the app's existing `FileProvider` (`res/xml/file_paths.xml`). In a browser, during `nx serve mobile`, the file downloads instead.
 
 `ReceiptPdf` (`apps/api/src/modules/driver-app/receipts`) draws the receipt with pdfkit from the same `DriverChargeDetailDto` the receipt page shows: the operator's name, the site and connector, the period, the energy, each line, the tax, the total and the card.
 
