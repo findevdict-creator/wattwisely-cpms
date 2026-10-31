@@ -3,7 +3,8 @@ import baseConfig from '../../eslint.config.mjs';
 
 export default [
   // The native projects: Capacitor copies the built app into them, and Gradle and Xcode write there.
-  { ignores: ['android/**', 'ios/**'] },
+  // fastlane's gems (vendor) and its iOS archive (build) are written by the release workflow.
+  { ignores: ['android/**', 'ios/**', 'vendor/**', 'build/**'] },
   ...nx.configs['flat/angular'],
   ...nx.configs['flat/angular-template'],
   ...baseConfig,

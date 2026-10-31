@@ -87,6 +87,15 @@
         "cwd": "apps/mobile/android",
         "command": "./gradlew assembleDebug"
       }
+    },
+    "bundle": {
+      "dependsOn": ["sync"],
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/android/app/build/outputs/bundle"],
+      "options": {
+        "cwd": "apps/mobile/android",
+        "command": "./gradlew bundleRelease"
+      }
     }
   }
 }

@@ -14,6 +14,8 @@ export class BrandMark {
   static readonly MARK_CROP = '5 5 54 54';
   static readonly LOCKUP_CROP = '15.5 11 268 50';
   static readonly STROKE_WIDTH = 6;
+  /** The ring's centre, on both axes of the mark's 64-unit square; its strokes span 54 units. */
+  static readonly RING_CENTRE = 32;
   static readonly RING = 'M46.78 13.09A24 24 0 1 1 17.22 13.09';
   static readonly W = 'M20 27L26 43L32 23L38 43L44 27';
   /** Where the mark sits in the lockup. */

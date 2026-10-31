@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { AndroidIconXml } from './android-icon-xml';
 import { IonicColoursCss } from './ionic-colours-css';
 import { MailColoursFtl } from './mail-colours-ftl';
 import { MarkSvg } from './mark-svg';
@@ -17,6 +18,11 @@ export class ThemeFiles {
   static readonly PLATFORM_COLOURS = 'packages/theme/src/platform-colours.ts';
   /** Ionic's color variables for the mobile app (module 30). */
   static readonly IONIC_CSS = 'packages/theme/src/ionic.css';
+  /** The mobile app's Android resources: the launcher icon and splash (module 31). */
+  static readonly ANDROID_RES = 'apps/mobile/android/app/src/main/res';
+  static readonly ANDROID_ICON_FOREGROUND = `${ThemeFiles.ANDROID_RES}/drawable/ic_launcher_foreground.xml`;
+  static readonly ANDROID_SPLASH_MARK = `${ThemeFiles.ANDROID_RES}/drawable/splash_mark.xml`;
+  static readonly ANDROID_COLOURS = `${ThemeFiles.ANDROID_RES}/values/ic_launcher_background.xml`;
   /** Keycloak's login and e-mail theme (deploy/keycloak/themes/wattwisely). */
   static readonly KEYCLOAK = 'deploy/keycloak/themes/wattwisely';
   static readonly KEYCLOAK_TOKENS_CSS = `${ThemeFiles.KEYCLOAK}/login/resources/css/tokens.css`;
@@ -41,6 +47,9 @@ export class ThemeFiles {
       [ThemeFiles.TOKENS_CSS, TokensCss.render(theme)],
       [ThemeFiles.PLATFORM_COLOURS, PlatformColoursSource.render(theme)],
       [ThemeFiles.IONIC_CSS, IonicColoursCss.render(theme)],
+      [ThemeFiles.ANDROID_ICON_FOREGROUND, AndroidIconXml.renderForeground()],
+      [ThemeFiles.ANDROID_SPLASH_MARK, AndroidIconXml.renderSplashMark(theme)],
+      [ThemeFiles.ANDROID_COLOURS, AndroidIconXml.renderColours(theme)],
       [ThemeFiles.KEYCLOAK_TOKENS_CSS, TokensCss.render(theme)],
       [ThemeFiles.KEYCLOAK_MARK, MarkSvg.render(theme)],
       [ThemeFiles.KEYCLOAK_LOGO, MarkSvg.renderLockup(theme)],

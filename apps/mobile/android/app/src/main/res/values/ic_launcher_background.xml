@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from packages/theme/theme.json by `npx nx run theme:generate`. Do not edit. -->
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="ic_launcher_background">#0E7490</color>
+    <color name="splash_background">#FFFFFF</color>
 </resources>

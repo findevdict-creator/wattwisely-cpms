@@ -1,7 +1,8 @@
 # The mobile app (module 30): on every pull request that touches it, or the code it shares,
-# Android builds a debug APK to install by hand, and iOS builds for the simulator without
-# signing, so a break in either native project shows before merging. Lint, tests and the
-# web build of apps/mobile run with everything else in ci.yml.
+# Android builds a debug APK to install by hand and its release App Bundle, unsigned, and iOS
+# builds for the simulator without signing, so a break in either native project shows before
+# merging. Lint, tests and the web build of apps/mobile run with everything else in ci.yml;
+# mobile-release.yml signs the builds and sends them to testers (module 31).
 name: Mobile
 
 on:
@@ -14,6 +15,7 @@ on:
       - package.json
       - package-lock.json
       - .github/workflows/mobile.yml
+      - .github/actions/mobile-config/**
   push:
     branches: [main]
     paths:
@@ -49,16 +51,10 @@ jobs:
       - run: npm ci
       # With the repository variables MOBILE_API_URL and MOBILE_KEYCLOAK_URL set, the APK talks
       # to that server (a staging server, say); without them, to a development machine.
-      - name: Point the app at the test server
-        env:
-          API_URL: ${{ vars.MOBILE_API_URL }}
-          KEYCLOAK_URL: ${{ vars.MOBILE_KEYCLOAK_URL }}
-        run: |
-          if [ -n "$API_URL" ] && [ -n "$KEYCLOAK_URL" ]; then
-            printf '{"apiUrl":"%s","keycloakUrl":"%s","keycloakRealm":"wattwisely","keycloakClientId":"wattwisely-driver"}\n' \
-              "$API_URL" "$KEYCLOAK_URL" > apps/mobile/public/config.json
-          fi
-          cat apps/mobile/public/config.json
+      - uses: ./.github/actions/mobile-config
+        with:
+          api-url: ${{ vars.MOBILE_API_URL }}
+          keycloak-url: ${{ vars.MOBILE_KEYCLOAK_URL }}
       # Builds the app, copies it into the Android project (cap sync) and runs Gradle.
       - run: npx nx run mobile:apk
       - uses: actions/upload-artifact@v5
@@ -66,6 +62,10 @@ jobs:
           name: wattwisely-debug-apk
           path: apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
+      # The release build, unsigned here, so a break in it shows before a release (module 31).
+      - name: Build the release App Bundle
+        working-directory: apps/mobile/android
+        run: ./gradlew bundleRelease
 
   ios:
     name: iOS simulator build

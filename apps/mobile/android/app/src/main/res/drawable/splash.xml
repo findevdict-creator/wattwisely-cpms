@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launch screen before Android 12: the mark in teal on white. Android 12 and later draw
+     their own from windowSplashScreenBackground and windowSplashScreenAnimatedIcon (styles.xml). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_background"/>
+    <item android:drawable="@drawable/splash_mark" android:gravity="center"
+        android:width="216dp" android:height="216dp"/>
+</layer-list>

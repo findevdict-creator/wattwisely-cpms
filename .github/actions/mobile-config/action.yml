@@ -1,0 +1,36 @@
+# Writes the mobile app's config.json (module 31): the server it talks to, bundled into the app
+# because an installed app has no server of its own to read it from. Pull request builds point at
+# a test server when one is set and keep the development defaults otherwise; releases need one.
+name: Mobile app config
+description: Writes apps/mobile/public/config.json from the server's addresses.
+
+inputs:
+  api-url:
+    description: The API's address, such as https://api.example.com
+    required: false
+  keycloak-url:
+    description: Keycloak's address, such as https://auth.example.com
+    required: false
+  is-required:
+    description: "'true' fails the job when either address is missing"
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        API_URL: ${{ inputs.api-url }}
+        KEYCLOAK_URL: ${{ inputs.keycloak-url }}
+        IS_REQUIRED: ${{ inputs.is-required }}
+      run: |
+        if [ -n "$API_URL" ] && [ -n "$KEYCLOAK_URL" ]; then
+          jq -n --arg api "$API_URL" --arg keycloak "$KEYCLOAK_URL" \
+            '{apiUrl: $api, keycloakUrl: $keycloak, keycloakRealm: "wattwisely", keycloakClientId: "wattwisely-driver"}' \
+            > apps/mobile/public/config.json
+        elif [ "$IS_REQUIRED" = true ]; then
+          echo "::error::Set the variables MOBILE_API_URL and MOBILE_KEYCLOAK_URL on this workflow's environment"
+          exit 1
+        fi
+        cat apps/mobile/public/config.json
