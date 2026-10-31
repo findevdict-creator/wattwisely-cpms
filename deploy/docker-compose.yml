@@ -355,7 +355,7 @@ services:
   # Alertmanager e-mails what goes wrong, Grafana shows it. Only reachable from the server
   # itself: open http://localhost:3300 through an SSH tunnel (see README.md).
   prometheus:
-    image: prom/prometheus:v3.5.0
+    image: prom/prometheus:v3.15.1
     profiles: [monitoring]
     <<: [*restart, *logging]
     command:
