@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AccountStore } from '../account/account.store';
 import { ChargingNowStore } from '../charging/charging-now.store';
 import { HistoryStore } from '../history/history.store';
+import { NearbyStore } from '../nearby/nearby.store';
 import { PushRegistrar } from '../notifications/push-registrar';
 import { MobileAuthService } from './mobile-auth.service';
 
@@ -18,6 +19,7 @@ export class SignOut {
   private readonly account = inject(AccountStore);
   private readonly chargingNow = inject(ChargingNowStore);
   private readonly history = inject(HistoryStore);
+  private readonly nearby = inject(NearbyStore);
   private readonly pushes = inject(PushRegistrar);
   private readonly router = inject(Router);
 
@@ -31,6 +33,7 @@ export class SignOut {
     this.account.clear();
     this.chargingNow.clear();
     this.history.clear();
+    this.nearby.clear();
     await this.router.navigateByUrl('/welcome', { replaceUrl: true });
   }
 }

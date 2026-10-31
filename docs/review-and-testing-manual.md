@@ -919,6 +919,26 @@ Each section below has the same shape: where the module is, what it adds, which 
 | 5   | Account → Notifications, turn "Charging started" off, charge again                                                          | No "Charging at …" push; the receipt push still comes                                                               |
 | 6   | Sign out on the phone                                                                                                       | The phone is gone: `select count(*) from driver_devices` in the database is 0, and the next charge sends it nothing |
 
+### Module 35: chargers nearby in the mobile app
+
+**Where:** branch `35-module/mobile-nearby`, [docs/modules/35-mobile-nearby.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/35-module/mobile-nearby/docs/modules/35-mobile-nearby.md). Stacked on module 34.
+
+**What it adds.** Home's Nearby section: "Use my location" asks the phone once (coarse location through `@capacitor/geolocation`), then `GET /v1/driver/places/nearby` lists up to 20 sites within 15 km, nearest first, with the operator, distance, lowest energy price and free plugs; private sites appear only to drivers whose access groups open them. A tap opens a free plug's page. The search reads public sites across tenants through a new row-level policy, `sites_public_search`, and reads everything else inside each site's tenant.
+
+**Review, in this order.** `packages/db` `sites.table.ts` (`sites_public_search`), `row-level-security.ts`, `database-session.ts` (`forSiteSearch`), `transaction-runner.ts`, migration `0038`; `apps/api` `driver-app/nearby/*`; `packages/driver-core` `nearby-place.ts`, `driver-charges-api.service.ts`; `apps/mobile` `core/native/native-location.ts`, `core/nearby/*`, `features/home`, `AndroidManifest.xml`, `Info.plist`.
+
+**Specs.** `apps/api` `driver-nearby.flow.spec.ts` (public sites of two operators nearest first, the member's private site, none farther, private to others or of a suspended operator, a point off the map refused); `apps/mobile` `nearby.spec.ts` (the words, asking only on a tap, refused and lost locations) and `home.component.spec.ts`.
+
+**Manual test.**
+
+| #   | Do                                                                                                                            | Expect                                                                                        |
+| --- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 1   | In the portal, make Acme's Riverside site public (Edit site → Visibility). `npx nx serve mobile`, sign in as `dana@acme.test` | Home shows Nearby with "Use my location"; the browser has not asked anything yet              |
+| 2   | Tap "Use my location", allow; in DevTools → Sensors set the site's coordinates                                                | Riverside at 0.0 km, Acme Charging, "from …per kWh", the free plugs of all plugs              |
+| 3   | Tap the site                                                                                                                  | The plug page of a free plug                                                                  |
+| 4   | Make the site private again, refresh Home                                                                                     | The site is gone unless one of Dana's access groups includes it, then it reads "members only" |
+| 5   | Block location for the page and reload                                                                                        | "Location is off for Wattwisely…"                                                             |
+
 ## 6. Reporting findings
 
 Report what you find on the module's PR, one comment per finding, with the manual step number and what you saw instead of the expected result. Fixes go on the module's branch and PR, are merged forward into every module branch above it, and the `module-NN` tag is moved to the new tip, so the diff between consecutive module branches stays one module. Documentation gaps belong in that module's walkthrough under `docs/modules/`.

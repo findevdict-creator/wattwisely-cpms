@@ -73,4 +73,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Android 13 and later ask the driver before the app may notify (module 34). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- The Nearby list needs only roughly where the phone is, never in the background (module 35). -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
 </manifest>

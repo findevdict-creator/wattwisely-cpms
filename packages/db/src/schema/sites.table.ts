@@ -99,5 +99,11 @@ export const sites = pgTable(
       using: RowLevelSecurity.isCurrentTenant(table.tenantId),
       withCheck: RowLevelSecurity.isCurrentTenant(table.tenantId),
     }),
+    // The nearby search (module 35) reads public sites of every tenant, and nothing else of theirs.
+    pgPolicy('sites_public_search', {
+      for: 'select',
+      to: RowLevelSecurity.APP_ROLE,
+      using: sql`${table.visibility} = 'public' and ${table.deletedAt} is null and ${RowLevelSecurity.isSiteSearch()}`,
+    }),
   ],
 );

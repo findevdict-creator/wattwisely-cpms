@@ -42,6 +42,7 @@ export type {
   NotificationSettings,
   NotificationSettingsChanges,
 } from './lib/api/models/driver-notifications';
+export type { NearbyPlace } from './lib/api/models/nearby-place';
 export type { Place, PlaceAvailability, PublicTariff, TariffBand } from './lib/api/models/place';
 export { PublicApiService } from './lib/api/public-api.service';
 export { InvitationStore } from './lib/invitations/invitation.store';
