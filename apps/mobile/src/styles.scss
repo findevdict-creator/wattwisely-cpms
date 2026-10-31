@@ -63,10 +63,77 @@ body {
   background: var(--ww-info-soft);
   color: var(--ww-info-text);
 
+  &.live {
+    background: var(--ww-success-soft);
+    color: var(--ww-success-text);
+  }
+
+  &.warn {
+    background: var(--ww-warning-soft);
+    color: var(--ww-warning-text);
+  }
+
+  &.neutral {
+    background: var(--ww-surface);
+    color: var(--ww-text2);
+  }
+
   &.danger {
     background: var(--ww-danger-soft);
     color: var(--ww-danger-text);
   }
+}
+
+// Label on the left, value on the right: prices, a receipt, a hold (module 32).
+.ww-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+
+  div {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  dt {
+    color: var(--ww-text2);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .total {
+    padding-top: 8px;
+    border-top: 1px solid var(--ww-line);
+    font-size: 16px;
+  }
+}
+
+// What went wrong, in the page's flow.
+.ww-error {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-danger-soft);
+  color: var(--ww-danger-text);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+// The small print under a page's main button.
+.ww-small {
+  margin: 0;
+  color: var(--ww-muted);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
 }
 
 // Large buttons, as tall as the design's (48px), with the theme's corners.
@@ -82,4 +149,13 @@ ion-button.ww-large {
 
 mat-icon.mat-icon {
   flex: none;
+}
+
+ion-button mat-icon[slot='start'] {
+  margin-right: 8px;
+}
+
+// A checkbox's sentence wraps instead of being cut short.
+ion-checkbox::part(label) {
+  white-space: normal;
 }

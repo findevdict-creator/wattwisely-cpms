@@ -1,0 +1,63 @@
+<ion-content>
+  <div class="ww-page">
+    <header>
+      <h1>Scan the QR code</h1>
+      <p class="ww-lead">The code is on the sticker next to the connector.</p>
+    </header>
+
+    <button
+      type="button"
+      class="finder"
+      (click)="scan()"
+      [disabled]="isScanning()"
+      data-testid="scan"
+    >
+      <span class="frame"><mat-icon svgIcon="scan-qr-code" /></span>
+      <strong>Point at the QR code on the plug</strong>
+      <span>Tap to open the camera</span>
+    </button>
+
+    <ion-button class="ww-large" expand="block" (click)="scan()" [disabled]="isScanning()">
+      <mat-icon slot="start" svgIcon="qr-code" />
+      Open the camera
+    </ion-button>
+
+    @if (isTyping()) {
+      <form class="ww-card" (ngSubmit)="open(code())" data-testid="code-form">
+        <ion-input
+          label="Plug code"
+          labelPlacement="stacked"
+          placeholder="WW-7KQ4M2XR9T/1"
+          autocapitalize="characters"
+          [ngModel]="code()"
+          (ngModelChange)="code.set($event ?? '')"
+          name="code"
+          data-testid="code"
+        />
+        <ion-button
+          class="ww-large"
+          type="submit"
+          expand="block"
+          fill="outline"
+          [disabled]="!code().trim()"
+        >
+          Open the plug
+        </ion-button>
+      </form>
+    } @else {
+      <ion-button
+        class="ww-large"
+        expand="block"
+        fill="outline"
+        (click)="isTyping.set(true)"
+        data-testid="type"
+      >
+        Enter the code instead
+      </ion-button>
+    }
+
+    @if (error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ error() }}</p>
+    }
+  </div>
+</ion-content>

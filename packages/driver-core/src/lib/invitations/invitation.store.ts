@@ -1,13 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  ApiProblem,
-  DriverApiService,
-  DriverInvitationPreview,
-  DriverOperator,
-} from '@wattwisely/driver-core';
+import { ApiProblem } from '../api/api-problem';
+import { DriverApiService } from '../api/driver-api.service';
+import { DriverInvitationPreview, DriverOperator } from '../api/models/driver-account';
 
-/** The invitation an operator's e-mail linked to, and the driver's answer to it (module 19). */
+/**
+ * The invitation an operator's e-mail linked to, and the driver's answer to it (module 19).
+ * Shared by the driver web app and the mobile app, which opens the same link (module 32).
+ */
 @Injectable()
 export class InvitationStore {
   private readonly api = inject(DriverApiService);

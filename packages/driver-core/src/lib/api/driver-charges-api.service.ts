@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { RuntimeConfig } from '../config/runtime-config';
 import {
   CardSetup,
+  ChargeReading,
   DriverCharge,
   DriverChargeDetail,
   DriverPlace,
@@ -59,6 +60,11 @@ export class DriverChargesApiService {
 
   charge(id: string): Observable<DriverChargeDetail> {
     return this.http.get<DriverChargeDetail>(this.url(`charges/${id}`));
+  }
+
+  /** The charge's readings, oldest first, for the power chart. */
+  readings(id: string): Observable<ChargeReading[]> {
+    return this.http.get<ChargeReading[]>(this.url(`charges/${id}/readings`));
   }
 
   stop(id: string): Observable<DriverChargeDetail> {

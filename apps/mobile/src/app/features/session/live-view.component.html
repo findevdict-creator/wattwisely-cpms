@@ -1,0 +1,50 @@
+<section class="ww-card live">
+  <p class="big" data-testid="energy">{{ energy() }} <small>kWh</small></p>
+  <dl class="tiles">
+    <div>
+      <dt>Power</dt>
+      <dd data-testid="power">{{ power() }}</dd>
+    </div>
+    <div>
+      <dt>Time</dt>
+      <dd>{{ charge().started_at | duration: null : now() }}</dd>
+    </div>
+    <div>
+      <dt>Cost so far</dt>
+      <dd data-testid="cost">{{ cost() }}</dd>
+    </div>
+    @if (hold()) {
+      <div>
+        <dt>Hold</dt>
+        <dd>{{ hold() }}</dd>
+      </div>
+    }
+    @if (battery() !== null) {
+      <div>
+        <dt>Battery</dt>
+        <dd data-testid="battery">{{ battery() }}%</dd>
+      </div>
+    }
+  </dl>
+</section>
+
+<ww-power-chart [readings]="readings()" />
+
+@if (charge().can_stop && !charge().is_stop_requested) {
+  <ion-button
+    class="ww-large stop"
+    expand="block"
+    [disabled]="isStopping()"
+    (click)="stop.emit()"
+    data-testid="stop"
+  >
+    @if (isStopping()) {
+      <ion-spinner name="crescent" />
+    } @else {
+      Stop charging
+    }
+  </ion-button>
+} @else if (charge().is_stop_requested || charge().status === 'stopping') {
+  <p class="ww-lead centre" data-testid="stopping">Stopping. The receipt follows in a moment.</p>
+}
+<p class="ww-small">You can also just unplug.</p>

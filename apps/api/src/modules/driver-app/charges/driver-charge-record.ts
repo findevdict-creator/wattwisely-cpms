@@ -18,6 +18,8 @@ export interface DriverChargeRecord {
   startedAt: Date;
   endedAt: Date | null;
   energyWh: number;
+  meterStartWh: number | null;
+  meterStopWh: number | null;
   currency: string | null;
   grossAmount: number | null;
   pricedAt: Date | null;

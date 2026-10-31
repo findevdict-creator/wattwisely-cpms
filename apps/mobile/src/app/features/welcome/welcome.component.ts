@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { IonButton, IonContent } from '@ionic/angular';
@@ -17,14 +17,22 @@ import { MobileAuthService } from '../../core/auth/mobile-auth.service';
   styleUrl: './welcome.component.scss',
 })
 export class WelcomeComponent {
+  /** The page a link asked for before the driver had signed in. */
+  readonly next = input<string>();
+
   protected readonly auth = inject(MobileAuthService);
   private readonly router = inject(Router);
 
   constructor() {
     effect(() => {
       if (this.auth.hasSession()) {
-        void this.router.navigateByUrl('/tabs/home', { replaceUrl: true });
+        void this.router.navigateByUrl(WelcomeComponent.target(this.next()), { replaceUrl: true });
       }
     });
+  }
+
+  /** Only the app's own pages: a `next` that leaves the app is ignored. */
+  static target(next: string | undefined): string {
+    return next?.startsWith('/') && !next.startsWith('//') ? next : '/tabs/home';
   }
 }

@@ -4,6 +4,7 @@ import { RouteAccess } from '../../../common/auth/route-access.decorator';
 import { RateLimit } from '../../../common/rate-limit/rate-limit.decorator';
 import { CurrentAuth } from '../../../common/request/current-auth.decorator';
 import { RequestAuth } from '../../../common/request/request-auth';
+import { SessionReadingDto } from '../../sessions/dto/session-reading.dto';
 import { DriverChargesService } from './driver-charges.service';
 import { DriverChargeDetailDto } from './dto/driver-charge-detail.dto';
 import { DriverChargeListDto } from './dto/driver-charge-list.dto';
@@ -46,6 +47,15 @@ export class DriverChargesController {
   @Get(':id')
   get(@CurrentAuth() auth: RequestAuth, @Param('id') id: string): Promise<DriverChargeDetailDto> {
     return this.service.get(auth, id);
+  }
+
+  /** The charge's readings for the app's power chart: energy since the start, power, battery. */
+  @Get(':id/readings')
+  readings(
+    @CurrentAuth() auth: RequestAuth,
+    @Param('id') id: string,
+  ): Promise<SessionReadingDto[]> {
+    return this.service.readings(auth, id);
   }
 
   @Post(':id/stop')

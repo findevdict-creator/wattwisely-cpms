@@ -68,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Check shell scripts
-        run: shellcheck --external-sources --source-path=SCRIPTDIR deploy/scripts/*.sh deploy/scripts/lib/*.sh deploy/postgres/init/*.sh deploy/monitoring/alertmanager/*.sh apps/portal/docker/*.sh apps/admin/docker/*.sh
+        run: shellcheck --external-sources --source-path=SCRIPTDIR deploy/scripts/*.sh deploy/scripts/lib/*.sh deploy/postgres/init/*.sh deploy/monitoring/alertmanager/*.sh apps/portal/docker/*.sh apps/admin/docker/*.sh apps/driver/docker/*.sh
       - name: Check the Compose file
         working-directory: deploy
         run: |

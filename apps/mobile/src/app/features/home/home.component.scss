@@ -69,3 +69,28 @@ h1 {
   background: var(--ww-danger-soft);
   color: var(--ww-danger-text);
 }
+
+.now {
+  margin-top: -8px;
+  color: inherit;
+  text-decoration: none;
+
+  strong {
+    font-size: 18px;
+    line-height: 24px;
+  }
+}
+
+.open {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  color: var(--ww-link);
+  font-size: 14px;
+  font-weight: 600;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

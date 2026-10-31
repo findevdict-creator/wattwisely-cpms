@@ -1,3 +1,4 @@
+import { ReceiptLine } from './charge';
 import { Place } from './place';
 
 /** A card saved to the driver's login (module 19). */
@@ -95,6 +96,7 @@ export interface DriverCharge {
 /** One charge in full. */
 export interface DriverChargeDetail extends DriverCharge {
   receipt: {
+    lines: ReceiptLine[];
     gross: number | null;
     net: number | null;
     tax: number | null;
@@ -103,4 +105,12 @@ export interface DriverChargeDetail extends DriverCharge {
   can_stop: boolean;
   is_stop_requested: boolean;
   charge_key: string | null;
+}
+
+/** One point of a charge's chart (module 32): energy since the start, power and battery when reported. */
+export interface ChargeReading {
+  at: string;
+  energy_wh: number | null;
+  power_w: number | null;
+  soc_percent: number | null;
 }

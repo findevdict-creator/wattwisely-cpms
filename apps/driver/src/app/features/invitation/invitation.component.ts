@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
+import { InvitationStore } from '@wattwisely/driver-core';
 import { DriverAuthService } from '../../core/auth/driver-auth.service';
 import { BrandService } from '../../core/branding/brand.service';
-import { InvitationStore } from './invitation.store';
 
 /**
  * Where an operator's invitation e-mail leads (module 19, story DRV-04): who invites whom,

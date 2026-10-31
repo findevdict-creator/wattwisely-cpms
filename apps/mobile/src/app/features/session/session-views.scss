@@ -1,0 +1,98 @@
+:host {
+  display: contents;
+}
+
+h2 {
+  margin: 0;
+  font: 600 15px/20px var(--ww-font);
+}
+
+.steps {
+  gap: 14px;
+}
+
+.step {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 15px;
+  line-height: 20px;
+
+  mat-icon {
+    color: var(--ww-success);
+  }
+
+  ion-spinner {
+    width: 24px;
+    height: 24px;
+    color: var(--ww-brand);
+  }
+
+  &.todo {
+    color: var(--ww-muted);
+  }
+
+  &.now {
+    font-weight: 600;
+  }
+}
+
+.dot {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--ww-line);
+  border-radius: 999px;
+}
+
+.info {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-info-soft);
+  color: var(--ww-info-text);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.big {
+  margin: 0;
+  font: 700 40px/44px var(--ww-font);
+
+  small {
+    color: var(--ww-text2);
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0;
+
+  dt {
+    color: var(--ww-text2);
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+}
+
+ion-button.stop {
+  --background: var(--ww-ink);
+  --background-activated: var(--ww-ink);
+  --color: var(--ww-white);
+}
+
+.centre {
+  text-align: center;
+}

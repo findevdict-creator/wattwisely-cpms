@@ -30,6 +30,20 @@
                 <data android:scheme="@string/custom_url_scheme" />
             </intent-filter>
 
+            <!--
+              A plug's QR code and an operator's invitation on the driver web app's domain open
+              the app (module 32). Android checks the domain's assetlinks.json before it does.
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="${appLinkHost}" />
+                <data android:pathPrefix="/c/" />
+                <data android:pathPrefix="/invitations/" />
+            </intent-filter>
+
         </activity>
 
         <provider

@@ -33,6 +33,8 @@ export class DriverChargesRepository {
     startedAt: chargingSessions.startedAt,
     endedAt: chargingSessions.endedAt,
     energyWh: chargingSessions.energyWh,
+    meterStartWh: chargingSessions.meterStartWh,
+    meterStopWh: chargingSessions.meterStopWh,
     currency: chargingSessions.currency,
     grossAmount: chargingSessions.grossAmount,
     pricedAt: chargingSessions.pricedAt,

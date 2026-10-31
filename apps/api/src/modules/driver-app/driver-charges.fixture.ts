@@ -92,6 +92,16 @@ export class DriverChargesFixture {
     );
   }
 
+  /** A meter reading of the running session, 64% battery, as the gateway would store it (module 32). */
+  async reading(sessionId: string, meterWh: number, powerW: number): Promise<void> {
+    await this.api.data.sql(
+      `insert into meter_values (id, tenant_id, charger_id, session_id, measured_at, energy_wh, power_w, soc_percent, samples)
+       select gen_random_uuid(), tenant_id, charger_id, id, now(), $2, $3, 64, '[]'::jsonb
+       from charging_sessions where id = $1`,
+      [sessionId, meterWh, powerW],
+    );
+  }
+
   async commandsFor(sessionId: string): Promise<string[]> {
     const { rows } = await this.api.data.sql(
       `select action from charger_commands where payload->>'session_id' = $1::text or id = (select command_id from charging_sessions where id = $1::uuid) order by created_at`,

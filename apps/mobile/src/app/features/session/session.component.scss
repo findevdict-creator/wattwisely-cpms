@@ -1,0 +1,16 @@
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+
+  h1 {
+    margin: 0;
+    font: 700 22px/28px var(--ww-font);
+  }
+}
+
+.loading {
+  align-self: center;
+  margin-top: 40px;
+}

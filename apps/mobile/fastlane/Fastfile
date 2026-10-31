@@ -59,7 +59,8 @@ platform :ios do
       export_options: { provisioningProfiles: { APP_ID => profile } },
       output_directory: 'build/ios',
       xcargs: "MARKETING_VERSION=#{ENV.fetch('APP_VERSION')} " \
-              "CURRENT_PROJECT_VERSION=#{ENV.fetch('APP_BUILD_NUMBER')}"
+              "CURRENT_PROJECT_VERSION=#{ENV.fetch('APP_BUILD_NUMBER')} " \
+              "APP_LINK_HOST=#{ENV.fetch('APP_LINK_HOST')}"
     )
     upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true)
   end

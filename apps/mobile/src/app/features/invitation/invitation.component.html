@@ -1,0 +1,92 @@
+<ion-content>
+  <div class="ww-page">
+    @if (store.invitation(); as invitation) {
+      <span class="mark"><mat-icon svgIcon="mail-open" /></span>
+      <header>
+        <h1 data-testid="invitation-title">{{ invitation.operator_name }} invited you</h1>
+        <p class="ww-lead">
+          As a member you can charge at their private sites. {{ invitation.operator_name }} will see
+          your name, e-mail and your charges at their chargers.
+        </p>
+      </header>
+
+      <dl class="ww-card ww-rows">
+        @if (invitation.invited_by) {
+          <div>
+            <dt>Invited by</dt>
+            <dd>{{ invitation.invited_by }}</dd>
+          </div>
+        }
+        <div>
+          <dt>As</dt>
+          <dd>{{ invitation.driver_name }}</dd>
+        </div>
+        <div>
+          <dt>Expires</dt>
+          <dd>{{ invitation.expires_at | date: 'mediumDate' }}</dd>
+        </div>
+      </dl>
+
+      @if (store.isDeclined()) {
+        <p class="ww-card ww-lead" role="status" data-testid="declined">
+          You declined the invitation. Nothing is linked.
+        </p>
+        <ion-button class="ww-large" expand="block" fill="outline" (click)="home()"
+          >Home</ion-button
+        >
+      } @else if (invitation.is_expired) {
+        <p class="ww-error" role="alert" data-testid="expired">
+          This invitation has expired. Ask {{ invitation.operator_name }} to send a new one.
+        </p>
+      } @else if (otherLogin()) {
+        <p class="ww-error" role="alert" data-testid="other-login">
+          You are signed in as {{ otherLogin() }}, but the invitation was sent to
+          {{ invitation.email }}. Sign out, then sign in with that address.
+        </p>
+        <ion-button class="ww-large" expand="block" fill="outline" (click)="auth.logout()"
+          >Sign out</ion-button
+        >
+      } @else {
+        <ion-button
+          class="ww-large"
+          expand="block"
+          [disabled]="store.isAnswering()"
+          (click)="accept()"
+          data-testid="accept"
+        >
+          @if (store.isAnswering()) {
+            <ion-spinner name="crescent" />
+          } @else {
+            Accept invitation
+          }
+        </ion-button>
+        <ion-button
+          class="ww-large"
+          expand="block"
+          fill="clear"
+          [disabled]="store.isAnswering()"
+          (click)="decline()"
+          data-testid="decline"
+        >
+          Decline
+        </ion-button>
+        <p class="ww-small">Signed in as {{ account.me()?.email }}</p>
+      }
+      @if (store.error()) {
+        <p class="ww-error" role="alert">{{ store.error() }}</p>
+      }
+    } @else if (store.isNotFound()) {
+      <span class="mark"><mat-icon svgIcon="unlink" /></span>
+      <h1>This link no longer works</h1>
+      <p class="ww-lead" data-testid="not-found">
+        The invitation was accepted, declined or cancelled, or a newer one was sent. Open the newest
+        e-mail from the operator, or ask them to invite you again.
+      </p>
+      <ion-button class="ww-large" expand="block" fill="outline" (click)="home()">Home</ion-button>
+    } @else if (store.error()) {
+      <p class="ww-error" role="alert">{{ store.error() }}</p>
+    } @else {
+      <ion-spinner class="loading" name="crescent" />
+    }
+  </div>
+</ion-content>
