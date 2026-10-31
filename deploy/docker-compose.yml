@@ -59,7 +59,7 @@ services:
     environment:
       PORT: 3000
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PUBLIC_SCHEME}://${ADMIN_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}},${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}},${DRIVER_DEV_URL:-${PUBLIC_SCHEME}://${DRIVER_HOST}}
+      CORS_ORIGINS: ${PUBLIC_SCHEME}://${PORTAL_HOST},${PUBLIC_SCHEME}://${DRIVER_HOST},${PUBLIC_SCHEME}://${ADMIN_HOST},${PORTAL_DEV_URL:-${PUBLIC_SCHEME}://${PORTAL_HOST}},${ADMIN_DEV_URL:-${PUBLIC_SCHEME}://${ADMIN_HOST}},${DRIVER_DEV_URL:-${PUBLIC_SCHEME}://${DRIVER_HOST}},https://localhost,capacitor://localhost
       # The issuer is the public address written into tokens; the keys are fetched over the private network.
       KEYCLOAK_ISSUER_URL: ${PUBLIC_SCHEME}://${AUTH_HOST}/realms/wattwisely
       KEYCLOAK_JWKS_URL: http://keycloak:8080/realms/wattwisely/protocol/openid-connect/certs

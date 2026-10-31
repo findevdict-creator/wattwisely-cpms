@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { DriverAuthService } from '../../core/auth/driver-auth.service';
 import { BrandService } from '../../core/branding/brand.service';
-import { Initials } from '../../shared/initials';
+import { Initials } from '@wattwisely/driver-core';
 import { SavedCardsComponent } from './cards/saved-cards.component';
 import { PaymentModeWords } from './payment-mode-words';
 import { AccountStore } from './account.store';

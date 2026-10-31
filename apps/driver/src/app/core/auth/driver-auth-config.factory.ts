@@ -1,5 +1,5 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
-import { RuntimeConfig } from '../config/runtime-config';
+import { RuntimeConfig } from '@wattwisely/driver-core';
 
 /**
  * OpenID Connect settings for Keycloak's driver client (module 19): authorization code flow

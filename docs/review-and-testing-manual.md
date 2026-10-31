@@ -810,6 +810,27 @@ Each section below has the same shape: where the module is, what it adds, which 
 | 14  | Account > Charges                                                                                                                    | Every charge across operators, newest first, with a detail page, Stop for a running one, and a CSV download                                                                                                                                                                  |
 | 15  | Upgrading an existing installation: check `deploy/README.md`                                                                         | The realm needs the `wattwisely-driver` client and the two flows added by hand; every record starts on `inherit` (pay), so operators mark free drivers, cards or groups first                                                                                                |
 
+### Module 30: the mobile app's shell
+
+**Where:** branch `30-module/mobile-shell`, [docs/modules/30-mobile-shell.md](https://github.com/findevdict-creator/wattwisely-cpms/blob/30-module/mobile-shell/docs/modules/30-mobile-shell.md). Stacked on module 29.
+
+**What it adds.** `apps/mobile`: Angular 22 with Ionic 9 and Capacitor 8, with its Android and iOS projects. A welcome page, four tabs (Home, Charge, Sessions, Account), the sign-in through Keycloak's driver client in the phone's browser sheet (PKCE, `com.wattwisely.driver:/callback`, `offline_access`), tokens in the Keychain or Keystore, refreshed at start-up and on return. `packages/driver-core`: the driver API, models, settings, interceptor and charge helpers, moved out of `apps/driver`. `packages/theme` writes `ionic.css`. The driver client and the API's CORS accept the app's addresses. `.github/workflows/mobile.yml` builds a debug APK and an iOS simulator build.
+
+**Review, in this order.** `packages/driver-core/src/index.ts` and `driver-session.ts`; `packages/theme/src/lib/ionic-colours-css.ts`; `apps/mobile/capacitor.config.ts`, `app.config.ts`, `core/auth/*`, `core/native/*`, `features/*`; `AndroidManifest.xml` and `Info.plist` (the URL scheme); `mobile.yml`; the realm's driver client.
+
+**Specs.** `packages/theme` `colour-mix.spec.ts`, `theme-files.spec.ts`; `packages/driver-core` (the moved specs); `apps/mobile` `mobile-auth.service.spec.ts`, `mobile-auth-config.factory.spec.ts`, `auth-redirects.spec.ts`, `secure-token-store.spec.ts`, `account.store.spec.ts`, `greeting.spec.ts`, `welcome.component.spec.ts`, `home.component.spec.ts`.
+
+**Manual test.**
+
+| #   | Do                                                                                                                                                 | Expect                                                                                                                                    |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | With `DRIVER_DEV_URL=http://localhost:4500` in Keycloak's driver client, run `npx nx serve mobile` and open <http://localhost:4500> at phone width | The welcome page in teal: "Charge anywhere with one login", three points, Create account and Sign in                                      |
+| 2   | Sign in as `dana@acme.test` (`Wattwisely-demo-1`)                                                                                                  | Keycloak's driver flow, no authenticator; back on Home: "Good …, Dana", the scan card, Acme Charging as Member; four tabs at the foot     |
+| 3   | Open Account, then Sign out                                                                                                                        | Dana's initials, name and address; Sign out ends the Keycloak session and shows the welcome page; Sign in asks for the password again     |
+| 4   | Install the APK from the pull request's Mobile workflow (with `MOBILE_API_URL` and `MOBILE_KEYCLOAK_URL` set for a test server)                    | Sign in opens Keycloak over the app and comes back to Home; close and reopen the app: still signed in; airplane mode: the app still opens |
+| 5   | `npx nx run mobile:sync`, then run `apps/mobile/ios/App/App.xcodeproj` in Xcode on a simulator                                                     | The same as on Android                                                                                                                    |
+| 6   | Open the driver web app at <http://charge.localhost>                                                                                               | Unchanged: the plug page, paying, the account and the charges work as in module 26                                                        |
+
 ## 6. Reporting findings
 
 Report what you find on the module's PR, one comment per finding, with the manual step number and what you saw instead of the expected result. Fixes go on the module's branch and PR, are merged forward into every module branch above it, and the `module-NN` tag is moved to the new tip, so the diff between consecutive module branches stays one module. Documentation gaps belong in that module's walkthrough under `docs/modules/`.

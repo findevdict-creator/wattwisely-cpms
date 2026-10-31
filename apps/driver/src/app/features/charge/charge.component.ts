@@ -5,12 +5,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { BrandService } from '../../core/branding/brand.service';
-import { ChargeChips } from '../../shared/charge-chips';
-import { ChargePhases } from '../../shared/charge-phase';
-import { ChargeSteps } from '../../shared/charge-steps';
-import { ChargeWords } from '../../shared/charge-words';
-import { DurationPipe } from '../../shared/duration.pipe';
-import { MoneyPipe } from '../../shared/money.pipe';
+import {
+  ChargeChips,
+  ChargePhases,
+  ChargeSteps,
+  ChargeWords,
+  DurationPipe,
+  MoneyPipe,
+} from '@wattwisely/driver-core';
 import { SupportContactComponent } from '../../shared/support-contact.component';
 import { CardFormComponent } from './card-form.component';
 import { ChargeDoneComponent } from './charge-done.component';

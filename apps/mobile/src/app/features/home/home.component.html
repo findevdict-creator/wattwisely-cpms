@@ -1,0 +1,44 @@
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content />
+  </ion-refresher>
+  <div class="ww-page">
+    <header>
+      <h1 data-testid="greeting">{{ greeting() }}</h1>
+      <p class="ww-lead">Where are you charging today?</p>
+    </header>
+
+    <a class="scan" routerLink="/tabs/charge" data-testid="scan">
+      <span class="scan-mark"><mat-icon svgIcon="scan-qr-code" /></span>
+      <span class="scan-words">
+        <strong>Scan a plug to start</strong>
+        <span>Point the camera at the QR code on the charger</span>
+      </span>
+      <mat-icon svgIcon="chevron-right" />
+    </a>
+
+    @if (store.error()) {
+      <p class="error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+
+    <h2 class="ww-section">Your operators</h2>
+    @if (store.operators().length) {
+      <ul class="operators" data-testid="operators">
+        @for (operator of store.operators(); track operator.tenant_id) {
+          <li>
+            {{ operator.operator_name }}
+            @if (operator.status === 'blocked') {
+              <span class="ww-chip danger">Blocked</span>
+            } @else {
+              <span class="ww-chip">Member</span>
+            }
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="ww-card ww-lead" data-testid="no-operators">
+        None yet. An operator's invitation, or your first charge with one, adds it here.
+      </p>
+    }
+  </div>
+</ion-content>

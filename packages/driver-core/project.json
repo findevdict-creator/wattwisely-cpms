@@ -1,0 +1,9 @@
+{
+  "name": "driver-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/driver-core/src",
+  "prefix": "ww",
+  "projectType": "library",
+  "tags": ["scope:driver", "type:lib"],
+  "targets": {}
+}

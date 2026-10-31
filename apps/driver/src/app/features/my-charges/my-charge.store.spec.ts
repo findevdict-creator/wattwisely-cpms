@@ -1,4 +1,4 @@
-import { DriverChargeDetail } from '../../core/api/models/driver-payments';
+import { DriverChargeDetail } from '@wattwisely/driver-core';
 import { MyChargeStore } from './my-charge.store';
 
 describe('MyChargeStore', () => {

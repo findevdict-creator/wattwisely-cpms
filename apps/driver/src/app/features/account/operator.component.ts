@@ -5,8 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { BrandService } from '../../core/branding/brand.service';
-import { ChipTone } from '../../shared/charge-chips';
-import { Initials } from '../../shared/initials';
+import { ChipTone, Initials } from '@wattwisely/driver-core';
 import { OperatorStore } from './operator.store';
 import { PaymentModeWords } from './payment-mode-words';
 

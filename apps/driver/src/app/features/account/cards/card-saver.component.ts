@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CardSetup } from '../../../core/api/models/driver-payments';
+import { CardSetup } from '@wattwisely/driver-core';
 import { CardForm } from '../../../core/payment/card-form';
 import { CardFormFactory } from '../../../core/payment/card-form.factory';
 

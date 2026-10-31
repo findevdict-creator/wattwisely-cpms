@@ -5,7 +5,7 @@ import { LogoComponent } from '@wattwisely/ui';
 import { DriverAuthService } from './core/auth/driver-auth.service';
 import { BrandTheme } from './core/branding/brand-theme';
 import { BrandService } from './core/branding/brand.service';
-import { Initials } from './shared/initials';
+import { Initials } from '@wattwisely/driver-core';
 
 /**
  * The root of the driver app: a bar in the operator's colours with its logo, or its initials

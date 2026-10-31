@@ -1,8 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { DriverChargesApiService } from '../../core/api/driver-charges-api.service';
-import { DriverChargeDetail, DriverPlaceAccess } from '../../core/api/models/driver-payments';
+import {
+  ApiProblem,
+  DriverChargeDetail,
+  DriverChargesApiService,
+  DriverPlaceAccess,
+} from '@wattwisely/driver-core';
 import { DriverAuthService } from '../../core/auth/driver-auth.service';
 
 /**

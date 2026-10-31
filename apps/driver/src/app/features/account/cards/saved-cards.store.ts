@@ -1,8 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../../core/api/api-problem';
-import { DriverChargesApiService } from '../../../core/api/driver-charges-api.service';
-import { CardSetup, PaymentMethod } from '../../../core/api/models/driver-payments';
+import {
+  ApiProblem,
+  CardSetup,
+  DriverChargesApiService,
+  PaymentMethod,
+} from '@wattwisely/driver-core';
 
 /** The cards saved to the driver's login, and the setup a new one is being typed into (module 19). */
 @Injectable()

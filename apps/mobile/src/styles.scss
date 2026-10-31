@@ -1,0 +1,85 @@
+// The mobile app's look (module 30): Ionic's own styles, then the platform's colors from
+// packages/theme/theme.json, as Wattwisely tokens and as Ionic's variables.
+@use '@ionic/angular/css/core.css';
+@use '@ionic/angular/css/normalize.css';
+@use '@ionic/angular/css/structure.css';
+@use '@ionic/angular/css/typography.css';
+@use '../../../packages/theme/src/tokens';
+@use '../../../packages/theme/src/ionic';
+
+:root {
+  --ww-radius-md: 10px;
+  --ww-radius-lg: 12px;
+  --ww-radius-xl: 16px;
+}
+
+body {
+  font-family: var(--ww-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+// Every tab's page: a column of cards with 16px between them.
+.ww-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: calc(16px + var(--ion-safe-area-top, 0px)) 20px 24px;
+}
+
+// A white card, the building block of every page.
+.ww-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--ww-line);
+  border-radius: var(--ww-radius-lg);
+  background: var(--ww-white);
+}
+
+// A section's name above its card, as in the design's "Your operators".
+.ww-section {
+  margin: 8px 0 0;
+  font: 600 17px/24px var(--ww-font);
+}
+
+// The quiet line under a title.
+.ww-lead {
+  margin: 0;
+  color: var(--ww-text2);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+// A small rounded label: Member, Blocked.
+.ww-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  background: var(--ww-info-soft);
+  color: var(--ww-info-text);
+
+  &.danger {
+    background: var(--ww-danger-soft);
+    color: var(--ww-danger-text);
+  }
+}
+
+// Large buttons, as tall as the design's (48px), with the theme's corners.
+ion-button.ww-large {
+  --border-radius: var(--ww-radius-md);
+  height: 48px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+mat-icon.mat-icon {
+  flex: none;
+}

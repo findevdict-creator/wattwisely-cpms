@@ -1,0 +1,71 @@
+h1 {
+  margin: 0 0 2px;
+  font: 700 24px/30px var(--ww-font);
+}
+
+.scan {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  border-radius: var(--ww-radius-lg);
+  background: var(--ww-brand);
+  color: var(--ww-white);
+  text-decoration: none;
+}
+
+.scan-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ww-radius-md);
+  background: rgb(255 255 255 / 16%);
+}
+
+.scan-words {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 18px;
+  opacity: 0.92;
+}
+
+.scan-words strong {
+  font-size: 16px;
+  line-height: 22px;
+  opacity: 1;
+}
+
+.operators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.operators li {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px 8px 12px;
+  border: 1px solid var(--ww-line);
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-white);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.error {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-danger-soft);
+  color: var(--ww-danger-text);
+}

@@ -1,8 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { PublicTariff, TariffBand } from '../../core/api/models/place';
-import { Money } from '../../shared/money';
-import { MoneyPipe } from '../../shared/money.pipe';
-import { UnitPricePipe } from '../../shared/unit-price.pipe';
+import { Money, MoneyPipe, PublicTariff, TariffBand, UnitPricePipe } from '@wattwisely/driver-core';
 
 /**
  * The prices at a plug, the way a price sign would show them: each band, with the one in force

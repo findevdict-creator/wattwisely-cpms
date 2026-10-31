@@ -1,8 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiProblem } from '../../core/api/api-problem';
-import { DriverApiService } from '../../core/api/driver-api.service';
-import { DriverOperatorProfile } from '../../core/api/models/driver-account';
+import { ApiProblem, DriverApiService, DriverOperatorProfile } from '@wattwisely/driver-core';
 
 /** One operator the driver is linked with: what it holds about them, and leaving it. */
 @Injectable()

@@ -1,6 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { ChargePhase } from '../../shared/charge-phase';
-import { ChargeSteps } from '../../shared/charge-steps';
+import { ChargePhase, ChargeSteps } from '@wattwisely/driver-core';
 
 /** Paid, Started, Charging, Done over a charge in progress: a bar for each, filled as it passes. */
 @Component({

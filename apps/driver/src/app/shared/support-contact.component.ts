@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { PublicBranding } from '../core/api/models/branding';
+import { PublicBranding } from '@wattwisely/driver-core';
 
 /**
  * How to reach the operator, as links in small print: whatever of e-mail, phone and web address
