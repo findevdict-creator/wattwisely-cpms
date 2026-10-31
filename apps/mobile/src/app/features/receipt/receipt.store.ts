@@ -40,7 +40,7 @@ export class ReceiptStore {
       return;
     }
     this.isDownloading.set(true);
-    this.error.set(await this.receipts.share(charge));
+    this.error.set(await this.receipts.open(charge));
     this.isDownloading.set(false);
   }
 
