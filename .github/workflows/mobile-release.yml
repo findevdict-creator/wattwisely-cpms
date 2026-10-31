@@ -133,7 +133,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       # Kept before the upload: Google Play takes an app's very first bundle only by hand.
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: wattwisely-${{ env.APP_VERSION }}-${{ env.APP_BUILD_NUMBER }}-aab
           path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
@@ -216,7 +216,7 @@ jobs:
           ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
         run: bundle exec fastlane ios beta
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: wattwisely-${{ env.APP_VERSION }}-${{ env.APP_BUILD_NUMBER }}-ipa
           path: apps/mobile/build/ios/*.ipa
