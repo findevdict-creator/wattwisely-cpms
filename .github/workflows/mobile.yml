@@ -57,7 +57,7 @@ jobs:
           keycloak-url: ${{ vars.MOBILE_KEYCLOAK_URL }}
       # Builds the app, copies it into the Android project (cap sync) and runs Gradle.
       - run: npx nx run mobile:apk
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: wattwisely-debug-apk
           path: apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
