@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { asc, eq, sql } from 'drizzle-orm';
 import { sessionLineItems, StoredTariffBand, Transaction } from '@wattwisely/db';
+import { SessionFactsSql } from './session-facts.sql';
 import { WatchedSession } from './watched-session';
 
 /** One receipt line for the e-mail. */
@@ -12,8 +13,8 @@ export interface ReceiptLineRow {
   gross: number;
 }
 
-/** A row of the watch query, as Postgres returns it. */
-interface WatchRow extends Record<string, unknown> {
+/** A row of the watch query, as Postgres returns it; the push query's rows have the same shape. */
+export interface WatchRow extends Record<string, unknown> {
   session_id: string;
   email: string;
   wants_started: boolean;
@@ -52,23 +53,11 @@ export class WatchedSessionsRepository {
   async findWatched(tx: Transaction, now: Date): Promise<WatchedSession[]> {
     const result = await tx.execute<WatchRow>(sql`
       select w.session_id, w.email, w.wants_started, w.wants_nearly_full, w.wants_finished,
-        w.wants_idle_warning, s.status, si.name as site_name, c.ocpp_identity as charger_identity,
-        co.label as connector_label, s.time_zone, s.started_at, s.ended_at, s.unplugged_at,
-        s.energy_wh, s.currency, s.gross_amount, s.tax_amount, s.is_paid,
-        p.status as payment_status, p.captured_amount,
-        (select m.soc_percent from meter_values m where m.session_id = s.id and m.soc_percent is not null
-          order by m.measured_at desc limit 1) as soc_percent,
-        (select min(h.occurred_at) from session_state_changes h
-          where h.session_id = s.id and h.to_status in ('idle', 'stopping')) as finished_at,
-        tv.idle_grace_minutes, tv.idle_fee_cap, tv.bands,
+        w.wants_idle_warning, ${SessionFactsSql.COLUMNS},
         array(select n.kind from notifications n where n.session_id = s.id) as sent_kinds
       from session_subscriptions w
       join charging_sessions s on s.id = w.session_id
-      join sites si on si.id = s.site_id
-      join chargers c on c.id = s.charger_id
-      join connectors co on co.id = s.connector_id
-      left join tariff_versions tv on tv.id = s.tariff_version_id
-      left join payments p on p.session_id = s.id and p.type = 'preauth'
+      ${SessionFactsSql.JOINS}
       where not w.is_undeliverable
         and (s.closed_at is null or s.closed_at > ${now.toISOString()}::timestamptz - interval '2 days')
         and not exists (select 1 from notifications r where r.session_id = s.id and r.kind = 'session_receipt')
@@ -90,7 +79,7 @@ export class WatchedSessionsRepository {
       .orderBy(asc(sessionLineItems.position));
   }
 
-  private static toSession(row: WatchRow): WatchedSession {
+  static toSession(row: WatchRow): WatchedSession {
     return {
       sessionId: row.session_id,
       email: row.email,

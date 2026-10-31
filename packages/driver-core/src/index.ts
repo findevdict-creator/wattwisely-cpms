@@ -4,6 +4,7 @@
 export { ApiProblem } from './lib/api/api-problem';
 export { DriverApiService } from './lib/api/driver-api.service';
 export { DriverChargesApiService } from './lib/api/driver-charges-api.service';
+export { DriverNotificationsApiService } from './lib/api/driver-notifications-api.service';
 export type { PublicBranding } from './lib/api/models/branding';
 export type {
   ChargeNotifications,
@@ -36,6 +37,11 @@ export type {
   PaymentMethods,
   PaymentRule,
 } from './lib/api/models/driver-payments';
+export type {
+  DevicePlatform,
+  NotificationSettings,
+  NotificationSettingsChanges,
+} from './lib/api/models/driver-notifications';
 export type { Place, PlaceAvailability, PublicTariff, TariffBand } from './lib/api/models/place';
 export { PublicApiService } from './lib/api/public-api.service';
 export { InvitationStore } from './lib/invitations/invitation.store';

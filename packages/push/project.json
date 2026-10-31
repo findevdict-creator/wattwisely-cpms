@@ -1,0 +1,14 @@
+{
+  "name": "push",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/push/src",
+  "projectType": "library",
+  "tags": ["scope:push", "type:lib"],
+  "targets": {
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    }
+  }
+}

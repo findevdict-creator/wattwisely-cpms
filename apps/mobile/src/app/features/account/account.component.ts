@@ -18,8 +18,8 @@ interface MenuRow {
 }
 
 /**
- * The Account tab (Figma 11, "Account"): who is signed in, their cards, operators, details
- * and data, the way out, and the app's version. Notifications join it with module 34.
+ * The Account tab (Figma 11, "Account"): who is signed in, their cards, operators,
+ * notifications (module 34), details and data, the way out, and the app's version.
  */
 @Component({
   selector: 'ww-account',
@@ -44,6 +44,13 @@ export class AccountComponent {
       title: 'My operators',
       line: '',
       testId: 'menu-operators',
+    },
+    {
+      link: '/account/notifications',
+      icon: 'bell',
+      title: 'Notifications',
+      line: 'Push and e-mail',
+      testId: 'menu-notifications',
     },
     {
       link: '/account/details',

@@ -60,3 +60,5 @@ export * from './charger-load-allocations.table';
 export * from './messaging-channels.table';
 export * from './messaging-conversations.table';
 export * from './messaging-messages.table';
+export * from './driver-devices.table';
+export * from './push-deliveries.table';

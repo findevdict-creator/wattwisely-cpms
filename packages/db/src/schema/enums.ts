@@ -358,3 +358,6 @@ export const messagingMessageStatus = pgEnum('messaging_message_status', [
   'failed',
   'received',
 ]);
+
+/** The kind of phone a driver's app runs on (module 34): Firebase sends to Android, Apple's service to iOS. */
+export const devicePlatform = pgEnum('device_platform', ['android', 'ios']);

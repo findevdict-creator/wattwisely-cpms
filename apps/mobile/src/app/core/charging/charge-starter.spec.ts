@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
 import { DriverChargesApiService } from '@wattwisely/driver-core';
 import { of, throwError } from 'rxjs';
+import { PushRegistrar } from '../notifications/push-registrar';
 import { ChargeStarter } from './charge-starter';
 import { ChargingFixtures } from './charging.fixture';
 
@@ -14,6 +15,7 @@ describe('ChargeStarter', () => {
         ChargeStarter,
         { provide: DriverChargesApiService, useValue: { start } },
         { provide: NavController, useValue: navController },
+        { provide: PushRegistrar, useValue: { enable: jest.fn(async () => true) } },
       ],
     });
     return { starter: TestBed.inject(ChargeStarter), navController };

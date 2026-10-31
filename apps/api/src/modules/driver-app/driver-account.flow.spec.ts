@@ -52,11 +52,16 @@ import { DriverChargesFixture } from './driver-charges.fixture';
       ],
       cards: [{ brand: 'visa', last4: '4242' }],
       charges: [{ id: sessionId }],
+      notifications: { started: true, is_push_enabled: true, device_count: 0 },
     });
   });
 
   it('deletes the account: cards, the guest record and the link go, the operator’s record stays', async () => {
     expect((await stage.startCharge(stage.guyToken, 3, true)).statusCode).toBe(201);
+    await api.call('PUT', '/v1/driver/devices', {
+      token: stage.guyToken,
+      body: { platform: 'ios', token: 'apns-token-of-guys-phone-0001' },
+    });
     expect((await api.call('DELETE', '/v1/driver/me', { token: stage.guyToken })).statusCode).toBe(
       204,
     );
@@ -87,6 +92,7 @@ import { DriverChargesFixture } from './driver-charges.fixture';
     expect(accounts.rows).toEqual([{ people: 0 }]);
     const cards = await api.data.sql(`select distinct status from payment_methods`);
     expect(cards.rows).toEqual([{ status: 'removed' }]);
+    expect((await api.data.sql(`select id from driver_devices`)).rows).toEqual([]);
 
     const again = await api.call('GET', '/v1/driver/operators', { token: stage.danaToken });
     expect(again.json().items).toEqual([]);
