@@ -39,6 +39,11 @@
       >
         Sign in
       </ion-button>
+      @if (auth.isUnreachable()) {
+        <p class="error" role="alert" data-testid="sign-in-error">
+          Can't reach the sign-in server. Check your connection and try again.
+        </p>
+      }
       <p class="guest">
         Just want to charge once? Scan the QR code on the plug and pay as a guest.
       </p>
