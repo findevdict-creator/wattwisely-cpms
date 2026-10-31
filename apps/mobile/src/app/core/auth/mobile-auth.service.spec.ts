@@ -13,7 +13,11 @@ class FakeOAuthService {
   config: AuthConfig = {};
   isTokenValid = false;
   refreshTokenValue: string | null = null;
-  loadDiscoveryDocument = jest.fn(async () => ({}));
+  discoveryDocumentLoaded = false;
+  loadDiscoveryDocument = jest.fn(async () => {
+    this.discoveryDocumentLoaded = true;
+    return {};
+  });
   tryLoginCodeFlow = jest.fn(async () => {
     this.isTokenValid = true;
     this.refreshTokenValue = 'r-1';
@@ -126,10 +130,25 @@ describe('MobileAuthService', () => {
     expect(auth.hasSession()).toBe(true);
   });
 
-  it('asks Keycloak for its sign-up page for "Create account"', () => {
-    auth.login(true);
+  it('asks Keycloak for its sign-up page for "Create account"', async () => {
+    await auth.initialize();
+    await auth.login(true);
     expect(oauth.initCodeFlow).toHaveBeenCalledWith('', { prompt: 'create' });
-    auth.login();
+    await auth.login();
     expect(oauth.initCodeFlow).toHaveBeenLastCalledWith('', {});
+    expect(oauth.loadDiscoveryDocument).toHaveBeenCalledTimes(1);
+  });
+
+  it('tries Keycloak again at "Sign in", and says so when it is still out of reach', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    oauth.loadDiscoveryDocument.mockRejectedValueOnce(new Error('offline'));
+    await auth.initialize();
+    oauth.loadDiscoveryDocument.mockRejectedValueOnce(new Error('offline'));
+    await auth.login();
+    expect(oauth.initCodeFlow).not.toHaveBeenCalled();
+    expect(auth.isUnreachable()).toBe(true);
+    await auth.login();
+    expect(oauth.initCodeFlow).toHaveBeenCalledWith('', {});
+    expect(auth.isUnreachable()).toBe(false);
   });
 });
