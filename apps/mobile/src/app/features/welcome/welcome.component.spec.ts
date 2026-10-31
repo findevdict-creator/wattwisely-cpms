@@ -8,7 +8,7 @@ import { WelcomeComponent } from './welcome.component';
 
 describe('WelcomeComponent', () => {
   it('opens sign-up or sign-in, and goes home once the driver is signed in', async () => {
-    const auth = { hasSession: signal(false), login: jest.fn() };
+    const auth = { hasSession: signal(false), isUnreachable: signal(false), login: jest.fn() };
     TestBed.configureTestingModule({
       imports: [WelcomeComponent],
       providers: [
@@ -28,6 +28,12 @@ describe('WelcomeComponent', () => {
     (element.querySelector('[data-testid="sign-in"]') as HTMLElement).click();
     expect(auth.login).toHaveBeenLastCalledWith();
     expect(navigate).not.toHaveBeenCalled();
+    expect(element.querySelector('[data-testid="sign-in-error"]')).toBeNull();
+    auth.isUnreachable.set(true);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-testid="sign-in-error"]')?.textContent).toContain(
+      "Can't reach the sign-in server",
+    );
 
     auth.hasSession.set(true);
     await fixture.whenStable();
