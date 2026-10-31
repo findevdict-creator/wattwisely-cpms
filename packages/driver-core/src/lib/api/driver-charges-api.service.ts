@@ -67,6 +67,11 @@ export class DriverChargesApiService {
     return this.http.get<ChargeReading[]>(this.url(`charges/${id}/readings`));
   }
 
+  /** The receipt as a PDF, fetched with the login (module 33). */
+  receiptPdf(id: string): Observable<Blob> {
+    return this.http.get(this.url(`charges/${id}/receipt.pdf`), { responseType: 'blob' });
+  }
+
   stop(id: string): Observable<DriverChargeDetail> {
     return this.http.post<DriverChargeDetail>(this.url(`charges/${id}/stop`), {});
   }

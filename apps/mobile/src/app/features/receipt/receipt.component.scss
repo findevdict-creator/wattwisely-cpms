@@ -1,0 +1,87 @@
+h2 {
+  margin: 0;
+  font: 600 15px/20px var(--ww-font);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ww-ink);
+}
+
+.where {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.bolt {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--ww-brand);
+  color: var(--ww-white);
+}
+
+.names {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  strong {
+    font-size: 16px;
+    line-height: 22px;
+  }
+}
+
+.small {
+  color: var(--ww-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0;
+
+  dt {
+    color: var(--ww-text2);
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+}
+
+.help {
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+
+  mat-icon {
+    color: var(--ww-text2);
+  }
+
+  strong {
+    font-size: 15px;
+  }
+}

@@ -1,0 +1,14 @@
+@use '../operators/operators';
+
+.manage {
+  color: var(--ww-link);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+ion-button:not(.ww-large) {
+  align-self: flex-start;
+  margin: 4px 0 0;
+  text-transform: none;
+}

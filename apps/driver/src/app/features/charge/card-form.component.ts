@@ -12,9 +12,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Charge, MoneyPipe } from '@wattwisely/driver-core';
-import { CardForm } from '../../core/payment/card-form';
-import { CardFormFactory } from '../../core/payment/card-form.factory';
+import { CardForm, CardFormFactory, Charge, MoneyPipe } from '@wattwisely/driver-core';
 
 /**
  * The provider's card form for the hold. Once the provider confirms the card, the page

@@ -1,0 +1,40 @@
+<ion-content>
+  <div class="ww-page">
+    <ww-page-bar title="My operators" />
+    <p class="ww-lead">
+      Each operator sees only its own record of you and your charges at its chargers.
+    </p>
+
+    @if (store.error()) {
+      <p class="ww-error" role="alert" data-testid="error">{{ store.error() }}</p>
+    }
+
+    @if (store.operators().length) {
+      <nav class="ww-card list" aria-label="Operators" data-testid="operators">
+        @for (operator of store.operators(); track operator.tenant_id) {
+          <a class="row" [routerLink]="['/account/operators', operator.tenant_id]">
+            <span class="mark"><mat-icon svgIcon="building-2" /></span>
+            <span class="names">
+              <strong>{{ operator.operator_name }}</strong>
+              <span class="ww-lead">{{ line(operator) }}</span>
+            </span>
+            @if (operator.status === 'blocked') {
+              <span class="ww-chip danger">Blocked</span>
+            }
+            <mat-icon class="chevron" svgIcon="chevron-right" />
+          </a>
+        }
+      </nav>
+    } @else {
+      <p class="ww-card ww-lead" data-testid="no-operators">
+        None yet. An operator's invitation, or your first charge with one, adds it here.
+      </p>
+    }
+
+    <p class="note">
+      <mat-icon svgIcon="info" />
+      To use an operator's private sites, ask them for an invitation. Public chargers never need
+      one.
+    </p>
+  </div>
+</ion-content>

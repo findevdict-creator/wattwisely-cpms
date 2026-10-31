@@ -1,8 +1,10 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { IonButton } from '@ionic/angular';
 import { DriverChargeDetail, DurationPipe, Money } from '@wattwisely/driver-core';
 import { PlugWords } from '../../core/charging/plug-words';
+import { ReceiptFiles } from '../../core/history/receipt-files';
 import { ReceiptRows } from '../../core/charging/receipt-rows';
 
 /** One line of the hold's end: what was held, taken and given back. */
@@ -13,16 +15,20 @@ interface HoldRow {
 
 /**
  * "Charging complete" (Figma 10): the energy and time, the receipt line by line with its tax
- * and total, then what became of the hold. The receipt's PDF joins it with the sessions module.
+ * and total, then what became of the hold, and the receipt as a PDF (module 33).
  */
 @Component({
   selector: 'ww-complete-view',
-  imports: [DurationPipe, IonButton, RouterLink],
+  imports: [DurationPipe, IonButton, MatIconModule, RouterLink],
   templateUrl: './complete-view.component.html',
   styleUrl: './session-views.scss',
 })
 export class CompleteViewComponent {
   readonly charge = input.required<DriverChargeDetail>();
+
+  private readonly receipts = inject(ReceiptFiles);
+  protected readonly isDownloading = signal(false);
+  protected readonly downloadError = signal('');
 
   protected readonly energy = computed(() => `${(this.charge().energy_wh / 1000).toFixed(1)} kWh`);
   protected readonly currency = computed(() => this.charge().currency ?? 'EUR');
@@ -34,6 +40,12 @@ export class CompleteViewComponent {
     this.money(this.charge().receipt?.gross ?? this.charge().amount),
   );
   protected readonly hold = computed(() => this.holdRows());
+
+  protected async download(): Promise<void> {
+    this.isDownloading.set(true);
+    this.downloadError.set(await this.receipts.open(this.charge()));
+    this.isDownloading.set(false);
+  }
 
   private holdRows(): HoldRow[] {
     const charge = this.charge();

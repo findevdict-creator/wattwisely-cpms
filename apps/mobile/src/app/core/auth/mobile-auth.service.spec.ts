@@ -151,4 +151,22 @@ describe('MobileAuthService', () => {
     expect(oauth.initCodeFlow).toHaveBeenCalledWith('', {});
     expect(auth.isUnreachable()).toBe(false);
   });
+
+  it('deletes the login in Keycloak after the account, and signs no one in on its answer', async () => {
+    oauth.refreshTokenValue = 'r-1';
+    await auth.initialize();
+    auth.deleteLogin();
+    expect(oauth.logOut).toHaveBeenCalledWith(true);
+    expect(oauth.initCodeFlow).toHaveBeenCalledWith('', { kc_action: 'delete_account' });
+    expect(auth.hasSession()).toBe(false);
+    listeners.url?.('com.wattwisely.driver:/callback?kc_action_status=success&state=xyz');
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(browser.close).toHaveBeenCalled();
+    expect(oauth.tryLoginCodeFlow).not.toHaveBeenCalled();
+  });
+
+  it("opens Keycloak's account page for the e-mail and the password", () => {
+    auth.openAccount();
+    expect(browser.open).toHaveBeenCalledWith('https://auth.test/realms/ww/account');
+  });
 });

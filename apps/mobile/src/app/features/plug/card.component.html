@@ -34,6 +34,17 @@
       } @else if (cards.error()) {
         <p class="ww-error" role="alert">{{ cards.error() }}</p>
       }
+      <ion-button
+        class="add"
+        fill="clear"
+        size="small"
+        routerLink="/account/cards/new"
+        [queryParams]="{ next: here() }"
+        data-testid="add-card"
+      >
+        <mat-icon slot="start" svgIcon="plus" />
+        Add a card
+      </ion-button>
 
       <section class="ww-card">
         @if (hold()) {

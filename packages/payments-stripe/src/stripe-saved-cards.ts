@@ -53,6 +53,11 @@ export class StripeSavedCards {
     await this.stripe.paymentMethods.detach(providerPaymentMethodId);
   }
 
+  /** Stripe detaches the customer's cards as it deletes the customer. */
+  async deleteCustomer(providerCustomerId: string): Promise<void> {
+    await this.stripe.customers.del(providerCustomerId);
+  }
+
   /** The card is copied to the connected account, then charged there; a refusal comes back as a failed hold. */
   async hold(request: SavedCardHoldRequest): Promise<HoldState> {
     const account = { stripeAccount: request.accountId };

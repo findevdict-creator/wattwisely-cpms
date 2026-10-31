@@ -4,16 +4,21 @@ import { DriverAccount } from '../../../common/account/driver-account';
 import { DriverAccountResolver } from '../../../common/account/driver-account.resolver';
 import { DriverAccountsRepository } from '../../../common/account/driver-accounts.repository';
 import { RequestAuth } from '../../../common/request/request-auth';
+import { DriverAccountEraser } from './driver-account.eraser';
 import { DriverMeDto } from './dto/driver-me.dto';
 import { UpdateDriverMeRequestDto } from './dto/update-driver-me-request.dto';
 
-/** The driver's own account (module 19): who they are in the app, and the two fields they may change. */
+/**
+ * The driver's own account (module 19): who they are in the app, the two fields they may
+ * change, and deleting it (module 33).
+ */
 @Injectable()
 export class DriverMeService {
   constructor(
     private readonly runner: TransactionRunner,
     private readonly accounts: DriverAccountsRepository,
     private readonly resolver: DriverAccountResolver,
+    private readonly eraser: DriverAccountEraser,
   ) {}
 
   describe(auth: RequestAuth): DriverMeDto {
@@ -38,5 +43,16 @@ export class DriverMeService {
         changes.phone === undefined ? account.phone : changes.phone,
       ),
     );
+  }
+
+  /**
+   * Deletes the account: cards and operator links first, then the row loses the person. The
+   * Keycloak login is deleted by the driver in Keycloak itself, which the app opens next.
+   */
+  async erase(auth: RequestAuth): Promise<void> {
+    const account = auth.requireDriver();
+    await this.eraser.erase(auth);
+    await this.runner.run(DatabaseSession.anonymous(), (tx) => this.accounts.erase(tx, account.id));
+    this.resolver.forget(auth.requireUser().keycloakId);
   }
 }

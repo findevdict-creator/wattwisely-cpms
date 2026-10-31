@@ -1,4 +1,4 @@
-import { DriverCharge } from '@wattwisely/driver-core';
+import { DriverCharge } from '../api/models/driver-payments';
 import { ChargeHistory } from './charge-history';
 
 describe('ChargeHistory', () => {

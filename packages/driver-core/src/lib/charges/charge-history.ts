@@ -1,4 +1,5 @@
-import { ChargeChips, DriverCharge } from '@wattwisely/driver-core';
+import { DriverCharge } from '../api/models/driver-payments';
+import { ChargeChips } from '../format/charge-chips';
 
 /** The charges of one month, as a heading and the rows under it. */
 export interface ChargeMonth {

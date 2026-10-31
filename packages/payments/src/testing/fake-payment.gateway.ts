@@ -144,6 +144,11 @@ export class FakePaymentGateway implements PaymentGateway {
     this.savedCards.detach(providerPaymentMethodId);
   }
 
+  async deleteCustomer(providerCustomerId: string): Promise<void> {
+    this.check('deleteCustomer');
+    this.savedCards.customers.delete(providerCustomerId);
+  }
+
   async createSavedCardHold(request: SavedCardHoldRequest): Promise<HoldState> {
     this.check(`createSavedCardHold:${request.amount}:${request.idempotencyKey}`);
     const hold = this.savedCards.hold(request, ++this.counter);

@@ -1,0 +1,23 @@
+ion-input {
+  --padding-start: 0;
+  font-size: 16px;
+}
+
+.left {
+  margin-top: -8px;
+  text-align: left;
+}
+
+.saved {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--ww-radius-md);
+  background: var(--ww-success-soft);
+  color: var(--ww-success-text);
+  font-size: 14px;
+}
+
+ion-button:not(.ww-large) {
+  margin: 4px 0 0;
+  text-transform: none;
+}

@@ -29,6 +29,9 @@ export class MobileAuthService implements DriverSession {
   /** Set when "Sign in" or "Create account" found Keycloak out of reach; the page says so. */
   readonly isUnreachable = signal(false);
 
+  /** Set while Keycloak's "Delete account" page is open: its answer signs no one in. */
+  private isDeletingLogin = false;
+
   /** Runs once at start-up, before the first page. Never fails: offline, the app still opens. */
   async initialize(): Promise<void> {
     await this.tokenStore.load();
@@ -58,6 +61,11 @@ export class MobileAuthService implements DriverSession {
       await this.browser.close();
       return;
     }
+    if (this.isDeletingLogin && AuthRedirects.isCallback(url)) {
+      this.isDeletingLogin = false;
+      await this.browser.close();
+      return;
+    }
     if (!AuthRedirects.isCallback(url)) {
       return;
     }
@@ -80,6 +88,27 @@ export class MobileAuthService implements DriverSession {
   logout(): void {
     this.oauthService.logOut();
     this.update();
+  }
+
+  /** Keycloak's own account page, where the e-mail and the password change (module 33). */
+  openAccount(): void {
+    const url = `${this.runtimeConfig.issuerUrl}/account`;
+    if (this.platform.isNative()) {
+      this.browser.open(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  /**
+   * Forgets the tokens here, then opens Keycloak's "Delete account" page, where the driver
+   * deletes the login themselves: the API holds no right to (module 33).
+   */
+  deleteLogin(): void {
+    this.oauthService.logOut(true);
+    this.update();
+    this.isDeletingLogin = true;
+    this.oauthService.initCodeFlow('', { kc_action: 'delete_account' });
   }
 
   isLoggedIn(): boolean {

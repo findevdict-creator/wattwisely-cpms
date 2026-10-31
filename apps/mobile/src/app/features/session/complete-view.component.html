@@ -44,6 +44,22 @@
   </dl>
 }
 
+@if (charge().receipt) {
+  <ion-button
+    class="ww-large"
+    expand="block"
+    fill="outline"
+    [disabled]="isDownloading()"
+    (click)="download()"
+    data-testid="download"
+  >
+    <mat-icon slot="start" svgIcon="download" />
+    Download receipt (PDF)
+  </ion-button>
+}
+@if (downloadError()) {
+  <p class="ww-error" role="alert">{{ downloadError() }}</p>
+}
 <ion-button class="ww-large" expand="block" routerLink="/tabs/home" data-testid="done"
   >Done</ion-button
 >

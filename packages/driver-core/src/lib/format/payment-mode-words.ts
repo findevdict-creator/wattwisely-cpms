@@ -1,4 +1,7 @@
-/** What a payment mode means for the driver, in a sentence; and a card's state (module 19). */
+/**
+ * What a payment mode means for the driver, in a sentence, and a card's state (module 19).
+ * Shared by the driver web app and the mobile app.
+ */
 export class PaymentModeWords {
   private static readonly CARD_STATUS: Record<string, string> = {
     active: 'Works',

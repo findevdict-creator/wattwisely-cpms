@@ -12,7 +12,10 @@ import { DriverInvitationTransaction } from './invitations/driver-invitation.tra
 import { DriverInvitationsController } from './invitations/driver-invitations.controller';
 import { DriverInvitationsService } from './invitations/driver-invitations.service';
 import { DriverMeController } from './me/driver-me.controller';
+import { DriverAccountEraser } from './me/driver-account.eraser';
+import { DriverDataExportService } from './me/driver-data-export.service';
 import { DriverMeService } from './me/driver-me.service';
+import { SavedCardsEraser } from './me/saved-cards.eraser';
 import { DriverOperatorsController } from './operators/driver-operators.controller';
 import { DriverOperatorsService } from './operators/driver-operators.service';
 import { OperatorLinkTransaction } from './operators/operator-link.transaction';
@@ -23,6 +26,8 @@ import { DriverPaymentMethodsService } from './payment-methods/payment-methods.s
 import { DriverPlaceAccessResolver } from './places/driver-place-access.resolver';
 import { DriverPlacesController } from './places/driver-places.controller';
 import { DriverPlacesService } from './places/driver-places.service';
+import { DriverReceiptsController } from './receipts/driver-receipts.controller';
+import { DriverReceiptsService } from './receipts/driver-receipts.service';
 
 /**
  * The driver app's own routes under /v1/driver (module 19): who the driver is, the operators
@@ -40,6 +45,7 @@ import { DriverPlacesService } from './places/driver-places.service';
     DriverPaymentMethodsController,
     DriverPlacesController,
     DriverChargesController,
+    DriverReceiptsController,
   ],
   providers: [
     DriverLinkWriter,
@@ -58,6 +64,10 @@ import { DriverPlacesService } from './places/driver-places.service';
     DriverChargesRepository,
     DriverChargeTransaction,
     DriverChargesService,
+    DriverReceiptsService,
+    DriverAccountEraser,
+    SavedCardsEraser,
+    DriverDataExportService,
   ],
 })
 export class DriverAppModule {}

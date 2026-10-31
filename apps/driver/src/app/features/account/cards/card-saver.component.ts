@@ -11,9 +11,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CardSetup } from '@wattwisely/driver-core';
-import { CardForm } from '../../../core/payment/card-form';
-import { CardFormFactory } from '../../../core/payment/card-form.factory';
+import { CardForm, CardFormFactory, CardSetup } from '@wattwisely/driver-core';
 
 /** The provider's form for saving a card: nothing is charged now; holds are taken when charging. */
 @Component({

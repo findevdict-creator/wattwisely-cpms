@@ -1,41 +1,92 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { IonButton, IonContent } from '@ionic/angular';
-import { Initials } from '@wattwisely/driver-core';
+import { Initials, SavedCardsStore } from '@wattwisely/driver-core';
 import { AccountStore } from '../../core/account/account.store';
-import { ChargingNowStore } from '../../core/charging/charging-now.store';
-import { MobileAuthService } from '../../core/auth/mobile-auth.service';
+import { CardWords } from '../../core/account/card-words';
+import { SignOut } from '../../core/auth/sign-out';
 import { NativeApp } from '../../core/native/native-app';
 
+/** One line of the Account menu. */
+interface MenuRow {
+  link: string;
+  icon: string;
+  title: string;
+  line: string;
+  testId: string;
+}
+
 /**
- * The Account tab (Figma 11, "Account"): who is signed in, the way out, and the app's
- * version. Payment methods, operators, notifications and privacy join it in later modules.
+ * The Account tab (Figma 11, "Account"): who is signed in, their cards, operators, details
+ * and data, the way out, and the app's version. Notifications join it with module 34.
  */
 @Component({
   selector: 'ww-account',
-  imports: [IonButton, IonContent],
+  imports: [IonButton, IonContent, MatIconModule, RouterLink],
+  providers: [SavedCardsStore],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss',
 })
 export class AccountComponent {
+  /** The menu as the design has it; the cards' and operators' lines are the driver's own. */
+  static readonly MENU: MenuRow[] = [
+    {
+      link: '/account/cards',
+      icon: 'credit-card',
+      title: 'Payment methods',
+      line: '',
+      testId: 'menu-cards',
+    },
+    {
+      link: '/account/operators',
+      icon: 'building-2',
+      title: 'My operators',
+      line: '',
+      testId: 'menu-operators',
+    },
+    {
+      link: '/account/details',
+      icon: 'user-round',
+      title: 'Personal details',
+      line: 'Name, phone, e-mail, password',
+      testId: 'menu-details',
+    },
+    {
+      link: '/account/privacy',
+      icon: 'shield',
+      title: 'Privacy and data',
+      line: 'Who has your data, delete',
+      testId: 'menu-privacy',
+    },
+  ];
+
   protected readonly store = inject(AccountStore);
-  private readonly chargingNow = inject(ChargingNowStore);
-  private readonly auth = inject(MobileAuthService);
-  private readonly router = inject(Router);
+  private readonly cards = inject(SavedCardsStore);
+  private readonly signOutFlow = inject(SignOut);
   private readonly nativeApp = inject(NativeApp);
 
   protected readonly version = signal('');
   protected readonly initials = computed(() => Initials.of(this.store.me()?.display_name ?? ''));
+  protected readonly menu = computed<MenuRow[]>(() => {
+    const lines: Record<string, string> = {
+      '/account/cards': CardWords.summary(this.cards.cards()),
+      '/account/operators':
+        this.store
+          .operators()
+          .map((item) => item.operator_name)
+          .join(', ') || 'None yet',
+    };
+    return AccountComponent.MENU.map((row) => ({ ...row, line: lines[row.link] ?? row.line }));
+  });
 
   ionViewWillEnter(): void {
     void this.store.load();
+    void this.cards.load();
     void this.nativeApp.version().then((version) => this.version.set(version));
   }
 
   protected signOut(): void {
-    this.auth.logout();
-    this.store.clear();
-    this.chargingNow.clear();
-    void this.router.navigateByUrl('/welcome', { replaceUrl: true });
+    void this.signOutFlow.run();
   }
 }

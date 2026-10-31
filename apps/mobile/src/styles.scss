@@ -159,3 +159,8 @@ ion-button mat-icon[slot='start'] {
 ion-checkbox::part(label) {
   white-space: normal;
 }
+
+// The button of a confirmation that deletes or leaves (module 33).
+.ww-alert-danger.alert-button {
+  color: var(--ww-danger);
+}

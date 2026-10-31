@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonRadio, IonRadioGroup, IonSpinner } from '@ionic/angular';
 import { ChargeStarter } from '../../core/charging/charge-starter';
 import { PlugWords } from '../../core/charging/plug-words';
@@ -22,6 +23,7 @@ import { PlugStore } from './plug.store';
     IonRadioGroup,
     IonSpinner,
     MatIconModule,
+    RouterLink,
     TopBarComponent,
   ],
   providers: [PlugStore, CardChoiceStore, ChargeStarter],
@@ -42,6 +44,11 @@ export class CardComponent {
   protected readonly operator = computed(() => {
     const place = this.store.place();
     return place ? PlugStore.operator(place) : '';
+  });
+  /** Where "Add a card" comes back to, with the consent just given. */
+  protected readonly here = computed(() => {
+    const page = `/plug/${this.identity()}/${this.connector()}/card`;
+    return this.consent() === 'given' ? `${page}?consent=given` : page;
   });
   protected readonly hold = computed(() => {
     const place = this.store.place();
