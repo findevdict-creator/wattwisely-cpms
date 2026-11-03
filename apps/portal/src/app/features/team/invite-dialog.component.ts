@@ -30,6 +30,11 @@ export interface InviteDialogData {
     RolePickerComponent,
   ],
   templateUrl: './invite-dialog.component.html',
+  styles: `
+    .email {
+      width: 100%;
+    }
+  `,
 })
 export class InviteDialogComponent {
   protected readonly data = inject<InviteDialogData>(MAT_DIALOG_DATA);

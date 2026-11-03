@@ -63,7 +63,7 @@ import { DriverPaymentMode, RfidCard } from '../../core/api/models/driver';
   `,
   styles: `
     .lead {
-      margin: 0;
+      margin: 0 0 4px;
       color: var(--mat-sys-on-surface-variant);
     }
     form {

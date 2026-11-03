@@ -1,0 +1,81 @@
+// Fields, selects and dialogs that hold them, so that every form in every app lines up the same
+// way without each dialog working around Material on its own.
+@use '@angular/material' as mat;
+
+// Text in fields, dropdowns and their options at the 14px of the rest of the page, without
+// Material's wide letter spacing. At Material's 16px, values and options were larger than the
+// labels around them, and an option such as "Whole company" broke over two lines in a narrow box.
+html {
+  @include mat.form-field-overrides(
+    (
+      container-text-size: 14px,
+      container-text-line-height: 20px,
+      container-text-tracking: normal,
+      outlined-label-text-size: 14px,
+      outlined-label-text-tracking: normal,
+      subscript-text-tracking: normal,
+    )
+  );
+
+  @include mat.select-overrides(
+    (
+      trigger-text-size: 14px,
+      trigger-text-line-height: 20px,
+      trigger-text-tracking: normal,
+      // A thin outline and a softer, wider shadow: a white list on a white dialog read as part
+      // of the form, as if it had been drawn over the fields below it.
+      container-elevation-shadow: (
+          0 0 0 1px var(--mat-sys-outline-variant),
+          0 8px 24px color-mix(in srgb, var(--ww-ink) 14%, transparent),
+        ),
+    )
+  );
+
+  @include mat.option-overrides(
+    (
+      label-text-size: 14px,
+      label-text-line-height: 20px,
+      label-text-tracking: normal,
+    )
+  );
+}
+
+// The label that floats on a field's outline stays 12px, as before: 14px at 0.86 instead of
+// 16px at 0.75. Material sets the variable on .mat-mdc-form-field; two classes win over it.
+.mat-mdc-form-field.mat-mdc-form-field {
+  --mat-mdc-form-field-floating-label-scale: 0.86;
+}
+
+// A hint or error longer than one line pushes what follows down instead of running over it.
+// Material places them absolutely in a one-line box under the field, so a two-line hint, such as
+// "Your own id: an employee number, a plate", covered the label of the field below. In a grid
+// the one-line box (the ::before) and the message share a cell: the box keeps a field without a
+// message the same 20px high as before, and a longer message makes the cell taller. The 4px under
+// a message keeps it clear of the floating label of the field below.
+.mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align {
+  display: grid;
+
+  &::before {
+    grid-area: 1 / 1;
+    height: 20px;
+  }
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-hint-wrapper,
+.mat-mdc-form-field .mat-mdc-form-field-error-wrapper {
+  grid-area: 1 / 1;
+  position: static;
+  padding-bottom: 4px;
+}
+
+// Room at the top of a dialog for the floating label of its first field. Material removes the
+// padding between a dialog's title and its content, and the content scrolls, so the label of a
+// field at the very top was cut in half.
+.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content.mat-mdc-dialog-content {
+  padding-top: 8px;
+}
+
+// .ww-form brings its own 8px for that label; at the top of a dialog the padding above covers it.
+.mat-mdc-dialog-content > .ww-form:first-child {
+  padding-top: 0;
+}
