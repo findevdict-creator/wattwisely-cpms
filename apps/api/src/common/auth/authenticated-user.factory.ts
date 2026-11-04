@@ -6,8 +6,10 @@ import { AuthenticatedUser, TokenAudience } from './authenticated-user';
 /**
  * Builds an AuthenticatedUser from verified token claims. The audience claim decides which
  * app the token came from: a token naming the driver audience is a driver's (module 19) and
- * opens only the /v1/driver routes; any other accepted token is a staff token. No claim says
- * whether someone is Wattwisely staff: the platform_staff table does (PlatformAccessResolver).
+ * opens only the /v1/driver routes; any other accepted token is a staff token. The azp claim
+ * names the client the token was issued to: only the admin console's opens its routes. No
+ * claim says whether someone is Wattwisely staff: the platform_staff table does
+ * (PlatformAccessResolver).
  */
 @Injectable()
 export class AuthenticatedUserFactory {
@@ -20,6 +22,7 @@ export class AuthenticatedUserFactory {
       isEmailVerified: claims.email_verified === true,
       name: claims.name ?? claims.preferred_username ?? '',
       audience: this.audienceOf(claims),
+      isFromAdminConsole: claims.azp === this.config.keycloakAdminClientId,
     });
   }
 

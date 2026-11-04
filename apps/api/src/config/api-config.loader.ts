@@ -8,6 +8,7 @@ export class ApiConfigLoader {
   static readonly DEFAULT_PORT = 3000;
   static readonly DEFAULT_AUDIENCE = 'wattwisely-api';
   static readonly DEFAULT_DRIVER_AUDIENCE = 'wattwisely-driver';
+  static readonly DEFAULT_ADMIN_CLIENT_ID = 'wattwisely-admin';
   static readonly DEFAULT_SMTP_PORT = 587;
 
   load(environment: NodeJS.ProcessEnv): ApiConfig {
@@ -39,6 +40,8 @@ export class ApiConfigLoader {
       keycloakAudience: environment['KEYCLOAK_AUDIENCE'] ?? ApiConfigLoader.DEFAULT_AUDIENCE,
       keycloakDriverAudience:
         environment['KEYCLOAK_DRIVER_AUDIENCE'] ?? ApiConfigLoader.DEFAULT_DRIVER_AUDIENCE,
+      keycloakAdminClientId:
+        environment['KEYCLOAK_ADMIN_CLIENT_ID'] ?? ApiConfigLoader.DEFAULT_ADMIN_CLIENT_ID,
     };
   }
 

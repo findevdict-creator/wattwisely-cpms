@@ -8,12 +8,15 @@ export class AdminFixture {
   billingToken!: string;
   viewerToken!: string;
   acme!: string;
+  ana!: TestPerson;
   olivia!: TestPerson;
   ownerToken!: string;
 
   async start(): Promise<void> {
     await this.api.start();
-    this.adminToken = await this.staffToken('ana@wattwisely.test', 'admin');
+    this.ana = await this.api.data.person('ana@wattwisely.test', 'ana');
+    await this.api.platform.staff(this.ana, 'admin');
+    this.adminToken = await this.api.issuer.signFor(this.ana);
     this.billingToken = await this.staffToken('bea@wattwisely.test', 'billing');
     this.viewerToken = await this.staffToken('vic@wattwisely.test', 'viewer');
     this.acme = await this.api.data.tenant('acme-charging');

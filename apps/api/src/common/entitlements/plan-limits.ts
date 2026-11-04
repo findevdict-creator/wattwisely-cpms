@@ -15,7 +15,8 @@ import { TenantAccess } from '../tenant/tenant-access';
  * The plan's size limits (PRD section 7: users and connectors per plan), checked inside the
  * transaction that adds one more. A plan without a limit, or a tenant without a plan, passes.
  * Connectors a charger reports by itself are never refused: the limit is a sales rule, and
- * a charger that works must keep working; the admin console shows who is over.
+ * a charger that works must keep working; registering another charger is, and the admin
+ * console shows who is over.
  */
 export class PlanLimits {
   /**
@@ -55,7 +56,10 @@ export class PlanLimits {
       );
   }
 
-  /** Before a connector is added by hand: connectors of chargers that still exist count. */
+  /**
+   * Before a connector is added by hand, and before a charger is registered (its connectors
+   * come over OCPP, where nothing is refused): connectors of chargers that still exist count.
+   */
   static async ensureConnectorRoom(tx: Transaction, access: TenantAccess): Promise<void> {
     const limit = access.entitlements.plan?.connectorLimit;
     if (!limit) {
@@ -65,7 +69,7 @@ export class PlanLimits {
       .select({ count: count() })
       .from(connectors)
       .innerJoin(chargers, eq(chargers.id, connectors.chargerId))
-      .where(isNull(chargers.deletedAt));
+      .where(and(eq(connectors.tenantId, access.tenant.id), isNull(chargers.deletedAt)));
     if (row.count >= limit) {
       throw PlanLimits.reached('plan_connector_limit', `${limit} connectors`);
     }

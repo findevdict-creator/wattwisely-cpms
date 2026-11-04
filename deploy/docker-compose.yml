@@ -66,6 +66,8 @@ services:
       KEYCLOAK_AUDIENCE: wattwisely-api
       # Tokens from the driver app (module 19) carry this audience instead; they only open /v1/driver/*.
       KEYCLOAK_DRIVER_AUDIENCE: wattwisely-driver
+      # Only tokens the admin console's client issued open /v1/admin/*; a portal login cannot be used there.
+      KEYCLOAK_ADMIN_CLIENT_ID: wattwisely-admin
       # Row-level security applies to this role; up.sh creates it and runs the migrations first.
       DATABASE_URL: postgres://wattwisely_app:${DB_APP_PASSWORD}@postgres:5432/wattwisely
       # The API's own public address (module 8): tenant logos in e-mails and on driver pages are linked from here.

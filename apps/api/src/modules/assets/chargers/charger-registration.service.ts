@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UuidV7 } from '@wattwisely/db';
 import { ChargerPassword } from '@wattwisely/ocpp-contracts';
+import { PlanLimits } from '../../../common/entitlements/plan-limits';
 import { SitePermissionChecker } from '../../../common/permissions/site-permission.checker';
 import { VersionConflict } from '../../../common/problem/version-conflict';
 import { RequestAuth } from '../../../common/request/request-auth';
@@ -18,6 +19,8 @@ import { RegisteredChargerDto } from './dto/registered-charger.dto';
 /**
  * Registers chargers and manages how they prove who they are (story AST-02):
  * the identity in the URL, the password (shown once) or the boot fingerprint.
+ * A new charger is refused once the plan's connector limit is reached: its connectors
+ * would arrive over OCPP, where nothing is refused.
  */
 @Injectable()
 export class ChargerRegistrationService {
@@ -38,6 +41,7 @@ export class ChargerRegistrationService {
     const id = UuidV7.create();
     const charger = await this.transaction.run(auth, async (tx) => {
       await this.reader.requireSiteForWrite(tx, access, request.site_id);
+      await PlanLimits.ensureConnectorRoom(tx, access);
       await this.chargers.insert(tx, {
         id,
         tenantId: access.tenant.id,

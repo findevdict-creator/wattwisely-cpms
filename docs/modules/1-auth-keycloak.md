@@ -63,6 +63,8 @@ Keycloak is configured by one file, `deploy/keycloak/realm/wattwisely-realm.json
 | Mapper "tenant memberships"                      | removed               | Listed the user's tenants inside the token until module 2 moved them to the database; the admin portal review fix took the unused mapper out of the realm                                                                                                                                            |
 | Client `wattwisely-api`                          | bearer-only           | The API's identity; nobody logs in with it                                                                                                                                                                                                                                                           |
 
+Every token also carries `azp`, the client it was issued to. Routes marked `RouteAccess.platform()` (the admin console's, module 9) accept only tokens from the client `KEYCLOAK_ADMIN_CLIENT_ID` names (`wattwisely-admin`); a login from the portal answers 403 `portal_token_not_allowed` there, even for Wattwisely staff. This is the admin portal review fix for the gap where a stolen portal token could reach `/v1/admin/*`.
+
 The portal asked for the scope `organization:*`, which put **all** the user's tenants in the token. Since module 2 it asks for `openid profile email` only; `organizationsEnabled` stays on for the day a tenant brings its own SSO.
 
 ### 3. Back in the portal: load the user and pick a tenant
