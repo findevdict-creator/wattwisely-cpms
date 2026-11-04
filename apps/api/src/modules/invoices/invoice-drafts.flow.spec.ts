@@ -5,6 +5,7 @@ import { InvoicesFixture } from './invoices.fixture';
   const fixture = new InvoicesFixture();
   const { api } = fixture;
   const month = () => fixture.lastMonth.previous().key;
+  const nextMonth = () => fixture.thisMonth.next().key;
   let invoiceId: string;
   let version: number;
 
@@ -16,10 +17,9 @@ import { InvoicesFixture } from './invoices.fixture';
   });
   afterAll(() => fixture.stop());
 
-  it('refuses the current month, a month that is not one, and a tenant without a plan', async () => {
+  it('refuses next month, a month that is not one, and a tenant without a plan', async () => {
     const url = `/v1/admin/tenants/${fixture.acme}/invoices`;
-    const thisMonth = fixture.now.toISOString().slice(0, 7);
-    const current = await api.call('POST', url, fixture.asAdmin({ month: thisMonth }));
+    const future = await api.call('POST', url, fixture.asAdmin({ month: nextMonth() }));
     const nonsense = await api.call('POST', url, fixture.asAdmin({ month: '2026-13' }));
     const noPlan = await api.call(
       'POST',
@@ -28,8 +28,8 @@ import { InvoicesFixture } from './invoices.fixture';
     );
     const asViewer = await api.call('POST', url, fixture.asViewer({ month: month() }));
 
-    expect(current.statusCode).toBe(422);
-    expect(current.json()).toMatchObject({ code: 'invoice_month_not_over' });
+    expect(future.statusCode).toBe(422);
+    expect(future.json()).toMatchObject({ code: 'invoice_month_not_started' });
     expect(nonsense.statusCode).toBe(400);
     expect(noPlan.statusCode).toBe(409);
     expect(noPlan.json()).toMatchObject({ code: 'plan_missing' });

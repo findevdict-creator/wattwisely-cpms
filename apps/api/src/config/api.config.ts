@@ -48,6 +48,15 @@ export class ApiConfig {
   @IsNotEmpty()
   keycloakDriverAudience!: string;
 
+  /**
+   * The Keycloak client the admin console logs in with (module 9). Only tokens issued to it
+   * (their azp claim) open the admin console's routes, so a portal login, stolen or not,
+   * cannot be used there even by Wattwisely staff.
+   */
+  @IsString()
+  @IsNotEmpty()
+  keycloakAdminClientId!: string;
+
   /** Postgres, as the wattwisely_app role (row-level security always applies to it). */
   @IsUrl({ require_tld: false, protocols: ['postgres', 'postgresql'] })
   databaseUrl!: string;

@@ -2,7 +2,7 @@ import { BillingPeriod } from '../period/billing-period';
 import { DaySpan, Proration } from '../period/proration';
 import { InvoiceDraft, InvoiceLineDraft, InvoiceLineKind } from './invoice-draft';
 import { AddonCharge, InvoiceInput, UsageCounts } from './invoice-input';
-import { MinorUnits } from './minor-units';
+import { RevenueShareLines } from './revenue-share-lines';
 
 /** A monthly fee before proration. */
 interface FeeLine {
@@ -15,9 +15,10 @@ interface FeeLine {
 
 /**
  * Turns a tenant's month into invoice lines (module 15): the plan's fee and its connector
- * fees for the days the plan was in force, each add-on for its days, the managed service fee
- * for its days, and the plan's share of the month's charging revenue. Pure: what it reads is
- * in the input, what it could not bill is in the remarks.
+ * fees for the days the plan is in force, each add-on for its days, the managed service fee
+ * for its days, all billed in advance, and the plan's share of the previous month's charging
+ * revenue, billed in arrears. Pure: what it reads is in the input, what it could not bill is
+ * in the remarks.
  */
 export class InvoiceCalculator {
   static readonly NO_DAYS: DaySpan = { days: 0, fromDay: 0, toDay: 0 };
@@ -29,7 +30,7 @@ export class InvoiceCalculator {
       ...InvoiceCalculator.planLines(input, planSpan),
       ...InvoiceCalculator.addonLines(input, planSpan, remarks),
       ...InvoiceCalculator.managedLines(input),
-      ...InvoiceCalculator.revenueLines(input, remarks),
+      ...RevenueShareLines.of(input, remarks),
     ];
     return { currency: input.plan.currency, lines, remarks };
   }
@@ -79,9 +80,13 @@ export class InvoiceCalculator {
       .map((fee) => InvoiceCalculator.line(fee, span, period));
   }
 
+  /** Add-ons the plan includes are part of its fee, so a bought one of those is not charged. */
   private static addonLines(input: InvoiceInput, planSpan: DaySpan, remarks: string[]) {
     const lines: InvoiceLineDraft[] = [];
     for (const addon of input.addons) {
+      if (input.plan.moduleKeys.includes(addon.key)) {
+        continue;
+      }
       if (addon.currency !== input.plan.currency) {
         remarks.push(
           `The ${addon.name} add-on is priced in ${addon.currency} and the plan in ${input.plan.currency}; it was left out.`,
@@ -144,32 +149,6 @@ export class InvoiceCalculator {
         };
         lines.push(InvoiceCalculator.line(fee, span, input.period));
       }
-    }
-    return lines;
-  }
-
-  private static revenueLines(input: InvoiceInput, remarks: string[]): InvoiceLineDraft[] {
-    const bps = input.plan.revenueShareBps;
-    if (bps === 0) {
-      return [];
-    }
-    const lines: InvoiceLineDraft[] = [];
-    for (const total of input.revenue.filter((row) => row.gross > 0)) {
-      const revenue = `${MinorUnits.text(total.gross, total.currency)} from ${total.sessions} sessions`;
-      if (total.currency !== input.plan.currency) {
-        remarks.push(
-          `Charging revenue of ${revenue} was left out of the revenue share: the plan is billed in ${input.plan.currency}.`,
-        );
-        continue;
-      }
-      lines.push({
-        kind: 'revenue_share',
-        description: `${MinorUnits.percent(bps)} of charging revenue, ${revenue}`,
-        quantity: 1,
-        unitPrice: null,
-        amount: Math.round((total.gross * bps) / 10_000),
-        details: { revenue_gross: total.gross, sessions: total.sessions, revenue_share_bps: bps },
-      });
     }
     return lines;
   }

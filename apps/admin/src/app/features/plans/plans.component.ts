@@ -72,7 +72,7 @@ export class PlansComponent implements OnInit {
 
   protected async editPlan(plan: Plan | null): Promise<void> {
     const dialog = this.dialog.open(PlanDialogComponent, {
-      data: { plan, modules: this.modules().filter((module) => module.kind === 'plan') },
+      data: { plan, modules: this.modules().filter((module) => module.kind !== 'core') },
       width: '640px',
     });
     if (await firstValueFrom(dialog.afterClosed())) {

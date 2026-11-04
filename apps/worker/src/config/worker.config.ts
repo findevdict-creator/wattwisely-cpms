@@ -70,7 +70,7 @@ export class WorkerConfig implements SmtpSettings {
   @Min(100)
   managedServiceEndIntervalMs!: number;
 
-  /** How often last month's invoices are drafted and overdue invoices mark a subscription past due (module 15). */
+  /** How often the month's invoices are drafted and overdue invoices mark a subscription past due (module 15). */
   @IsInt()
   @Min(100)
   invoiceIntervalMs!: number;

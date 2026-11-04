@@ -9,7 +9,7 @@ import { AdminFixture } from './admin.fixture';
   beforeAll(() => fixture.start());
   afterAll(() => fixture.stop());
 
-  it('enforces the plan’s user and connector limits', async () => {
+  it('enforces the plan’s user and connector limits, not counting operators or other tenants', async () => {
     const tiny = await api.call(
       'POST',
       '/v1/admin/plans',
@@ -23,21 +23,31 @@ import { AdminFixture } from './admin.fixture';
     const tenantId = created.json().tenant.id;
     const owner = await api.data.person('owner@tiny.test');
     await api.data.member(tenantId, owner, TestData.ROLE_IDS.owner);
+    await fixture.seatsThatDoNotCount(tenantId, owner);
     const site = await api.data.site(tenantId, 'Yard');
     const charger = await api.data.charger(tenantId, site, 'CP-TINY');
     const token = await api.issuer.signFor(owner);
     const invite = (email: string) =>
       api.call('POST', '/v1/members/invites', {
         token,
+        tenantId,
         body: { email, roles: [{ role_id: TestData.ROLE_IDS.readOnly }] },
       });
     const addConnector = () =>
-      api.call('POST', `/v1/chargers/${charger}/connectors`, { token, body: {} });
+      api.call('POST', `/v1/chargers/${charger}/connectors`, { token, tenantId, body: {} });
+
+    const registerCharger = () =>
+      api.call('POST', '/v1/chargers', {
+        token,
+        tenantId,
+        body: { site_id: site, identity_mode: 'generate' },
+      });
 
     const second = await invite('two@tiny.test');
     const third = await invite('three@tiny.test');
     const first = await addConnector();
     const over = await addConnector();
+    const anotherCharger = await registerCharger();
 
     expect(second.statusCode).toBe(201);
     expect(third.statusCode).toBe(403);
@@ -45,6 +55,8 @@ import { AdminFixture } from './admin.fixture';
     expect(first.statusCode).toBe(201);
     expect(over.statusCode).toBe(403);
     expect(over.json()).toMatchObject({ code: 'plan_connector_limit' });
+    expect(anotherCharger.statusCode).toBe(403);
+    expect(anotherCharger.json()).toMatchObject({ code: 'plan_connector_limit' });
   });
 
   it('suspends a tenant (read-only for its members), then deletes it 30 days later', async () => {

@@ -7,7 +7,6 @@ export interface AccessTokenClaims extends JWTPayload {
   email_verified?: boolean;
   name?: string;
   preferred_username?: string;
-  realm_access?: { roles?: string[] };
   /** The Keycloak client the token was issued to, e.g. wattwisely-portal or wattwisely-driver. */
   azp?: string;
 }

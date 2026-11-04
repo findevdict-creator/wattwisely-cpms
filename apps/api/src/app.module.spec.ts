@@ -77,6 +77,7 @@ import { TestApi } from './testing/test-api';
         { id: acme, slug: 'acme-charging', name: 'acme charging', status: 'active' },
         { id: volt, slug: 'volt-hotels', name: 'volt hotels', status: 'active' },
       ],
+      invitations: [],
     });
   });
 

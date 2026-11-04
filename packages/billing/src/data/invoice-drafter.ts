@@ -15,8 +15,9 @@ export interface PreparedInvoice {
 
 /**
  * Drafts one tenant's invoice for one month (module 15): reads the plan, the size, the
- * add-ons, the managed service and the revenue, works the lines out and stores them. The
- * worker does it on the 1st for every tenant; staff do it from the console for any past month.
+ * add-ons, the managed service and last month's revenue, works the lines out and stores them.
+ * The worker does it on the 1st of the month for every tenant, in advance; staff do it from
+ * the console for the current month or a past one.
  */
 export class InvoiceDrafter {
   /** Null when the tenant has no plan, or its subscription is cancelled: nothing to bill. */

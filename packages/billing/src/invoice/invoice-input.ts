@@ -9,6 +9,8 @@ export interface PlanFees {
   acConnectorFee: number;
   dcConnectorFee: number;
   revenueShareBps: number;
+  /** The gated modules the plan includes; an add-on among them is in the fee, never billed on top. */
+  moduleKeys: string[];
 }
 
 /** The tenant's subscription, from tenant_subscriptions. */
@@ -51,14 +53,17 @@ export interface ManagedServiceCharge {
   to: Date | null;
 }
 
-/** Charging revenue of the month in one currency: completed sessions that started in it. */
+/** Charging revenue of a month in one currency: completed sessions that started in it. */
 export interface RevenueTotal {
   currency: string;
   gross: number;
   sessions: number;
 }
 
-/** Everything the calculator needs for one tenant's month. */
+/**
+ * Everything the calculator needs for one tenant's invoice: the month whose fees it bills in
+ * advance, and the month before it, whose charging revenue is shared in arrears.
+ */
 export interface InvoiceInput {
   period: BillingPeriod;
   plan: PlanFees;
@@ -66,5 +71,7 @@ export interface InvoiceInput {
   usage: UsageCounts;
   addons: AddonCharge[];
   managedServices: ManagedServiceCharge[];
+  /** The month the revenue share is for: the one before `period`. */
+  revenuePeriod: BillingPeriod;
   revenue: RevenueTotal[];
 }

@@ -16,6 +16,8 @@ export class TestTokenIssuer {
   static readonly ISSUER = 'http://auth.test/realms/wattwisely';
   static readonly AUDIENCE = 'wattwisely-api';
   static readonly DRIVER_AUDIENCE = 'wattwisely-driver';
+  static readonly ADMIN_CLIENT = 'wattwisely-admin';
+  static readonly PORTAL_CLIENT = 'wattwisely-portal';
 
   private privateKey!: CryptoKey;
   private keySet!: JWTVerifyGetKey;
@@ -32,8 +34,10 @@ export class TestTokenIssuer {
     return this.keySet;
   }
 
+  /** Tokens name the admin console's client unless told otherwise, so staff tests reach the console. */
   async sign(claims: Partial<AccessTokenClaims>, overrides: TokenOverrides = {}): Promise<string> {
-    return new SignJWT({ sub: 'user-1', email_verified: true, ...claims })
+    const azp = TestTokenIssuer.ADMIN_CLIENT;
+    return new SignJWT({ sub: 'user-1', email_verified: true, azp, ...claims })
       .setProtectedHeader({ alg: 'RS256', kid: 'test-key' })
       .setIssuer(overrides.issuer ?? TestTokenIssuer.ISSUER)
       .setAudience(overrides.audience ?? TestTokenIssuer.AUDIENCE)
@@ -45,6 +49,15 @@ export class TestTokenIssuer {
   /** A token for a person created with TestData. */
   async signFor(person: { keycloakId: string; email: string }): Promise<string> {
     return this.sign({ sub: person.keycloakId, email: person.email });
+  }
+
+  /** The same, as the portal's client issues it: it must not open the admin console. */
+  async signForPortal(person: { keycloakId: string; email: string }): Promise<string> {
+    return this.sign({
+      sub: person.keycloakId,
+      email: person.email,
+      azp: TestTokenIssuer.PORTAL_CLIENT,
+    });
   }
 
   /** A token from the driver app (module 19): the driver audience, a name, a verified address. */

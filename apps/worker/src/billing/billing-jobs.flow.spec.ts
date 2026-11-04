@@ -4,10 +4,11 @@ import { TestWorker } from '../testing/test-worker';
 import { InvoiceDraftJob } from './invoice-draft.job';
 import { InvoiceOverdueJob } from './invoice-overdue.job';
 
-/** Module 15: on the 1st the worker drafts last month's invoices; an unpaid invoice marks the subscription past due. */
+/** Module 15: on the 1st the worker drafts the month's invoices in advance; an unpaid invoice marks the subscription past due. */
 (TestDatabase.isConfigured() ? describe : describe.skip)('Billing jobs', () => {
   const worker = new TestWorker();
   const now = new Date();
+  const thisMonth = BillingPeriod.containing(now);
   const lastMonth = BillingPeriod.before(now);
   const threeMonthsAgo = new Date(now.getTime() - 92 * 86_400_000);
   let acme: string;
@@ -80,7 +81,7 @@ import { InvoiceOverdueJob } from './invoice-overdue.job';
     );
   }
 
-  it('drafts last month’s invoice once for every tenant with something to bill', async () => {
+  it('drafts this month’s invoice once for every tenant with something to bill, sharing last month’s revenue', async () => {
     const job = worker.app.get(InvoiceDraftJob);
 
     expect(await job.runOnce(now)).toBe(2);
@@ -94,7 +95,7 @@ import { InvoiceOverdueJob } from './invoice-overdue.job';
       {
         tenant_id: acme,
         status: 'draft',
-        period_start: lastMonth.firstDay,
+        period_start: thisMonth.firstDay,
         currency: 'USD',
         subtotal: 29_900 + 2_000 + 1_600 + 900 + 25_000,
         tax_rate_bps: 2_000,
@@ -105,7 +106,7 @@ import { InvoiceOverdueJob } from './invoice-overdue.job';
       {
         tenant_id: flex,
         status: 'draft',
-        period_start: lastMonth.firstDay,
+        period_start: thisMonth.firstDay,
         currency: 'USD',
         subtotal: 1_000,
         tax_rate_bps: 0,
@@ -156,14 +157,13 @@ import { InvoiceOverdueJob } from './invoice-overdue.job';
         amount: 25_000,
       },
     ]);
-    const { rows: flexLines } = await worker.data.sql(
-      `select kind, description, amount::int from invoice_lines where tenant_id = $1`,
-      [flex],
-    );
+    const flexLinesSql =
+      'select kind, description, amount::int from invoice_lines where tenant_id = $1';
+    const { rows: flexLines } = await worker.data.sql(flexLinesSql, [flex]);
     expect(flexLines).toEqual([
       {
         kind: 'revenue_share',
-        description: '5 % of charging revenue, USD 200.00 from 1 sessions',
+        description: `5 % of charging revenue in ${lastMonth.label}, USD 200.00 from 1 sessions`,
         amount: 1_000,
       },
     ]);

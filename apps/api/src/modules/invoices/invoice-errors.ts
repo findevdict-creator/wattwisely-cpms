@@ -31,11 +31,11 @@ export class InvoiceErrors {
     );
   }
 
-  static monthNotOver(): ProblemException {
+  static monthNotStarted(): ProblemException {
     return new ProblemException(
       HttpStatus.UNPROCESSABLE_ENTITY,
-      'invoice_month_not_over',
-      'A month can be invoiced once it is over.',
+      'invoice_month_not_started',
+      'A month can be invoiced from its first day.',
     );
   }
 

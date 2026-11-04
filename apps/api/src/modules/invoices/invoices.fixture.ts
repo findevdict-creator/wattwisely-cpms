@@ -12,6 +12,7 @@ export class InvoicesFixture {
 
   readonly api = new TestApi();
   readonly now = new Date();
+  readonly thisMonth = BillingPeriod.containing(this.now);
   readonly lastMonth = BillingPeriod.before(this.now);
   adminToken!: string;
   viewerToken!: string;

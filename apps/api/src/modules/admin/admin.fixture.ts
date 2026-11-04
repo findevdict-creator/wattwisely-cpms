@@ -8,12 +8,15 @@ export class AdminFixture {
   billingToken!: string;
   viewerToken!: string;
   acme!: string;
+  ana!: TestPerson;
   olivia!: TestPerson;
   ownerToken!: string;
 
   async start(): Promise<void> {
     await this.api.start();
-    this.adminToken = await this.staffToken('ana@wattwisely.test', 'admin');
+    this.ana = await this.api.data.person('ana@wattwisely.test', 'ana');
+    await this.api.platform.staff(this.ana, 'admin');
+    this.adminToken = await this.api.issuer.signFor(this.ana);
     this.billingToken = await this.staffToken('bea@wattwisely.test', 'billing');
     this.viewerToken = await this.staffToken('vic@wattwisely.test', 'viewer');
     this.acme = await this.api.data.tenant('acme-charging');
@@ -39,6 +42,18 @@ export class AdminFixture {
 
   asOwner(body?: object) {
     return { token: this.ownerToken, body };
+  }
+
+  /**
+   * Memberships the plan's user limit must not count: the person's own seat in another tenant
+   * (Acme), and Wattwisely staff working in the tenant as its Managed operator (module 10).
+   */
+  async seatsThatDoNotCount(tenantId: string, person: TestPerson): Promise<void> {
+    await this.api.data.member(this.acme, person, TestData.ROLE_IDS.readOnly);
+    const manager = await this.api.data.person('max@wattwisely.test', 'Max Manager');
+    const staffId = await this.api.platform.staff(manager, 'admin');
+    const serviceId = await this.api.managed.service(tenantId, staffId, 'active');
+    await this.api.managed.operator(tenantId, serviceId, manager);
   }
 
   /** A tenant's current version, for If-Match. */

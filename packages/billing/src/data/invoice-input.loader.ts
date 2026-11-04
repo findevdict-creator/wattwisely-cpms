@@ -53,7 +53,8 @@ export class InvoiceInputLoader {
       usage: await InvoiceInputLoader.usage(tx, tenantId),
       addons: await InvoiceInputLoader.addons(tx, tenantId, nameOf),
       managedServices: await InvoiceInputLoader.managedServices(tx, tenantId, period),
-      revenue: await InvoiceInputLoader.revenue(tx, tenantId, period),
+      revenuePeriod: period.previous(),
+      revenue: await InvoiceInputLoader.revenue(tx, tenantId, period.previous()),
     };
     return { subscription, input };
   }
@@ -99,6 +100,7 @@ export class InvoiceInputLoader {
       acConnectorFee: row.acConnectorFee,
       dcConnectorFee: row.dcConnectorFee,
       revenueShareBps: row.revenueShareBps,
+      moduleKeys: row.moduleKeys,
     };
   }
 
@@ -170,7 +172,7 @@ export class InvoiceInputLoader {
     return rows.map((row) => ({ ...row, from: row.from as Date }));
   }
 
-  /** Completed sessions that started in the month, by currency. */
+  /** Completed sessions that started in the month (the one before the invoice's), by currency. */
   private static async revenue(
     tx: Transaction,
     tenantId: string,

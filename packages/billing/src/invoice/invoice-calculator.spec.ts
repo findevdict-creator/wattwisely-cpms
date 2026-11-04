@@ -13,9 +13,11 @@ describe('InvoiceCalculator', () => {
     acConnectorFee: 1_000,
     dcConnectorFee: 1_600,
     revenueShareBps: 0,
+    moduleKeys: [],
   };
   const input = (overrides: Partial<InvoiceInput> = {}): InvoiceInput => ({
     period: september,
+    revenuePeriod: september.previous(),
     plan: growth,
     subscription: {
       status: 'active',
@@ -170,39 +172,6 @@ describe('InvoiceCalculator', () => {
         description: 'Managed service (MSA-001), 1–15 September (15 of 30 days)',
         amount: 12_500,
       }),
-    ]);
-  });
-
-  it('takes the plan’s share of the month’s charging revenue, in the plan currency', () => {
-    const draft = InvoiceCalculator.calculate(
-      input({
-        plan: {
-          ...growth,
-          platformFee: 0,
-          acConnectorFee: 0,
-          dcConnectorFee: 0,
-          revenueShareBps: 500,
-        },
-        revenue: [
-          { currency: 'USD', gross: 123_456, sessions: 41 },
-          { currency: 'EUR', gross: 5_000, sessions: 2 },
-          { currency: 'GBP', gross: 0, sessions: 0 },
-        ],
-      }),
-    );
-
-    expect(draft.lines).toEqual([
-      {
-        kind: 'revenue_share',
-        description: '5 % of charging revenue, USD 1,234.56 from 41 sessions',
-        quantity: 1,
-        unitPrice: null,
-        amount: 6_173,
-        details: { revenue_gross: 123_456, sessions: 41, revenue_share_bps: 500 },
-      },
-    ]);
-    expect(draft.remarks).toEqual([
-      'Charging revenue of EUR 50.00 from 2 sessions was left out of the revenue share: the plan is billed in USD.',
     ]);
   });
 

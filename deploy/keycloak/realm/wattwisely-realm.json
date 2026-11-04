@@ -113,12 +113,7 @@
     }
   ],
   "roles": {
-    "realm": [
-      {
-        "name": "platform-staff",
-        "description": "Wattwisely employees. Gives access to the admin console, never to tenant data by itself."
-      }
-    ]
+    "realm": []
   },
   "defaultRole": {
     "name": "default-roles-wattwisely",
@@ -225,21 +220,6 @@
             "included.client.audience": "wattwisely-api",
             "access.token.claim": "true",
             "id.token.claim": "false",
-            "introspection.token.claim": "true"
-          }
-        },
-        {
-          "name": "tenant memberships",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-organization-membership-mapper",
-          "config": {
-            "claim.name": "organization",
-            "jsonType.label": "JSON",
-            "multivalued": "true",
-            "addOrganizationId": "true",
-            "access.token.claim": "true",
-            "id.token.claim": "true",
-            "userinfo.token.claim": "true",
             "introspection.token.claim": "true"
           }
         }

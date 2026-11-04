@@ -76,6 +76,7 @@ for service in "${services[@]}"; do
 done
 openbao_unseal
 ensure_admin_client
+remove_portal_organization_mapper
 
 scheme="$(env_value PUBLIC_SCHEME)"
 info "Wattwisely is running"

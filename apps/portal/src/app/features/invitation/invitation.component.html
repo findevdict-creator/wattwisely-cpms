@@ -27,26 +27,28 @@
           This invitation expired on {{ invitation.expires_at | date: 'medium' }}. Ask for a new
           one.
         </div>
+      } @else if (isWorking()) {
+        <p class="hint" data-testid="invitation-working">
+          {{ authService.isLoggedIn() ? 'Opening ' + invitation.tenant_name + '…' : 'One moment…' }}
+        </p>
       } @else {
         <p class="hint">
           The invitation is valid until {{ invitation.expires_at | date: 'medium' }}.
         </p>
         @if (authService.isLoggedIn()) {
-          <button
-            mat-flat-button
-            class="wide"
-            (click)="accept()"
-            [disabled]="isWorking()"
-            data-testid="accept"
-          >
+          <button mat-flat-button class="wide" (click)="accept()" data-testid="accept">
             Accept and open {{ invitation.tenant_name }}
           </button>
-        } @else {
+        } @else if (invitation.has_login) {
           <button mat-flat-button class="wide" (click)="login(invitation, false)">
             Log in to accept
           </button>
-          <button mat-stroked-button class="wide" (click)="login(invitation, true)">
+        } @else {
+          <button mat-flat-button class="wide" (click)="login(invitation, true)">
             Create an account
+          </button>
+          <button mat-stroked-button class="wide" (click)="login(invitation, false)">
+            I already have an account
           </button>
         }
       }

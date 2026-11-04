@@ -9,6 +9,14 @@ import { AdminFixture } from './admin.fixture';
   beforeAll(() => fixture.start());
   afterAll(() => fixture.stop());
 
+  it('refuses a portal login in the admin console, even a staff member’s', async () => {
+    const portalToken = await api.issuer.signForPortal(fixture.ana);
+    const response = await api.call('GET', '/v1/admin/tenants', { token: portalToken });
+
+    expect(response.statusCode).toBe(403);
+    expect(response.json()).toMatchObject({ code: 'portal_token_not_allowed' });
+  });
+
   it('lists every tenant with its plan and size for staff, and for nobody else', async () => {
     const list = await api.call('GET', '/v1/admin/tenants?q=acme', fixture.asAdmin());
     const asViewer = await api.call('GET', '/v1/admin/tenants', { token: fixture.viewerToken });
