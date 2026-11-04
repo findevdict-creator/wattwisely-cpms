@@ -1,3 +1,4 @@
+import { PendingInvitation } from './invitation';
 import { TenantMembership } from './tenant-membership';
 
 /** My Wattwisely staff role, when I have one; the portal only uses it to offer a link to the admin console. */
@@ -14,4 +15,6 @@ export interface Me {
   is_platform_staff: boolean;
   platform: PlatformRole | null;
   tenants: TenantMembership[];
+  /** Invitations to companies I am not a member of yet, for my verified address. */
+  invitations: PendingInvitation[];
 }

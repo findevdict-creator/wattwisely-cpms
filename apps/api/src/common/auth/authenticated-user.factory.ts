@@ -6,22 +6,19 @@ import { AuthenticatedUser, TokenAudience } from './authenticated-user';
 /**
  * Builds an AuthenticatedUser from verified token claims. The audience claim decides which
  * app the token came from: a token naming the driver audience is a driver's (module 19) and
- * opens only the /v1/driver routes; any other accepted token is a staff token.
+ * opens only the /v1/driver routes; any other accepted token is a staff token. No claim says
+ * whether someone is Wattwisely staff: the platform_staff table does (PlatformAccessResolver).
  */
 @Injectable()
 export class AuthenticatedUserFactory {
-  static readonly PLATFORM_STAFF_ROLE = 'platform-staff';
-
   constructor(private readonly config: ApiConfig) {}
 
   create(claims: AccessTokenClaims): AuthenticatedUser {
-    const roles = claims.realm_access?.roles ?? [];
     return new AuthenticatedUser({
       keycloakId: claims.sub,
       email: claims.email ?? '',
       isEmailVerified: claims.email_verified === true,
       name: claims.name ?? claims.preferred_username ?? '',
-      isPlatformStaff: roles.includes(AuthenticatedUserFactory.PLATFORM_STAFF_ROLE),
       audience: this.audienceOf(claims),
     });
   }

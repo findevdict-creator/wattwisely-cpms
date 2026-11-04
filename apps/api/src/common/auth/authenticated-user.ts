@@ -7,23 +7,22 @@ export interface AuthenticatedUserDetails {
   email: string;
   isEmailVerified: boolean;
   name: string;
-  isPlatformStaff: boolean;
   audience: TokenAudience;
 }
 
 /**
  * Who is calling, as proven by their access token. Built once per request.
- * It says nothing about tenants: memberships and roles come from the database
- * (see StaffAccountResolver and TenantAccessResolver), so removing someone
- * takes effect without waiting for their token to expire. The audience says which
- * app the token came from: a driver's token opens the /v1/driver routes and nothing else.
+ * It says nothing about tenants or about being Wattwisely staff: memberships, roles and
+ * the staff role come from the database (see StaffAccountResolver, TenantAccessResolver
+ * and PlatformAccessResolver), so removing someone takes effect without waiting for their
+ * token to expire. The audience says which app the token came from: a driver's token opens
+ * the /v1/driver routes and nothing else.
  */
 export class AuthenticatedUser {
   readonly keycloakId: string;
   readonly email: string;
   readonly isEmailVerified: boolean;
   readonly name: string;
-  readonly isPlatformStaff: boolean;
   readonly audience: TokenAudience;
 
   constructor(details: AuthenticatedUserDetails) {
@@ -31,7 +30,6 @@ export class AuthenticatedUser {
     this.email = details.email;
     this.isEmailVerified = details.isEmailVerified;
     this.name = details.name;
-    this.isPlatformStaff = details.isPlatformStaff;
     this.audience = details.audience;
   }
 

@@ -1,12 +1,36 @@
-<ww-auth-page
-  heading="No workspace yet"
-  subtitle="Your login works, but you are not a member of any company on Wattwisely yet."
->
-  <div class="notice neutral" data-testid="no-workspace">
-    Ask your company's Owner to invite {{ email() || 'you' }}, or contact Wattwisely support.
+<ww-auth-page [heading]="heading()" [subtitle]="subtitle()">
+  <div class="body" data-testid="no-workspace">
+    @if (error()) {
+      <div class="notice danger" role="alert">{{ error() }}</div>
+    }
+    @for (invitation of invitations(); track invitation.id) {
+      <div class="invitation" data-testid="pending-invitation">
+        <span class="ww-two ww-grow">
+          <b>{{ invitation.tenant_name }}</b>
+          <span
+            >{{ invitation.roles.join(', ') }}
+            @if (invitation.invited_by) {
+              · invited by {{ invitation.invited_by }}
+            }
+          </span>
+        </span>
+        <button
+          mat-flat-button
+          (click)="accept(invitation)"
+          [disabled]="accepting() !== null"
+          data-testid="accept-invitation"
+        >
+          {{ accepting() === invitation.id ? 'Opening…' : 'Accept' }}
+        </button>
+      </div>
+    } @empty {
+      <div class="notice neutral">
+        Ask your company's Owner to invite {{ email() || 'you' }}, or contact Wattwisely support.
+      </div>
+    }
+    <button mat-stroked-button class="wide" (click)="logout()">
+      <mat-icon svgIcon="log-out" />
+      Log out
+    </button>
   </div>
-  <button mat-stroked-button class="wide" (click)="logout()">
-    <mat-icon svgIcon="log-out" />
-    Log out
-  </button>
 </ww-auth-page>

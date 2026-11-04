@@ -13,9 +13,9 @@ import { InvoicesRepository } from '../invoices.repository';
 import { InvoiceDraftService } from './invoice-draft.service';
 
 /**
- * Drafting an invoice by hand (module 15): for a past month the worker skipped (nothing to
- * bill then, or the plan came later) or whose invoice was voided. Same calculation as the
- * worker's, from today's plan, size and prices.
+ * Drafting an invoice by hand (module 15): for the current month or a past one the worker
+ * skipped (nothing to bill then, or the plan came later) or whose invoice was voided. Same
+ * calculation as the worker's, from today's plan, size and prices.
  */
 @Injectable()
 export class InvoiceCreationService {
@@ -31,8 +31,8 @@ export class InvoiceCreationService {
     if (!period) {
       throw InvoiceErrors.badMonth();
     }
-    if (!period.hasEnded(new Date())) {
-      throw InvoiceErrors.monthNotOver();
+    if (!period.hasStarted(new Date())) {
+      throw InvoiceErrors.monthNotStarted();
     }
     return this.platform.runInTenant(auth, tenantId, async (tx) => {
       const { tenant } = await this.tenants.requireLive(tx, tenantId);

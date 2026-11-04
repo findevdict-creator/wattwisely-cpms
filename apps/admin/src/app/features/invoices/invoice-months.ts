@@ -1,11 +1,11 @@
-/** The months staff may draft an invoice for by hand: the last twelve that are over, newest first. */
+/** The months staff may draft an invoice for by hand: this one (billed in advance) and the eleven before, newest first. */
 export class InvoiceMonths {
   static readonly COUNT = 12;
 
-  /** [{ key: '2026-09', label: 'September 2026' }, ...] for a call made in October 2026. */
+  /** [{ key: '2026-10', label: 'October 2026' }, ...] for a call made in October 2026. */
   static past(now = new Date()): { key: string; label: string }[] {
     const months: { key: string; label: string }[] = [];
-    for (let back = 1; back <= InvoiceMonths.COUNT; back += 1) {
+    for (let back = 0; back < InvoiceMonths.COUNT; back += 1) {
       const first = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - back, 1));
       months.push({ key: first.toISOString().slice(0, 7), label: InvoiceMonths.label(first) });
     }

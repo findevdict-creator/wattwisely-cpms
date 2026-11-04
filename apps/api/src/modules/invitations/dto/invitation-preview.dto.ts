@@ -10,6 +10,11 @@ export class InvitationPreviewDto {
   @ApiProperty({ description: 'The address the invitation was sent to; log in with it to accept' })
   readonly email: string;
 
+  @ApiProperty({
+    description: 'True when that address has logged in before: offer login, otherwise sign-up',
+  })
+  readonly has_login: boolean;
+
   @ApiProperty({ type: [String], example: ['Technician'] })
   readonly roles: string[];
 
@@ -26,6 +31,7 @@ export class InvitationPreviewDto {
     const expiresAt = invitation.expiresAt ?? now;
     this.tenant_name = invitation.tenantName;
     this.email = invitation.email;
+    this.has_login = invitation.hasLogin;
     this.roles = [...new Set(member.grants.map((grant) => grant.roleName))];
     this.invited_by = member.invitedByName || null;
     this.expires_at = expiresAt.toISOString();

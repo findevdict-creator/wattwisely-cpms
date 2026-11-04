@@ -1,7 +1,9 @@
 /**
  * One calendar month, the unit Wattwisely bills in (module 15). Months are taken in UTC:
  * the fees are per month and the proration per day, so a tenant's time zone does not change
- * what it pays. Keys read "2026-09"; the invoice shows "September 2026".
+ * what it pays. Keys read "2026-09"; the invoice shows "September 2026". Fees are billed in
+ * advance: the worker drafts the current month's invoice on its 1st day, and the revenue
+ * share on it is the previous month's, which is known by then.
  */
 export class BillingPeriod {
   static readonly KEY_PATTERN = /^(\d{4})-(0[1-9]|1[0-2])$/;
@@ -27,7 +29,7 @@ export class BillingPeriod {
     return new BillingPeriod(date.getUTCFullYear(), date.getUTCMonth() + 1);
   }
 
-  /** The month before the one the date is in: what the worker invoices on the 1st. */
+  /** The month before the one the date is in: whose revenue share the 1st's invoice carries. */
   static before(date: Date): BillingPeriod {
     return BillingPeriod.containing(date).previous();
   }
@@ -73,15 +75,26 @@ export class BillingPeriod {
     return this.from.toLocaleDateString('en-GB', { month: 'long', timeZone: 'UTC' });
   }
 
-  /** True once the month is over: only then can it be invoiced. */
+  /** True once the month is over. */
   hasEnded(now: Date): boolean {
     return this.to.getTime() <= now.getTime();
+  }
+
+  /** True from the month's first day: fees are billed in advance, so only then can it be invoiced. */
+  hasStarted(now: Date): boolean {
+    return this.from.getTime() <= now.getTime();
   }
 
   previous(): BillingPeriod {
     return this.month === 1
       ? new BillingPeriod(this.year - 1, 12)
       : new BillingPeriod(this.year, this.month - 1);
+  }
+
+  next(): BillingPeriod {
+    return this.month === 12
+      ? new BillingPeriod(this.year + 1, 1)
+      : new BillingPeriod(this.year, this.month + 1);
   }
 
   equals(other: BillingPeriod): boolean {

@@ -71,7 +71,7 @@
 
     <span class="ww-overline wide">Modules beyond the core</span>
     <div class="wide modules">
-      @for (module of data.modules; track module.key) {
+      @for (module of planModules; track module.key) {
         <mat-checkbox
           [checked]="moduleKeys().includes(module.key)"
           (change)="toggleModule(module.key, $event.checked)"
@@ -80,6 +80,22 @@
           {{ module.name }} <span class="sub">{{ module.description }}</span>
         </mat-checkbox>
       }
+    </div>
+    <span class="ww-overline wide">Add-ons included in the fee</span>
+    <div class="wide modules">
+      @for (module of addonModules; track module.key) {
+        <mat-checkbox
+          [checked]="moduleKeys().includes(module.key)"
+          (change)="toggleModule(module.key, $event.checked)"
+          [attr.data-testid]="'plan-module-' + module.key"
+        >
+          {{ module.name }} <span class="sub">{{ module.description }}</span>
+        </mat-checkbox>
+      }
+      <p class="hint wide">
+        A tenant on this plan gets these without buying them. On other plans they are sold
+        separately at the add-on price.
+      </p>
     </div>
     <mat-slide-toggle formControlName="is_active" class="wide"
       >Sold to new tenants</mat-slide-toggle

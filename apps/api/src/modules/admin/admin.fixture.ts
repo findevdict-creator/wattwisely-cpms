@@ -41,6 +41,18 @@ export class AdminFixture {
     return { token: this.ownerToken, body };
   }
 
+  /**
+   * Memberships the plan's user limit must not count: the person's own seat in another tenant
+   * (Acme), and Wattwisely staff working in the tenant as its Managed operator (module 10).
+   */
+  async seatsThatDoNotCount(tenantId: string, person: TestPerson): Promise<void> {
+    await this.api.data.member(this.acme, person, TestData.ROLE_IDS.readOnly);
+    const manager = await this.api.data.person('max@wattwisely.test', 'Max Manager');
+    const staffId = await this.api.platform.staff(manager, 'admin');
+    const serviceId = await this.api.managed.service(tenantId, staffId, 'active');
+    await this.api.managed.operator(tenantId, serviceId, manager);
+  }
+
   /** A tenant's current version, for If-Match. */
   async versionOf(tenantId: string): Promise<number> {
     const answer = await this.api.call('GET', `/v1/admin/tenants/${tenantId}`, this.asAdmin());

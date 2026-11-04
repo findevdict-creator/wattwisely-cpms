@@ -67,7 +67,11 @@ import { TestApi } from '../../testing/test-api';
     const token = api.mail.lastInvitationToken('nina@acme.test');
 
     const preview = await api.call('GET', `/v1/invitations/${token}`);
-    expect(preview.json()).toMatchObject({ tenant_name: 'acme charging', email: 'nina@acme.test' });
+    expect(preview.json()).toMatchObject({
+      tenant_name: 'acme charging',
+      email: 'nina@acme.test',
+      has_login: false,
+    });
 
     const nina = await api.issuer.sign({ sub: 'kc-nina', email: 'nina@acme.test' });
     const accepted = await api.call('POST', `/v1/invitations/${token}/accept`, { token: nina });
@@ -79,6 +83,46 @@ import { TestApi } from '../../testing/test-api';
       key: 'chargers:command',
       site_ids: [site],
     });
+  });
+
+  it('lists a pending invitation on /v1/me for its verified address, and accepts it from there', async () => {
+    await invite('quinn@acme.test', [{ role_id: readOnly }]);
+    const quinn = await api.issuer.sign({ sub: 'kc-quinn', email: 'quinn@acme.test' });
+    const stranger = await api.issuer.sign({ sub: 'kc-stranger', email: 'stranger@else.test' });
+
+    const me = await api.call('GET', '/v1/me', { token: quinn });
+    expect(me.json().tenants).toEqual([]);
+    expect(me.json().invitations).toEqual([
+      {
+        id: expect.any(String),
+        tenant_id: acme,
+        tenant_name: 'acme charging',
+        roles: ['Read-only'],
+        invited_by: 'Olivia Owner',
+        expires_at: expect.any(String),
+      },
+    ]);
+    const token = api.mail.lastInvitationToken('quinn@acme.test');
+    const preview = await api.call('GET', `/v1/invitations/${token}`);
+    expect(preview.json()).toMatchObject({ has_login: true });
+
+    const invitationId = me.json().invitations[0].id;
+    const notMine = await api.call('POST', `/v1/me/invitations/${invitationId}/accept`, {
+      token: stranger,
+    });
+    expect(notMine.statusCode).toBe(404);
+    const accepted = await api.call('POST', `/v1/me/invitations/${invitationId}/accept`, {
+      token: quinn,
+    });
+    expect(accepted.statusCode).toBe(200);
+    expect(accepted.json()).toMatchObject({ tenant: { id: acme } });
+    const after = await api.call('GET', '/v1/me', { token: quinn });
+    expect(after.json().tenants.map((tenant: { id: string }) => tenant.id)).toEqual([acme]);
+    expect(after.json().invitations).toEqual([]);
+    const again = await api.call('POST', `/v1/me/invitations/${invitationId}/accept`, {
+      token: quinn,
+    });
+    expect(again.statusCode).toBe(404);
   });
 
   it('refuses an invitation accepted by a different person or used twice', async () => {

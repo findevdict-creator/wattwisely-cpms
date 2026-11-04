@@ -63,3 +63,18 @@ ensure_admin_client() {
 }
 JSON
 }
+
+# The portal's "tenant memberships" mapper put an organization claim in the token until
+# module 2 moved tenants to the database; the admin portal review fix removed it from the
+# realm file. A server installed earlier still has it, so it is taken out here, once.
+remove_portal_organization_mapper() {
+  local client_id mapper_id
+  keycloak_login || return 0
+  client_id="$(kcadm get clients -r wattwisely -q clientId=wattwisely-portal --fields id --format csv --noquotes 2>/dev/null)"
+  [[ -n "$client_id" ]] || return 0
+  mapper_id="$(kcadm get "clients/$client_id/protocol-mappers/models" -r wattwisely --fields id,name --format csv --noquotes 2>/dev/null \
+    | awk -F, '$2 == "tenant memberships" { print $1 }')"
+  [[ -n "$mapper_id" ]] || return 0
+  info "Removing the portal's unused \"tenant memberships\" token mapper from Keycloak"
+  kcadm delete "clients/$client_id/protocol-mappers/models/$mapper_id" -r wattwisely >/dev/null 2>&1 || true
+}

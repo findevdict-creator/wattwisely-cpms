@@ -1,6 +1,13 @@
 import { HttpStatus } from '@nestjs/common';
-import { count, eq, inArray, isNull } from 'drizzle-orm';
-import { chargers, connectors, tenantMemberships, Transaction } from '@wattwisely/db';
+import { and, count, eq, inArray, isNull, notExists } from 'drizzle-orm';
+import {
+  chargers,
+  connectors,
+  membershipRoles,
+  tenantMemberships,
+  Transaction,
+} from '@wattwisely/db';
+import { ManagedOperatorRole } from '../managed/managed-operator-role';
 import { ProblemException } from '../problem/problem.exception';
 import { TenantAccess } from '../tenant/tenant-access';
 
@@ -11,7 +18,11 @@ import { TenantAccess } from '../tenant/tenant-access';
  * a charger that works must keep working; the admin console shows who is over.
  */
 export class PlanLimits {
-  /** Before an invitation: active and invited members both take a seat. */
+  /**
+   * Before an invitation: the tenant's active and invited members both take a seat. Wattwisely
+   * staff working in the tenant as its Managed operator (module 10) take none. The tenant is
+   * named in the query: the transaction also shows the inviter their own memberships elsewhere.
+   */
   static async ensureUserRoom(tx: Transaction, access: TenantAccess): Promise<void> {
     const limit = access.entitlements.plan?.userLimit;
     if (!limit) {
@@ -20,10 +31,28 @@ export class PlanLimits {
     const [row] = await tx
       .select({ count: count() })
       .from(tenantMemberships)
-      .where(inArray(tenantMemberships.status, ['active', 'invited']));
+      .where(
+        and(
+          eq(tenantMemberships.tenantId, access.tenant.id),
+          inArray(tenantMemberships.status, ['active', 'invited']),
+          notExists(PlanLimits.managedOperatorGrant(tx)),
+        ),
+      );
     if (row.count >= limit) {
       throw PlanLimits.reached('plan_user_limit', `${limit} users`);
     }
+  }
+
+  private static managedOperatorGrant(tx: Transaction) {
+    return tx
+      .select({ id: membershipRoles.id })
+      .from(membershipRoles)
+      .where(
+        and(
+          eq(membershipRoles.membershipId, tenantMemberships.id),
+          eq(membershipRoles.roleId, ManagedOperatorRole.ID),
+        ),
+      );
   }
 
   /** Before a connector is added by hand: connectors of chargers that still exist count. */

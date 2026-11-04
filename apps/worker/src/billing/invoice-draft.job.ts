@@ -6,10 +6,12 @@ import { IntervalJob } from '../jobs/interval-job';
 import { BillingRepository } from './billing.repository';
 
 /**
- * InvoiceDraftJob (module 15): once the month is over, drafts last month's invoice for every
- * tenant with a plan that has none yet. Staff check and issue the drafts in the admin console.
- * A tenant whose month comes to nothing (a trial, a cancelled plan, a Flex plan with no
- * sessions) gets no draft; a voided invoice makes the job draft the month again.
+ * InvoiceDraftJob (module 15): from the 1st of the month, drafts the month's invoice in
+ * advance for every tenant with a plan that has none yet; the revenue share on it is last
+ * month's. A tenant put on a plan later in the month gets its draft within the hour, prorated.
+ * Staff check and issue the drafts in the admin console. A tenant whose month comes to
+ * nothing (a trial, a cancelled plan, a Flex plan with no sessions last month) gets no draft;
+ * a voided invoice makes the job draft the month again.
  */
 @Injectable()
 export class InvoiceDraftJob extends IntervalJob {
@@ -22,7 +24,7 @@ export class InvoiceDraftJob extends IntervalJob {
   }
 
   async runOnce(now: Date): Promise<number> {
-    const period = BillingPeriod.before(now);
+    const period = BillingPeriod.containing(now);
     const tenantIds = await this.runner.run(DatabaseSession.forSystem(), (tx) =>
       this.billing.tenantsWithoutInvoice(tx, period),
     );

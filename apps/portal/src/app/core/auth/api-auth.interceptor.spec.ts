@@ -39,6 +39,7 @@ describe('ApiAuthInterceptor', () => {
       email: 'u@test',
       name: 'U',
       is_platform_staff: false,
+      invitations: [],
       platform: null,
       tenants: [{ id: 'org-acme', slug: 'acme-charging', name: 'Acme Charging', status: 'active' }],
     });

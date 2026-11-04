@@ -13,13 +13,17 @@ import { PlansApiService } from '../../core/api/plans-api.service';
 import { Money } from '../../shared/money';
 import { PlanForm } from './plan-form';
 
-/** The plan to edit (null to create one) and the modules a plan can include. */
+/** The plan to edit (null to create one) and the modules a plan can include: plan modules and add-ons. */
 export interface PlanDialogData {
   plan: Plan | null;
   modules: ProductModule[];
 }
 
-/** Create or change a plan: fees, limits and the modules beyond the core. Closes with true when saved. */
+/**
+ * Create or change a plan: fees, limits and the modules beyond the core. An add-on ticked
+ * here is part of the plan's fee; a tenant on another plan buys it on its own page. Closes
+ * with true when saved.
+ */
 @Component({
   selector: 'ww-plan-dialog',
   imports: [
@@ -41,6 +45,8 @@ export class PlanDialogComponent {
 
   protected readonly form = PlanForm.build(inject(FormBuilder), this.data.plan);
   protected readonly moduleKeys = signal<string[]>(this.data.plan?.module_keys ?? []);
+  protected readonly planModules = this.data.modules.filter((module) => module.kind === 'plan');
+  protected readonly addonModules = this.data.modules.filter((module) => module.kind === 'addon');
   protected readonly error = signal('');
   protected readonly isSaving = signal(false);
 

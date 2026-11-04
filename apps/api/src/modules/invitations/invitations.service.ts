@@ -3,63 +3,61 @@ import { ProblemException } from '../../common/problem/problem.exception';
 import { RequestAuth } from '../../common/request/request-auth';
 import { TenantAccessResolver } from '../../common/tenant/tenant-access.resolver';
 import { TenantSummary } from '../../common/tenant/tenant-summary';
-import { MemberChangeRecorder } from '../team/member-change.recorder';
-import { MembershipsWriter } from '../team/memberships.writer';
 import { AcceptedInvitationDto } from './dto/accepted-invitation.dto';
 import { InvitationPreviewDto } from './dto/invitation-preview.dto';
 import { InvitationRecord } from './invitation-record';
+import { InvitationAcceptor } from './invitation.acceptor';
 import { InvitationTransaction } from './invitation.transaction';
+import { PendingInvitationTransaction } from './pending-invitation.transaction';
 
 /**
  * The invitee's side of story ACC-02: look at an invitation from its link, then accept it.
- * Accepting needs a login with the same e-mail address the invitation was sent to.
+ * Accepting needs a login with the same e-mail address the invitation was sent to. Someone
+ * who lost the link accepts from the list on /v1/me instead (the "No workspace yet" page).
  */
 @Injectable()
 export class InvitationsService {
   constructor(
-    private readonly invitationTransaction: InvitationTransaction,
-    private readonly writer: MembershipsWriter,
-    private readonly changes: MemberChangeRecorder,
+    private readonly byLink: InvitationTransaction,
+    private readonly byId: PendingInvitationTransaction,
+    private readonly acceptor: InvitationAcceptor,
     private readonly accessResolver: TenantAccessResolver,
   ) {}
 
-  async preview(token: string): Promise<InvitationPreviewDto> {
-    return this.invitationTransaction.run(token, async (tx, invitation) => {
-      const member = await this.writer.reload(tx, invitation.membershipId);
-      return new InvitationPreviewDto(invitation, member);
-    });
+  preview(token: string): Promise<InvitationPreviewDto> {
+    return this.byLink.run(token, (tx, invitation) => this.acceptor.preview(tx, invitation));
   }
 
   async accept(auth: RequestAuth, token: string): Promise<AcceptedInvitationDto> {
-    const account = auth.requireAccount();
-    const invitation = await this.invitationTransaction.run(token, async (tx, found) => {
-      InvitationsService.checkAcceptable(found, account.id);
-      const before = await this.writer.reload(tx, found.membershipId);
-      await this.writer.activate(tx, found.membershipId);
-      const after = await this.writer.reload(tx, found.membershipId);
-      const change = { before, after, tenantId: found.tenantId };
-      await this.changes.record(tx, auth, 'invitation_accepted', change);
+    const invitation = await this.byLink.run(token, async (tx, found) => {
+      await this.acceptor.accept(tx, auth, found);
       return found;
     });
-    this.accessResolver.forget(account.id);
+    return this.accepted(auth, invitation);
+  }
+
+  /** Accepts one of the caller's own pending invitations, named by its membership id. */
+  async acceptPending(auth: RequestAuth, membershipId: string): Promise<AcceptedInvitationDto> {
+    const account = auth.requireAccount();
+    const invitation = await this.byId.run(account, membershipId, async (tx, found) => {
+      await this.acceptor.accept(tx, auth, found);
+      return found;
+    });
+    return this.accepted(auth, invitation);
+  }
+
+  /** After the transaction committed: the person's tenants changed, so the cache forgets them. */
+  private accepted(auth: RequestAuth, invitation: InvitationRecord): AcceptedInvitationDto {
+    this.accessResolver.forget(auth.requireAccount().id);
     return new AcceptedInvitationDto(InvitationsService.tenantOf(invitation));
   }
 
-  private static checkAcceptable(invitation: InvitationRecord, userAccountId: string): void {
-    if ((invitation.expiresAt?.getTime() ?? 0) <= Date.now()) {
-      throw new ProblemException(
-        HttpStatus.GONE,
-        'invitation_expired',
-        'This invitation has expired. Ask for a new one.',
-      );
-    }
-    if (invitation.userAccountId !== userAccountId) {
-      throw new ProblemException(
-        HttpStatus.FORBIDDEN,
-        'invitation_for_someone_else',
-        `This invitation was sent to ${invitation.email}. Log in with that address to accept it.`,
-      );
-    }
+  static notFound(): ProblemException {
+    return new ProblemException(
+      HttpStatus.NOT_FOUND,
+      'invitation_not_found',
+      'This invitation was already used or cancelled. Ask for a new one.',
+    );
   }
 
   private static tenantOf(invitation: InvitationRecord): TenantSummary {

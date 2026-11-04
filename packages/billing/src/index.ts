@@ -10,3 +10,4 @@ export * from './data/invoice-input.loader';
 export * from './data/invoice-draft.writer';
 export * from './data/invoice-drafter';
 export * from './invoice/addon-names';
+export * from './invoice/revenue-share-lines';

@@ -11,8 +11,11 @@ import { LastTenantStore } from '../../core/tenant/last-tenant.store';
 
 /**
  * /invitations/:token, the link in an invitation e-mail (story ACC-02). Anyone can open it.
- * People log in (or create an account) with the invited address, then accept, and land in
- * the new company.
+ * Someone not logged in is sent straight on to Keycloak: to sign up when the invited address
+ * has no login yet, to log in when it has; Keycloak brings them back here, and the
+ * invitation is then accepted without another click. The page itself shows only when
+ * something is wrong (expired, someone else's) or when the trip to Keycloak came back
+ * without a login, so the person can choose the other door.
  */
 @Component({
   selector: 'ww-invitation',
@@ -21,6 +24,8 @@ import { LastTenantStore } from '../../core/tenant/last-tenant.store';
   styleUrl: './invitation.component.scss',
 })
 export class InvitationComponent implements OnInit {
+  static readonly SENT_KEY = 'wattwisely.invitation-sent-to-keycloak';
+
   readonly token = input.required<string>();
 
   protected readonly authService = inject(AuthService);
@@ -43,9 +48,23 @@ export class InvitationComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      this.invitation.set(await firstValueFrom(this.invitationsApi.preview(this.token())));
+      const invitation = await firstValueFrom(this.invitationsApi.preview(this.token()));
+      this.invitation.set(invitation);
+      await this.continueWith(invitation);
     } catch (error) {
       this.problem.set(ApiProblem.from(error));
+    }
+  }
+
+  /** Logged in: accept at once. Not yet: on to Keycloak, once; back without a login, show the doors. */
+  private async continueWith(invitation: InvitationPreview): Promise<void> {
+    if (invitation.is_expired) {
+      return;
+    }
+    if (this.authService.isLoggedIn()) {
+      await this.accept();
+    } else if (!this.wasSentToKeycloak()) {
+      this.login(invitation, !invitation.has_login);
     }
   }
 
@@ -62,6 +81,13 @@ export class InvitationComponent implements OnInit {
   }
 
   protected login(invitation: InvitationPreview, isNewAccount: boolean): void {
+    this.isWorking.set(true);
+    sessionStorage.setItem(InvitationComponent.SENT_KEY, this.token());
     this.authService.loginAs(invitation.email, isNewAccount);
+  }
+
+  /** True when this tab already went to Keycloak for this invitation, so the page does not loop. */
+  private wasSentToKeycloak(): boolean {
+    return sessionStorage.getItem(InvitationComponent.SENT_KEY) === this.token();
   }
 }
