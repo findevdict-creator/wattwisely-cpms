@@ -1,0 +1,110 @@
+<section class="ww-card" aria-labelledby="commands-title" data-testid="remote-commands">
+  <div class="ww-card-head">
+    <div class="titles">
+      <h2 id="commands-title">Remote commands</h2>
+      <p data-testid="commands-note">
+        @if (blockedReason(); as reason) {
+          {{ reason }}
+        } @else {
+          Sent over {{ version() ?? 'OCPP' }}. The charger's answers appear under Commands.
+        }
+      </p>
+    </div>
+  </div>
+  <div class="ww-card-body groups">
+    <div class="group">
+      <h3>Whole charger</h3>
+      <div class="actions">
+        <button
+          mat-stroked-button
+          (click)="restart()"
+          [disabled]="isBlocked()"
+          data-testid="reset-charger"
+        >
+          <mat-icon svgIcon="refresh-cw" />
+          Restart
+        </button>
+        <button
+          mat-stroked-button
+          (click)="reboot()"
+          [disabled]="isBlocked()"
+          data-testid="reboot-charger"
+        >
+          <mat-icon svgIcon="zap" />
+          Reboot (hard reset)
+        </button>
+        @if (isOutOfService()) {
+          <button
+            mat-stroked-button
+            (click)="setAvailability(true)"
+            [disabled]="isBlocked()"
+            data-testid="charger-in-service"
+          >
+            <mat-icon svgIcon="circle-check" />
+            Put back in service
+          </button>
+        } @else {
+          <button
+            mat-stroked-button
+            (click)="setAvailability(false)"
+            [disabled]="isBlocked()"
+            data-testid="charger-out-of-service"
+          >
+            <mat-icon svgIcon="ban" />
+            Take out of service
+          </button>
+        }
+      </div>
+    </div>
+    @if (connector(); as picked) {
+      <div class="group">
+        <h3>One connector</h3>
+        @if (charger().connectors.length > 1) {
+          <mat-form-field appearance="outline" class="picker" subscriptSizing="dynamic">
+            <mat-label>Connector</mat-label>
+            <mat-select
+              [value]="picked.id"
+              (selectionChange)="pick($event.value)"
+              data-testid="command-connector"
+            >
+              @for (item of charger().connectors; track item.id) {
+                <mat-option [value]="item.id">{{ item.label }} · {{ plugOf(item) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        } @else {
+          <p class="hint">Connector {{ picked.label }} · {{ plugOf(picked) }}</p>
+        }
+        <div class="actions">
+          <button
+            mat-stroked-button
+            (click)="start(picked)"
+            [disabled]="!canStart()"
+            data-testid="command-start"
+          >
+            <mat-icon svgIcon="circle-play" />
+            Start charging
+          </button>
+          <button
+            mat-stroked-button
+            (click)="stop(picked)"
+            [disabled]="!canStop()"
+            data-testid="command-stop"
+          >
+            <mat-icon svgIcon="circle-stop" />
+            Stop charging
+          </button>
+          <button
+            mat-stroked-button
+            (click)="unlock(picked)"
+            [disabled]="isBlocked()"
+            data-testid="command-unlock"
+          >
+            <mat-icon svgIcon="lock-open" />
+            Unlock cable
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</section>

@@ -1,6 +1,9 @@
 @if (store.charger(); as charger) {
   <ww-page-header [heading]="charger.ocpp_identity" backLink="/chargers" backLabel="Chargers">
     <ww-status-chip wwTitleExtra [status]="charger.status" />
+    @if (ocppVersion(); as version) {
+      <span wwTitleExtra class="ww-chip info" data-testid="header-ocpp-version">{{ version }}</span>
+    }
     <p wwSubtitle class="ww-page-subtitle">
       <a [routerLink]="['/sites', charger.site_id]">{{ charger.site_name }}</a>
       · {{ facts() }}
@@ -15,17 +18,7 @@
         Edit
       </button>
     }
-    @if (permissions.canChange('chargers:command') && charger.is_online) {
-      <button mat-stroked-button (click)="reset('soft')" data-testid="reset-charger">
-        <mat-icon svgIcon="refresh-cw" />
-        Restart
-      </button>
-    }
-    @if (
-      permissions.canChange('chargers:write') ||
-      permissions.canChange('chargers:delete') ||
-      permissions.canChange('chargers:command')
-    ) {
+    @if (permissions.canChange('chargers:write') || permissions.canChange('chargers:delete')) {
       <button
         mat-icon-button
         [matMenuTriggerFor]="menu"
@@ -35,14 +28,6 @@
         <mat-icon svgIcon="ellipsis-vertical" />
       </button>
       <mat-menu #menu="matMenu">
-        @if (permissions.canChange('chargers:command') && charger.is_online) {
-          <button mat-menu-item (click)="reset('hard')">Reboot (hard reset)</button>
-          @if (charger.status === 'unavailable') {
-            <button mat-menu-item (click)="setAvailability(true)">Put back in service</button>
-          } @else {
-            <button mat-menu-item (click)="setAvailability(false)">Take out of service</button>
-          }
-        }
         @if (permissions.canChange('chargers:write')) {
           <button mat-menu-item (click)="editConnector(null)" data-testid="add-connector">
             Add connector
@@ -98,6 +83,10 @@
       </section>
     }
   </div>
+
+  @if (permissions.canAt('chargers:command', charger.site_id)) {
+    <ww-charger-commands [charger]="charger" (sent)="shownTab.set('commands')" />
+  }
 
   <nav class="ww-tabs" aria-label="Charger details">
     @for (tab of tabs; track tab.key) {

@@ -135,6 +135,18 @@ import { TestApi } from '../../../testing/test-api';
     expect(fetched.json()).toMatchObject({ status: 'expired', completed_at: expect.any(String) });
   });
 
+  it('shows the OCPP version of a live connection before the charger boots', async () => {
+    await online(false);
+    const offline = await api.call('GET', `/v1/chargers/${chargerId}`, { token: ownerToken });
+    expect(offline.json()).toMatchObject({ is_online: false, ocpp_version: null });
+
+    await online(true);
+    const live = await api.call('GET', `/v1/chargers/${chargerId}`, { token: ownerToken });
+    expect(live.json()).toMatchObject({ is_online: true, ocpp_version: '1.6' });
+    const listed = await api.call('GET', '/v1/chargers?ocpp_version=1.6', { token: ownerToken });
+    expect(listed.json().items).toEqual([expect.objectContaining({ id: chargerId })]);
+  });
+
   it('needs chargers:command at the charger’s site', async () => {
     const response = await api.call(
       'POST',

@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Charger } from '../../core/api/models/charger';
+import { OcppVersionLabel } from './ocpp-version-label';
 
 /** How a charger connects and what it reported about itself, under the Details tab. */
 @Component({
@@ -28,7 +29,9 @@ import { Charger } from '../../core/api/models/charger';
             </div>
             <div>
               <dt>OCPP version</dt>
-              <dd>{{ charger().ocpp_version || 'Not connected yet' }}</dd>
+              <dd data-testid="details-ocpp-version">
+                {{ ocppVersion() ?? 'Learned when the charger connects' }}
+              </dd>
             </div>
             <div>
               <dt>Connection</dt>
@@ -104,4 +107,5 @@ import { Charger } from '../../core/api/models/charger';
 })
 export class ChargerDetailsComponent {
   readonly charger = input.required<Charger>();
+  protected readonly ocppVersion = computed(() => OcppVersionLabel.of(this.charger().ocpp_version));
 }

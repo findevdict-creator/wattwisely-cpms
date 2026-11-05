@@ -49,16 +49,21 @@ export class ChargerActivityStore {
     }
   }
 
-  /** Sends a command and shows it on the list; the charger's answer arrives on the stream. */
-  async send(request: Observable<ChargerCommand>): Promise<void> {
+  /**
+   * Sends a command and shows it on the list; the charger's answer arrives on the stream.
+   * True when the API took it; a refusal is told in the snack bar.
+   */
+  async send(request: Observable<ChargerCommand>): Promise<boolean> {
     try {
       const command = await firstValueFrom(request);
       this.commands.update((commands) => [command, ...commands]);
       this.tell(
         `${StatusLabels.commandAction(command.action)} sent. Waiting for the charger's answer.`,
       );
+      return true;
     } catch (error) {
       this.tell(ApiProblem.from(error).detail);
+      return false;
     }
   }
 

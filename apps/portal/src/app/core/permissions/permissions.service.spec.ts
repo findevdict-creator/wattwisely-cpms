@@ -42,6 +42,14 @@ describe('PermissionsService', () => {
     expect(service.roleNames()).toEqual(['Technician']);
   });
 
+  it('knows at which sites a site role holds a permission', async () => {
+    const service = await serviceWith(permissionsWith(false));
+
+    expect(service.canAt('chargers:command', 'site-2')).toBe(true);
+    expect(service.canAt('chargers:command', 'site-3')).toBe(false);
+    expect(service.canAt('team:manage', 'site-1')).toBe(false);
+  });
+
   it('knows the plan and which modules it leaves locked', async () => {
     const service = await serviceWith(permissionsWith(false));
 

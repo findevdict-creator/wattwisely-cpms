@@ -47,6 +47,16 @@ export class PermissionsService {
     return this.state()?.permissions.some((permission) => permission.key === key) ?? false;
   }
 
+  /** True when the user holds the permission at this site, through a site role or a tenant-wide one. */
+  canAt(key: string, siteId: string): boolean {
+    return (
+      this.state()?.permissions.some(
+        (permission) =>
+          permission.key === key && (!permission.site_ids || permission.site_ids.includes(siteId)),
+      ) ?? false
+    );
+  }
+
   /** True when the tenant's plan leaves the module out, e.g. 'advanced_reports'. Ask Wattwisely to add it. */
   isModuleLocked(moduleKey: string): boolean {
     return this.lockedModules().includes(moduleKey);

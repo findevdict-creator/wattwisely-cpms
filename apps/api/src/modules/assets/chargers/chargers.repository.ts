@@ -35,7 +35,7 @@ export class ChargersRepository {
     status: sql<ChargerStatus>`${ChargerStatusSql.expression()}`,
     isOnline: sql<boolean>`${ChargerStatusSql.isOnline()}`,
     connectedAt: chargerConnections.connectedAt,
-    ocppVersion: chargers.ocppVersion,
+    ocppVersion: ChargersRepository.ocppVersion(),
     chargePointSerial: chargers.chargePointSerial,
     chargeBoxSerial: chargers.chargeBoxSerial,
     firmwareVersion: chargers.firmwareVersion,
@@ -115,13 +115,18 @@ export class ChargersRepository {
       );
   }
 
+  /** The live connection's version first: a charger that reconnects without booting still has one. */
+  private static ocppVersion(): SQL<'1.6' | '2.0.1' | null> {
+    return sql`coalesce(${chargerConnections.ocppVersion}, ${chargers.ocppVersion})`;
+  }
+
   private static conditions(filter: ChargerFilter, cursor: ListCursor | null): (SQL | undefined)[] {
     const search = filter.q ? `%${filter.q.replace(/[%_\\]/g, '\\$&')}%` : undefined;
     return [
       SiteScopeCondition.on(chargers.siteId, filter.scope),
       filter.siteId ? eq(chargers.siteId, filter.siteId) : undefined,
       filter.statuses ? inArray(ChargerStatusSql.expression(), filter.statuses) : undefined,
-      filter.ocppVersion ? eq(chargers.ocppVersion, filter.ocppVersion) : undefined,
+      filter.ocppVersion ? eq(ChargersRepository.ocppVersion(), filter.ocppVersion) : undefined,
       filter.authMode ? eq(chargers.authMode, filter.authMode) : undefined,
       filter.vendor ? ilike(chargers.vendor, filter.vendor) : undefined,
       search ? ChargersRepository.matches(search) : undefined,
