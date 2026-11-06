@@ -40,7 +40,7 @@
     } @else {
       <p class="hint" data-testid="refused">{{ access.reason_words }}</p>
       @if (access.reason === 'no_payment_method') {
-        <a mat-stroked-button routerLink="/account">
+        <a mat-stroked-button routerLink="/account/cards">
           <mat-icon svgIcon="plus" />
           Add a card
         </a>

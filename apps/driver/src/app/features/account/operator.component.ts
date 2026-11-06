@@ -55,7 +55,7 @@ export class OperatorComponent implements OnInit {
 
   protected async leave(): Promise<void> {
     if (await this.store.leave(this.tenantId())) {
-      await this.router.navigate(['/account']);
+      await this.router.navigate(['/account/operators']);
     }
   }
 }

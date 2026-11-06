@@ -2,9 +2,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonContent } from '@ionic/angular';
-import { Initials, SavedCardsStore } from '@wattwisely/driver-core';
+import { CardWords, Initials, SavedCardsStore } from '@wattwisely/driver-core';
 import { AccountStore } from '../../core/account/account.store';
-import { CardWords } from '../../core/account/card-words';
 import { SignOut } from '../../core/auth/sign-out';
 import { NativeApp } from '../../core/native/native-app';
 

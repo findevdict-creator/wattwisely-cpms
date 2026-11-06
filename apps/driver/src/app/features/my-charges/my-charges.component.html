@@ -18,6 +18,15 @@
 </header>
 
 @if (store.charges().length > 0) {
+  <div class="totals" data-testid="totals">
+    @for (total of totals(); track total.label) {
+      <section class="panel total">
+        <span class="hint">{{ total.label }}</span>
+        <b>{{ total.amount }}</b>
+        <span class="caption">{{ total.line }}</span>
+      </section>
+    }
+  </div>
   @if (operators().length > 1) {
     <div class="ww-seg" role="group" aria-label="Operator">
       <button type="button" [class.on]="!operator()" (click)="operator.set('')">All</button>

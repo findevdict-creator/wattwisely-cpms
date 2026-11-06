@@ -2,7 +2,8 @@
 // the run-time settings, the token interceptor, the charges this phone remembers, and the
 // helpers that turn a charge into words, money and steps. Module 36 adds the states, steps,
 // power bars and receipt file name of a charge started with the login, from the mobile app;
-// module 37 the greeting, the charge under way and the Nearby list, behind a PositionSource.
+// module 37 the greeting, the charge under way and the Nearby list, behind a PositionSource;
+// module 38 the card words and the month totals.
 export { ApiProblem } from './lib/api/api-problem';
 export { DriverApiService } from './lib/api/driver-api.service';
 export { DriverChargesApiService } from './lib/api/driver-charges-api.service';
@@ -51,9 +52,11 @@ export { InvitationStore } from './lib/invitations/invitation.store';
 export { OperatorStore } from './lib/operators/operator.store';
 export { DriverApiInterceptor } from './lib/auth/driver-api.interceptor';
 export { DriverSession } from './lib/auth/driver-session';
+export { CardWords } from './lib/cards/card-words';
 export { SavedCardsStore } from './lib/cards/saved-cards.store';
 export { ChargeHistory, type ChargeMonth } from './lib/charges/charge-history';
 export { ChargingNowStore } from './lib/charges/charging-now.store';
+export { MonthTotals, type MonthTotal } from './lib/charges/month-totals';
 export { MyChargesStore } from './lib/charges/my-charges.store';
 export { RememberedCharges, type RememberedCharge } from './lib/charges/remembered-charge';
 export { CardFormFactory } from './lib/payment/card-form.factory';

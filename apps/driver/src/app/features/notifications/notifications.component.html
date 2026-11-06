@@ -1,0 +1,54 @@
+<a class="back" routerLink="/account">
+  <mat-icon svgIcon="arrow-left" />
+  Your account
+</a>
+<header class="where"><h1>Notifications</h1></header>
+
+@if (store.settings(); as settings) {
+  <h2 class="list-title">What we tell you</h2>
+  <section class="panel list" data-testid="events">
+    @for (row of events; track row.name) {
+      <div class="ww-list-item">
+        <span class="ww-two ww-grow">
+          <b>{{ row.title }}</b>
+          <span>{{ row.line }}</span>
+        </span>
+        <mat-slide-toggle
+          [checked]="settings[row.name]"
+          [disabled]="store.isSaving()"
+          [aria-label]="row.title"
+          [attr.data-testid]="row.name"
+          (change)="change(row.name, $event.checked)"
+        />
+      </div>
+    }
+  </section>
+
+  <h2 class="list-title">How</h2>
+  <section class="panel list" data-testid="channels">
+    @for (row of channels(); track row.name) {
+      <div class="ww-list-item">
+        <span class="ww-two ww-grow">
+          <b>{{ row.title }}</b>
+          <span>{{ row.line }}</span>
+        </span>
+        <mat-slide-toggle
+          [checked]="settings[row.name]"
+          [disabled]="store.isSaving()"
+          [aria-label]="row.title"
+          [attr.data-testid]="row.name"
+          (change)="change(row.name, $event.checked)"
+        />
+      </div>
+    }
+  </section>
+  <p class="caption">
+    For the charges you start with your login, here or in the app. Every receipt stays under Your
+    charges.
+  </p>
+} @else if (!store.error()) {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+}
+@if (store.error()) {
+  <p class="notice danger" role="alert" data-testid="error">{{ store.error() }}</p>
+}

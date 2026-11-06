@@ -1,0 +1,70 @@
+<a class="back" routerLink="/account">
+  <mat-icon svgIcon="arrow-left" />
+  Your account
+</a>
+<header class="where">
+  <h1>Personal details</h1>
+  <p>Operators keep their own record of you; this does not change it.</p>
+</header>
+
+@if (store.me(); as me) {
+  <section class="panel" aria-labelledby="about-title">
+    <h2 id="about-title">About you</h2>
+    <form class="profile" [formGroup]="form" (ngSubmit)="save()">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          formControlName="display_name"
+          autocomplete="name"
+          data-testid="display-name"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Phone, optional</mat-label>
+        <input
+          matInput
+          formControlName="phone"
+          inputmode="tel"
+          autocomplete="tel"
+          data-testid="phone"
+        />
+      </mat-form-field>
+      <div class="actions">
+        <button
+          mat-flat-button
+          type="submit"
+          [disabled]="form.invalid || form.pristine || store.isSaving()"
+          data-testid="save-profile"
+        >
+          Save
+        </button>
+        @if (store.isSaved()) {
+          <span class="hint" role="status">Saved.</span>
+        }
+      </div>
+    </form>
+  </section>
+
+  <section class="panel" aria-labelledby="login-title">
+    <h2 id="login-title">E-mail and password</h2>
+    <p data-testid="login-email">{{ me.email }}</p>
+    <p class="hint">Your login is kept by Wattwisely's sign-in page, which opens in a new tab.</p>
+    <a
+      mat-stroked-button
+      class="open"
+      [href]="accountUrl"
+      target="_blank"
+      rel="noopener"
+      data-testid="change-login"
+    >
+      <mat-icon svgIcon="external-link" />
+      Change e-mail or password
+    </a>
+  </section>
+}
+@if (store.error()) {
+  <p class="notice danger" role="alert">{{ store.error() }}</p>
+} @else if (!store.me()) {
+  <div class="loading"><mat-spinner diameter="32" /></div>
+}

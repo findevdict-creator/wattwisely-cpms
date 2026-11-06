@@ -32,15 +32,21 @@ export class SavedCardsStore {
     await this.attempt(async () => this.setup.set(await firstValueFrom(this.api.setupCard())));
   }
 
-  /** The form confirmed the card: the API keeps it and the list is read again. */
-  async finish(): Promise<void> {
+  /**
+   * The form confirmed the card: the API keeps it and the list is read again. With
+   * `isDefault`, the new card becomes the one holds are taken from (module 38).
+   */
+  async finish(isDefault = false): Promise<void> {
     const setup = this.setup();
     if (!setup) {
       return;
     }
     await this.attempt(async () => {
-      await firstValueFrom(this.api.saveCard(setup.setup_id));
+      const card = await firstValueFrom(this.api.saveCard(setup.setup_id));
       this.setup.set(null);
+      if (isDefault && !card.is_default) {
+        await firstValueFrom(this.api.makeDefault(card.id));
+      }
       await this.load();
     });
   }

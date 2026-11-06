@@ -1,4 +1,4 @@
-import { PaymentMethod } from '@wattwisely/driver-core';
+import { PaymentMethod } from '../api/models/driver-payments';
 import { CardWords } from './card-words';
 
 describe('CardWords', () => {
