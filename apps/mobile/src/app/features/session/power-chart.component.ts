@@ -1,6 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { ChargeReading } from '@wattwisely/driver-core';
-import { PowerBars } from '../../core/charging/power-bars';
+import { ChargeReading, PowerBars } from '@wattwisely/driver-core';
 
 /** "Power over time" (Figma 10, "Live session"): the charge's power as up to 18 bars. */
 @Component({

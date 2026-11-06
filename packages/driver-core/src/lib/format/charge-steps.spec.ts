@@ -12,6 +12,10 @@ describe('ChargeSteps', () => {
     expect(ChargeSteps.of('finishing')[3].state).toBe('now');
   });
 
+  it('calls the first step Free for a charge nobody pays for', () => {
+    expect(ChargeSteps.of('starting', 'Free')[0]).toEqual({ label: 'Free', state: 'done' });
+  });
+
   it('shows the bar only while the charge is under way', () => {
     expect(ChargeSteps.isShown('starting')).toBe(true);
     expect(ChargeSteps.isShown('done')).toBe(false);

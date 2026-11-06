@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { ChargePhase, ChargeSteps } from '@wattwisely/driver-core';
 
-/** Paid, Started, Charging, Done over a charge in progress: a bar for each, filled as it passes. */
+/** Paid (or Free), Started, Charging, Done over a charge under way, each filled as it passes. */
 @Component({
   selector: 'ww-charge-steps',
   template: `
@@ -54,6 +54,8 @@ import { ChargePhase, ChargeSteps } from '@wattwisely/driver-core';
 })
 export class ChargeStepsComponent {
   readonly phase = input.required<ChargePhase | null>();
+  /** The first step's name: "Free" for a charge nobody pays for. */
+  readonly first = input(ChargeSteps.LABELS[0]);
 
-  protected readonly steps = computed(() => ChargeSteps.of(this.phase()));
+  protected readonly steps = computed(() => ChargeSteps.of(this.phase(), this.first()));
 }

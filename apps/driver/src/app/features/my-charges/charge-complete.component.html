@@ -1,0 +1,86 @@
+<section class="panel centre" data-testid="phase-done">
+  <span class="mark"><mat-icon svgIcon="circle-check" /></span>
+  <div class="figure" data-testid="amount">
+    @if (isFree()) {
+      Free
+    } @else {
+      {{ total() | money: currency() }}
+    }
+  </div>
+  <span class="hint" data-testid="paid-with">
+    @if (isFree()) {
+      {{ charge().payment_rule?.words }}
+    } @else if (charge().payment; as payment) {
+      {{ paymentLabel() }}
+      @if (payment.card_brand) {
+        · {{ payment.card_brand | titlecase }} •••• {{ payment.card_last4 }}
+      }
+    }
+  </span>
+  <span class="hint">
+    {{ charge().started_at | zonedTime: charge().time_zone : true }}
+    @if (charge().ended_at) {
+      to {{ charge().ended_at | zonedTime: charge().time_zone }}
+    }
+    · {{ charge().energy_wh / 1000 | number: '1.1-2' }} kWh
+  </span>
+  @if (released(); as rest) {
+    <p class="notice ok has-icon wide" data-testid="hold-released">
+      <mat-icon svgIcon="undo-2" />
+      <span>
+        The rest of the hold, {{ rest | money: currency() }}, goes back to your card. Your bank may
+        take a few days to show it.
+      </span>
+    </p>
+  } @else if (isSettling()) {
+    <p class="notice neutral wide" data-testid="settling">
+      Working out the final price. The hold on your card is settled in a moment.
+    </p>
+  }
+</section>
+
+@if (charge().receipt; as receipt) {
+  <section class="panel receipt" data-testid="receipt-panel" aria-labelledby="receipt-title">
+    <header class="issuer">
+      @if (branding()?.logo_url; as logoUrl) {
+        <img class="logo" [src]="logoUrl" [alt]="issuer()" />
+      } @else {
+        <span class="op-mark">{{ initials() }}</span>
+      }
+      <span class="ww-two ww-grow">
+        <b id="receipt-title">Receipt</b>
+        <span>
+          {{ issuer() }} · {{ charge().site_name }}, plug {{ charge().connector_label }}
+        </span>
+      </span>
+    </header>
+    <ww-charge-receipt
+      [receipt]="receipt"
+      [currency]="currency()"
+      [timeZone]="charge().time_zone"
+    />
+    @if (branding(); as brand) {
+      <ww-support-contact [brand]="brand" lead="Questions about this charge? Contact" />
+    }
+    <button
+      mat-stroked-button
+      class="ww-large"
+      (click)="download.emit()"
+      [disabled]="isDownloading()"
+      data-testid="download-pdf"
+    >
+      @if (isDownloading()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon svgIcon="download" />
+      }
+      Download receipt (PDF)
+    </button>
+  </section>
+} @else {
+  <section class="panel">
+    <p class="hint" data-testid="not-priced">
+      The receipt appears here once the charge has been priced.
+    </p>
+  </section>
+}

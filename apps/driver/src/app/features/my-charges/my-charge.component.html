@@ -2,63 +2,61 @@
   <mat-icon svgIcon="arrow-left" />
   Your charges
 </a>
-
 @if (store.charge(); as charge) {
   <header class="where">
     <h1>{{ charge.site_name }} · Plug {{ charge.connector_label }}</h1>
     <p>{{ charge.operator_name }} · {{ charge.charger_identity }}</p>
   </header>
 
-  <section class="panel centre">
-    @let chip = chipOf(charge.status);
-    <span class="ww-chip {{ chip.tone }}" data-testid="status">{{ chip.label }}</span>
-    <div class="figure" data-testid="amount">
-      @if (charge.payment_rule?.outcome === 'free') {
-        Free
-      } @else {
-        {{ charge.receipt?.gross ?? charge.amount | money: charge.currency }}
-      }
-    </div>
-    <span class="hint">
-      {{ kwh(charge.energy_wh) }} kWh · started
-      {{ charge.started_at | zonedTime: charge.time_zone : true }}
-    </span>
-    @if (charge.can_stop) {
-      <button
-        mat-stroked-button
-        class="ww-large ww-danger wide stop"
-        (click)="store.stop(charge.id)"
-        [disabled]="store.isBusy() || charge.is_stop_requested"
-        data-testid="stop"
-      >
-        <mat-icon svgIcon="circle-stop" />
-        @if (charge.is_stop_requested) {
-          Stopping…
-        } @else {
-          Stop charging
-        }
-      </button>
-    }
-  </section>
+  @if (view() === 'starting' || view() === 'live') {
+    <ww-charge-steps [phase]="phase()" [first]="firstStep()" />
+  }
 
-  <section class="panel" aria-labelledby="paying-title">
-    <h2 id="paying-title">Paying</h2>
-    @if (charge.payment_rule; as rule) {
+  @switch (view()) {
+    @case ('starting') {
+      <ww-charge-starting [charge]="charge" />
+    }
+    @case ('live') {
+      <ww-charge-live
+        [charge]="charge"
+        [readings]="store.readings()"
+        [now]="store.now()"
+        [isBusy]="store.isBusy()"
+        (stop)="stop()"
+      />
+      <ww-power-chart [readings]="store.readings()" />
+    }
+    @case ('complete') {
+      <ww-charge-complete
+        [charge]="charge"
+        [branding]="store.branding()"
+        [isDownloading]="store.isDownloading()"
+        (download)="store.download()"
+      />
+    }
+    @case ('failed') {
+      <section class="panel centre" data-testid="phase-failed">
+        <span class="mark danger"><mat-icon svgIcon="circle-alert" /></span>
+        <h2>{{ isCardRefused() ? 'Your bank refused the hold' : 'The charger did not start' }}</h2>
+        <p data-testid="refused">{{ failure() }}</p>
+        <a
+          mat-stroked-button
+          class="ww-large wide"
+          [routerLink]="['/c', charge.charger_identity, charge.ocpp_connector_id]"
+          data-testid="try-again"
+        >
+          Try again
+        </a>
+      </section>
+    }
+  }
+
+  @if (charge.payment_rule; as rule) {
+    <section class="panel" aria-labelledby="paying-title">
+      <h2 id="paying-title">Who pays</h2>
       <p data-testid="rule">{{ rule.words }}</p>
-    }
-    @if (charge.payment; as payment) {
-      <p class="hint" data-testid="payment">
-        {{ payment.hold_amount | money: charge.currency }} held on
-        {{ payment.card_brand ? (payment.card_brand | titlecase) : 'your card' }}
-        @if (payment.card_last4) {
-          ending {{ payment.card_last4 }}
-        }
-      </p>
-      @if (payment.failure_message) {
-        <p class="notice danger" data-testid="refused">{{ payment.failure_message }}</p>
-      }
-    }
-  </section>
+    </section>
+  }
 } @else if (!store.error()) {
   <div class="loading"><mat-spinner diameter="32" /></div>
 }

@@ -1,4 +1,5 @@
-import { DriverChargeDetail, Money } from '@wattwisely/driver-core';
+import { DriverChargeDetail } from '../api/models/driver-payments';
+import { Money } from '../format/money';
 
 /** One line of the design's "Starting your charge" card. */
 export interface StartingStep {
