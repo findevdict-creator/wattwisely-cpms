@@ -3,12 +3,14 @@ import {
   ApiProblem,
   ChargeReading,
   DriverChargeDetail,
+  DriverChargeStates,
+  DriverChargeView,
   DriverChargesApiService,
 } from '@wattwisely/driver-core';
 import { firstValueFrom } from 'rxjs';
 
 /** Which of the design's charge screens fits the charge now (Figma 10). */
-export type SessionView = 'starting' | 'live' | 'complete' | 'failed';
+export type SessionView = DriverChargeView;
 
 /**
  * One of the driver's charges, followed every 3 seconds until it is settled, with the power
@@ -18,8 +20,6 @@ export type SessionView = 'starting' | 'live' | 'complete' | 'failed';
 export class SessionStore implements OnDestroy {
   static readonly POLL_MS = 3000;
   static readonly READINGS_EVERY = 3;
-  static readonly STARTING = ['authorising', 'starting'];
-  static readonly LIVE = ['charging', 'suspended', 'idle', 'stopping'];
 
   private readonly api = inject(DriverChargesApiService);
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -89,21 +89,11 @@ export class SessionStore implements OnDestroy {
   }
 
   static view(charge: DriverChargeDetail): SessionView {
-    if (charge.payment?.status === 'failed' || ['not_started', 'failed'].includes(charge.status)) {
-      return 'failed';
-    }
-    if (SessionStore.STARTING.includes(charge.status)) {
-      return 'starting';
-    }
-    return SessionStore.LIVE.includes(charge.status) ? 'live' : 'complete';
+    return DriverChargeStates.view(charge);
   }
 
   /** Settled once the charge ended and any hold has been taken or released. */
   static isSettled(charge: DriverChargeDetail): boolean {
-    const view = SessionStore.view(charge);
-    const isEnded = view === 'complete' || view === 'failed';
-    return (
-      isEnded && charge.payment?.status !== 'authorised' && charge.payment?.status !== 'pending'
-    );
+    return DriverChargeStates.isSettled(charge);
   }
 }

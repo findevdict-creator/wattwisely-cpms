@@ -1,6 +1,7 @@
 // What the driver web app and the mobile app share (module 30): the driver API, its models,
 // the run-time settings, the token interceptor, the charges this phone remembers, and the
-// helpers that turn a charge into words, money and steps.
+// helpers that turn a charge into words, money and steps. Module 36 adds the states, steps,
+// power bars and receipt file name of a charge started with the login, from the mobile app.
 export { ApiProblem } from './lib/api/api-problem';
 export { DriverApiService } from './lib/api/driver-api.service';
 export { DriverChargesApiService } from './lib/api/driver-charges-api.service';
@@ -58,6 +59,10 @@ export type { CardForm, CardFormOptions, CardFormResult } from './lib/payment/ca
 export type { CardSaverOptions } from './lib/payment/stripe-card-saver';
 export { RuntimeConfig } from './lib/config/runtime-config';
 export { RuntimeConfigLoader } from './lib/config/runtime-config.loader';
+export { DriverChargeStates, type DriverChargeView } from './lib/charging/driver-charge-states';
+export { PowerBars } from './lib/charging/power-bars';
+export { ReceiptFileName } from './lib/charging/receipt-file-name';
+export { StartingSteps, type StartingStep } from './lib/charging/starting-steps';
 export { ChargeChips, type ChargeChip, type ChipTone } from './lib/format/charge-chips';
 export { ChargeHold } from './lib/format/charge-hold';
 export { ChargePhases, type ChargePhase } from './lib/format/charge-phase';

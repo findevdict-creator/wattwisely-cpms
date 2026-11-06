@@ -1,8 +1,7 @@
+import { PowerBars, StartingSteps } from '@wattwisely/driver-core';
 import { CannotStarts } from './cannot-start';
 import { ChargingFixtures } from './charging.fixture';
-import { PowerBars } from './power-bars';
 import { ReceiptRows } from './receipt-rows';
-import { StartingSteps } from './starting-steps';
 
 describe('the charging screens’ words', () => {
   it('says why a plug cannot start, with the way forward', () => {

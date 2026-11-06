@@ -19,10 +19,11 @@ export class ChargeSteps {
     done: 4,
   };
 
-  static of(phase: ChargePhase | null): ChargeStep[] {
+  /** `first` names the first step: "Free" for a charge nobody pays for (module 36). */
+  static of(phase: ChargePhase | null, first = ChargeSteps.LABELS[0]): ChargeStep[] {
     const current = ChargeSteps.CURRENT[phase ?? ''] ?? -1;
     return ChargeSteps.LABELS.map((label, index) => ({
-      label,
+      label: index === 0 ? first : label,
       state: index < current ? 'done' : index === current ? 'now' : 'todo',
     }));
   }

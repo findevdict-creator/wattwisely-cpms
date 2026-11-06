@@ -1,4 +1,4 @@
-import { ChargeReading } from '@wattwisely/driver-core';
+import { ChargeReading } from '../api/models/driver-payments';
 
 /**
  * The design's "Power over time" (Figma 10, "Live session"): up to 18 bars, each the average

@@ -2,8 +2,7 @@ import { Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonSpinner } from '@ionic/angular';
-import { DriverChargeDetail } from '@wattwisely/driver-core';
-import { StartingSteps } from '../../core/charging/starting-steps';
+import { DriverChargeDetail, StartingSteps } from '@wattwisely/driver-core';
 
 /**
  * "Starting your charge" (Figma 10, "Starting"): the hold, the charger, the car, each ticked

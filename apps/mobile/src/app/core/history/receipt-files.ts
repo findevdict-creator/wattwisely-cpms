@@ -1,5 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiProblem, DriverCharge, DriverChargesApiService } from '@wattwisely/driver-core';
+import {
+  ApiProblem,
+  DriverCharge,
+  DriverChargesApiService,
+  ReceiptFileName,
+} from '@wattwisely/driver-core';
 import { firstValueFrom } from 'rxjs';
 import { NativeFiles } from '../native/native-files';
 
@@ -28,13 +33,6 @@ export class ReceiptFiles {
 
   /** "receipt-2026-10-21-riverside-car-park.pdf". */
   static fileName(charge: DriverCharge): string {
-    const day = new Intl.DateTimeFormat('en-CA', { timeZone: charge.time_zone }).format(
-      new Date(charge.started_at),
-    );
-    const site = charge.site_name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-    return `receipt-${day}${site ? `-${site}` : ''}.pdf`;
+    return ReceiptFileName.of(charge);
   }
 }

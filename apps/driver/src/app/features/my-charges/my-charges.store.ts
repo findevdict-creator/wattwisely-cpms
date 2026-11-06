@@ -1,11 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiProblem, DriverCharge, DriverChargesApiService } from '@wattwisely/driver-core';
+import { FileSaver } from '../../core/files/file-saver';
 
 /** The driver's charges at every operator they are linked with (module 19), and the CSV of them. */
 @Injectable()
 export class MyChargesStore {
   private readonly api = inject(DriverChargesApiService);
+  private readonly files = inject(FileSaver);
 
   readonly charges = signal<DriverCharge[]>([]);
   readonly isLoaded = signal(false);
@@ -25,13 +27,7 @@ export class MyChargesStore {
   /** Fetches the CSV with the login and hands it to the browser as a download. */
   async download(): Promise<void> {
     try {
-      const file = await firstValueFrom(this.api.export());
-      const url = URL.createObjectURL(file);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'my-charges.csv';
-      link.click();
-      URL.revokeObjectURL(url);
+      this.files.save(await firstValueFrom(this.api.export()), 'my-charges.csv');
     } catch (error) {
       this.error.set(ApiProblem.from(error).detail);
     }

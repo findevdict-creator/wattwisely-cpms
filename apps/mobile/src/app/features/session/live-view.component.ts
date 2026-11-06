@@ -1,7 +1,12 @@
 import { Component, computed, input, output } from '@angular/core';
 import { IonButton, IonSpinner } from '@ionic/angular';
-import { ChargeReading, DriverChargeDetail, DurationPipe, Money } from '@wattwisely/driver-core';
-import { PowerBars } from '../../core/charging/power-bars';
+import {
+  ChargeReading,
+  DriverChargeDetail,
+  DurationPipe,
+  Money,
+  PowerBars,
+} from '@wattwisely/driver-core';
 import { PowerChartComponent } from './power-chart.component';
 
 /**

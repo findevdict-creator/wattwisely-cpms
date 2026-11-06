@@ -1,0 +1,53 @@
+<section class="panel centre" data-testid="phase-charging">
+  <span class="ww-chip {{ chip().tone }}" data-testid="status">{{ chip().label }}</span>
+  @if (isFree()) {
+    <div class="figure" data-testid="amount">Free</div>
+    <span class="hint">{{ charge().payment_rule?.words }}</span>
+  } @else {
+    <div class="figure" data-testid="amount">{{ cost() }}</div>
+    <span class="hint">so far</span>
+  }
+  <dl class="facts">
+    <div>
+      <dt>Energy</dt>
+      <dd data-testid="energy">{{ energy() }} kWh</dd>
+    </div>
+    <div>
+      <dt>Power</dt>
+      <dd data-testid="power">{{ power() }}</dd>
+    </div>
+    <div>
+      <dt>Time</dt>
+      <dd>{{ charge().started_at | duration: null : now() }}</dd>
+    </div>
+    @if (hold(); as hold) {
+      <div>
+        <dt>Hold</dt>
+        <dd data-testid="hold">{{ hold }}</dd>
+      </div>
+    }
+    @if (battery() !== null) {
+      <div>
+        <dt>Battery</dt>
+        <dd data-testid="battery">{{ battery() }}%</dd>
+      </div>
+    }
+  </dl>
+  @if (charge().is_stop_requested || charge().status === 'stopping') {
+    <p class="notice neutral wide" data-testid="stop-requested">
+      Stopping… the receipt follows once the car is unplugged.
+    </p>
+  } @else if (charge().can_stop) {
+    <button
+      mat-stroked-button
+      class="ww-large ww-danger wide stop"
+      (click)="stop.emit()"
+      [disabled]="isBusy()"
+      data-testid="stop"
+    >
+      <mat-icon svgIcon="circle-stop" />
+      Stop charging
+    </button>
+    <span class="caption">You can also stop from the car, or unplug.</span>
+  }
+</section>
