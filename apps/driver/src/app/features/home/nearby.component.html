@@ -1,0 +1,60 @@
+<h2 class="list-title">Nearby</h2>
+@switch (store.state()) {
+  @case ('ready') {
+    @if (store.places().length) {
+      <div class="panel list" data-testid="nearby">
+        @for (place of store.places(); track place.site_id) {
+          <a
+            class="ww-list-item"
+            [routerLink]="plugRoute(place)"
+            [class.disabled]="!place.plug"
+            data-testid="nearby-place"
+          >
+            <span class="ww-avatar m">
+              <mat-icon [svgIcon]="place.is_private_site ? 'lock' : 'map-pin'" />
+            </span>
+            <span class="ww-two ww-grow">
+              <b>{{ place.site_name }}</b>
+              <span>{{ words.line(place) }}</span>
+            </span>
+            @if (place.is_private_site && place.is_member) {
+              <span class="ww-chip">Member</span>
+            } @else if (place.connector_count) {
+              <span class="free" [class.none]="!place.available_count">
+                {{ words.free(place) }} free
+              </span>
+            }
+          </a>
+        }
+      </div>
+    } @else {
+      <p class="panel hint" data-testid="nearby-none">No charging sites within 15 km.</p>
+    }
+  }
+  @case ('ask') {
+    <section class="panel" data-testid="nearby-ask">
+      <p class="hint">See the chargers around you, their prices and free plugs.</p>
+      <button mat-stroked-button class="ask" (click)="use()" data-testid="use-location">
+        <mat-icon svgIcon="map-pin" />
+        Use my location
+      </button>
+    </section>
+  }
+  @case ('denied') {
+    <p class="panel hint" data-testid="nearby-denied">
+      Location is blocked for this site. Allow it in your browser's settings to see chargers near
+      you.
+    </p>
+  }
+  @case ('unavailable') {
+    <p class="panel hint" data-testid="nearby-unavailable">
+      This browser cannot share your location, so chargers near you cannot be listed.
+    </p>
+  }
+  @case ('error') {
+    <p class="notice danger" role="alert" data-testid="nearby-error">{{ store.error() }}</p>
+  }
+  @default {
+    <div class="loading"><mat-spinner diameter="28" /></div>
+  }
+}

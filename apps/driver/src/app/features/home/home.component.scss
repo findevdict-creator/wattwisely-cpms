@@ -2,10 +2,50 @@
   gap: 12px;
   padding: 28px 20px;
 
-  h1 {
+  .title {
     margin: 0;
     font: 600 28px/36px var(--ww-font);
   }
+}
+
+// Logged in (module 37): the greeting, the charge under way and the operators.
+.greeting h1 {
+  font-size: 24px;
+  line-height: 30px;
+}
+
+.now {
+  border-color: var(--mat-sys-primary);
+
+  .ww-overline {
+    color: var(--mat-sys-primary);
+  }
+}
+
+.chevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--ww-text2);
+}
+
+.operators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.operator {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px 8px 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--ww-radius-md);
+  background: var(--mat-sys-surface);
+  color: inherit;
+  font-weight: 500;
+  text-decoration: none;
 }
 
 .scan {

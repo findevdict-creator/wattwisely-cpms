@@ -10,8 +10,14 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { UiProviders } from '@wattwisely/ui';
 import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { APP_ROUTES } from './app.routes';
-import { DriverApiInterceptor, DriverSession, RuntimeConfig } from '@wattwisely/driver-core';
+import {
+  DriverApiInterceptor,
+  DriverSession,
+  PositionSource,
+  RuntimeConfig,
+} from '@wattwisely/driver-core';
 import { DriverAuthService } from './core/auth/driver-auth.service';
+import { BrowserLocation } from './core/location/browser-location';
 
 /**
  * Everything the driver app provides at start-up. Charging needs no login: the charge key in
@@ -33,6 +39,8 @@ export class AppConfigFactory {
         },
         { provide: RuntimeConfig, useValue: runtimeConfig },
         { provide: DriverSession, useExisting: DriverAuthService },
+        // Where the browser is, for the Nearby list on Home (module 37).
+        { provide: PositionSource, useExisting: BrowserLocation },
         { provide: HTTP_INTERCEPTORS, useClass: DriverApiInterceptor, multi: true },
         // Finish a pending Keycloak login before the first page is shown.
         provideAppInitializer(() => inject(DriverAuthService).initialize()),

@@ -1,9 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { ChargeChips, DriverCharge, DriverChargesApiService } from '@wattwisely/driver-core';
 import { firstValueFrom } from 'rxjs';
+import { DriverChargesApiService } from '../api/driver-charges-api.service';
+import { DriverCharge } from '../api/models/driver-payments';
+import { ChargeChips } from '../format/charge-chips';
 
 /**
- * The driver's charge under way, if any, for Home's "Charging now" card (Figma 9, "Home").
+ * The driver's charge under way, if any, for Home's "Charging now" card (Figma 9, "Home"),
+ * in both driver apps (module 37).
  * A failure to load leaves the card out rather than a warning on Home.
  */
 @Injectable({ providedIn: 'root' })

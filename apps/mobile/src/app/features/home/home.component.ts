@@ -9,12 +9,16 @@ import {
   IonSpinner,
   RefresherCustomEvent,
 } from '@ionic/angular';
-import { DurationPipe, Money, NearbyPlace } from '@wattwisely/driver-core';
+import {
+  ChargingNowStore,
+  DurationPipe,
+  Greeting,
+  Money,
+  NearbyPlace,
+  NearbyStore,
+  NearbyWords,
+} from '@wattwisely/driver-core';
 import { AccountStore } from '../../core/account/account.store';
-import { ChargingNowStore } from '../../core/charging/charging-now.store';
-import { NearbyStore } from '../../core/nearby/nearby.store';
-import { NearbyWords } from '../../core/nearby/nearby-words';
-import { Greeting } from '../../shared/greeting';
 
 /**
  * Home (Figma 9, "Home"): the greeting, the way to scan a plug, the charge under way when

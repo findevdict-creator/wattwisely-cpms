@@ -1,7 +1,8 @@
 // What the driver web app and the mobile app share (module 30): the driver API, its models,
 // the run-time settings, the token interceptor, the charges this phone remembers, and the
 // helpers that turn a charge into words, money and steps. Module 36 adds the states, steps,
-// power bars and receipt file name of a charge started with the login, from the mobile app.
+// power bars and receipt file name of a charge started with the login, from the mobile app;
+// module 37 the greeting, the charge under way and the Nearby list, behind a PositionSource.
 export { ApiProblem } from './lib/api/api-problem';
 export { DriverApiService } from './lib/api/driver-api.service';
 export { DriverChargesApiService } from './lib/api/driver-charges-api.service';
@@ -52,6 +53,7 @@ export { DriverApiInterceptor } from './lib/auth/driver-api.interceptor';
 export { DriverSession } from './lib/auth/driver-session';
 export { SavedCardsStore } from './lib/cards/saved-cards.store';
 export { ChargeHistory, type ChargeMonth } from './lib/charges/charge-history';
+export { ChargingNowStore } from './lib/charges/charging-now.store';
 export { MyChargesStore } from './lib/charges/my-charges.store';
 export { RememberedCharges, type RememberedCharge } from './lib/charges/remembered-charge';
 export { CardFormFactory } from './lib/payment/card-form.factory';
@@ -69,7 +71,15 @@ export { ChargePhases, type ChargePhase } from './lib/format/charge-phase';
 export { ChargeSteps, type ChargeStep } from './lib/format/charge-steps';
 export { ChargeWords } from './lib/format/charge-words';
 export { DurationPipe } from './lib/format/duration.pipe';
+export { Greeting } from './lib/format/greeting';
 export { Initials } from './lib/format/initials';
+export { NearbyStore, type NearbyState } from './lib/nearby/nearby.store';
+export { NearbyWords } from './lib/nearby/nearby-words';
+export {
+  PositionSource,
+  type DevicePosition,
+  type LocationPermission,
+} from './lib/nearby/position-source';
 export { PaymentModeWords } from './lib/format/payment-mode-words';
 export { Money } from './lib/format/money';
 export { MoneyPipe } from './lib/format/money.pipe';

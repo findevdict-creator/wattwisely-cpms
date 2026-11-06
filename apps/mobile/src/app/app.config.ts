@@ -7,12 +7,18 @@ import {
 } from '@angular/core';
 import { RouteReuseStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
-import { DriverApiInterceptor, DriverSession, RuntimeConfig } from '@wattwisely/driver-core';
+import {
+  DriverApiInterceptor,
+  DriverSession,
+  PositionSource,
+  RuntimeConfig,
+} from '@wattwisely/driver-core';
 import { UiProviders } from '@wattwisely/ui';
 import { OAuthStorage, provideOAuthClient } from 'angular-oauth2-oidc';
 import { APP_ROUTES } from './app.routes';
 import { MobileAuthService } from './core/auth/mobile-auth.service';
 import { AppLinks } from './core/charging/app-links';
+import { NativeLocation } from './core/native/native-location';
 import { PushRegistrar } from './core/notifications/push-registrar';
 import { SecureTokenStore } from './core/auth/secure-token-store';
 import { SignOut } from './core/auth/sign-out';
@@ -39,6 +45,7 @@ export class AppConfigFactory {
         ...UiProviders.all(),
         { provide: RuntimeConfig, useValue: runtimeConfig },
         { provide: DriverSession, useExisting: MobileAuthService },
+        { provide: PositionSource, useExisting: NativeLocation },
         { provide: HTTP_INTERCEPTORS, useClass: DriverApiInterceptor, multi: true },
         // Load the stored sign-in, and refresh it, before the first page is chosen.
         provideAppInitializer(() => inject(MobileAuthService).initialize()),
