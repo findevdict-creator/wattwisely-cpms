@@ -1,10 +1,42 @@
+@if (isLoggedIn) {
+  <header class="where greeting">
+    <h1 data-testid="greeting">{{ greeting() }}</h1>
+    <p>Where are you charging today?</p>
+  </header>
+  @if (chargingNow.charge(); as charge) {
+    <a
+      class="panel row now"
+      [routerLink]="['/account/charges', charge.id]"
+      data-testid="charging-now"
+    >
+      <span class="ww-avatar m"><mat-icon svgIcon="zap" /></span>
+      <span class="ww-two ww-grow">
+        <span class="ww-overline">Charging now</span>
+        <b>{{ chargeLine() }}</b>
+        <span>
+          {{ charge.site_name }} · Plug {{ charge.connector_label }} ·
+          {{ charge.started_at | duration: null : now() }}
+        </span>
+      </span>
+      <mat-icon class="chevron" svgIcon="chevron-right" />
+    </a>
+  }
+}
 <section class="panel centre welcome">
   <span class="scan"><mat-icon svgIcon="scan-qr-code" /></span>
-  <h1>Scan to charge</h1>
-  <p class="lead">
-    Point your phone's camera at the QR code on the plug. You'll see the prices, pay by card and
-    watch the charge here. No account needed.
-  </p>
+  @if (isLoggedIn) {
+    <h2 class="title">Scan to charge</h2>
+    <p class="lead">
+      Point your phone's camera at the QR code on the plug. You'll see the prices and start with
+      your saved card.
+    </p>
+  } @else {
+    <h1 class="title">Scan to charge</h1>
+    <p class="lead">
+      Point your phone's camera at the QR code on the plug. You'll see the prices, pay by card and
+      watch the charge here. No account needed.
+    </p>
+  }
   <form class="manual" [formGroup]="form" (ngSubmit)="open()">
     <span class="ww-overline" data-testid="type-code">No camera? Type the code on the sticker</span>
     <div class="fields">
@@ -35,6 +67,28 @@
   </form>
 </section>
 
+@if (isLoggedIn) {
+  <ww-nearby />
+  <h2 class="list-title">Your operators</h2>
+  @if (account.operators().length) {
+    <div class="operators" data-testid="operators">
+      @for (operator of account.operators(); track operator.tenant_id) {
+        <a class="operator" [routerLink]="['/account/operators', operator.tenant_id]">
+          {{ operator.operator_name }}
+          @if (operator.status === 'blocked') {
+            <span class="ww-chip danger">Blocked</span>
+          } @else {
+            <span class="ww-chip">Member</span>
+          }
+        </a>
+      }
+    </div>
+  } @else {
+    <p class="panel hint" data-testid="no-operators">
+      None yet. An operator's invitation, or your first charge with one, adds it here.
+    </p>
+  }
+}
 @if (myCharges.charges().length > 0) {
   <h2 class="list-title">Your charges on this phone</h2>
   @for (charge of myCharges.charges(); track charge.key) {

@@ -1,4 +1,5 @@
-import { Money, NearbyPlace } from '@wattwisely/driver-core';
+import { NearbyPlace } from '../api/models/nearby-place';
+import { Money } from '../format/money';
 
 /** The Nearby list's words (Figma 9, Home): "Acme Charging · 0.4 km · from €0.30 per kWh". */
 export class NearbyWords {

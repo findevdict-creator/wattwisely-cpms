@@ -1,21 +1,24 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { ApiProblem, DriverChargesApiService, NearbyPlace } from '@wattwisely/driver-core';
 import { firstValueFrom } from 'rxjs';
-import { NativeLocation, PhonePosition } from '../native/native-location';
+import { ApiProblem } from '../api/api-problem';
+import { DriverChargesApiService } from '../api/driver-charges-api.service';
+import { NearbyPlace } from '../api/models/nearby-place';
+import { DevicePosition, PositionSource } from './position-source';
 
 /** What the Nearby section shows: the sites, a button to allow location, or why there are none. */
 export type NearbyState = 'loading' | 'ask' | 'ready' | 'denied' | 'unavailable' | 'error';
 
 /**
- * The Nearby list on Home (module 35). The phone is asked for its location only when the
- * driver taps "Use my location"; once allowed, each visit to Home looks again.
+ * The Nearby list on Home (module 35, shared with the driver web app in module 37). The
+ * device is asked for its location only when the driver taps "Use my location"; once
+ * allowed, each visit to Home looks again.
  */
 @Injectable({ providedIn: 'root' })
 export class NearbyStore {
-  static readonly NO_FIX = 'The phone could not tell where you are. Try again in a moment.';
+  static readonly NO_FIX = 'Your device could not tell where you are. Try again in a moment.';
 
   private readonly api = inject(DriverChargesApiService);
-  private readonly location = inject(NativeLocation);
+  private readonly location = inject(PositionSource);
 
   readonly places = signal<NearbyPlace[]>([]);
   readonly state = signal<NearbyState>('loading');
@@ -44,8 +47,8 @@ export class NearbyStore {
     this.state.set('loading');
   }
 
-  /** The phone's position, or null with the state that says why there is none. */
-  private async position(isAsking: boolean): Promise<PhonePosition | null> {
+  /** The device's position, or null with the state that says why there is none. */
+  private async position(isAsking: boolean): Promise<DevicePosition | null> {
     try {
       const position = await this.location.position(isAsking);
       if (!position) {

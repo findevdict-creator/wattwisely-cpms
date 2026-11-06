@@ -1,4 +1,4 @@
-/** "Good evening, Dana": the home page's first line, by the phone's hour and first name. */
+/** "Good evening, Dana": the home page's first line, by the device's hour and first name. */
 export class Greeting {
   static readonly MORNING_FROM = 5;
   static readonly AFTERNOON_FROM = 12;

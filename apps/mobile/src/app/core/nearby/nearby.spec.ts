@@ -1,10 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { DriverChargesApiService } from '@wattwisely/driver-core';
+import {
+  DriverChargesApiService,
+  LocationPermission,
+  NearbyStore,
+  NearbyWords,
+  PositionSource,
+} from '@wattwisely/driver-core';
 import { of } from 'rxjs';
-import { LocationPermission, NativeLocation } from '../native/native-location';
 import { NearbyFixtures } from './nearby.fixture';
-import { NearbyWords } from './nearby-words';
-import { NearbyStore } from './nearby.store';
 
 describe('Nearby', () => {
   it('writes the operator, the distance and the price, or that members only charge', () => {
@@ -21,7 +24,7 @@ describe('Nearby', () => {
       providers: [
         { provide: DriverChargesApiService, useValue: { nearby } },
         {
-          provide: NativeLocation,
+          provide: PositionSource,
           useValue: { permission: jest.fn(async () => permission), position },
         },
       ],

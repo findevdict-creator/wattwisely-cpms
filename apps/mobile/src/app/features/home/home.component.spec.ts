@@ -2,12 +2,11 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { ChargingNowStore, NearbyStore } from '@wattwisely/driver-core';
 import { IconRegistrar } from '@wattwisely/ui';
 import { AccountStore } from '../../core/account/account.store';
 import { ChargingFixtures } from '../../core/charging/charging.fixture';
-import { ChargingNowStore } from '../../core/charging/charging-now.store';
 import { NearbyFixtures } from '../../core/nearby/nearby.fixture';
-import { NearbyStore } from '../../core/nearby/nearby.store';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {

@@ -1,9 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { ChargingNowStore, NearbyStore } from '@wattwisely/driver-core';
 import { AccountStore } from '../account/account.store';
-import { ChargingNowStore } from '../charging/charging-now.store';
 import { HistoryStore } from '../history/history.store';
-import { NearbyStore } from '../nearby/nearby.store';
 import { PushRegistrar } from '../notifications/push-registrar';
 import { MobileAuthService } from './mobile-auth.service';
 
