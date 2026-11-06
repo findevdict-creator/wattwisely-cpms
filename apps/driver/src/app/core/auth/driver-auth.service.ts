@@ -55,6 +55,20 @@ export class DriverAuthService implements DriverSession {
     this.oauthService.logOut();
   }
 
+  /** Keycloak's own account page, where the e-mail and the password are changed (module 38). */
+  accountUrl(): string {
+    return `${this.runtimeConfig.issuerUrl}/account`;
+  }
+
+  /**
+   * After the API erased the account (module 38): forgets the tokens here, then opens
+   * Keycloak's "Delete account" page, where the driver deletes the login themselves.
+   */
+  deleteLogin(): void {
+    this.oauthService.logOut(true);
+    this.oauthService.initCodeFlow('', { kc_action: 'delete_account' });
+  }
+
   accessToken(): string {
     return this.oauthService.getAccessToken();
   }

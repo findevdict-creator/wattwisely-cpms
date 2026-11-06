@@ -1,0 +1,87 @@
+<a class="back" routerLink="/account">
+  <mat-icon svgIcon="arrow-left" />
+  Your account
+</a>
+<header class="where"><h1>Privacy and data</h1></header>
+
+<h2 class="list-title">Operators with your data</h2>
+@if (store.operators().length) {
+  <section class="panel list" data-testid="operators">
+    @for (operator of store.operators(); track operator.tenant_id) {
+      <div class="ww-list-item">
+        <span class="ww-avatar m"><mat-icon svgIcon="building-2" /></span>
+        <span class="ww-two ww-grow">
+          <b>{{ operator.operator_name }}</b>
+          <span>
+            Knows you as {{ operator.driver_name }}
+            @if (operator.linked_at) {
+              · since {{ operator.linked_at | date: 'd MMM y' }}
+            }
+          </span>
+        </span>
+        <a class="text-link" [routerLink]="['/account/operators', operator.tenant_id]">Manage</a>
+      </div>
+    }
+  </section>
+} @else {
+  <p class="panel hint">No operator holds a record linked to your login.</p>
+}
+
+<section class="panel" aria-labelledby="data-title">
+  <h2 id="data-title">Your data</h2>
+  <p class="hint">
+    Download what Wattwisely holds about you: your account, the operators' records linked to it,
+    your saved cards and your charges, as one JSON file.
+  </p>
+  <button
+    mat-stroked-button
+    class="start"
+    (click)="data.download()"
+    [disabled]="data.isBusy()"
+    data-testid="download-data"
+  >
+    <mat-icon svgIcon="download" />
+    Download my data
+  </button>
+</section>
+
+<section class="panel" aria-labelledby="delete-title">
+  <h2 id="delete-title">Delete account</h2>
+  <p class="hint">
+    Removes your login, your saved cards and the guest profiles your charges made. Operators you are
+    a member of keep their record of you, without your login. Receipts are kept by the operators for
+    tax.
+  </p>
+  @if (isDeleteAsked()) {
+    <p><b>Delete your account?</b> This cannot be undone.</p>
+    <div class="actions">
+      <button
+        mat-flat-button
+        class="danger"
+        (click)="data.delete()"
+        [disabled]="data.isBusy()"
+        data-testid="confirm-delete"
+      >
+        @if (data.isBusy()) {
+          <mat-spinner diameter="20" />
+        }
+        Delete my account
+      </button>
+      <button mat-button (click)="isDeleteAsked.set(false)">Keep it</button>
+    </div>
+  } @else {
+    <button
+      mat-stroked-button
+      class="ww-danger start"
+      (click)="isDeleteAsked.set(true)"
+      data-testid="delete-account"
+    >
+      <mat-icon svgIcon="trash-2" />
+      Delete my account
+    </button>
+  }
+</section>
+
+@if (data.error() || store.error()) {
+  <p class="notice danger" role="alert" data-testid="error">{{ data.error() || store.error() }}</p>
+}

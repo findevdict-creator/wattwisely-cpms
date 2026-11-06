@@ -1,5 +1,10 @@
-import { ChargeHistory, ChargeMonth, DriverCharge } from '@wattwisely/driver-core';
-import { MonthTotal, MonthTotals } from './month-totals';
+import {
+  ChargeHistory,
+  ChargeMonth,
+  DriverCharge,
+  MonthTotal,
+  MonthTotals,
+} from '@wattwisely/driver-core';
 import { SessionWords } from './session-words';
 
 /** One line of "My sessions": where and when, what was charged, and what it cost. */

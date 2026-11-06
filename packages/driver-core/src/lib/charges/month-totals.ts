@@ -1,4 +1,5 @@
-import { ChargeMonth, Money } from '@wattwisely/driver-core';
+import { Money } from '../format/money';
+import { ChargeMonth } from './charge-history';
 
 /** A month's card at the top of "My sessions" (Figma 11): "46.30" and "98 kWh · 4 charges". */
 export interface MonthTotal {
@@ -7,7 +8,10 @@ export interface MonthTotal {
   line: string;
 }
 
-/** Adds up a month of charges; amounts in more than one currency are listed side by side. */
+/**
+ * Adds up a month of charges; amounts in more than one currency are listed side by side.
+ * Shared by both driver apps since module 38.
+ */
 export class MonthTotals {
   static of(month: ChargeMonth): MonthTotal {
     const sums = new Map<string, number>();

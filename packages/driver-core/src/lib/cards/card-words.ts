@@ -1,13 +1,13 @@
-import { PaymentMethod } from '@wattwisely/driver-core';
-import { PlugWords } from '../charging/plug-words';
+import { PaymentMethod } from '../api/models/driver-payments';
 
 /**
  * A saved card in the words of the design's "Payment methods" (Figma 11): "Visa •••• 4242",
- * "Expires 04/28", "Expired 09/26". A card works to the last day of its expiry month.
+ * "Expires 04/28", "Expired 09/26". A card works to the last day of its expiry month. Shared
+ * by both driver apps since module 38.
  */
 export class CardWords {
   static name(card: PaymentMethod): string {
-    return PlugWords.card(card.brand, card.last4);
+    return `${card.brand.charAt(0).toUpperCase()}${card.brand.slice(1)} •••• ${card.last4}`;
   }
 
   static expiry(card: PaymentMethod, now = new Date()): string {

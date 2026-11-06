@@ -43,3 +43,17 @@
 .notice {
   margin: 0;
 }
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.total {
+  gap: 2px;
+
+  b {
+    font: 700 22px/28px var(--ww-font);
+  }
+}

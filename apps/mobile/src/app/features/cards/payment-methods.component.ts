@@ -2,8 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonSpinner } from '@ionic/angular';
-import { PaymentMethod, SavedCardsStore } from '@wattwisely/driver-core';
-import { CardWords } from '../../core/account/card-words';
+import { CardWords, PaymentMethod, SavedCardsStore } from '@wattwisely/driver-core';
 import { Confirmation } from '../../shared/confirmation';
 import { PageBarComponent } from '../../shared/page-bar.component';
 

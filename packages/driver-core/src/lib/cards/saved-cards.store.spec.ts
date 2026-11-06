@@ -61,6 +61,29 @@ describe('SavedCardsStore', () => {
     expect(store.cards()).toEqual([visa]);
   });
 
+  it('makes the new card the default when the driver asked for it', async () => {
+    const begun = store.begin();
+    http
+      .expectOne('https://api.test/v1/driver/payment-methods/setup')
+      .flush({ setup_id: 'seti_2', client_secret: 'seti_2_secret', publishable_key: 'pk' });
+    await begun;
+
+    const mastercard = { ...visa, id: 'card-2', brand: 'mastercard', is_default: false };
+    const finished = store.finish(true);
+    http.expectOne('https://api.test/v1/driver/payment-methods').flush(mastercard);
+    await Promise.resolve();
+    const patch = http.expectOne('https://api.test/v1/driver/payment-methods/card-2');
+    expect(patch.request.body).toEqual({ is_default: true });
+    patch.flush({ ...mastercard, is_default: true });
+    await flushList([
+      { ...visa, is_default: false },
+      { ...mastercard, is_default: true },
+    ]);
+    await finished;
+
+    expect(store.cards().find((card) => card.is_default)?.id).toBe('card-2');
+  });
+
   it('shows the API’s sentence when the provider is down', async () => {
     const begun = store.begin();
     http

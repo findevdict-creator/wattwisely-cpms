@@ -15,13 +15,15 @@
             <span class="ww-two ww-grow">
               <b>{{ card.brand | titlecase }} ending {{ card.last4 }}</b>
               <span>
-                Expires {{ expiry(card.exp_month, card.exp_year) }}
+                {{ expiry(card) }}
                 @if (card.is_default) {
                   · Default
                 }
               </span>
             </span>
-            @if (!card.is_default) {
+            @if (isExpired(card)) {
+              <span class="ww-chip danger" data-testid="expired">Expired</span>
+            } @else if (!card.is_default) {
               <button
                 mat-button
                 class="ww-small"
@@ -48,7 +50,20 @@
       <p data-testid="no-cards">No card saved yet.</p>
     }
     @if (store.setup(); as setup) {
-      <ww-card-saver [setup]="setup" (saved)="store.finish()" (cancelled)="store.cancel()" />
+      @if (store.cards().length > 0) {
+        <mat-checkbox
+          [checked]="isDefault()"
+          (change)="isDefault.set($event.checked)"
+          data-testid="use-as-default"
+        >
+          Use as my default card
+        </mat-checkbox>
+      }
+      <ww-card-saver
+        [setup]="setup"
+        (saved)="store.finish(isDefault())"
+        (cancelled)="store.cancel()"
+      />
     } @else {
       <button
         mat-stroked-button

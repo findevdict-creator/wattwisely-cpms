@@ -1,0 +1,33 @@
+.list-title {
+  margin: 4px 0 -8px;
+  font: 600 17px/24px var(--ww-font);
+}
+
+.list {
+  gap: 0;
+  padding: 4px 16px;
+}
+
+.ww-avatar .mat-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.start {
+  align-self: flex-start;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.notice {
+  margin: 0;
+}
+
+.danger {
+  --mat-button-filled-container-color: var(--mat-sys-error);
+  --mat-button-filled-label-text-color: var(--mat-sys-on-error);
+}
