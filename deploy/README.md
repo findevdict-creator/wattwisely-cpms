@@ -44,7 +44,16 @@ nano .env          # fill in SMTP_*, pick WATTWISELY_VERSION
 
 `install.sh` creates `.env` with strong random passwords. On the first start `up.sh` also initialises OpenBao and saves its unseal key to `.secrets/openbao-init.txt`. **Copy that file and `.env` to a password manager**: without them a backup cannot be restored.
 
-Then create the first platform admin in Keycloak (`https://auth.<domain>/admin`, reachable only from the server's private network, for example through `ssh -L 8443:localhost:443`).
+Then create the first platform admin in Keycloak at `https://auth.<domain>/admin`. Caddy answers "Not found" there unless the request comes from an address in `KEYCLOAK_ADMIN_ALLOWED_IPS` (default `private_ranges`: only the server itself or a VPN). Two ways in:
+
+- **Allow your own address for a while.** Add it to `.env`, then recreate Caddy so it picks the value up. Take it out again the same way when you are done.
+
+  ```sh
+  # in .env: KEYCLOAK_ADMIN_ALLOWED_IPS=private_ranges 203.0.113.7/32
+  docker compose --env-file .env up -d caddy
+  ```
+
+- **SSH tunnel, nothing opened to the internet.** Keycloak only works under its real name, so the tunnel has to end on port 443 of your own computer and the name has to point there. On your computer, add `127.0.0.1 auth.<domain>` to `/etc/hosts`, run `sudo ssh -L 443:127.0.0.1:443 <user>@<server>` (port 443 needs `sudo`), open `https://auth.<domain>/admin`, and remove the hosts line afterwards. `ssh -L 8443:...` does not work: Keycloak redirects back to the address without the port.
 
 ## Scripts
 
