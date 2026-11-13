@@ -17,6 +17,9 @@ WORKDIR /app
 RUN npm install --global npm@11
 COPY --from=build /workspace/dist/apps/api ./
 RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
+# Stop here if the bundle needs a package that package.json does not list.
+COPY --from=build /workspace/tools/docker/check-bundle-requires.cjs /tmp/
+RUN node /tmp/check-bundle-requires.cjs main.js migrate.js && rm /tmp/check-bundle-requires.cjs
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=3s --retries=5 \
