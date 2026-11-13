@@ -89,7 +89,7 @@ fi
 echo "  Drivers:         $scheme://$(env_value DRIVER_HOST)  (QR codes on the chargers open this)"
 echo "  Admin console:   $scheme://$(env_value ADMIN_HOST)  (Wattwisely staff; ./scripts/add-platform-admin.sh <email> adds the first)"
 echo "  Chargers:        $(env_value OCPP_URL)/<charger id>"
-echo "  Keycloak admin:  $scheme://$(env_value AUTH_HOST)/admin  (user $(env_value KEYCLOAK_ADMIN_USER))"
+echo "  Keycloak admin:  $scheme://$(env_value AUTH_HOST)/admin  (user $(env_value KEYCLOAK_ADMIN_USER); only from KEYCLOAK_ADMIN_ALLOWED_IPS, see deploy/README.md)"
 if is_profile_on monitoring; then
   echo "  Monitoring:      http://localhost:3300 on this server (user admin; ssh -L 3300:localhost:3300 from your laptop)"
 else
